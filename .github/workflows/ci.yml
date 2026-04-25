@@ -1,0 +1,90 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  syntax:
+    name: PHP syntax check (php -l)
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        php-version: ['8.2', '8.3']
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup PHP ${{ matrix.php-version }}
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php-version }}
+          coverage: none
+          tools: none
+
+      - name: Lint changed/all PHP files (excluding vendor and bundled libraries)
+        run: |
+          set -euo pipefail
+          # Exclude vendor/, node_modules/, and the bundled TCPDF tree (tested upstream).
+          mapfile -t files < <(find . \
+            -path './vendor' -prune -o \
+            -path './node_modules' -prune -o \
+            -path './extention/TCPDF' -prune -o \
+            -name '*.php' -print)
+          if [ "${#files[@]}" -eq 0 ]; then
+            echo "No PHP files to lint."
+            exit 0
+          fi
+          echo "Linting ${#files[@]} PHP files…"
+          fail=0
+          for f in "${files[@]}"; do
+            if ! php -l "$f" >/dev/null 2>&1; then
+              echo "::error file=$f::PHP syntax error"
+              php -l "$f" || true
+              fail=1
+            fi
+          done
+          exit "$fail"
+
+  json-validate:
+    name: Validate JSON config files
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Validate JSON
+        run: |
+          set -euo pipefail
+          for f in config.json request.json flow.json; do
+            if [ -f "$f" ]; then
+              echo "Validating $f"
+              python3 -c "import json,sys; json.load(open('$f'))"
+            fi
+          done
+
+  markdown-links:
+    name: Markdown link check (informational)
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Check links in top-level markdown
+        uses: gaurav-nelson/github-action-markdown-link-check@v1
+        with:
+          use-quiet-mode: 'yes'
+          use-verbose-mode: 'yes'
+          config-file: '.github/markdown-link-check.json'
+          file-path: 'README.md, CONTRIBUTING.md, CODE_OF_CONDUCT.md, SECURITY.md, CHANGELOG.md'

@@ -1,0 +1,131 @@
+name: 🐛 Bug Report / バグ報告
+description: Report a reproducible defect. / 再現可能な不具合を報告します。
+title: "[bug]: "
+labels: ["bug", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to file a bug report! / バグ報告ありがとうございます。
+        Please fill in the sections below in English or Japanese. 英語・日本語どちらでも構いません。
+
+        ⚠️ **For security vulnerabilities, do NOT use this form.** See [SECURITY.md](../SECURITY.md).
+        ⚠️ **脆弱性の報告にはこのフォームを使用しないでください**。[SECURITY.md](../SECURITY.md) を参照。
+
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary / 概要
+      description: A clear and concise description of the bug. / 不具合の簡潔な説明。
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce / 再現手順
+      description: Numbered steps a maintainer can follow to reproduce the bug. / 番号付きで再現手順を記載してください。
+      placeholder: |
+        1. Open '/items/list'
+        2. Click on '...'
+        3. See error
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior / 期待される動作
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior / 実際の動作
+      description: Include error messages, stack traces, screenshots if relevant. / エラーメッセージ・スタックトレース・スクショ等を添付してください。
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: SASO version / バージョン
+      placeholder: "2.4.0 / commit hash / branch"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: php-version
+    attributes:
+      label: PHP version
+      options:
+        - "8.2"
+        - "8.3"
+        - "8.4"
+        - "Other (please specify in additional context)"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: database
+    attributes:
+      label: Database / データベース
+      options:
+        - "MariaDB 10.6"
+        - "MariaDB 10.11"
+        - "MariaDB 11.x"
+        - "MySQL 8.0"
+        - "MySQL 8.1+"
+        - "Other (please specify in additional context)"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: webserver
+    attributes:
+      label: Web server / Web サーバ
+      options:
+        - "Apache 2.4 (mod_php)"
+        - "Apache 2.4 (php-fpm)"
+        - "Nginx + php-fpm"
+        - "LiteSpeed"
+        - "Built-in PHP server (development)"
+        - "Other (please specify in additional context)"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: environment
+    attributes:
+      label: Environment / 環境
+      options:
+        - "Docker (Colima / Desktop)"
+        - "Shared hosting / レンタルサーバー"
+        - "VPS / dedicated server"
+        - "Local development"
+        - "Other (please specify in additional context)"
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs / ログ
+      description: Relevant excerpts from the application log, web server log, or browser console. Redact secrets. / アプリログ・サーバログ・ブラウザコンソールの抜粋（秘匿情報は除去）。
+      render: shell
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Additional context / 補足
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Checks
+      options:
+        - label: I have searched existing issues for duplicates. / 既存 Issue の重複が無いことを確認しました。
+          required: true
+        - label: This is **not** a security vulnerability. / セキュリティ脆弱性ではありません。
+          required: true

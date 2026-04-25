@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 💬 Discussions / ディスカッション
+    url: https://github.com/Willen-Federation/SASO-Willen-Edition/discussions
+    about: Ask questions, share ideas, or get help. / 質問・アイデア共有・サポートはこちら。
+  - name: 🔒 Report a security vulnerability / 脆弱性報告
+    url: https://github.com/Willen-Federation/SASO-Willen-Edition/security/advisories/new
+    about: Please use private disclosure. Do NOT open a public issue. / 公開 Issue ではなく非公開で報告してください。

@@ -1,0 +1,51 @@
+name: 🌐 Translation / 翻訳
+description: Add or improve a translation for the UI or documentation. / UI・ドキュメントの翻訳追加・改善。
+title: "[i18n]: "
+labels: ["i18n", "good first issue"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Help us make SASO usable worldwide! / SASO を世界中で使えるように。
+        Translation infrastructure ships in milestone M3 — please file an issue first so we can coordinate.
+        翻訳基盤は M3 で導入予定です。事前に Issue で調整しましょう。
+
+  - type: input
+    id: language
+    attributes:
+      label: Language / 言語
+      description: ISO 639-1 code + region if applicable (e.g. "en", "ja", "zh-CN", "es-MX")
+      placeholder: "en"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: scope
+    attributes:
+      label: Scope / 対象
+      multiple: true
+      options:
+        - "UI strings (translations/<lang>.yaml)"
+        - "Documentation (docs/<lang>/...)"
+        - "Error messages (error catalogue)"
+        - "Email notifications (planned)"
+        - "PDF labels (planned)"
+        - "Other"
+    validations:
+      required: true
+
+  - type: textarea
+    id: details
+    attributes:
+      label: Details / 詳細
+      description: Are you adding a new language or improving an existing translation? Any specific terms / glossary preferences? / 新規言語追加か既存改善か。専門用語の表記方針があれば共有してください。
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Checks
+      options:
+        - label: I have read the [translation guide in CONTRIBUTING.md](../CONTRIBUTING.md#translation-contributions-i18n). / CONTRIBUTING.md の翻訳ガイドを読みました。
+          required: true

@@ -1,0 +1,129 @@
+# =============================================================================
+# SASO — Willen Edition .htaccess scaffold
+# -----------------------------------------------------------------------------
+# Edit RewriteBase below to match the directory where SASO is installed.
+#   - If installed at the document root:        RewriteBase /
+#   - If installed at a subdirectory /saso/:    RewriteBase /saso/
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# 1) Security: deny direct access to sensitive files
+# -----------------------------------------------------------------------------
+<FilesMatch "^(\.env|\.env\..*|composer\.(json|lock)|package(-lock)?\.json|config\.json|config_.*\.json|flow\.json|request\.json|CHANGELOG\.md|CONTRIBUTING\.md|README\.md|ORIGINAL_README\.md|SECURITY\.md|CODE_OF_CONDUCT\.md|LICENSE|Makefile|phpunit\.xml(\.dist)?|phpstan\.neon(\.dist)?|\.php-cs-fixer\.(dist\.)?php)$">
+    <IfModule mod_authz_core.c>
+        Require all denied
+    </IfModule>
+    <IfModule !mod_authz_core.c>
+        Order allow,deny
+        Deny from all
+    </IfModule>
+</FilesMatch>
+
+# Deny access to dotfiles and dot-directories (.git, .github, .vscode, .idea, etc.)
+<FilesMatch "^\.">
+    <IfModule mod_authz_core.c>
+        Require all denied
+    </IfModule>
+    <IfModule !mod_authz_core.c>
+        Order allow,deny
+        Deny from all
+    </IfModule>
+</FilesMatch>
+
+RedirectMatch 404 (?i)/\.git(/|$)
+RedirectMatch 404 (?i)/\.github(/|$)
+RedirectMatch 404 (?i)/vendor(/|$)
+RedirectMatch 404 (?i)/tests(/|$)
+RedirectMatch 404 (?i)/migrations(/|$)
+RedirectMatch 404 (?i)/docker(/|$)
+RedirectMatch 404 (?i)/docs(/|$)
+
+# -----------------------------------------------------------------------------
+# 2) Disable directory listing
+# -----------------------------------------------------------------------------
+<IfModule mod_autoindex.c>
+    Options -Indexes
+</IfModule>
+
+# -----------------------------------------------------------------------------
+# 3) Default character encoding
+# -----------------------------------------------------------------------------
+AddDefaultCharset UTF-8
+
+# -----------------------------------------------------------------------------
+# 4) Security headers (sensible defaults; tune per deployment)
+# -----------------------------------------------------------------------------
+<IfModule mod_headers.c>
+    Header set X-Content-Type-Options "nosniff"
+    Header set X-Frame-Options "SAMEORIGIN"
+    Header set Referrer-Policy "strict-origin-when-cross-origin"
+    Header set Permissions-Policy "geolocation=(), microphone=(), camera=()"
+
+    # Enable HSTS only after HTTPS is fully verified (uncomment when ready):
+    # Header always set Strict-Transport-Security "max-age=63072000; includeSubDomains; preload"
+
+    # Strip server fingerprint
+    Header unset X-Powered-By
+    Header unset Server
+</IfModule>
+
+# -----------------------------------------------------------------------------
+# 5) URL rewriting — route everything to index.php
+# -----------------------------------------------------------------------------
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # *** EDIT THIS *** — see comment at top of file
+    RewriteBase /
+
+    # Force HTTPS (uncomment after TLS is provisioned):
+    # RewriteCond %{HTTPS} off
+    # RewriteCond %{HTTP:X-Forwarded-Proto} !https
+    # RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [R=301,L]
+
+    # Skip rewriting for real files and directories
+    RewriteCond %{REQUEST_FILENAME} -f [OR]
+    RewriteCond %{REQUEST_FILENAME} -d
+    RewriteRule ^ - [L]
+
+    # Everything else goes through the front controller
+    RewriteRule ^ index.php [L]
+</IfModule>
+
+# -----------------------------------------------------------------------------
+# 6) Caching for static assets (tuned for application updates)
+# -----------------------------------------------------------------------------
+<IfModule mod_expires.c>
+    ExpiresActive On
+
+    # Default: do not cache HTML
+    ExpiresDefault                              "access plus 0 seconds"
+
+    # Static assets — short cache; bust via versioned query strings if needed
+    ExpiresByType text/css                      "access plus 1 day"
+    ExpiresByType application/javascript        "access plus 1 day"
+    ExpiresByType image/png                     "access plus 7 days"
+    ExpiresByType image/jpeg                    "access plus 7 days"
+    ExpiresByType image/gif                     "access plus 7 days"
+    ExpiresByType image/webp                    "access plus 7 days"
+    ExpiresByType image/x-icon                  "access plus 30 days"
+    ExpiresByType font/woff2                    "access plus 30 days"
+</IfModule>
+
+# -----------------------------------------------------------------------------
+# 7) Compression
+# -----------------------------------------------------------------------------
+<IfModule mod_deflate.c>
+    AddOutputFilterByType DEFLATE text/html text/plain text/xml text/css text/javascript
+    AddOutputFilterByType DEFLATE application/javascript application/json application/xml application/xhtml+xml
+    AddOutputFilterByType DEFLATE image/svg+xml font/ttf font/otf
+</IfModule>
+
+# -----------------------------------------------------------------------------
+# 8) Upload size limits — adjust per hosting provider's allowed maxima
+# -----------------------------------------------------------------------------
+<IfModule mod_php.c>
+    php_value upload_max_filesize 10M
+    php_value post_max_size       12M
+    php_value memory_limit        256M
+</IfModule>

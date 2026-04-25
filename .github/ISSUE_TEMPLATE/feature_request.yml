@@ -1,0 +1,63 @@
+name: 💡 Feature Request / 機能要望
+description: Suggest an enhancement or new feature. / 機能改善・新機能の提案。
+title: "[feat]: "
+labels: ["enhancement", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for proposing an idea! / 機能提案ありがとうございます。
+        English or Japanese welcome. 英語・日本語どちらでも構いません。
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem statement / 解決したい課題
+      description: What problem does this feature solve? Who benefits? / 何の課題を解決するか、誰が恩恵を受けるか。
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution / 提案
+      description: Describe how the feature should work. Mockups, API examples, or YAML are welcome. / 機能の動作を説明してください。モックアップ・API 例・YAML 例も歓迎。
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered / 検討した代替案
+      description: What other approaches did you consider? Why did you reject them? / 検討した他の案と却下した理由。
+
+  - type: dropdown
+    id: milestone
+    attributes:
+      label: Suggested milestone / 想定マイルストーン
+      description: See README roadmap. / README のロードマップを参照。
+      options:
+        - "M1 — Security Hotfix"
+        - "M2 — Tooling & Composer"
+        - "M3 — REST + i18n + Errors"
+        - "M4 — DDD + Feature Flag + Web Settings"
+        - "M5 — Hardening & Release"
+        - "Future / 将来"
+        - "Unsure / 未定"
+    validations:
+      required: true
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Additional context / 補足
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Checks
+      options:
+        - label: I have searched existing issues and discussions. / 既存 Issue・Discussion の重複が無いことを確認しました。
+          required: true
+        - label: I am willing to help implement this (optional). / 実装協力の意思があります（任意）。
+          required: false

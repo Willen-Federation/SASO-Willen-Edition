@@ -1,0 +1,21 @@
+{
+  "ignorePatterns": [
+    {
+      "pattern": "^https://github\\.com/Willen-Federation/SASO-Willen-Edition/security/advisories"
+    },
+    {
+      "pattern": "^https://github\\.com/Willen-Federation/SASO-Willen-Edition/projects"
+    },
+    {
+      "pattern": "^https://github\\.com/Willen-Federation/SASO-Willen-Edition/releases"
+    },
+    {
+      "pattern": "@willen-federation\\.example"
+    }
+  ],
+  "timeout": "10s",
+  "retryOn429": true,
+  "retryCount": 2,
+  "fallbackRetryDelay": "30s",
+  "aliveStatusCodes": [200, 206, 301, 302, 308, 999]
+}

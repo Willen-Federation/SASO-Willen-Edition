@@ -61,10 +61,16 @@ Out of scope:
 
 Operators should:
 
-- Provision TLS 1.2+ at the web-server level. Set `https: true` in `config.json`
-  to activate the in-app HTTPS redirect, HSTS header, and `Secure` session
-  cookie flag (added in M1).
-- Restrict file permissions: `config.json` should be `0640` (owner: web user, group: deployer).
+- **Move database credentials out of `config.json`**: copy `.env.example` to
+  `.env` and set `DB_DSN`, `DB_USER`, `DB_PASSWORD` there. `.env` is
+  git-ignored and overrides the matching `database.*` entries in `config.json`.
+  This way a backup or accidental publication of `config.json` does not leak
+  credentials.
+- Provision TLS 1.2+ at the web-server level. Set `APP_HTTPS=true` in `.env`
+  (or `https: true` in `config.json`) to activate the in-app HTTPS redirect,
+  HSTS header, and `Secure` session cookie flag.
+- Restrict file permissions: `.env` and `config.json` should be `0640`
+  (owner: web user, group: deployer). `.env` should never be web-readable.
 - Run behind a reverse proxy or WAF where possible. The HTTPS check honors
   `X-Forwarded-Proto`.
 - Subscribe to this repository's [security advisories](https://github.com/Willen-Federation/SASO-Willen-Edition/security/advisories) for notifications.

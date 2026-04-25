@@ -55,8 +55,12 @@ cd SASO-Willen-Edition
 # 2) Create the database (MariaDB / MySQL)
 mysql -u root -p -e "CREATE DATABASE saso CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
 
-# 3) Edit config.json (DSN, user, password)
-$EDITOR config.json
+# 3) Configure DB credentials — preferred: .env (kept out of git)
+cp .env.example .env
+$EDITOR .env             # set DB_DSN / DB_USER / DB_PASSWORD / APP_HTTPS
+
+# 3b) (optional) Tune non-secret settings in config.json
+$EDITOR config.json      # paths, sheet count, log path, etc.
 
 # 4) Edit .htaccess — set RewriteBase to your install directory
 $EDITOR .htaccess
@@ -89,13 +93,15 @@ docker compose --profile sso up -d   # adds Keycloak
 
 ## Configuration
 
-Configuration is layered:
+Configuration is layered. Lower layers act as defaults; higher layers override.
 
-1. **`.env`** — secrets only (DB password, OIDC client secrets, encryption keys). Not committed.
-2. **`config.json`** — bootstrap configuration written by the installer.
-3. **`system_setting` table (UI-editable)** — runtime configuration overridable from the admin panel (planned for M4).
+| Layer | What goes here | Status |
+|---|---|---|
+| **`.env`** | Secrets (`DB_PASSWORD`, future `OIDC_CLIENT_SECRET`, `APP_KEY`, …) and per-environment toggles (`APP_HTTPS`). Git-ignored. | shipped (M1) |
+| **`config.json`** | Non-secret operational defaults: paths, log location, sheet count. Written by the installer; commitable as a template. | shipped |
+| **`system_setting` table** | Runtime configuration editable from the admin Web UI. Sensitive values encrypted at rest with AES-256-GCM. | planned (M4) |
 
-Sensitive values are encrypted at rest with AES-256-GCM (planned for M4).
+Resolution order for an overlay-able key (highest first): `.env` → real OS environment variable → `config.json`. The overlay-able keys are `DB_DSN`, `DB_USER`, `DB_PASSWORD`, and `APP_HTTPS`; everything else is read from `config.json` only.
 
 ## Roadmap
 

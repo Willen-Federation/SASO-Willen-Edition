@@ -17,6 +17,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `repository/member/FindOneByAuth` now looks up by id only and returns the
   stored hash; password equivalence is checked in PHP via `password_verify()`,
   so the digest no longer flows through SQL parameters.
+- **CSRF tokens are now session-bound random 32-byte values** generated via
+  `random_bytes()` and stored in `$_SESSION`. `CSRFtoken::verify()` uses
+  constant-time `hash_equals` comparison. Replaces the previous deterministic
+  `sha256(globalSalt + sessionId)` scheme which yielded the same token for an
+  entire session and depended only on a single repository-wide salt.
+- The CSRF token is rotated on login (`LoginView::display()`), and
+  `session_regenerate_id(true)` now drops the prior session file so a stolen
+  pre-login id cannot be reused.
+- **HTTPS enforcement** in `index.php`: when `config.https` is `true` the
+  application 301-redirects HTTP to HTTPS (honoring `X-Forwarded-Proto` for
+  reverse-proxy deployments) and emits the
+  `Strict-Transport-Security: max-age=31536000; includeSubDomains` header.
+- **Session cookie hardening** via `session_set_cookie_params()` before
+  `session_start()`: `HttpOnly` (always), `SameSite=Lax` (always), and
+  `Secure` (when `config.https` is `true`).
 
 ### Added
 - English-first bilingual `README.md` with quick-start, requirements, and roadmap.

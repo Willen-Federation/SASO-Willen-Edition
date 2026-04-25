@@ -16,7 +16,7 @@ final class JSDIContainer implements DIContainer
     {
         $this->view = new JSView(
             $query['action'],
-            CSRFtoken::salting($config['csrftokensalt'])
+            CSRFtoken::current()
         );
     }
     public function flow(): View

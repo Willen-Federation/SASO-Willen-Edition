@@ -32,6 +32,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Session cookie hardening** via `session_set_cookie_params()` before
   `session_start()`: `HttpOnly` (always), `SameSite=Lax` (always), and
   `Secure` (when `config.https` is `true`).
+- **Secrets out of `config.json`**: `ConfigLoader` now overlays a sibling
+  `.env` file on top of `config.json` for `DB_DSN` / `DB_USER` /
+  `DB_PASSWORD` / `APP_HTTPS` (resolution: `.env` → real env var →
+  `config.json`). The overlay is opt-in: deployments without `.env` keep the
+  pre-M1 behavior. `.env` is git-ignored; `.env.example` ships as the
+  template.
 
 ### Added
 - English-first bilingual `README.md` with quick-start, requirements, and roadmap.

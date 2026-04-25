@@ -38,6 +38,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `config.json`). The overlay is opt-in: deployments without `.env` keep the
   pre-M1 behavior. `.env` is git-ignored; `.env.example` ships as the
   template.
+- **Image upload validation hardened**. `util/UploadValidator` replaces the
+  client-supplied `$_FILES['type']` check with a multi-step inspection of the
+  uploaded bytes: `is_uploaded_file()` to reject caller-supplied paths,
+  `finfo_file()` for the real MIME, an explicit byte ceiling (5 MiB by
+  default), and `getimagesize()` to reject polyglots and HTML/SVG payloads
+  that pass a sniff but are not decodable images. `image/AddController` now
+  consumes the validator's `Either<{tmp_name, mimeType, size, extension}>`
+  result so a rejected upload short-circuits before any DB write.
 
 ### Added
 - English-first bilingual `README.md` with quick-start, requirements, and roadmap.

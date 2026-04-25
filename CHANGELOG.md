@@ -48,6 +48,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   result so a rejected upload short-circuits before any DB write.
 
 ### Added
+- **Test, lint, and static-analysis tooling** (M2-B). `phpunit.xml.dist`
+  configures three suites (Unit / Integration / Feature) with strict
+  PHPUnit 10.5 settings (`failOnRisky`, `failOnWarning`,
+  `beStrictAboutOutputDuringTests`). `phpstan.neon.dist` runs at level 6
+  scoped to files this fork owns (`src/`, `tests/`, the three M1 utility
+  rewrites). `.php-cs-fixer.dist.php` enforces PSR-12 plus project
+  conventions (short array syntax, ordered imports, single quotes,
+  trailing commas) on the same scope. `tests/bootstrap.php` registers
+  a minimal autoloader for the legacy `saso\\` namespace so tests can
+  exercise existing classes without booting the full ConfigLoader
+  chain. **52 unit tests** ship for `Either`, `Member`,
+  `CSRFtoken`, `EnvLoader`, and `UploadValidator` (pre-`is_uploaded_file`
+  steps). CI gains three jobs — `cs-check`, `static-analysis`,
+  `unit-tests` (PHP 8.2 + 8.3 matrix, with Composer caching) — alongside
+  the existing syntax / JSON / composer-validate jobs.
 - **Composer foundation** (M2-A). New `composer.json` declares PHP 8.2+,
   required ext-* extensions, and PSR-4 autoload `Saso\\` → `src/` for new
   Clean-Architecture code. Dev dependencies — `phpunit/phpunit`,

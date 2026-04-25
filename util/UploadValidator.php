@@ -1,4 +1,5 @@
 <?php
+
 namespace saso\util;
 
 use saso\util\monad\Either;
@@ -19,10 +20,14 @@ use saso\util\monad\Either;
 final class UploadValidator
 {
     /**
-     * @param array<string,mixed>  $file          A single $_FILES[...] entry.
-     * @param list<string>         $allowedMimes  e.g. ['image/png','image/jpeg','image/gif']
-     * @param int                  $maxBytes      reject anything strictly larger
-     * @return Either<array{tmp_name:string,mimeType:string,size:int,extension:string}>
+     * @param array<string,mixed> $file A single $_FILES[...] entry.
+     * @param list<string> $allowedMimes e.g. ['image/png','image/jpeg','image/gif']
+     * @param int $maxBytes reject anything strictly larger
+     *
+     * On success the returned Either wraps an array shaped as
+     * {tmp_name: string, mimeType: string, size: int, extension: string}.
+     * The Either class is not generic in this codebase, so the shape is
+     * documented in prose rather than a generic type parameter.
      */
     public static function validateImageUpload(
         array $file,
@@ -33,12 +38,12 @@ final class UploadValidator
         if (!isset($file['tmp_name'], $file['size'], $file['error'])) {
             return Either::left('upload payload missing');
         }
-        if ((int)$file['error'] !== UPLOAD_ERR_OK) {
-            return Either::left('upload error code '.(int)$file['error']);
+        if ((int) $file['error'] !== UPLOAD_ERR_OK) {
+            return Either::left('upload error code '.(int) $file['error']);
         }
 
-        $tmpName = (string)$file['tmp_name'];
-        $size    = (int)$file['size'];
+        $tmpName = (string) $file['tmp_name'];
+        $size    = (int) $file['size'];
 
         // 2. The path must come from the SAPI's upload handling — defends
         //    against caller-supplied paths to arbitrary files on disk.
@@ -66,7 +71,7 @@ final class UploadValidator
         if ($info === false || empty($info[0]) || empty($info[1])) {
             return Either::left('not a decodable image');
         }
-        if (!in_array($info['mime'] ?? '', $allowedMimes, true)) {
+        if (!in_array($info['mime'], $allowedMimes, true)) {
             return Either::left('image type mismatch');
         }
 

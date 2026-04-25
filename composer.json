@@ -1,0 +1,73 @@
+{
+    "name": "willen-federation/saso-willen-edition",
+    "description": "Open-source inventory & warehouse management in PHP — barcodes, label printing (PDF), shelf management. Willen Federation fork of Japan Standards Organization's SASO.",
+    "type": "project",
+    "license": "GPL-3.0-or-later",
+    "keywords": [
+        "inventory-management",
+        "warehouse-management",
+        "barcode",
+        "label-printing",
+        "pdf-generation",
+        "tcpdf",
+        "self-hosted"
+    ],
+    "homepage": "https://github.com/Willen-Federation/SASO-Willen-Edition",
+    "support": {
+        "issues": "https://github.com/Willen-Federation/SASO-Willen-Edition/issues",
+        "source": "https://github.com/Willen-Federation/SASO-Willen-Edition",
+        "security": "https://github.com/Willen-Federation/SASO-Willen-Edition/security/advisories"
+    },
+    "require": {
+        "php": "^8.2",
+        "ext-pdo_mysql": "*",
+        "ext-mbstring": "*",
+        "ext-gd": "*",
+        "ext-zip": "*",
+        "ext-intl": "*",
+        "ext-fileinfo": "*",
+        "ext-json": "*",
+        "ext-session": "*"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^10.5",
+        "phpstan/phpstan": "^1.11",
+        "friendsofphp/php-cs-fixer": "^3.58",
+        "roave/security-advisories": "dev-latest"
+    },
+    "autoload": {
+        "psr-4": {
+            "Saso\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Saso\\Tests\\": "tests/"
+        }
+    },
+    "scripts": {
+        "test": "phpunit",
+        "analyse": "phpstan analyse",
+        "cs:check": "php-cs-fixer fix --dry-run --diff",
+        "cs:fix": "php-cs-fixer fix"
+    },
+    "scripts-descriptions": {
+        "test": "Run the PHPUnit test suite.",
+        "analyse": "Run static analysis with PHPStan.",
+        "cs:check": "Verify code style without modifying files.",
+        "cs:fix": "Apply PSR-12 / project code-style fixes in place."
+    },
+    "config": {
+        "platform": {
+            "php": "8.2.0"
+        },
+        "sort-packages": true,
+        "optimize-autoloader": true,
+        "preferred-install": {
+            "*": "dist"
+        },
+        "allow-plugins": {}
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true
+}

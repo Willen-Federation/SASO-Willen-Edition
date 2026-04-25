@@ -30,14 +30,15 @@ final class ChangePasswordUsecase implements Usecase
         try {
             $this->transaction->begin();
 
+            $rawNow = $data->now->getOrElseThrow('invalid current password.');
+            $newHash = $data->new->getOrElseThrow('invalid new password.');
+
             $this->output = $this->finder->current(new FindOneByAuth(), [
                 'id'=>$_SESSION['id'],
-                'password'=>$data->now->getOrElseThrow('invalid current password.'),
-            ])->map(fn($v)=>new Member(
-                $v->id,
-                $v->name, 
-                $data->new->getOrElseThrow('invalid new password.'),
-            ))
+            ])->flatMap(fn($v)=>Member::verifyPassword($rawNow, $v->password)
+                ? Either::of(new Member($v->id, $v->name, $newHash))
+                : Either::left('current password mismatch')
+            )
             ->flatMap(fn($v)=>$this->updater->exec(new ChangePassword($v)))
             ->flatMap(fn($v)=>'changed')
             ->OrElse(fn($v)=>Either::of('errorNow'));

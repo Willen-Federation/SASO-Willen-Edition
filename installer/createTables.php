@@ -80,7 +80,7 @@ $sql[] = "CREATE TABLE LabelCache (
 )";
 $sql[] = "CREATE TABLE Member (
       id CHAR(20) NOT NULL PRIMARY KEY
-    , password VARCHAR(80) NOT NULL
+    , password VARCHAR(255) NOT NULL
     , userName VARCHAR(50) NOT NULL
 )";
 
@@ -95,7 +95,7 @@ foreach($sql as $value){
 }
 $userName = $this->member->name;
 $loginId = $this->member->id;
-$password = Member::hashed($this->member->password);
+$password = Member::hashPassword($this->member->password);
 $stmt = $pdo->prepare('
      INSERT INTO Member (
            id

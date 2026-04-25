@@ -5,6 +5,7 @@ use saso\common;
 use saso\framework\DIContainer;
 use saso\framework\Flow;
 use saso\repository\DbFinder;
+use saso\repository\DbUpdater;
 
 final class AuthDIContainer implements DIContainer
 {
@@ -26,6 +27,7 @@ final class AuthDIContainer implements DIContainer
             $this->ctrl = new AuthController($query, new LoginController($post));
             $this->usecase = new LoginUsecase(
                 new DbFinder(),
+                new DbUpdater(),
                 new LoginPresenter(
                     new LoginView(),
                 )

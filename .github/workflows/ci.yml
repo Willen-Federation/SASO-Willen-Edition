@@ -73,18 +73,10 @@ jobs:
             fi
           done
 
-  markdown-links:
-    name: Markdown link check (informational)
-    runs-on: ubuntu-latest
-    continue-on-error: true
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Check links in top-level markdown
-        uses: gaurav-nelson/github-action-markdown-link-check@v1
-        with:
-          use-quiet-mode: 'yes'
-          use-verbose-mode: 'yes'
-          config-file: '.github/markdown-link-check.json'
-          file-path: 'README.md, CONTRIBUTING.md, CODE_OF_CONDUCT.md, SECURITY.md, CHANGELOG.md'
+  # NOTE: Markdown link checking has been moved to milestone M2 where it will
+  # run as part of the MkDocs build (`mkdocs build --strict` plus the
+  # `mkdocs-linkcheck` plugin), against a curated `docs/` tree rather than the
+  # whole repository. The previous gaurav-nelson/github-action-markdown-link-check
+  # job was removed in PR #6 because it scanned the bundled extention/TCPDF
+  # README and emitted persistent false positives for upstream URLs that
+  # respond 403 to automated checkers (e.g. www.gnu.org).

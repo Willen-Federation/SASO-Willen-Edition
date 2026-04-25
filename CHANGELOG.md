@@ -90,5 +90,8 @@ The following entries are from the original SASO project by Japan Standards Orga
 ### [2.3.0] — 2013-12-19
 - Initial public release.
 
-[Unreleased]: https://github.com/Willen-Federation/SASO-Willen-Edition/compare/v2.4.0...HEAD
-[2.4.0]: https://github.com/Willen-Federation/SASO-Willen-Edition/releases/tag/v2.4.0
+<!--
+  Compare/release links will be added once v2.4.x is tagged in this fork.
+  The pre-fork upstream history above is included for context only.
+-->
+

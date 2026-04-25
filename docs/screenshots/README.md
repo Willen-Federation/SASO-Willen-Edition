@@ -1,8 +1,8 @@
 # Baseline Screenshots / ベースラインスクリーンショット
 
-This directory holds reference screenshots used as a **regression baseline** during the modernization work (milestones M0–M5). When refactoring legacy code under [`legacy/`](../../legacy) or replacing PHP templates with Clean-Architecture equivalents under [`src/Presentation/`](../../src/Presentation), reviewers compare the new UI to these screenshots to confirm no visual or behavioral regression.
+This directory holds reference screenshots used as a **regression baseline** during the modernization work (milestones M0–M5). When refactoring legacy code (planned `legacy/` tree) or replacing PHP templates with Clean-Architecture equivalents (planned `src/Presentation/` tree), reviewers compare the new UI to these screenshots to confirm no visual or behavioral regression.
 
-このディレクトリは、近代化作業（マイルストーン M0〜M5）中の **リグレッション基準** として使うリファレンススクリーンショットを保管します。`legacy/` 配下のコードをリファクタリングしたり、PHP テンプレートを `src/Presentation/` 以下の Clean Architecture 実装に置換したりする際、レビュアーは新 UI を本ディレクトリのスクリーンショットと比較してリグレッションがないことを確認します。
+このディレクトリは、近代化作業（マイルストーン M0〜M5）中の **リグレッション基準** として使うリファレンススクリーンショットを保管します。今後 `legacy/` 配下に移されるコードをリファクタリングしたり、PHP テンプレートを `src/Presentation/` 以下の Clean Architecture 実装に置換したりする際、レビュアーは新 UI を本ディレクトリのスクリーンショットと比較してリグレッションがないことを確認します。
 
 ## What to capture / 撮影対象
 

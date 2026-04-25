@@ -73,6 +73,29 @@ jobs:
             fi
           done
 
+  composer-validate:
+    name: Validate composer.json
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup PHP 8.2
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          coverage: none
+          tools: composer:v2
+
+      - name: composer validate (strict)
+        run: composer validate --strict --no-check-publish
+
+      - name: composer install (lock-consistency check)
+        # Verifies composer.lock matches composer.json; this also covers
+        # roave/security-advisories which fails install when a known-vulnerable
+        # version of any dependency is required.
+        run: composer install --dry-run --no-interaction --no-progress
+
   # NOTE: Markdown link checking has been moved to milestone M2 where it will
   # run as part of the MkDocs build (`mkdocs build --strict` plus the
   # `mkdocs-linkcheck` plugin), against a curated `docs/` tree rather than the

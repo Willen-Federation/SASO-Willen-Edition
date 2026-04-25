@@ -52,20 +52,26 @@
 git clone https://github.com/Willen-Federation/SASO-Willen-Edition.git
 cd SASO-Willen-Edition
 
-# 2) Create the database (MariaDB / MySQL)
+# 2) (Optional) Install Composer dependencies — required for the PSR-4
+#    autoloader at src/ and for the dev tooling (PHPUnit, PHPStan).
+#    Skippable on shared hosts that do not have Composer; release ZIPs
+#    bundle vendor/ pre-installed.
+composer install --no-dev --optimize-autoloader
+
+# 3) Create the database (MariaDB / MySQL)
 mysql -u root -p -e "CREATE DATABASE saso CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
 
-# 3) Configure DB credentials — preferred: .env (kept out of git)
+# 4) Configure DB credentials — preferred: .env (kept out of git)
 cp .env.example .env
 $EDITOR .env             # set DB_DSN / DB_USER / DB_PASSWORD / APP_HTTPS
 
-# 3b) (optional) Tune non-secret settings in config.json
+# 4b) (optional) Tune non-secret settings in config.json
 $EDITOR config.json      # paths, sheet count, log path, etc.
 
-# 4) Edit .htaccess — set RewriteBase to your install directory
+# 5) Edit .htaccess — set RewriteBase to your install directory
 $EDITOR .htaccess
 
-# 5) Open the web installer in your browser
+# 6) Open the web installer in your browser
 open https://your-host.example.com/installer/start
 ```
 

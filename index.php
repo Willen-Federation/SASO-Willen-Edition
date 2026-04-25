@@ -24,6 +24,16 @@ if (!empty($config['https'])) {
 }
 
 $fullPath = $config['documentRoot'].$config['programDir'];
+
+// --- M2 autoload bridge ------------------------------------------------------
+// New code under src/ uses the PSR-4 prefix `Saso\\` and is loaded by
+// Composer's autoloader when vendor/ is present. Legacy code under the
+// repository root continues to use the lowercase `saso\\` namespace and is
+// loaded by ClassLoader.php. Both autoloaders are registered together via
+// spl_autoload_register, so PHP queries them in turn until a class resolves.
+if (is_file(__DIR__.'/vendor/autoload.php')) {
+    require_once __DIR__.'/vendor/autoload.php';
+}
 require_once 'ClassLoader.php';
 spl_autoload_register(ClassLoader::load($config));
 

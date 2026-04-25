@@ -134,13 +134,26 @@ Closes #42
 - **Errors**: throw typed exceptions; do not `die()` or `exit()` outside framework boundaries
 - **i18n**: never hardcode user-visible strings; use the `__('translation.key')` helper (introduced in M3)
 
+### Setting up dev tooling
+
+```bash
+# Install all PHP dependencies (including PHPUnit, PHPStan, PHP-CS-Fixer)
+composer install
+```
+
 Run formatters and analyzers before pushing:
 
 ```bash
-composer cs:fix      # auto-fix PSR-12 violations
-composer analyse     # PHPStan
-composer test        # PHPUnit
+composer cs:fix      # auto-fix PSR-12 violations (php-cs-fixer)
+composer analyse     # static analysis (phpstan)
+composer test        # unit tests (phpunit)
+composer cs:check    # check style without modifying (phpunit + diff output)
 ```
+
+> **Note**: PHPUnit / PHPStan / PHP-CS-Fixer configuration files
+> (`phpunit.xml.dist`, `phpstan.neon.dist`, `.php-cs-fixer.dist.php`) ship in
+> milestone **M2-B**. The composer scripts above expose the canonical commands
+> for downstream PRs to wire up.
 
 ## Testing
 

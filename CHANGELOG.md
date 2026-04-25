@@ -48,6 +48,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   result so a rejected upload short-circuits before any DB write.
 
 ### Added
+- **Composer foundation** (M2-A). New `composer.json` declares PHP 8.2+,
+  required ext-* extensions, and PSR-4 autoload `Saso\\` → `src/` for new
+  Clean-Architecture code. Dev dependencies — `phpunit/phpunit`,
+  `phpstan/phpstan`, `friendsofphp/php-cs-fixer`, `roave/security-advisories`
+  — are declared but their config files land in M2-B. `composer.lock` is
+  committed for reproducibility. CI gains a `composer-validate` job that
+  runs `composer validate --strict` and a lock-consistency dry-run install
+  (which also blocks vulnerable dependencies via roave/security-advisories).
+- **Autoload bridge** in `index.php`: requires `vendor/autoload.php` first
+  when present, then registers the existing `ClassLoader` for the legacy
+  `saso\\` namespace. Both autoloaders coexist so new code under `src/` and
+  legacy code under the repository root resolve correctly without conflicts.
 - English-first bilingual `README.md` with quick-start, requirements, and roadmap.
 - `CONTRIBUTING.md`, `CODE_OF_CONDUCT.md`, `SECURITY.md` for open-source community readiness.
 - `.gitignore`, `.editorconfig` for consistent developer environments.

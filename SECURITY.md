@@ -59,14 +59,19 @@ Out of scope:
 
 ## Hardening Recommendations
 
-While we work on M1 (Security Hotfix milestone), operators should:
+Operators should:
 
-- Enforce HTTPS at the web-server level (TLS 1.2+).
-- Set `session.cookie_httponly = 1`, `session.cookie_secure = 1`, `session.cookie_samesite = Lax` in `php.ini`.
+- Provision TLS 1.2+ at the web-server level. Set `https: true` in `config.json`
+  to activate the in-app HTTPS redirect, HSTS header, and `Secure` session
+  cookie flag (added in M1).
 - Restrict file permissions: `config.json` should be `0640` (owner: web user, group: deployer).
-- Run behind a reverse proxy or WAF where possible.
-- Rotate the `csrftokensalt` value in `config.json` on initial deployment.
+- Run behind a reverse proxy or WAF where possible. The HTTPS check honors
+  `X-Forwarded-Proto`.
 - Subscribe to this repository's [security advisories](https://github.com/Willen-Federation/SASO-Willen-Edition/security/advisories) for notifications.
+
+The application itself sets `HttpOnly`, `SameSite=Lax`, and (when `https: true`)
+`Secure` on the session cookie via `session_set_cookie_params()`, so manual
+`php.ini` tuning is no longer required for those flags.
 
 ## PGP / Encryption *(optional)*
 

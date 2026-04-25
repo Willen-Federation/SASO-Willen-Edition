@@ -21,7 +21,7 @@ final class UserCompiler
         $this->pair = self::pathToPair($pathtoxin, $this->config['programDir']??'');
         $this->post = Sanitizer::execMap($postoxin);
         if(!empty($this->post) && $authed) {
-            CSRFtoken::salting($config['csrftokensalt']) === $this->post['csrftoken'] or die('invalid csrftoken.');
+            CSRFtoken::verify((string)($this->post['csrftoken']??'')) or die('invalid csrftoken.');
         }
     }
     public static function pathToPair(string $path, string $programDir): array

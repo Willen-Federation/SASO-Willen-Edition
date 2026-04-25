@@ -1,0 +1,35 @@
+.hidden {
+    display: none;
+}
+.blue {
+    color: #009;
+}
+.red {
+    color: #900;
+}
+.green {
+    color: #090;
+}
+div.tab {
+    width: 5rem;
+    color: #666;
+    background-color: #e8e8e8;
+    border-top:#999 solid 1px;
+    border-right: #999 solid 1px;
+    border-left: #999 solid 1px;
+    border-radius: .3rem .3rem 0 0;
+    text-align: center;
+    font-size: .8rem;
+}
+pre.tabbed {
+    border: #999 solid 1px;
+    border-radius: 0 .2rem .2rem .2rem;
+    padding: .4rem;
+    margin-bottom: 1rem;
+}
+div#categoriesRoot li {
+    display: block;
+}
+div#categoriesRoot p, div#categoriesRoot button {
+    display: inline;
+}

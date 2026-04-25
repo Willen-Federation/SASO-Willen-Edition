@@ -1,0 +1,29 @@
+{
+  "$path_comment": "パス",
+  "documentRoot": "/var/www/html/",
+  "programDir": "/saso/",
+
+  "$database_comment": "データベース",
+  "database": {
+    "dsn": "mysql:host=localhost;dbname=saso_db;charset=utf8",
+    "user": "saso_user",
+    "password": "saso_sql"
+  },
+
+  "$outputRow_comment": "表示商品数(1=<99)",
+  "outputRow": 10,
+
+  "$https_comment": "セキュリティー 「https://」ならtrue, 「http://」ならfalse",
+  "https": false,
+
+  "$sheetAmount_comment": "印刷可能最大ラベル数(1=<9999)",
+  "sheetAmount": 100,
+
+  "$minsc_comment": "フレームワーク使用設定",
+  "version": "2.4.0",
+  "domainDepth": 1,
+  "phpExtension": ".php",
+  "logText": false,
+  "logPath": "/tmp/log/",
+  "csrftokensalt": "foobar"
+}

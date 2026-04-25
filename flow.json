@@ -1,0 +1,97 @@
+{
+    "error": {
+        "notFound": "\\saso\\common\\NotFoundDIContainer"
+    },
+    "installer": {
+        "config": "\\saso\\installer\\ConfigDIContainer",
+        "install": "\\saso\\installer\\InstallDIContainer",
+        "installed": "\\saso\\installer\\InstalledDIContainer"
+    },
+    "auth": {
+        "start": "\\saso\\auth\\AuthDIContainer",
+        "logout": "\\saso\\auth\\LogoutDIContainer",
+        "password": "\\saso\\auth\\PasswordDIContainer"
+    },
+    "image": {
+        "start": "\\saso\\image\\StartDIContainer",
+        "add": "\\saso\\image\\AddDIContainer",
+        "display": "\\saso\\image\\DisplayDIContainer"
+    },
+    "js": {
+        "main": "\\saso\\js\\JSDIContainer",
+        "label": "\\saso\\js\\JSDIContainer",
+        "category": "\\saso\\js\\JSDIContainer",
+        "item": "\\saso\\js\\JSDIContainer",
+        "itemEdit": "\\saso\\js\\JSDIContainer",
+        "list": "\\saso\\js\\JSDIContainer",
+        "feature": "\\saso\\js\\JSDIContainer",
+        "barcode": "\\saso\\js\\JSDIContainer",
+        "csrf": "\\saso\\js\\JSDIContainer",
+        "shelf": "\\saso\\js\\JSDIContainer",
+        "password": "\\saso\\js\\JSDIContainer",
+        "archiveAll": "\\saso\\js\\JSDIContainer"
+    },
+    "start": {
+        "start": "\\saso\\start\\StartDIContainer",
+        "menu": "\\saso\\start\\MenuDIContainer"
+    },
+    "category": {
+        "edit": "\\saso\\category\\EditDIContainer",
+        "list": "\\saso\\category\\ListDIContainer",
+        "add": "\\saso\\category\\AddDIContainer",
+        "replace": "\\saso\\category\\ReplaceDIContainer",
+        "delete": "\\saso\\category\\DeleteDIContainer",
+        "path": "\\saso\\category\\PathDIContainer"
+    },
+    "item": {
+        "archiveList": "\\saso\\item\\ArchiveListDIContainer",
+        "archiveAllFrame": "\\saso\\item\\ArchiveAllFrameDIContainer",
+        "archiveAll": "\\saso\\item\\ArchiveAllDIContainer",
+        "archivedAll": "\\saso\\item\\ArchivedAllDIContainer",
+        "listFrame": "\\saso\\item\\ListFrameDIContainer",
+        "listContents": "saso\\item\\ListContentsDIContainer",
+        "head": "\\saso\\item\\HeadDIContainer",
+        "row": "\\saso\\item\\RowDIContainer",
+        "pagination": "\\saso\\item\\PaginationDIContainer",
+        "one": "\\saso\\item\\OneDIContainer",
+        "register": "\\saso\\item\\RegisterDIContainer",
+        "edit": "\\saso\\item\\EditDIContainer",
+        "changePrice": "\\saso\\item\\ChangePriceDIContainer",
+        "changeCategory": "\\saso\\item\\ChangeCategoryDIContainer",
+        "changeSizeOrder": "\\saso\\item\\ChangeSizeOrderDIContainer",
+        "addFeature": "\\saso\\item\\AddFeatureDIContainer",
+        "archive": "\\saso\\item\\ArchiveDIContainer",
+        "reproduction": "\\saso\\item\\ReproductionDIContainer"
+    },
+    "feature": {
+        "inventory": "\\saso\\feature\\AmountDIContainer",
+        "shelf": "\\saso\\feature\\ShelfDIContainer",
+        "stock": "\\saso\\feature\\AmountDIContainer",
+        "shipment": "\\saso\\feature\\AmountDIContainer",
+        "history": "\\saso\\feature\\HistoryDIContainer",
+        "label": "\\saso\\feature\\LabelDIContainer",
+        "labelAmountFeatures": "\\saso\\feature\\LabelAmountFeaturesDIContainer"
+    },
+    "shelf": {
+        "menu": "\\saso\\shelf\\MenuDIContainer",
+        "multi": "\\saso\\shelf\\MultiDIContainer",
+        "single": "\\saso\\shelf\\SingleDIContainer",
+        "shelves": "\\saso\\shelf\\ShelvesDIContainer",
+        "pdf": "\\saso\\shelf\\PdfDIContainer"
+    },
+    "label": {
+        "edit": "\\saso\\label\\EditDIContainer",
+        "list": "\\saso\\label\\ListDIContainer",
+        "svg": "\\saso\\label\\SvgDIContainer",
+        "size": "\\saso\\label\\SizeDIContainer",
+        "register": "\\saso\\label\\RegisterDIContainer",
+        "delete": "\\saso\\label\\DeleteDIContainer",
+        "features": "\\saso\\label\\FeaturesDIContainer",
+        "deleteAll": "\\saso\\label\\DeleteAllDIContainer",
+        "shortName": "\\saso\\label\\ShortNameDIContainer",
+        "pdf": "\\saso\\label\\PdfDIContainer"
+    },
+    "barcode": {
+        "start": "\\saso\\barcode\\StartDIContainer"
+    }
+}

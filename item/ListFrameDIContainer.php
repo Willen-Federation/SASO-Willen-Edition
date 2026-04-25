@@ -1,0 +1,31 @@
+<?php
+namespace saso\item;
+
+use saso\framework\DIContainer;
+use saso\framework\View;
+
+final class ListFrameDIContainer implements DIContainer
+{
+    private View $view;
+    public function __construct(
+        private bool $isArchive=false,
+    )
+    {
+    }
+    public function isTopLevel(): bool
+    {
+        return false;
+    }
+    public function di(\Closure $inside, array $query, array $post, array $config, \DateTime $now): void
+    {
+        $this->view = new ListFrameView(
+            $inside,
+            $this->isArchive,
+            $query['search']??'',
+        );
+    }
+    public function flow(): View
+    {
+        return $this->view;
+    }
+}

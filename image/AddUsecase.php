@@ -30,6 +30,13 @@ final class AddUsecase implements Usecase
         try {
             $this->transaction->begin();
 
+            // M1: $data->fileName / $data->imageType are Either values produced
+            // by UploadValidator. Extracting them here means a failed upload
+            // short-circuits the whole transaction via the catch below, so the
+            // file content never reaches the DB.
+            $fileName  = $data->fileName->getOrElseThrow('invalid image upload.');
+            $imageType = $data->imageType->getOrElseThrow('invalid image upload.');
+
             $color = $this->finder->current(new FindOneById(), [
                 'id'=>$data->id->getOrElseThrow('invalid input.')
             ])->flatMap(
@@ -39,9 +46,9 @@ final class AddUsecase implements Usecase
             );
             $color->flatMap(
                 fn($v)=>$this->updater->exec(new UploadImage($v), [
-                    'fileName'=>$data->fileName,
-                    'imageType'=>$data->imageType->getOrElseThrow('invalid image type.'),
-                ])    
+                    'fileName'=>$fileName,
+                    'imageType'=>$imageType,
+                ])
             );
             $this->output = $color->flatMap(
                 fn($v)=>'image/start/item/'. $v->item->id.'/color/'.$v->code

@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Security
+- **Migrate password hashing from a custom SHA256 chain to Argon2id**
+  (`password_hash(PASSWORD_ARGON2ID)`). `Member::verifyPassword()` accepts both
+  the legacy and the new format, and `LoginUsecase::maybeRehash()` upgrades
+  legacy rows to Argon2id transparently on a successful login. Existing users
+  are not signed out. Hardcoded global salts (`stok-administra_sistemo` /
+  `plej_simpla`) are no longer used for new writes.
+- `repository/member/FindOneByAuth` now looks up by id only and returns the
+  stored hash; password equivalence is checked in PHP via `password_verify()`,
+  so the digest no longer flows through SQL parameters.
+
 ### Added
 - English-first bilingual `README.md` with quick-start, requirements, and roadmap.
 - `CONTRIBUTING.md`, `CODE_OF_CONDUCT.md`, `SECURITY.md` for open-source community readiness.
@@ -14,9 +25,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `.htaccess` scaffold for `mod_rewrite` configuration.
 - GitHub Actions workflow with PHP syntax linting (`php -l`).
 - Pull-request and issue templates under `.github/`.
+- `migrations/` directory with `M1_001_widen_password_column.sql` to widen
+  `Member.password` from VARCHAR(80) to VARCHAR(255) for Argon2id digests.
 
 ### Changed
 - Repository now positioned as a globally maintained open-source project (English documentation primary, Japanese fully supported).
+- `installer/createTables.php` creates `Member.password` as `VARCHAR(255)`.
+
+### Removed
+- `Member::hashed()` (the SHA256 chain) is no longer publicly callable. Its
+  logic is preserved as a `private static` for legacy verification only and
+  will be removed entirely once the migration window closes.
 
 ---
 

@@ -18,15 +18,17 @@ final class PasswordController implements Controller, DTO
         array $post,
     )
     {
-        $this->now = Member::passwordConstraint($post['now']??'')->flatMap(
-            fn($v)=>Member::hashed($v)
-        );
+        // `now` stays as the raw user-supplied current password — the usecase
+        // verifies it against the stored Argon2id hash via Member::verifyPassword.
+        $this->now = Member::passwordConstraint($post['now']??'');
+
+        // `new` is hashed here so the usecase only ever stores Argon2id digests.
         $this->new = Member::passwordConstraint($post['new']??'')->filter(
-            fn($v)=>$v===$post['confirm']??''
+            fn($v)=>$v===($post['confirm']??'')
         )->filter(
-            fn($v)=>$v!==$post['now']??''
+            fn($v)=>$v!==($post['now']??'')
         )->flatMap(
-            fn($v)=>Member::hashed($v)
+            fn($v)=>Either::of(Member::hashPassword($v))
         );
     }
 }

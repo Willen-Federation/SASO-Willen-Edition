@@ -41,6 +41,9 @@ error:
   SASO-CONFIG-6001:
     title: System setting not found
     detail: 'The requested system setting does not exist. Ask an administrator to verify the key spelling or to seed a default value.'
+  SASO-FLAG-7001:
+    title: Feature flag not found
+    detail: 'The requested feature flag is not registered. Ask an administrator to add the flag or to remove the call site.'
   SASO-INFRA-9000:
     title: Internal server error
     detail: 'An unexpected error occurred. Reference: {traceId}.'

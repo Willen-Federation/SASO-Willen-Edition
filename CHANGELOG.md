@@ -48,6 +48,61 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   result so a rejected upload short-circuits before any DB write.
 
 ### Added
+- **`storage_location` + `similar_item` storage tier** (M6-E1).
+  Direct response to the user's "保管場所コード" requirement; ships
+  the persistence half of the hierarchy contracted by
+  [ADR 0011](docs/architecture/adr/0011-flexible-attributes-and-locations.md).
+  The admin tree-edit UI and the offline similar-item populator land in
+  M6-E2 / M6-G against this stable contract.
+
+  Migrations (`migrations/M6/`):
+  * `20260427120001_create_storage_location.php` — hierarchical tree
+    (`parent_id` self-FK with `SET NULL` on cascade), `code` UNIQUE
+    so reprinted labels resolve to exactly one row, `position` for
+    sibling order, `depth` denormalised for typeahead UI. Reversible.
+  * `20260427120002_create_similar_item.php` — denormalised cache
+    of "items most similar to item X", populated offline from the
+    OpenSearch k-NN sweep. Composite PK
+    `(item_id, similar_to_id, method)`; `method` enum
+    (image/text/hybrid); cosine `similarity` indexed for top-N
+    queries. Reversible.
+
+  Domain layer (`src/Domain/StorageLocation/`):
+  * `LocationCode` — readonly, format-validated. 1-120 chars,
+    uppercase alphanumeric + `-` segments (lowercase rejected
+    because codes appear in barcodes and on printed labels where
+    `O` vs `0` and `I` vs `1` ambiguity matters). Trailing /
+    leading / consecutive hyphens rejected.
+    `LocationCode::fromParts()` factory composes a canonical code
+    from typed segments — uppercases, trims, joins with `-`,
+    rejects empty segments.
+  * `StorageLocation` — full aggregate. Constructor invariants
+    enforce: positive `id`, positive-or-null `parentId`, non-empty
+    `name`, `position ≥ 0`, `depth ≥ 0`, **and** the parent/depth
+    consistency rule (root ↔ depth=0; child ↔ depth ≥ 1).
+    `withName()` / `withPosition()` non-mutating mutators.
+    `isRoot()` predicate.
+  * `Repository/StorageLocationRepository` — `findById` /
+    `findByCode` / `listRoots` / `listChildrenOf` / `save` /
+    `delete`.
+
+  Infrastructure layer (`src/Infrastructure/StorageLocation/`):
+  * `PdoStorageLocationRepository` — concrete PDO impl. Re-reads
+    after `save()` so callers always get the persisted shape.
+    Exposes `PDOException` from the unique-code constraint upward
+    (the admin UI catches and shows a validation error).
+
+  Tests (19 new, 405 total): `LocationCodeTest` (13 — every format
+  invariant including consecutive-hyphen rejection, `fromParts`
+  uppercases / trims / rejects empty segments / rejects empty arg
+  list, equality), `StorageLocationTest` (10 — root/child shape,
+  parent-depth consistency rule both directions, all five
+  invariants, non-mutating mutators),
+  `PdoStorageLocationRepositoryTest` (7 — find-on-missing, save +
+  re-read, save updates in place, `listRoots` excludes children,
+  `listChildrenOf` ordered by position-then-id, unique-code
+  enforced by DB, delete), `CreateStorageLocationTest` (4 —
+  two-file migration smoke check).
 - **`plugin_registry` storage tier** (M6-J1). Establishes the
   persistence half of the plugin lifecycle contracted by
   [ADR 0015](docs/architecture/adr/0015-plugin-system.md). The

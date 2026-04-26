@@ -47,6 +47,7 @@ final class ErrorCodeTest extends TestCase
         yield 'provider misconfigured → 503' => [ErrorCode::AuthProviderMisconfigured, 503];
         yield 'callback state mismatch → 400' => [ErrorCode::AuthCallbackStateMismatch, 400];
         yield 'callback validation failed → 400' => [ErrorCode::AuthCallbackValidationFailed, 400];
+        yield 'flag not found → 404' => [ErrorCode::FlagNotFound, 404];
     }
 
     public function testHttpStatusIsAlwaysClientOrServerError(): void

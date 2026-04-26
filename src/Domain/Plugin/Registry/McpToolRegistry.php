@@ -20,19 +20,9 @@ use Saso\Domain\Mcp\McpTool;
 interface McpToolRegistry
 {
     /**
-     * Plugin-facing registration. Enforces the reserved-name rule: plugins
-     * cannot displace a core tool already seeded via {@see registerCore()}.
-     *
      * @throws \Saso\Domain\Plugin\Registry\Exception\RegistryCollisionException
      */
     public function register(RegistryName $name, McpTool $tool): void;
-
-    /**
-     * Composition-root seeding path for the four core tools
-     * (`search_items`, `get_item`, `list_storage_locations`, `register_item`).
-     * Idempotent — re-seeding the same name overwrites without throwing.
-     */
-    public function registerCore(RegistryName $name, McpTool $tool): void;
 
     public function unregister(RegistryName $name): void;
 

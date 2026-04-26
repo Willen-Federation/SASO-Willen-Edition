@@ -34,6 +34,13 @@ enum ErrorCode: string
     // ── Feature flag (7xxx) ──────────────────────────────────────────────
     case FlagNotFound = 'SASO-FLAG-7001';
 
+    // ── AI gateway (8xxx) — cf. ADR 0009 ─────────────────────────────────
+    case AiProviderNotConfigured = 'SASO-AI-8001';
+    case AiRateLimited           = 'SASO-AI-8002';
+    case AiResponseMalformed     = 'SASO-AI-8003';
+    case AiContextExceeded       = 'SASO-AI-8004';
+    case AiContentPolicy         = 'SASO-AI-8005';
+
     // ── Infrastructure (9xxx) ────────────────────────────────────────────
     case InfraUnhandled           = 'SASO-INFRA-9000';
     case InfraDatabaseUnavailable = 'SASO-INFRA-9001';
@@ -65,6 +72,14 @@ enum ErrorCode: string
 
             self::ConfigSettingNotFound,
             self::FlagNotFound                 => 404,
+
+            self::AiResponseMalformed,
+            self::AiContextExceeded,
+            self::AiContentPolicy              => 422,
+
+            self::AiRateLimited                => 429,
+
+            self::AiProviderNotConfigured      => 503,
 
             self::InfraRouteNotFound      => 404,
             self::InfraMethodNotAllowed   => 405,
@@ -110,6 +125,11 @@ enum ErrorCode: string
             self::AuthCallbackValidationFailed => 'Authentication callback failed verification',
             self::ConfigSettingNotFound        => 'System setting not found',
             self::FlagNotFound                 => 'Feature flag not found',
+            self::AiProviderNotConfigured      => 'AI provider is not configured',
+            self::AiRateLimited                => 'AI provider rate-limited the request',
+            self::AiResponseMalformed          => 'AI provider returned a malformed response',
+            self::AiContextExceeded            => 'AI prompt exceeds the provider context window',
+            self::AiContentPolicy              => 'AI provider refused the request as policy-violating',
             self::InfraUnhandled           => 'Internal server error',
             self::InfraDatabaseUnavailable => 'Database unavailable',
             self::InfraStorageUnavailable  => 'Storage unavailable',

@@ -42,6 +42,8 @@ final class ErrorCodeTest extends TestCase
         yield 'unhandled → 500'             => [ErrorCode::InfraUnhandled, 500];
         yield 'database unavailable → 503'  => [ErrorCode::InfraDatabaseUnavailable, 503];
         yield 'storage unavailable → 503'   => [ErrorCode::InfraStorageUnavailable, 503];
+        yield 'route not found → 404'       => [ErrorCode::InfraRouteNotFound, 404];
+        yield 'method not allowed → 405'    => [ErrorCode::InfraMethodNotAllowed, 405];
     }
 
     public function testHttpStatusIsAlwaysClientOrServerError(): void

@@ -38,3 +38,9 @@ error:
   SASO-INFRA-9002:
     title: Storage unavailable
     detail: A required storage path is currently unreachable.
+  SASO-INFRA-9003:
+    title: Endpoint not found
+    detail: 'The requested endpoint does not exist.'
+  SASO-INFRA-9004:
+    title: Method not allowed
+    detail: 'The requested HTTP method is not supported on this endpoint.'

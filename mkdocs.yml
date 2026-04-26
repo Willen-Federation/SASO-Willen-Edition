@@ -180,6 +180,8 @@ nav:
       - "ADR 0012 — Search + cache infrastructure": architecture/adr/0012-search-and-cache-infrastructure.md
       - "ADR 0013 — Symfony Messenger queue": architecture/adr/0013-symfony-messenger-queue.md
       - "ADR 0014 — Flutter pairing + MCP server": architecture/adr/0014-flutter-pairing-and-mcp-server.md
+      - "ADR 0015 — Plugin system": architecture/adr/0015-plugin-system.md
+      - "ADR 0016 — English as default locale": architecture/adr/0016-english-as-default-locale.md
   - Development:
       - development/index.md
       - Workflow: development/workflow.md

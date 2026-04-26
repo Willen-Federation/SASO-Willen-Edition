@@ -21,6 +21,8 @@ ADRs live under `docs/architecture/adr/` and are numbered sequentially. They are
 | [0012](adr/0012-search-and-cache-infrastructure.md) | Search + cache infrastructure: OpenSearch primary, Redis cache | 2026-04-26 | M6 |
 | [0013](adr/0013-symfony-messenger-queue.md) | Background job queue via Symfony Messenger | 2026-04-26 | M6 |
 | [0014](adr/0014-flutter-pairing-and-mcp-server.md) | Flutter device pairing (RFC 8628) + MCP server endpoint | 2026-04-26 | M6 |
+| [0015](adr/0015-plugin-system.md) | Plugin system: Composer-installed packages with extension points | 2026-04-26 | M6 |
+| [0016](adr/0016-english-as-default-locale.md) | English-as-default + extract legacy JA strings into i18n catalogue | 2026-04-26 | M6 |
 
 ## Planned
 

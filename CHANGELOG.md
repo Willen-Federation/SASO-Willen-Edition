@@ -48,6 +48,59 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   result so a rejected upload short-circuits before any DB write.
 
 ### Added
+- **`system_setting` storage tier** (M4-C). Establishes the database
+  half of the configuration model contracted by
+  [ADR 0006](docs/architecture/adr/0006-system-setting-web-ui.md). Two
+  Phinx migrations (`migrations/M4/20260426120000_create_system_setting.php`
+  + `..._audit.php`) create the `system_setting` table (PK `key`,
+  enum `value_type`, encrypted-blob value, audit columns) and the
+  append-only `system_setting_audit` history. `down()` is reversible
+  for both — settings tier is recoverable until M4-D wires it into the
+  admin UI.
+
+  Domain layer (`src/Domain/Setting/`):
+  * `SettingKey` — value object with format validation (1-120 chars,
+    alphanumeric + `.`/`_`/`-`); rejects spaces, slashes, oversize.
+  * `SettingType` — backed enum (`string`/`int`/`bool`/`json`/`secret`)
+    matching the DB column verbatim. `isSecret()` predicate.
+  * `SettingValue` — typed wrapper with constructor-time format
+    validation (Bool requires `0`/`1`, Int requires base-10, Json
+    requires valid JSON). Named factories: `string()`, `int()`,
+    `bool()`, `json()`, `secret()`. Accessors: `asString()` /
+    `asInt()` / `asBool()` / `asJson()`.
+  * `SystemSettingService` interface — `get` / `require` / `set` /
+    `delete` / `all`. Storage-tier contract; the wider precedence
+    chain (`.env` → env var → DB → `config.json` → default) is
+    composed at the consumer layer.
+  * `Exception/SettingNotFoundException` typed to the new
+    `SASO-CONFIG-6001` (404) error code with EN + JA translations.
+
+  Infrastructure layer (`src/Infrastructure/Setting/`):
+  * `PdoSystemSettingService` — concrete PDO implementation. Reads
+    are cached for the lifetime of the service instance (= one
+    request); writes invalidate the cached key. Secrets are
+    encrypted at rest via `SecretEncryptor` (M3-E); the audit row
+    stores ciphertext, never plaintext, so rotating `APP_KEY` does
+    not retroactively expose the audit history. SQL is portable
+    enough to run on both MariaDB and SQLite — the upsert is a
+    SELECT-then-INSERT-or-UPDATE rather than `ON DUPLICATE KEY
+    UPDATE`, so the same code path exercises in both environments.
+
+  Tests (42 new, 230 total): SettingKey (7) — format constraints,
+  empty/oversize/space/slash rejection, equality. SettingType (3) —
+  enum invariants, `isSecret`. SettingValue (11) — string/int/bool/
+  secret factories, JSON round-trip, JSON encoder failure on
+  resources, raw-constructor format rejection across Bool/Int/Json.
+  SettingNotFoundException (3) — error code wiring, key in context,
+  message includes key. CreateSystemSetting (4) — migration class
+  smoke checks. PdoSystemSettingService (14) — full lifecycle:
+  get-on-missing returns null, require-on-missing throws, round-trip
+  for every non-secret type, secret encrypted at rest with
+  transparent decryption on read, audit shape on insert + update,
+  audit stores ciphertext for secrets, delete + audit, delete-on-
+  missing is a no-op, `all()` returns every row keyed by name,
+  request-scoped cache (returns stale data after sibling write,
+  invalidates on the service's own write, remembers proven absence).
 - **Phinx-based schema migrations** (M4-B). Replaces the hand-applied
   SQL workflow established in M1 with class-based migrations driven by
   [Phinx](https://book.cakephp.org/phinx/0/en/index.html) (cf.

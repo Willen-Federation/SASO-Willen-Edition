@@ -48,6 +48,69 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   result so a rejected upload short-circuits before any DB write.
 
 ### Added
+- **`auth_provider` + `member_external_identity` storage tier** (M4-D).
+  Establishes the database half of the Pluggable IdP design contracted
+  by [ADR 0003](docs/architecture/adr/0003-pluggable-idp.md). Two
+  Phinx migrations: `auth_provider` (operator-managed IdP
+  registrations — `name`, `type`, `issuer_or_metadata_url`,
+  `client_id`, AES-256-GCM-encrypted `client_secret_encrypted`,
+  `scopes`, `claim_mapping` JSON, `enabled`/`is_default` flags) and
+  `member_external_identity` (the link table from `Member` to one or
+  more IdP-issued subjects, with composite PK
+  `(auth_provider_id, external_subject)` plus a unique
+  `(member_id, auth_provider_id)` index, and a `last_login_at` column
+  for "stale identity" reports). Both reversible.
+
+  Domain layer (`src/Domain/Auth/`):
+  * `AuthProviderRecord` — readonly value object mirroring one row.
+    Carries the **plaintext** `clientSecret`; the repository
+    encrypts/decrypts at the storage boundary so callers never deal
+    with ciphertext directly. `withEnabled(bool)` returns a copy with
+    the toggle flipped (admin UI uses this when an operator clicks
+    "disable").
+  * `ExternalIdentity` — readonly value object. Validates that
+    `memberId >= 1` and `externalSubject` is non-empty.
+  * `Repository/AuthProviderRepository` interface — `findById` /
+    `listAll` / `listEnabled` / `save` / `delete`. Implementations
+    return rows ordered as the login screen expects them
+    (`is_default DESC, name ASC`).
+  * `Repository/ExternalIdentityRepository` interface — `find` by
+    `(providerId, externalSubject)`, `listForMember`, `link`,
+    `recordLogin`, `unlink`.
+
+  Infrastructure layer (`src/Infrastructure/Auth/Repository/`):
+  * `PdoAuthProviderRepository` — concrete PDO impl. Reads decrypt
+    the `client_secret_encrypted` blob via `SecretEncryptor` (M3-E)
+    before constructing a record; writes encrypt on the way back.
+    The plaintext does not appear in any log line. JSON-encodes
+    `claim_mapping` on write and decodes on read. Re-reads the
+    record after `save` so callers always get the persisted shape.
+  * `PdoExternalIdentityRepository` — straightforward CRUD with
+    composite-PK enforcement on `link()` and a `recordLogin()` that
+    bumps `last_login_at` + `updated_at` in one statement.
+
+  SQL is portable across MariaDB (production) and SQLite (test
+  substrate); the repos round-trip through both.
+
+  Tests (16 new, 255 total):
+  * `AuthProviderRecordTest` (2) — full-field storage,
+    `withEnabled` returns a non-mutating copy.
+  * `ExternalIdentityTest` (4) — full-field storage,
+    member-id and external-subject validation, optional
+    `lastLoginAt`.
+  * `CreateAuthProviderTest` (4) — migration smoke checks for both
+    `auth_provider` and `member_external_identity`.
+  * `PdoAuthProviderRepositoryTest` (8) — find-on-missing, save +
+    re-read round-trip, secret encrypted at rest (begins with the
+    `\x01` SecretEncryptor version byte), null secret round-trips
+    as null, save updates existing row in place (no duplicate
+    inserts), `listAll` ordered by default-first then alpha,
+    `listEnabled` filters disabled rows, claim-mapping round-trip,
+    delete.
+  * `PdoExternalIdentityRepositoryTest` (6) — find-on-missing, link
+    + find round-trip, list-for-member excludes other members,
+    `recordLogin` sets `last_login_at`, unlink, composite PK
+    enforced (second link with same `(providerId, sub)` raises).
 - **`system_setting` storage tier** (M4-C). Establishes the database
   half of the configuration model contracted by
   [ADR 0006](docs/architecture/adr/0006-system-setting-web-ui.md). Two

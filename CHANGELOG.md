@@ -48,6 +48,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   result so a rejected upload short-circuits before any DB write.
 
 ### Added
+- **i18n with Symfony Translation + bilingual catalogue** (M3-C).
+  `composer require symfony/translation:^7.2 symfony/yaml:^7.2`. New
+  `Saso\Infrastructure\Translation\Translator` adapts Symfony's contract
+  with an explicit `$fallback` parameter so missing keys do not surface
+  raw catalogue paths to clients. `TranslatorFactory` discovers
+  `translations/<locale>.yaml` files automatically and wires the
+  English fallback locale chain. `TranslatorRegistry` holds the
+  process-wide instance for boundary surfaces (templates, the legacy
+  view layer until it migrates) and is the backing service for the
+  global `__()` helper, autoloaded via Composer's `files` block.
+  `Saso\Presentation\Http\I18n\LocaleResolver` picks the request locale
+  from `?lang=` → member preference → `Accept-Language` (with q-value
+  parsing and primary-subtag matching) → configured default. The
+  `ProblemExceptionHandler` now accepts an optional `Translator` and
+  resolves `error.<code>.title|detail` against the request locale,
+  with `{traceId}` placeholder interpolation for `SASO-INFRA-9000`.
+  `translations/en.yaml` and `translations/ja.yaml` ship the full M3-B
+  catalogue (8 codes × title + detail). **33 new unit tests** (121
+  total) cover translator semantics, fallback chains, registry
+  lifecycle, the global helper, locale resolution edge cases, and the
+  handler's translator integration.
 - **RFC 7807 Problem Details + `SASO-DOMAIN-NNNN` error catalogue** (M3-B).
   New `Saso\Domain\Shared\ErrorCode` enum (8 initial cases across `AUTH` and
   `INFRA`) is the canonical, append-only catalogue; each case carries

@@ -1,0 +1,40 @@
+# =============================================================================
+# English (en) — default locale.
+# =============================================================================
+# This catalogue is the source of truth for user-facing strings the application
+# emits. The Japanese translation lives in `ja.yaml`; new locales are added by
+# dropping a sibling `<locale>.yaml` file with the same key tree.
+#
+# Conventions:
+#   - Error keys mirror the SASO error-code catalogue exactly:
+#     `error.<full-code>.title|detail` (cf. ADR 0004).
+#   - Detail strings are user-facing; never include stack-trace context, IDs,
+#     or anything that would not survive a screenshot in a support ticket.
+#   - Placeholders use Symfony's brace syntax: `{name}`.
+# =============================================================================
+
+error:
+  SASO-AUTH-1001:
+    title: Invalid credentials
+    detail: The submitted credentials did not match an active account.
+  SASO-AUTH-1002:
+    title: Session expired
+    detail: Your session has expired. Please sign in again.
+  SASO-AUTH-1003:
+    title: CSRF token mismatch
+    detail: The submitted CSRF token did not validate. Refresh the page and try again.
+  SASO-AUTH-1004:
+    title: Authentication required
+    detail: This endpoint requires an authenticated user.
+  SASO-AUTH-1005:
+    title: Access denied
+    detail: You do not have permission to perform this action.
+  SASO-INFRA-9000:
+    title: Internal server error
+    detail: 'An unexpected error occurred. Reference: {traceId}.'
+  SASO-INFRA-9001:
+    title: Database unavailable
+    detail: The database is currently unreachable. Please try again in a moment.
+  SASO-INFRA-9002:
+    title: Storage unavailable
+    detail: A required storage path is currently unreachable.

@@ -1,0 +1,37 @@
+# =============================================================================
+# 日本語 (ja) — translation catalogue.
+# =============================================================================
+# Mirrors the key tree in `en.yaml`. Missing keys here automatically fall back
+# to English at request time (see TranslatorFactory's fallback locale chain).
+#
+# Style notes:
+#   - 「丁寧体（です・ます調）」for user-facing strings.
+#   - 専門用語（CSRF, セッション 等）は無理に和訳せず英字のまま使う。
+#   - traceId など可変値は {traceId} のプレースホルダで埋め込む。
+# =============================================================================
+
+error:
+  SASO-AUTH-1001:
+    title: 認証情報が正しくありません
+    detail: 入力された認証情報は有効なアカウントと一致しません。
+  SASO-AUTH-1002:
+    title: セッションの有効期限が切れました
+    detail: セッションの有効期限が切れました。再度サインインしてください。
+  SASO-AUTH-1003:
+    title: CSRF トークンが一致しません
+    detail: 送信された CSRF トークンを検証できませんでした。ページを再読み込みしてからもう一度お試しください。
+  SASO-AUTH-1004:
+    title: 認証が必要です
+    detail: このエンドポイントには認証されたユーザーが必要です。
+  SASO-AUTH-1005:
+    title: アクセスが拒否されました
+    detail: この操作を実行する権限がありません。
+  SASO-INFRA-9000:
+    title: サーバー内部エラー
+    detail: '想定外のエラーが発生しました。お問い合わせの際は次の参照 ID をお伝えください: {traceId}'
+  SASO-INFRA-9001:
+    title: データベースに接続できません
+    detail: 現在データベースに接続できません。しばらく時間をおいて再度お試しください。
+  SASO-INFRA-9002:
+    title: ストレージに接続できません
+    detail: 必要なストレージパスに現在アクセスできません。

@@ -15,6 +15,8 @@ site_author: Willen Federation contributors
 copyright: >-
   Copyright &copy; Japan Standards Organization (日本標準機構) and
   Willen Federation contributors. Released under the GNU GPL v3.
+  &nbsp;|&nbsp;
+  <a href="https://www.netlify.com" rel="noopener">This site is powered by Netlify</a>
 
 repo_name: Willen-Federation/SASO-Willen-Edition
 repo_url: https://github.com/Willen-Federation/SASO-Willen-Edition
@@ -73,6 +75,9 @@ extra:
     - icon: fontawesome/brands/github
       link: https://github.com/Willen-Federation/SASO-Willen-Edition
       name: SASO on GitHub
+    - icon: simple/netlify
+      link: https://www.netlify.com
+      name: This site is powered by Netlify
   status:
     new: Recently added
     deprecated: Deprecated
@@ -111,6 +116,7 @@ plugins:
             Authentication Providers: 認証プロバイダー
             Error Codes: エラーコード
             Changelog: 変更履歴
+            Code of Conduct: 行動規範
   - git-revision-date-localized:
       type: iso_date
       fallback_to_build_date: true
@@ -177,3 +183,4 @@ nav:
   - Authentication Providers: auth-providers/index.md
   - Error Codes: error-codes.md
   - Changelog: changelog.md
+  - Code of Conduct: code-of-conduct.md

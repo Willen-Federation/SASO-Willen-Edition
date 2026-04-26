@@ -76,9 +76,9 @@ A new code touches three places in the same PR:
 
 1. Add a case to `Saso\Domain\Shared\ErrorCode` (`src/Domain/Shared/ErrorCode.php`).
 2. Add the row to the table above.
-3. Add `error.<code>.title` and `error.<code>.detail` keys to `translations/en.yaml` and `translations/ja.yaml` (lands in M3-C).
+3. Add `error.<code>.title` and `error.<code>.detail` keys to `translations/en.yaml` and `translations/ja.yaml`. Detail strings can include placeholders such as `{traceId}` for runtime interpolation.
 
-Throw a subclass of `DomainException` carrying the new code; the global handler renders Problem Details automatically.
+Throw a subclass of `DomainException` carrying the new code; the global handler resolves both fields against the request locale and renders the Problem Details payload automatically. Missing Japanese strings fall through to English; missing English strings fall through to the exception message.
 
 ## Legacy code paths
 

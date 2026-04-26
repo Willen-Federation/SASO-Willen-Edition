@@ -7,6 +7,7 @@ namespace Saso\Presentation\Http\Problem;
 use Psr\Log\LoggerInterface;
 use Saso\Domain\Shared\DomainException;
 use Saso\Domain\Shared\ErrorCode;
+use Saso\Infrastructure\Translation\Translator;
 use Throwable;
 
 /**
@@ -15,8 +16,10 @@ use Throwable;
  * Behaviour matrix:
  *
  *   - `DomainException`  → response carries the subclass's `ErrorCode` and
- *                          its message verbatim. The full `context()` array
- *                          is logged but never serialised into the body.
+ *                          a translated `title`/`detail` resolved against
+ *                          the request locale, falling back to the
+ *                          exception's English message and the code's
+ *                          {@see ErrorCode::defaultTitle()}.
  *   - any other throwable → response carries `SASO-INFRA-9000` and either
  *                          a generic message (production) or the original
  *                          message (debug mode). The full stack is logged.
@@ -24,6 +27,11 @@ use Throwable;
  * In every case the response body carries a freshly-generated `traceId`;
  * the same id appears in the log entry under the `traceId` key, which is
  * what operators use to correlate a support report to a server-side trace.
+ *
+ * The translator is optional. When it is null the handler falls back to
+ * the English defaults baked into {@see ErrorCode::defaultTitle()} — this
+ * keeps the handler usable from setup paths (the installer, early
+ * bootstrap) where the i18n catalogue may not yet be wired.
  */
 final class ProblemExceptionHandler
 {
@@ -32,24 +40,28 @@ final class ProblemExceptionHandler
         private readonly ProblemRenderer $renderer,
         private readonly bool $debug = false,
         private readonly ?string $typeBaseUrl = null,
+        private readonly ?Translator $translator = null,
     ) {
     }
 
-    public function handle(Throwable $exception, string $instance): ProblemDetails
+    public function handle(Throwable $exception, string $instance, ?string $locale = null): ProblemDetails
     {
         $traceId = TraceId::generate();
 
         if ($exception instanceof DomainException) {
-            $code   = $exception->errorCode();
-            $detail = $exception->getMessage();
-            $logCtx = $exception->context();
+            $code           = $exception->errorCode();
+            $detailFallback = $exception->getMessage();
+            $logCtx         = $exception->context();
         } else {
-            $code   = ErrorCode::InfraUnhandled;
-            $detail = $this->debug
+            $code           = ErrorCode::InfraUnhandled;
+            $detailFallback = $this->debug
                 ? $exception->getMessage()
                 : 'An unexpected error occurred. Reference: '.$traceId;
             $logCtx = [];
         }
+
+        $title  = $this->resolveTitle($code, $locale);
+        $detail = $this->resolveDetail($code, $detailFallback, $traceId, $locale);
 
         $this->logger->error($exception->getMessage(), [
             'traceId'   => $traceId,
@@ -63,7 +75,7 @@ final class ProblemExceptionHandler
 
         $problem = ProblemDetails::fromError(
             code: $code,
-            title: $code->defaultTitle(),
+            title: $title,
             detail: $detail,
             instance: $instance,
             traceId: $traceId,
@@ -73,5 +85,34 @@ final class ProblemExceptionHandler
         $this->renderer->emit($problem);
 
         return $problem;
+    }
+
+    private function resolveTitle(ErrorCode $code, ?string $locale): string
+    {
+        $fallback = $code->defaultTitle();
+
+        if ($this->translator === null) {
+            return $fallback;
+        }
+
+        return $this->translator->trans(
+            key: $code->translationKey().'.title',
+            locale: $locale,
+            fallback: $fallback,
+        );
+    }
+
+    private function resolveDetail(ErrorCode $code, string $fallback, string $traceId, ?string $locale): string
+    {
+        if ($this->translator === null) {
+            return $fallback;
+        }
+
+        return $this->translator->trans(
+            key: $code->translationKey().'.detail',
+            params: ['{traceId}' => $traceId],
+            locale: $locale,
+            fallback: $fallback,
+        );
     }
 }

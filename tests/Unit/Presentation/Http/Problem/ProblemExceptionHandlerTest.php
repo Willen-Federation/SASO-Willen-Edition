@@ -11,6 +11,7 @@ use RuntimeException;
 use Saso\Domain\Shared\DomainException;
 use Saso\Domain\Shared\ErrorCode;
 use Saso\Infrastructure\Logging\MonologFactory;
+use Saso\Infrastructure\Translation\TranslatorFactory;
 use Saso\Presentation\Http\Problem\ProblemExceptionHandler;
 use Saso\Presentation\Http\Problem\ProblemRenderer;
 
@@ -89,6 +90,89 @@ final class ProblemExceptionHandlerTest extends TestCase
         self::assertSame('csrf token did not validate', $record->message);
         // TraceIdProcessor promotes traceId into extra.
         self::assertSame($problem->traceId, $record->extra['traceId']);
+    }
+
+    public function testTranslatorResolvesLocalisedTitleAndDetail(): void
+    {
+        $logHandler = new TestHandler();
+        $logger     = MonologFactory::withHandler($logHandler);
+        $translator = TranslatorFactory::create();
+        $handler    = new ProblemExceptionHandler(
+            $logger,
+            new ProblemRenderer(),
+            translator: $translator,
+        );
+
+        $ex = new class (ErrorCode::AuthInvalidCredentials, 'wrong password') extends DomainException {};
+
+        ob_start();
+        $problem = $handler->handle($ex, '/api/v1/auth/login', locale: 'ja');
+        ob_end_clean();
+
+        self::assertSame('認証情報が正しくありません', $problem->title);
+        self::assertSame(
+            '入力された認証情報は有効なアカウントと一致しません。',
+            $problem->detail,
+        );
+    }
+
+    public function testTranslatorFallsBackToExceptionMessageForUntranslatedDetails(): void
+    {
+        $logHandler = new TestHandler();
+        $logger     = MonologFactory::withHandler($logHandler);
+        $translator = TranslatorFactory::create();
+        $handler    = new ProblemExceptionHandler(
+            $logger,
+            new ProblemRenderer(),
+            translator: $translator,
+        );
+
+        $ex = new class (ErrorCode::AuthInvalidCredentials, 'request-specific reason') extends DomainException {};
+
+        ob_start();
+        $problem = $handler->handle($ex, '/api/v1/auth/login', locale: 'en');
+        ob_end_clean();
+
+        // English detail string from translations/en.yaml — not the
+        // exception message, since the catalogue has an entry.
+        self::assertSame(
+            'The submitted credentials did not match an active account.',
+            $problem->detail,
+        );
+    }
+
+    public function testTraceIdIsInterpolatedIntoInfraDetail(): void
+    {
+        $logHandler = new TestHandler();
+        $logger     = MonologFactory::withHandler($logHandler);
+        $translator = TranslatorFactory::create();
+        $handler    = new ProblemExceptionHandler(
+            $logger,
+            new ProblemRenderer(),
+            translator: $translator,
+        );
+
+        ob_start();
+        $problem = $handler->handle(new RuntimeException('boom'), '/api/v1/items', locale: 'en');
+        ob_end_clean();
+
+        self::assertStringContainsString($problem->traceId, $problem->detail);
+        self::assertStringNotContainsString('{traceId}', $problem->detail);
+    }
+
+    public function testWithoutTranslatorFallsBackToDefaultTitle(): void
+    {
+        $logHandler = new TestHandler();
+        $logger     = MonologFactory::withHandler($logHandler);
+        $handler    = new ProblemExceptionHandler($logger, new ProblemRenderer());
+
+        $ex = new class (ErrorCode::AuthForbidden) extends DomainException {};
+
+        ob_start();
+        $problem = $handler->handle($ex, '/api/v1/items');
+        ob_end_clean();
+
+        self::assertSame('Access denied', $problem->title);
     }
 
     public function testHandlerHonoursTypeBaseUrl(): void

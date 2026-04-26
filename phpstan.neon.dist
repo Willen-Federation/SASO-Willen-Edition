@@ -12,6 +12,14 @@ parameters:
         - util/EnvLoader.php
         - util/UploadValidator.php
         - util/CSRFtoken.php
+    # Phinx migrations are class-based but resolved at runtime by Phinx
+    # via direct require_once. Listing the directory under scanDirectories
+    # makes the class symbols visible to the test reflection helpers
+    # without forcing the migrations themselves through level-6 analysis
+    # (Phinx's AbstractMigration relies on magic methods we have no
+    # reason to type-narrow).
+    scanDirectories:
+        - migrations
     excludePaths:
         analyseAndScan:
             - vendor/*

@@ -49,7 +49,6 @@ return [
         'migrations' => [
             __DIR__.'/migrations/M1',
             __DIR__.'/migrations/M4',
-            __DIR__.'/migrations/M6',
         ],
         'seeds' => [
             __DIR__.'/seeds',

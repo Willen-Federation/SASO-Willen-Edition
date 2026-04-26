@@ -48,6 +48,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   result so a rejected upload short-circuits before any DB write.
 
 ### Added
+- **Phinx-based schema migrations** (M4-B). Replaces the hand-applied
+  SQL workflow established in M1 with class-based migrations driven by
+  [Phinx](https://book.cakephp.org/phinx/0/en/index.html) (cf.
+  [ADR 0007](docs/architecture/adr/0007-phinx-migrations.md)).
+  `composer require --dev robmorgan/phinx:^0.16`. New `phinx.php` at the
+  project root exposes a `production` environment that reads
+  `DB_DSN` / `DB_USER` / `DB_PASSWORD` through the same `.env` chain
+  the application uses, plus a `testing` environment for CI integration.
+  Migrations live under `migrations/<milestone>/` (M1, M4, …) so each
+  delivery line gets its own sub-directory; seed classes live under
+  `seeds/`. The legacy
+  `migrations/M1_001_widen_password_column.sql` is rewritten as
+  `migrations/M1/20260101000001_widen_password_column.php` (class
+  `WidenPasswordColumn`); `down()` raises
+  `IrreversibleMigrationException` to prevent a narrow-rollback from
+  silently truncating Argon2id hashes. New Makefile targets:
+  `make migrate`, `make migrate-status`, `make migrate-rollback`,
+  `make seed`. PHPStan's `scanDirectories` includes `migrations/` so
+  the class symbols are visible to reflection-based tests without
+  forcing the migrations through level-6 analysis. New 5-case smoke
+  test (`WidenPasswordColumnTest`) verifies file path, class name
+  matches the slug, extension of `AbstractMigration`, finality, and
+  one-way `down()`. **188 unit tests** total. `migrations/README.md`
+  is rewritten as a Phinx operations guide (run locally / production /
+  M5 Web installer; conventions; CI integration). The five
+  conventions from ADR 0007 are spelled out in the README.
 - **ADRs 0005-0007** (M4-A). MADR-format records of the three
   load-bearing M4 architecture decisions: OpenFeature PHP SDK + a
   SASO-owned `feature_flag` DB provider with cron + tail-of-request

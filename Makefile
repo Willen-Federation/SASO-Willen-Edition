@@ -22,7 +22,8 @@ EXEC_APP := $(DC) exec -T $(APP)
 EXEC_DB := $(DC) exec -T $(DB)
 
 .PHONY: help up up-sso down restart logs ps shell composer install update \
-        test analyse cs-check cs-fix migrate db-shell db-dump clean
+        test analyse cs-check cs-fix migrate migrate-status migrate-rollback \
+        seed db-shell db-dump clean
 
 help:  ## Show available targets
 	@printf "\nUsage: make <target>\n\n"
@@ -91,11 +92,17 @@ qa:  ## Run cs-check + analyse + test in sequence
 
 # ----- Database --------------------------------------------------------------
 
-migrate:  ## Apply every SQL file under migrations/ (idempotent)
-	@for f in $$(ls migrations/*.sql 2>/dev/null | sort); do \
-		echo "Applying $$f"; \
-		$(EXEC_DB) sh -c "mariadb -uroot -p$(DB_ROOT_PASSWORD) $(DB_NAME)" < $$f || exit 1; \
-	done
+migrate:  ## Apply pending Phinx migrations against the dev DB
+	$(EXEC_APP) vendor/bin/phinx migrate -e production
+
+migrate-status:  ## Show applied vs pending Phinx migrations
+	$(EXEC_APP) vendor/bin/phinx status -e production
+
+migrate-rollback:  ## Roll back the most recent Phinx migration (DESTRUCTIVE)
+	$(EXEC_APP) vendor/bin/phinx rollback -e production
+
+seed:  ## Run Phinx seed classes (idempotent if writers use upsert)
+	$(EXEC_APP) vendor/bin/phinx seed:run -e production
 
 db-shell:  ## Open a MariaDB client inside the db container
 	$(DC) exec $(DB) mariadb -uroot -p$(DB_ROOT_PASSWORD) $(DB_NAME)

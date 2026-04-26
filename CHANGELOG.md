@@ -48,6 +48,50 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   result so a rejected upload short-circuits before any DB write.
 
 ### Added
+- **Symfony Messenger scaffold** (M6-C). Establishes the
+  background-job contract recorded in
+  [ADR 0013](docs/architecture/adr/0013-symfony-messenger-queue.md).
+  `composer require symfony/messenger:^7.2`. Concrete async transports
+  (Redis Streams / Doctrine on MariaDB) and the `messenger:consume`
+  worker land in M6-D against this stable surface; this PR ships the
+  in-process bus + first message + first handler.
+
+  Domain layer (`src/Domain/Messaging/`):
+  * `Message/Message.php` — marker interface every domain message
+    implements.
+  * `Message/IndexItem.php` — first concrete message: tells the
+    search-index handler to refresh OpenSearch for an item.
+    Constructor invariants: `itemId ≥ 1`, non-empty `reason`.
+    Readonly + serialisable so the message survives a round-trip
+    through any transport.
+
+  Application layer (`src/Application/Messaging/Handler/`):
+  * `IndexItemHandler` — placeholder that logs the dispatch via
+    Monolog. M6-D swaps `LoggerInterface` for the
+    `LoggerInterface + SearchIndex` pair and calls
+    `SearchIndex::upsert()`. The handler shape (ctor-injected
+    deps + single `__invoke`) is final; only the dependency
+    surface grows.
+
+  Infrastructure layer (`src/Infrastructure/Messaging/`):
+  * `MessageBusFactory::create($handlersByMessage)` — builds a
+    Symfony `MessageBus` with a single `HandleMessageMiddleware`
+    over a `HandlersLocator`. The composition root passes a map
+    `class-string => list<callable>`; M6-D extends the chain with
+    `SendMessageMiddleware` for async transports.
+
+  Tests (10 new, 416 total):
+  * `IndexItemTest` (6) — full storage, default reason, marker
+    interface, both invariants, PHP serialise round-trip.
+  * `IndexItemHandlerTest` (1) — invocation logged at info level
+    with the right context fields.
+  * `MessageBusFactoryTest` (3) — factory returns
+    `MessageBusInterface`, dispatched message reaches its handler,
+    unregistered message raises `NoHandlerForMessageException`,
+    registration is keyed by message class (subsequent dispatches
+    of the same class still hit the handler).
+
+  Documentation: CHANGELOG.md — M6-C entry under [Unreleased].
 - **`storage_location` + `similar_item` storage tier** (M6-E1).
   Direct response to the user's "保管場所コード" requirement; ships
   the persistence half of the hierarchy contracted by

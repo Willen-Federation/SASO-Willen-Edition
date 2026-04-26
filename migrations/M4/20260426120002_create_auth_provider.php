@@ -25,17 +25,11 @@ final class CreateAuthProvider extends AbstractMigration
     public function up(): void
     {
         $this->table('auth_provider', [
-            'id'        => false,
-            'primary_key' => 'id',
+            'id'        => 'id',
             'engine'    => 'InnoDB',
             'collation' => 'utf8mb4_unicode_ci',
             'comment'   => 'Pluggable IdP registrations (ADR 0003).',
         ])
-            ->addColumn('id', 'biginteger', [
-                'signed'  => false,
-                'null'    => false,
-                'identity' => true,
-            ])
             ->addColumn('name', 'string', [
                 'limit'   => 100,
                 'null'    => false,

@@ -25,13 +25,7 @@ use DateTimeImmutable;
 final readonly class AuthProviderRecord
 {
     /**
-     * `claim_mapping` round-trips as JSON, so the leaves can be strings,
-     * nested maps (`_config` carries provider-specific tunables), or
-     * arrays of strings. Modelled as a loose mixed-leafed map rather
-     * than `array<string, string>` so static analysis is honest about
-     * the values nested under `_config`.
-     *
-     * @param array<string, mixed>|null $claimMapping
+     * @param array<string, string>|null $claimMapping
      */
     public function __construct(
         public AuthProviderId $id,

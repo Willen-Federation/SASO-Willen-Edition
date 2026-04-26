@@ -48,6 +48,52 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   result so a rejected upload short-circuits before any DB write.
 
 ### Added
+- **AI gateway scaffold** (M6-B). Establishes the vendor-agnostic
+  contract recorded in
+  [ADR 0009](docs/architecture/adr/0009-multi-llm-gateway.md).
+  Concrete OpenAI / Gemini / Claude adapters land in M6-F against
+  this stable surface.
+
+  Domain layer (`src/Domain/Ai/`):
+  * `AiAssistant` interface — `chatComplete` / `extractStructured` /
+    `embed` / `describeImage`. Documented exception contract.
+  * `ChatMessage` + `ChatRole` enum (system/user/assistant/tool —
+    values match OpenAI / Anthropic / Gemini wire format verbatim).
+  * `ChatRequest` with constructor-time invariants (non-empty
+    messages, temperature in [0, 2], maxTokens ≥ 1, valid
+    `responseFormat`, `jsonSchema` required for `json_schema`).
+  * `ChatResponse` with `decoded()` helper.
+  * `AiUsage` token-count value object.
+  * `EmbeddingTask` enum (retrieval.query / retrieval.passage /
+    clustering / classification / similarity).
+  * `EmbeddingRequest` (text + image inputs, optional dimensions
+    override) and `EmbeddingResponse` (uniform-dim vectors with
+    `dimensions()` accessor + ragged-vector rejection).
+  * `ImageRequest` + `ImageDescriptionResponse`.
+  * `StructuredExtractionRequest` + `StructuredExtractionResponse`
+    for the M6-G barcode → structured-extraction pipeline.
+  * Five typed exceptions wired to the new `SASO-AI-8001..8005`
+    error codes (`AiProviderNotConfigured` 503, `AiRateLimited`
+    429, `AiResponseMalformed` / `AiContextExceeded` /
+    `AiContentPolicy` 422). Plus `AiUpstreamException` mapped to
+    `SASO-INFRA-9000` for transient 5xx / network failures so the
+    M6-F `FallbackChainAssistant` can identify retryable
+    operations.
+
+  Infrastructure layer (`src/Infrastructure/Ai/`):
+  * `NullAssistant` — every method throws
+    `AiProviderNotConfiguredException`. Selected by the M6-F
+    composition root when no API key is configured for the
+    operation, or when `SAFE_MODE=true`.
+
+  Five new error codes ship with EN + JA translations.
+
+  Tests (47 new, 346 total): `ChatMessageTest` (3),
+  `ChatRequestTest` (7), `ChatResponseTest` (3),
+  `EmbeddingRequestTest` (5), `EmbeddingResponseTest` (4),
+  `ImageRequestTest` (4), `StructuredExtractionRequestTest` (5),
+  `AiExceptionTest` (6), `NullAssistantTest` (5).
+  `ErrorCodeTest` data provider extended with the five new codes.
 - **ADRs 0009-0014** (M6-A). Strategic architecture decisions for the
   M6 scope expansion (AI / vector search / Flutter mobile / MCP). All
   six accepted up-front so the implementation PRs (M6-B onwards) land

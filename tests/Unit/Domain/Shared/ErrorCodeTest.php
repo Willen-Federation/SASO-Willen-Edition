@@ -48,6 +48,11 @@ final class ErrorCodeTest extends TestCase
         yield 'callback state mismatch → 400' => [ErrorCode::AuthCallbackStateMismatch, 400];
         yield 'callback validation failed → 400' => [ErrorCode::AuthCallbackValidationFailed, 400];
         yield 'flag not found → 404' => [ErrorCode::FlagNotFound, 404];
+        yield 'ai provider not configured → 503' => [ErrorCode::AiProviderNotConfigured, 503];
+        yield 'ai rate limited → 429' => [ErrorCode::AiRateLimited, 429];
+        yield 'ai response malformed → 422' => [ErrorCode::AiResponseMalformed, 422];
+        yield 'ai context exceeded → 422' => [ErrorCode::AiContextExceeded, 422];
+        yield 'ai content policy → 422' => [ErrorCode::AiContentPolicy, 422];
     }
 
     public function testHttpStatusIsAlwaysClientOrServerError(): void

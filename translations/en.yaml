@@ -44,6 +44,21 @@ error:
   SASO-FLAG-7001:
     title: Feature flag not found
     detail: 'The requested feature flag is not registered. Ask an administrator to add the flag or to remove the call site.'
+  SASO-AI-8001:
+    title: AI provider is not configured
+    detail: 'The AI feature is currently unavailable. Ask an administrator to register an API key for the chosen provider.'
+  SASO-AI-8002:
+    title: AI provider rate-limited the request
+    detail: 'The AI provider declined the request because the per-minute quota is exhausted. Try again in a moment.'
+  SASO-AI-8003:
+    title: AI provider returned a malformed response
+    detail: 'The AI provider returned content that could not be parsed. The full response is in the server log.'
+  SASO-AI-8004:
+    title: AI prompt exceeds the provider context window
+    detail: 'The submitted content is too large for the configured AI model. Reduce the input size or pick a model with a larger context window.'
+  SASO-AI-8005:
+    title: AI provider refused the request as policy-violating
+    detail: 'The AI provider declined the request on safety grounds. Edit the prompt or content and try again.'
   SASO-INFRA-9000:
     title: Internal server error
     detail: 'An unexpected error occurred. Reference: {traceId}.'

@@ -48,6 +48,62 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   result so a rejected upload short-circuits before any DB write.
 
 ### Added
+- **Remaining four plugin extension-point registries** (M6-J2).
+  Completes the six typed registries promised by
+  [ADR 0015](docs/architecture/adr/0015-plugin-system.md) — the
+  M6-J2-pre `AiAssistantRegistry` plus the four shipped here. The
+  composition root + `PluginContext` facade + `PluginDiscovery`
+  loop land in M6-J3 against this stable surface.
+
+  Domain layer (`src/Domain/Plugin/Registry/` + supporting markers):
+  * `AuthProviderRegistry` — adds new `AuthProvider` implementations
+    beyond the core local / OIDC / SAML set (cf. ADR 0003).
+    Reserved-vs-vendor name rules apply.
+  * `McpToolRegistry` (+ `Saso\Domain\Mcp\McpTool` marker) — adds
+    new MCP tools beyond the core `search_items` / `get_item` /
+    `list_storage_locations` / `register_item` set (cf. ADR 0014).
+    The marker is empty in this PR; the full lifecycle lands in
+    M6-I when the JSON-RPC `/mcp` endpoint goes live.
+  * `DomainEventBus` (+ `Saso\Domain\Event\DomainEvent` marker) —
+    synchronous, ordered, in-process. Supports subclass dispatch
+    (subscribers to a base event class receive subclass events
+    too). A throwing listener stops the chain — buggy plugins
+    surface their failure at the publisher rather than silently
+    swallowing it.
+  * `ApiRouteRegistry` (+ `PluginRoute` value object) — adds new
+    `/api/v1/plugins/*` routes (cf. ADR 0002 / ADR 0015). The
+    M6-J3 router walks the registry and appends to the fast-route
+    dispatcher built from `config/openapi.yaml`. Plugins cannot
+    mount routes outside their namespace.
+
+  Infrastructure layer (`src/Infrastructure/Plugin/Registry/`):
+  * `InMemoryAuthProviderRegistry` — same reserved-name rules as
+    M6-J2-pre's `InMemoryAiAssistantRegistry`.
+  * `InMemoryMcpToolRegistry` — same.
+  * `InMemoryDomainEventBus` — `is_a()`-based listener selection
+    so subclass events trigger superclass listeners; throwing
+    listener short-circuits the chain.
+  * `InMemoryApiRouteRegistry` — parallel-map storage (route +
+    handler), `routes()` returns the value-object list,
+    `handlerFor()` resolves by name.
+
+  Tests (28 new, 538 total): `PluginRouteTest` (6 — every
+  invariant + `methodUpper()`),
+  `InMemoryAuthProviderRegistryTest` (5 — empty start,
+  `registerCore`, vendor-name registration, reserved-name collision,
+  re-register own vendor name overwrites — uses an anonymous
+  `AuthProvider` fake to avoid coupling to the M3-E concrete adapters
+  which haven't shipped yet),
+  `InMemoryMcpToolRegistryTest` (5 — same shape with an anonymous
+  `McpTool` marker),
+  `InMemoryDomainEventBusTest` (6 — empty count, single subscriber,
+  ordered fan-out, **subclass dispatch** triggers superclass
+  listeners, **throwing listener stops the chain**, listener-count
+  reporting),
+  `InMemoryApiRouteRegistryTest` (6 — empty start, register stores
+  both maps, plugin cannot displace reserved name, plugin
+  re-register overwrites, unregister removes from both maps,
+  `routes()` returns only `PluginRoute` instances).
 - **First plugin extension-point registry: `AiAssistantRegistry`**
   (M6-J2-pre). Establishes the registry shape for the six typed
   registries promised by [ADR 0015](docs/architecture/adr/0015-plugin-system.md);

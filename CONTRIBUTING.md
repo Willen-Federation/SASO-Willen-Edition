@@ -150,10 +150,21 @@ composer test        # unit tests (phpunit)
 composer cs:check    # check style without modifying (phpunit + diff output)
 ```
 
-> **Note**: PHPUnit / PHPStan / PHP-CS-Fixer configuration files
-> (`phpunit.xml.dist`, `phpstan.neon.dist`, `.php-cs-fixer.dist.php`) ship in
-> milestone **M2-B**. The composer scripts above expose the canonical commands
-> for downstream PRs to wire up.
+**Configuration**:
+
+| File | Tool | Scope today |
+|---|---|---|
+| `phpunit.xml.dist` | PHPUnit 10.5 | `tests/Unit`, `tests/Integration`, `tests/Feature` |
+| `phpstan.neon.dist` | PHPStan **level 6** | `src/`, `tests/`, three M1 utility rewrites in `util/` |
+| `.php-cs-fixer.dist.php` | PHP-CS-Fixer | `src/`, `tests/`, three M1 utilities (PSR-12 + short arrays + ordered imports + single quotes + trailing commas) |
+
+Legacy directories (`auth/`, `item/`, `framework/`, `repository/`, …) are
+deliberately excluded from PHPStan and PHP-CS-Fixer until they migrate to
+`src/` across M3-M4. Including them today would bury actionable signal under
+hundreds of pre-existing magic-property and mixed-type errors.
+
+> The same commands run in CI (`cs-check`, `static-analysis`, `unit-tests`
+> jobs). Push only after they all pass locally.
 
 ## Testing
 

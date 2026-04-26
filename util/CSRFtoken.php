@@ -1,4 +1,5 @@
 <?php
+
 namespace saso\util;
 
 /**
@@ -55,6 +56,7 @@ final class CSRFtoken
      * @deprecated since M1 — calls current() and ignores the salt argument.
      *             Retained so existing config.json files with `csrftokensalt`
      *             keep working through the migration window.
+     *
      * @param string $salt Intentionally unused; kept for signature compat.
      */
     public static function salting(string $salt): string

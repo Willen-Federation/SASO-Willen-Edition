@@ -1,4 +1,5 @@
 <?php
+
 namespace saso\util;
 
 /**
@@ -18,6 +19,8 @@ final class EnvLoader
     /**
      * Parse the given file into an associative array. Returns [] when the
      * file is missing or unreadable so callers can treat .env as optional.
+     *
+     * @return array<string, string>
      */
     public static function loadFile(string $path): array
     {
@@ -51,6 +54,8 @@ final class EnvLoader
     /**
      * Look up a key with precedence: explicit .env array > getenv() > default.
      * Returning null lets callers distinguish "unset" from the empty string.
+     *
+     * @param array<string, string> $env
      */
     public static function get(array $env, string $key, ?string $default = null): ?string
     {

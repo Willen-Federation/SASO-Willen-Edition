@@ -1,0 +1,25 @@
+parameters:
+    level: 6
+    # Scope: only files this fork has rewritten or owns. Legacy directories
+    # (auth/, item/, framework/, repository/, etc.) are deliberately excluded
+    # — they migrate to src/ across M3-M4 and will be re-included once they
+    # carry strict types and proper interface contracts. Adding them at L6
+    # today would produce hundreds of pre-existing magic-property and
+    # mixed-type errors that bury actionable signal.
+    paths:
+        - src
+        - tests
+        - util/EnvLoader.php
+        - util/UploadValidator.php
+        - util/CSRFtoken.php
+    excludePaths:
+        analyseAndScan:
+            - vendor/*
+            - extention/*
+    bootstrapFiles:
+        - tests/bootstrap.php
+    parallel:
+        maximumNumberOfProcesses: 4
+        minimumNumberOfJobsPerProcess: 2
+    treatPhpDocTypesAsCertain: true
+    reportUnmatchedIgnoredErrors: true

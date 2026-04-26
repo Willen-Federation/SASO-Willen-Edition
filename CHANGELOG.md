@@ -48,6 +48,41 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   result so a rejected upload short-circuits before any DB write.
 
 ### Added
+- **Cache interface tier** (M6-D1). Establishes the read-through
+  cache contract recorded in
+  [ADR 0012](docs/architecture/adr/0012-search-and-cache-infrastructure.md).
+  The `RedisCache` adapter (Predis-backed) lands alongside the Search
+  tier in M6-D2 against this stable contract; this PR ships the
+  domain-side surface so M4 / M6 services that depend on a cache
+  (AI rate limiter, OpenSearch query cache, OpenFeature provider
+  cache, locale resolver) can wire against it without waiting.
+
+  Domain layer (`src/Domain/Cache/`):
+  * `CacheKey.php` — readonly, format-validated. 1-200 chars,
+    alphanumeric + `:` + `.` + `_` + `-`. Colon convention follows
+    Redis idiom. Spaces / slashes / control characters rejected so
+    keys are safe to log, embed in URLs, and pipe through to Redis
+    without quoting. `fromParts()` factory composes a canonical
+    key from typed segments (trimmed, stray-colon-stripped, empty
+    rejected).
+  * `Cache.php` — interface with `get` / `set` / `forget` / `has`.
+    Best-effort semantics — adapters may overwrite each other under
+    contention; hot paths needing stronger guarantees use the DB
+    transaction layer.
+
+  Infrastructure layer (`src/Infrastructure/Cache/`):
+  * `NullCache.php` — selected when `cache.driver = null`, when the
+    Redis connection probe fails at boot, or when `SAFE_MODE=true`.
+    Reads always return `null` (the read-through pattern falls
+    through to source), writes are no-ops, `has()` always returns
+    `false`. Operators on shared hosting without Redis stay on this
+    path; the application stays available just without the speedup.
+
+  Tests (17 new, 433 total): `CacheKeyTest` (12 — every format
+  invariant + `fromParts` factory + equality),
+  `NullCacheTest` (5 — interface conformance, `get` always null,
+  `has` always false, `forget` no-op, `set` no-op across mixed value
+  types).
 - **Symfony Messenger scaffold** (M6-C). Establishes the
   background-job contract recorded in
   [ADR 0013](docs/architecture/adr/0013-symfony-messenger-queue.md).

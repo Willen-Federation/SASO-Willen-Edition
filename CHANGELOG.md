@@ -48,6 +48,36 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   result so a rejected upload short-circuits before any DB write.
 
 ### Added
+- **RFC 7807 Problem Details + `SASO-DOMAIN-NNNN` error catalogue** (M3-B).
+  New `Saso\Domain\Shared\ErrorCode` enum (8 initial cases across `AUTH` and
+  `INFRA`) is the canonical, append-only catalogue; each case carries
+  `httpStatus()`, `domain()`, `translationKey()`, and `defaultTitle()`.
+  `Saso\Domain\Shared\DomainException` is the abstract base every typed
+  exception extends — it carries an `ErrorCode` plus a structured `context`
+  array that is logged but never serialised to clients.
+  `Saso\Presentation\Http\Problem\ProblemDetails` is the immutable RFC 7807
+  value object (with `code` + `traceId` vendor extensions);
+  `ProblemRenderer` encodes / emits `application/problem+json` bodies;
+  `ProblemExceptionHandler` is the single termination point — `DomainException`
+  becomes its own code, anything else becomes `SASO-INFRA-9000` with a fresh
+  `traceId` and a generic message (or the original message if `debug=true`).
+  Monolog 3.10 ships as a production dependency; `MonologFactory` builds the
+  application logger with a `RotatingFileHandler` (14 daily files under
+  `var/log/`) and a `TraceIdProcessor` that promotes `traceId` from `context`
+  into `extra` so it shows up uniformly across line-formatter and structured
+  sinks. `docs/error-codes.md` is now a populated catalogue, cross-linked
+  from [ADR 0004](docs/architecture/adr/0004-rfc7807-problem-details.md).
+  **36 new unit tests** (88 total) cover the enum invariants, exception
+  semantics, UUIDv4 generation, `application/problem+json` shape, handler
+  branching, and processor wiring.
+- **ADRs 0001-0004** (M3-A). MADR-format records of the four load-bearing
+  M3 architecture decisions: Clean Architecture + DDD layout under `src/`
+  via Strangler Fig migration; OpenAPI 3.1 as the single source of truth
+  for `/api/v1/*`; Pluggable IdP via the `AuthProvider` interface
+  (OIDC + SAML + Local) with DB-backed registration and AES-256-GCM-encrypted
+  client secrets; RFC 7807 Problem Details + `SASO-DOMAIN-NNNN` codes with
+  `code` and `traceId` extensions. ADR index page reorganised into Accepted
+  vs. Planned tables; the four ADRs are exposed in the MkDocs sidebar.
 - **Bilingual developer documentation site** (M2-D). New `mkdocs.yml`
   configures Material for MkDocs with the `mkdocs-static-i18n` plugin
   (suffix mode: `foo.md` for English default, `foo.ja.md` for Japanese

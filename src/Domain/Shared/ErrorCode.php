@@ -26,9 +26,11 @@ enum ErrorCode: string
     case AuthForbidden          = 'SASO-AUTH-1005';
 
     // ── Infrastructure (9xxx) ────────────────────────────────────────────
-    case InfraUnhandled          = 'SASO-INFRA-9000';
+    case InfraUnhandled           = 'SASO-INFRA-9000';
     case InfraDatabaseUnavailable = 'SASO-INFRA-9001';
-    case InfraStorageUnavailable = 'SASO-INFRA-9002';
+    case InfraStorageUnavailable  = 'SASO-INFRA-9002';
+    case InfraRouteNotFound       = 'SASO-INFRA-9003';
+    case InfraMethodNotAllowed    = 'SASO-INFRA-9004';
 
     /**
      * HTTP status the response carries when this error is raised.
@@ -46,6 +48,9 @@ enum ErrorCode: string
 
             self::AuthCsrfMismatch,
             self::AuthForbidden           => 403,
+
+            self::InfraRouteNotFound      => 404,
+            self::InfraMethodNotAllowed   => 405,
 
             self::InfraUnhandled          => 500,
 
@@ -86,6 +91,8 @@ enum ErrorCode: string
             self::InfraUnhandled           => 'Internal server error',
             self::InfraDatabaseUnavailable => 'Database unavailable',
             self::InfraStorageUnavailable  => 'Storage unavailable',
+            self::InfraRouteNotFound       => 'Endpoint not found',
+            self::InfraMethodNotAllowed    => 'Method not allowed',
         };
     }
 }

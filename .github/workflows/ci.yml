@@ -148,7 +148,11 @@ jobs:
         run: composer install --no-interaction --no-progress --prefer-dist
 
       - name: Run PHPStan
-        run: vendor/bin/phpstan analyse --no-progress --error-format=github
+        # 512M memory limit: the OpenAPI/fast-route + symfony/translation
+        # graph crosses PHPStan 1.12's default 128M ceiling on the
+        # GitHub-hosted runner. Bumping at the CLI keeps the local default
+        # untouched.
+        run: vendor/bin/phpstan analyse --no-progress --error-format=github --memory-limit=512M
 
   unit-tests:
     name: PHPUnit (unit suite)

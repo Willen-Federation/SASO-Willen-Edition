@@ -1,0 +1,203 @@
+# =============================================================================
+# SASO REST API — OpenAPI 3.1 specification
+# -----------------------------------------------------------------------------
+# This file is the **single source of truth** for the `/api/v1/*` surface
+# (cf. ADR 0002). The application's router boots from it: every path × method
+# entry must carry an `x-handler` extension naming a callable in PHP, and no
+# code path serves an endpoint that is not declared here.
+#
+# Conventions:
+#   * `operationId` is the unique handler key the router uses to wire requests
+#     to PHP callables. Treat it as a stable contract for SDK generators.
+#   * Error responses always reference `#/components/responses/Problem*` so the
+#     RFC 7807 shape (with the SASO `code` + `traceId` extensions) stays
+#     uniform across the API.
+#   * Schemas under `components/schemas/` are reusable. Do not inline the
+#     ProblemDetails shape — clients should be able to deserialize it from a
+#     single named schema.
+# =============================================================================
+
+openapi: 3.1.0
+
+info:
+  title: SASO REST API
+  version: 1.0.0-alpha
+  summary: Inventory and warehouse operations over HTTP.
+  description: |
+    REST surface for the SASO inventory and warehouse management system.
+    Errors follow [RFC 7807 Problem Details](https://datatracker.ietf.org/doc/html/rfc7807)
+    with the SASO `code` and `traceId` vendor extensions. See the
+    [error codes catalogue](https://docs.willen-federation.org/error-codes)
+    for the full identifier list.
+  license:
+    name: GPL-3.0-or-later
+    url: https://www.gnu.org/licenses/gpl-3.0.html
+  contact:
+    name: Willen Federation contributors
+    url: https://github.com/Willen-Federation/SASO-Willen-Edition
+
+servers:
+  - url: /api/v1
+    description: This SASO instance.
+
+tags:
+  - name: meta
+    description: Service health, build info, and the API specification itself.
+
+paths:
+  /health:
+    get:
+      tags: [meta]
+      summary: Liveness probe.
+      description: |
+        Returns a small JSON document indicating the service is reachable. Used
+        by orchestrators (Kubernetes liveness, ELB target health) and by
+        operators verifying a deployment.
+
+        This endpoint deliberately does **not** check downstream dependencies
+        (database, IdP, file storage). A `200 OK` here only means "PHP is
+        running"; deeper diagnostics live behind `/health/readiness`
+        (introduced in M4).
+      operationId: getHealth
+      x-handler: 'Saso\Presentation\Api\V1\Controller\HealthController::handle'
+      responses:
+        '200':
+          description: Service is alive.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthStatus'
+        '500':
+          $ref: '#/components/responses/ProblemInternalError'
+
+  /openapi.yaml:
+    get:
+      tags: [meta]
+      summary: Returns this OpenAPI specification.
+      description: |
+        Serves this exact YAML document. Useful for SDK generators, contract
+        tests, and Swagger UI.
+      operationId: getOpenApiSpec
+      x-handler: 'Saso\Presentation\Api\V1\Controller\OpenApiController::yaml'
+      responses:
+        '200':
+          description: The OpenAPI document.
+          content:
+            application/yaml:
+              schema:
+                type: string
+
+  /docs:
+    get:
+      tags: [meta]
+      summary: Swagger UI for this specification.
+      description: |
+        Renders an embedded Swagger UI that loads `/api/v1/openapi.yaml`.
+        Operators get a "try it out" surface without leaving the
+        application's origin.
+      operationId: getSwaggerUi
+      x-handler: 'Saso\Presentation\Api\V1\Controller\SwaggerUiController::page'
+      responses:
+        '200':
+          description: HTML page with Swagger UI bootstrap.
+          content:
+            text/html:
+              schema:
+                type: string
+
+components:
+  schemas:
+    HealthStatus:
+      type: object
+      required: [status, version, time]
+      properties:
+        status:
+          type: string
+          enum: [ok]
+          description: Always `ok` when the response is a 200.
+          example: ok
+        version:
+          type: string
+          description: API contract version. Follows SemVer.
+          example: 1.0.0-alpha
+        time:
+          type: string
+          format: date-time
+          description: Server time at response generation, UTC, RFC 3339.
+          example: '2026-04-26T12:34:56Z'
+
+    ProblemDetails:
+      type: object
+      description: |
+        RFC 7807 Problem Details with the SASO vendor extensions `code` and
+        `traceId`. Clients should branch on `code`; `title` and `detail` are
+        localised strings whose wording may change between releases.
+      required: [type, title, status, code, traceId]
+      properties:
+        type:
+          type: string
+          format: uri
+          description: Canonical URL for the error code.
+          example: https://docs.willen-federation.org/error-codes#SASO-AUTH-1001
+        title:
+          type: string
+          description: Short, human-readable summary.
+          example: Invalid credentials
+        status:
+          type: integer
+          description: Mirrors the HTTP status of the response.
+          example: 401
+        detail:
+          type: string
+          description: Request-specific message, localised.
+          example: The submitted credentials did not match an active account.
+        instance:
+          type: string
+          description: Request URI (no query string).
+          example: /api/v1/auth/login
+        code:
+          type: string
+          pattern: '^SASO-[A-Z]+-\d{4}$'
+          description: Stable SASO error identifier.
+          example: SASO-AUTH-1001
+        traceId:
+          type: string
+          format: uuid
+          description: UUIDv4 unique per request, present in the server log.
+          example: 1f9b3c8a-9e15-4d6a-8c2c-3d8f4f1f7a12
+
+  responses:
+    ProblemUnauthorized:
+      description: Authentication is required or invalid.
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/ProblemDetails'
+
+    ProblemForbidden:
+      description: Authenticated, but not allowed.
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/ProblemDetails'
+
+    ProblemNotFound:
+      description: No matching endpoint.
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/ProblemDetails'
+
+    ProblemMethodNotAllowed:
+      description: HTTP method not registered on this path.
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/ProblemDetails'
+
+    ProblemInternalError:
+      description: Unexpected server-side failure.
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/ProblemDetails'

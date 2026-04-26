@@ -48,6 +48,56 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   result so a rejected upload short-circuits before any DB write.
 
 ### Added
+- **ADRs 0009-0014** (M6-A). Strategic architecture decisions for the
+  M6 scope expansion (AI / vector search / Flutter mobile / MCP). All
+  six accepted up-front so the implementation PRs (M6-B onwards) land
+  against a stable contract.
+  * **0009 Multi-LLM gateway** — `Saso\Domain\Ai\AiAssistant` interface
+    with `OpenAiAssistant` / `GeminiAssistant` / `ClaudeAssistant` /
+    `NullAssistant` implementations. Per-feature provider selection
+    via `system_setting` (`ai.provider.chat`, `…embedding`, `…vision`).
+    `FallbackChainAssistant` decorator for failover. API keys stored
+    encrypted via `SecretEncryptor` (M3-E). New error-code range
+    `SASO-AI-8xxx`. `SAFE_MODE=true` forces `NullAssistant`.
+  * **0010 Vector search via OpenSearch** — k-NN plugin handles both
+    image / text similarity and BM25 full-text scoring in one engine.
+    Two indices: `saso_items` (with `text_embedding` + `image_embedding`
+    knn_vector fields whose dim is configurable) and
+    `saso_storage_locations`. `NullSearchIndex` fallback uses MariaDB
+    LIKE when OpenSearch is unreachable.
+  * **0011 Flexible item attributes + storage location codes** —
+    EAV pattern (`item_attribute_definition` + `item_attribute_value`)
+    so operators add attributes from the admin UI without schema
+    migrations. Hierarchical `storage_location` table with a
+    deterministic code generator. `similar_item` link table populated
+    offline from OpenSearch k-NN.
+  * **0012 Search + cache infrastructure** — Redis 7 (single
+    container) handles cache, AI rate limiting, optional session
+    store, and the Symfony Messenger transport (ADR 0013). Read-through
+    `Cache` interface with `RedisCache` and `NullCache`; `SAFE_MODE`
+    forces null. Operators on shared hosting without Redis stay on
+    the null path.
+  * **0013 Symfony Messenger queue** — PHP-native equivalent of
+    Sidekiq. Redis Streams transport when Redis is configured,
+    Doctrine on MariaDB otherwise. Standard retry policy (3 retries,
+    exponential backoff, dead-letter). Handlers in
+    `Application/Messaging/Handler/`, messages in
+    `Domain/Messaging/Message/`, wiring in
+    `Infrastructure/Messaging/`. New `make messenger-consume` target.
+  * **0014 Flutter pairing + MCP server** — RFC 8628 OAuth 2.0 Device
+    Authorization Grant for mobile pairing (QR code on PC + polling
+    from phone). `device_token` table with sha256-hashed tokens, named
+    devices, scoped permissions, revoke from admin UI. MCP endpoint
+    served from the same PHP app under `/mcp` (JSON-RPC 2.0); tools
+    pluggable via `McpTool` interface; per-tool `enabled` toggle in
+    `system_setting`. New error codes `SASO-AUTH-1009/1010/1011`
+    (pairing) and a fresh `SASO-MCP-Axxx` namespace.
+
+  ADR index page promotes 0009-0014 to Accepted; `mkdocs.yml` nav
+  exposes the six new files in the Architecture sidebar. Total
+  architecture decisions on record: 13 accepted (0001-0007 + 0009-0014),
+  1 planned (0008 vendor-bundled release ZIP, M5). `mkdocs build
+  --strict` passes for both EN and JA renders.
 - **`feature_flag` + `error_log_aggregate` + `feature_flag_audit`
   storage tier** (M4-E1). Establishes the database half of the
   OpenFeature integration contracted by

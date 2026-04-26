@@ -1,0 +1,57 @@
+# =============================================================================
+# Netlify deploy configuration — https://saso-willen-edition.netlify.app
+# -----------------------------------------------------------------------------
+# Builds the Material for MkDocs site from `docs/` and publishes the rendered
+# HTML in `site/`. Mirrors the GitHub Actions build in `.github/workflows/docs.yml`
+# so a Netlify deploy preview matches what CI verifies on every PR.
+# =============================================================================
+
+[build]
+  base       = "."
+  publish    = "site"
+  command    = "pip install --upgrade pip && pip install -r requirements.txt && mkdocs build --strict"
+
+[build.environment]
+  PYTHON_VERSION = "3.12"
+  # mkdocs-git-revision-date-localized needs the full history to resolve the
+  # last-edit timestamp on each page; tell Netlify not to shallow-clone.
+  GIT_LFS_ENABLED = "false"
+
+# -----------------------------------------------------------------------------
+# Deploy contexts
+# -----------------------------------------------------------------------------
+# `production` runs on `main`; `deploy-preview` runs on every PR; `branch-deploy`
+# runs on any other branch Netlify is configured to watch. All three share the
+# same strict build — divergence between contexts is what causes "works on my
+# machine, broken in production" deploys.
+
+[context.production]
+  command = "pip install --upgrade pip && pip install -r requirements.txt && mkdocs build --strict"
+
+[context.deploy-preview]
+  command = "pip install --upgrade pip && pip install -r requirements.txt && mkdocs build --strict"
+
+[context.branch-deploy]
+  command = "pip install --upgrade pip && pip install -r requirements.txt && mkdocs build --strict"
+
+# -----------------------------------------------------------------------------
+# Headers — mkdocs assets are content-hashed, so cache them aggressively. HTML
+# pages stay short-lived so docs edits show up without a hard refresh.
+# -----------------------------------------------------------------------------
+
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/*.html"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+
+[[headers]]
+  for = "/sitemap.xml"
+  [headers.values]
+    Cache-Control = "public, max-age=3600"

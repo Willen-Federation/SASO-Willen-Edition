@@ -48,6 +48,34 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   result so a rejected upload short-circuits before any DB write.
 
 ### Added
+- **Plugin lifecycle contract + `PluginContext` facade** (M6-J2).
+  Promotes `Saso\Domain\Plugin\Plugin` from a marker interface to the
+  full lifecycle promised by
+  [ADR 0015](docs/architecture/adr/0015-plugin-system.md): `metadata()`
+  (pure self-description, called during discovery), `register()`
+  (wires extension points on every boot once the `plugin_registry`
+  row is active), `activate()` (one-shot first-sighting work), and
+  `deactivate()` (operator-initiated cleanup). The new
+  `PluginContext` interface is the narrow facade plugins receive in
+  those methods — the six typed registries (`aiAssistants`,
+  `authProviders`, `mcpTools`, `domainEvents`, `apiRoutes`,
+  `systemSettings`) are the only surface area exposed; the core PDO
+  connection, HTTP kernel, container, and filesystem are
+  deliberately not. The `M6-J3` composition root constructs and
+  reuses the facade across every plugin in registration order.
+- **Documentation site moves to Netlify**
+  (https://saso-willen-edition.netlify.app). New `netlify.toml`
+  drives the build (`pip install -r requirements.txt && mkdocs
+  build --strict`) across `production`, `deploy-preview`, and
+  `branch-deploy` contexts so previews match the production build.
+  Long-lived `Cache-Control: immutable` is set for
+  content-hashed `/assets/*`, short-lived `must-revalidate` for
+  HTML so docs edits surface without a hard refresh.
+  `site_url` in `mkdocs.yml` is repointed to the Netlify origin so
+  canonical links and the `sitemap.xml` reflect the new host. The
+  `.github/workflows/docs.yml` workflow now runs `mkdocs build
+  --strict` as a redundant CI gate (the GitHub Pages deploy job is
+  removed — Netlify owns deploys via its GitHub App).
 - **Remaining four plugin extension-point registries** (M6-J2).
   Completes the six typed registries promised by
   [ADR 0015](docs/architecture/adr/0015-plugin-system.md) — the

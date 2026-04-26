@@ -1,5 +1,10 @@
 name: Docs
 
+# Documentation hosting moved to Netlify (https://saso-willen-edition.netlify.app);
+# Netlify owns deploy previews and production rollouts via its GitHub App. This
+# workflow stays as a redundant CI gate so a `mkdocs build --strict` failure is
+# visible on the PR even if the Netlify check is delayed.
+
 on:
   push:
     branches: [main]
@@ -7,6 +12,7 @@ on:
       - 'docs/**'
       - 'mkdocs.yml'
       - 'requirements.txt'
+      - 'netlify.toml'
       - '.github/workflows/docs.yml'
   pull_request:
     branches: [main]
@@ -14,13 +20,12 @@ on:
       - 'docs/**'
       - 'mkdocs.yml'
       - 'requirements.txt'
+      - 'netlify.toml'
       - '.github/workflows/docs.yml'
   workflow_dispatch:
 
 permissions:
   contents: read
-  pages: write
-  id-token: write
 
 concurrency:
   group: docs-${{ github.ref }}
@@ -48,22 +53,3 @@ jobs:
 
       - name: Build site (strict — fails on warnings, missing references, broken in-tree links)
         run: mkdocs build --strict
-
-      - name: Upload artifact (for the deploy job below)
-        if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: site
-
-  deploy:
-    name: Deploy to GitHub Pages
-    needs: build
-    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
-    runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - name: Deploy
-        id: deployment
-        uses: actions/deploy-pages@v4

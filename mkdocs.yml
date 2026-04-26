@@ -10,7 +10,7 @@ site_description: >-
   Open-source inventory & warehouse management in PHP — barcodes, label
   printing (PDF), shelf management. Documentation for operators and
   contributors.
-site_url: https://willen-federation.github.io/SASO-Willen-Edition/
+site_url: https://saso-willen-edition.netlify.app/
 site_author: Willen Federation contributors
 copyright: >-
   Copyright &copy; Japan Standards Organization (日本標準機構) and

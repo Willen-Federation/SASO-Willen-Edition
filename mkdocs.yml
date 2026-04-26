@@ -165,6 +165,9 @@ nav:
       - "ADR 0002 — OpenAPI as source of truth": architecture/adr/0002-openapi-as-source-of-truth.md
       - "ADR 0003 — Pluggable IdP": architecture/adr/0003-pluggable-idp.md
       - "ADR 0004 — RFC 7807 Problem Details": architecture/adr/0004-rfc7807-problem-details.md
+      - "ADR 0005 — OpenFeature with DB provider": architecture/adr/0005-openfeature-with-db-provider.md
+      - "ADR 0006 — System Setting Web UI": architecture/adr/0006-system-setting-web-ui.md
+      - "ADR 0007 — Phinx migrations": architecture/adr/0007-phinx-migrations.md
   - Development:
       - development/index.md
       - Workflow: development/workflow.md

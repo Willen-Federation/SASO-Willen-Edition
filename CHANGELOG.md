@@ -48,6 +48,38 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   result so a rejected upload short-circuits before any DB write.
 
 ### Added
+- **Search domain tier** (M6-D2). Establishes the keyword + vector
+  search contract recorded in
+  [ADR 0010](docs/architecture/adr/0010-vector-search-via-opensearch.md).
+  The OpenSearch concrete adapter (with k-NN + BM25 in one engine)
+  lands in M6-D3 against this stable contract; this PR ships the
+  domain-side surface and the null-fallback adapter.
+
+  Domain layer (`src/Domain/Search/`):
+  * `SearchQuery.php` — keyword-search request: `text` (required),
+    `filters` array, `limit` (1-100, default 20), `offset` (≥ 0),
+    `sort` (`relevance` / `newest` / `oldest`).
+  * `SimilarityRequest.php` — vector-similarity request: `vector`
+    (non-empty list of floats), `mode` (`text` / `image`), `k`
+    (1-100, default 10), optional `filters`. `dimensions()` reports
+    the vector size for adapter dim-check.
+  * `SearchHit.php` — `id` (positive int), `score` (≥ 0 — BM25
+    zero-score allowed for barely-matching docs), `document`.
+  * `SearchResult.php` — `hits` ordered by score desc, `total` ≥
+    count(hits), `tookMs` ≥ 0. `empty()` factory + `isEmpty()`
+    predicate.
+  * `SearchIndex.php` — interface (`search` / `findSimilar` /
+    `upsert` / `delete`).
+
+  Infrastructure layer (`src/Infrastructure/Search/`):
+  * `NullSearchIndex.php` — fallback selected when OpenSearch is
+    unconfigured or unreachable, or when `SAFE_MODE=true`. Reads
+    return the empty result; writes are no-ops. Operators on shared
+    hosting without OpenSearch stay on this path.
+
+  Tests (27 new, 460 total): `SearchQueryTest` (7),
+  `SimilarityRequestTest` (6), `SearchHitTest` (4),
+  `SearchResultTest` (5), `NullSearchIndexTest` (5).
 - **Cache interface tier** (M6-D1). Establishes the read-through
   cache contract recorded in
   [ADR 0012](docs/architecture/adr/0012-search-and-cache-infrastructure.md).

@@ -25,16 +25,6 @@ final class ListFrameView implements View
     }
     public function onRoot(): bool
     {
-        // ListFrameView is a fragment, not a stand-alone page. It is embedded
-        // by start/template/start.php (home), search/template/start.php and
-        // item/template/archiveList.php via ($v->inside)('item','listFrame').
-        // That fragment use relies on Loader::insideFlow's auto-echo, which
-        // only fires when onRoot=false — so this MUST stay false.
-        //
-        // Direct navigation to /item/listFrame/ would echo the fragment
-        // before <!DOCTYPE> (whiteout). The home menu therefore points at
-        // /item/list/ instead, which is wrapped by ListPageView (onRoot=true)
-        // and embeds this fragment in the proper slot inside chrome.
         return false;
     }
     public function getTitle(): string

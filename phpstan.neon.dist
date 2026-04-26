@@ -1,6 +1,3 @@
-includes:
-    - phpstan-baseline.neon
-
 parameters:
     level: 6
     # Scope: only files this fork has rewritten or owns. Legacy directories
@@ -15,22 +12,10 @@ parameters:
         - util/EnvLoader.php
         - util/UploadValidator.php
         - util/CSRFtoken.php
-    # Phinx migrations are class-based but resolved at runtime by Phinx
-    # via direct require_once. Listing the directory under scanDirectories
-    # makes the class symbols visible to the test reflection helpers
-    # without forcing the migrations themselves through level-6 analysis
-    # (Phinx's AbstractMigration relies on magic methods we have no
-    # reason to type-narrow).
-    scanDirectories:
-        - migrations
     excludePaths:
         analyseAndScan:
             - vendor/*
             - extention/*
-            # DbProvider implements OpenFeature interfaces from a library that
-            # is not installed in this fork. Excluded until the OpenFeature SDK
-            # is properly added as a composer dependency.
-            - src/Infrastructure/FeatureFlag/DbProvider.php
     bootstrapFiles:
         - tests/bootstrap.php
     parallel:

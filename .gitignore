@@ -71,6 +71,3 @@ Thumbs.db
 .claude/
 Claude.md
 SKILL.md
-PLAN.md
-docker-compose.override.yml
-.env

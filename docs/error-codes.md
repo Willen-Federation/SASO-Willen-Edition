@@ -34,9 +34,6 @@ Within each domain the four-digit suffix counts upward starting at `0001`. **Cod
 | `SASO-AUTH-1003` | 403 | CSRF token mismatch | Submitted CSRF token did not validate against the session token |
 | `SASO-AUTH-1004` | 401 | Authentication required | Endpoint requires an authenticated principal but none was supplied |
 | `SASO-AUTH-1005` | 403 | Access denied       | Authenticated, but lacks the role or permission for the requested action |
-| `SASO-AUTH-1006` | 503 | Authentication provider is misconfigured | An `AuthProvider` cannot drive a login because its stored configuration is incomplete or unreachable (e.g. discovery URL 404, expired SAML certificate). Operator-actionable; the affected provider stays disabled until the row is fixed |
-| `SASO-AUTH-1007` | 400 | Authentication callback could not be matched to a pending request | OIDC `state` / SAML `RelayState` did not match the value the application stored on `beginLogin()`. Most often caused by an expired login attempt (cookies cleared between hops); rarely indicates an attempted CSRF on the callback |
-| `SASO-AUTH-1008` | 400 | Authentication callback failed verification | The IdP response (OIDC token signature, SAML assertion signature, nonce, audience, expiry) failed verification |
 
 ### `INFRA` — infrastructure
 
@@ -45,8 +42,6 @@ Within each domain the four-digit suffix counts upward starting at `0001`. **Cod
 | `SASO-INFRA-9000` | 500 | Internal server error | Catch-all for any uncaught exception that does not extend `DomainException`. The full stack is logged; the response body carries only `traceId` |
 | `SASO-INFRA-9001` | 503 | Database unavailable  | Could not connect to the configured DSN, or the connection dropped mid-transaction |
 | `SASO-INFRA-9002` | 503 | Storage unavailable   | Filesystem path required by the request was not writable / readable |
-| `SASO-INFRA-9003` | 404 | Endpoint not found    | API router could not match the request path against any operation declared in `config/openapi.yaml` |
-| `SASO-INFRA-9004` | 405 | Method not allowed    | API router matched the path but not the HTTP method; allowed methods are listed in the server log under `context.allowed` |
 
 The remaining domains (`ITEM`, `LABEL`, `SHELF`, `INSTALL`, `CONFIG`, `FLAG`) reserve their numeric ranges and will be filled as M3-D and M4 land.
 

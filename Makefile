@@ -13,12 +13,8 @@ SHELL := /bin/bash
 DC ?= docker compose
 APP ?= app
 DB ?= db
+DB_ROOT_PASSWORD ?= rootpw
 DB_NAME ?= saso_db
-
-# Pull the MariaDB root password from .env so `make db-shell` and `make db-dump`
-# stay in sync with whatever the auto-bootstrap generated. Falls back to an
-# explicit error if .env hasn't been generated yet.
-DB_ROOT_PASSWORD = $(shell awk -F= '/^MARIADB_ROOT_PASSWORD=/{print $$2}' .env 2>/dev/null)
 
 # Run a command inside the app container. -T disables a TTY so it works inside
 # Make's piped output (composer install logs, phpunit, etc.).
@@ -26,8 +22,7 @@ EXEC_APP := $(DC) exec -T $(APP)
 EXEC_DB := $(DC) exec -T $(DB)
 
 .PHONY: help up up-sso down restart logs ps shell composer install update \
-        test analyse cs-check cs-fix migrate migrate-status migrate-rollback \
-        seed db-shell db-dump clean
+        test analyse cs-check cs-fix migrate db-shell db-dump clean
 
 help:  ## Show available targets
 	@printf "\nUsage: make <target>\n\n"
@@ -37,25 +32,10 @@ help:  ## Show available targets
 
 # ----- Lifecycle -------------------------------------------------------------
 
-# Bootstraps a usable .env on the host BEFORE Compose evaluates docker-compose.yml.
-# Compose interpolates ${VAR:?...} from the host's environment + .env, and our
-# compose file uses the strict form for APP_KEY / DB_PASSWORD / MARIADB_ROOT_PASSWORD,
-# so the file must exist with non-empty values for `make up` to succeed on a
-# fresh clone. The container entrypoint runs the same logic as a second line of
-# defence (see docker/entrypoint.sh).
-.env:
-	@cp .env.example .env
-	@APP_KEY="$$(openssl rand -base64 32)";              sed -i.bak "s|^APP_KEY=.*|APP_KEY=$${APP_KEY}|"                           .env
-	@DB_PW="$$(openssl rand -hex 16)";                   sed -i.bak "s|^DB_PASSWORD=.*|DB_PASSWORD=$${DB_PW}|"                     .env
-	@RPW="$$(openssl rand -hex 16)";                     sed -i.bak "s|^MARIADB_ROOT_PASSWORD=.*|MARIADB_ROOT_PASSWORD=$${RPW}|"   .env
-	@rm -f .env.bak
-	@echo "→ Generated .env with secure random APP_KEY / DB_PASSWORD / MARIADB_ROOT_PASSWORD."
-	@echo "  Open .env to set optional AI / Auth0 dev overrides if you need them."
-
-up: .env  ## Build (if needed) and start the local stack (auto-generates .env on first run)
+up:  ## Build (if needed) and start the local stack (app + db + adminer)
 	$(DC) up -d --build
 
-up-sso: .env  ## Start the local stack with the optional Keycloak IdP profile
+up-sso:  ## Start the local stack with the optional Keycloak IdP profile
 	$(DC) --profile sso up -d --build
 
 down:  ## Stop and remove containers (keeps volumes)
@@ -111,24 +91,16 @@ qa:  ## Run cs-check + analyse + test in sequence
 
 # ----- Database --------------------------------------------------------------
 
-migrate:  ## Apply pending Phinx migrations against the dev DB
-	$(EXEC_APP) vendor/bin/phinx migrate -e production
+migrate:  ## Apply every SQL file under migrations/ (idempotent)
+	@for f in $$(ls migrations/*.sql 2>/dev/null | sort); do \
+		echo "Applying $$f"; \
+		$(EXEC_DB) sh -c "mariadb -uroot -p$(DB_ROOT_PASSWORD) $(DB_NAME)" < $$f || exit 1; \
+	done
 
-migrate-status:  ## Show applied vs pending Phinx migrations
-	$(EXEC_APP) vendor/bin/phinx status -e production
-
-migrate-rollback:  ## Roll back the most recent Phinx migration (DESTRUCTIVE)
-	$(EXEC_APP) vendor/bin/phinx rollback -e production
-
-seed:  ## Run Phinx seed classes (idempotent if writers use upsert)
-	$(EXEC_APP) vendor/bin/phinx seed:run -e production
-
-db-shell: .env  ## Open a MariaDB client inside the db container
-	@test -n "$(DB_ROOT_PASSWORD)" || { echo "ERROR: MARIADB_ROOT_PASSWORD missing from .env. Run \`make up\` first."; exit 1; }
+db-shell:  ## Open a MariaDB client inside the db container
 	$(DC) exec $(DB) mariadb -uroot -p$(DB_ROOT_PASSWORD) $(DB_NAME)
 
-db-dump: .env  ## Dump the current schema + data to ./db-dump.sql
-	@test -n "$(DB_ROOT_PASSWORD)" || { echo "ERROR: MARIADB_ROOT_PASSWORD missing from .env. Run \`make up\` first."; exit 1; }
+db-dump:  ## Dump the current schema + data to ./db-dump.sql
 	$(EXEC_DB) mariadb-dump -uroot -p$(DB_ROOT_PASSWORD) $(DB_NAME) > db-dump.sql
 	@echo "→ db-dump.sql"
 

@@ -29,48 +29,6 @@ error:
   SASO-AUTH-1005:
     title: Access denied
     detail: You do not have permission to perform this action.
-  SASO-AUTH-1006:
-    title: Authentication provider is misconfigured
-    detail: 'This authentication provider is currently unavailable. Please ask an administrator to verify the configuration.'
-  SASO-AUTH-1007:
-    title: Authentication callback could not be matched to a pending request
-    detail: 'The sign-in attempt timed out or could not be matched to a pending request. Please try again.'
-  SASO-AUTH-1008:
-    title: Authentication callback failed verification
-    detail: 'The sign-in response from the identity provider failed verification. Please try again or contact an administrator.'
-  SASO-CONFIG-6001:
-    title: System setting not found
-    detail: 'The requested system setting does not exist. Ask an administrator to verify the key spelling or to seed a default value.'
-  SASO-FLAG-7001:
-    title: Feature flag not found
-    detail: 'The requested feature flag is not registered. Ask an administrator to add the flag or to remove the call site.'
-  SASO-AI-8001:
-    title: AI provider is not configured
-    detail: 'The AI feature is currently unavailable. Ask an administrator to register an API key for the chosen provider.'
-  SASO-AI-8002:
-    title: AI provider rate-limited the request
-    detail: 'The AI provider declined the request because the per-minute quota is exhausted. Try again in a moment.'
-  SASO-AI-8003:
-    title: AI provider returned a malformed response
-    detail: 'The AI provider returned content that could not be parsed. The full response is in the server log.'
-  SASO-AI-8004:
-    title: AI prompt exceeds the provider context window
-    detail: 'The submitted content is too large for the configured AI model. Reduce the input size or pick a model with a larger context window.'
-  SASO-AI-8005:
-    title: AI provider refused the request as policy-violating
-    detail: 'The AI provider declined the request on safety grounds. Edit the prompt or content and try again.'
-  SASO-MCP-A001:
-    title: Unknown MCP tool
-    detail: 'The requested MCP tool is not registered or has been disabled by an administrator.'
-  SASO-MCP-A002:
-    title: MCP request malformed
-    detail: 'The JSON-RPC 2.0 envelope is invalid. Verify that the request body is well-formed JSON with the required "jsonrpc", "method", and "id" fields.'
-  SASO-MCP-A003:
-    title: Scope insufficient for the requested MCP tool
-    detail: 'This MCP tool requires a scope that the current device token does not carry. Re-pair the device with the required scope to proceed.'
-  SASO-PLUGIN-B001:
-    title: Plugin attempted to register against a reserved core name
-    detail: 'A plugin tried to register an extension under a name reserved for core SASO. Plugins must use vendor-prefixed names (e.g. "vendor:custom-llm").'
   SASO-INFRA-9000:
     title: Internal server error
     detail: 'An unexpected error occurred. Reference: {traceId}.'
@@ -80,9 +38,3 @@ error:
   SASO-INFRA-9002:
     title: Storage unavailable
     detail: A required storage path is currently unreachable.
-  SASO-INFRA-9003:
-    title: Endpoint not found
-    detail: 'The requested endpoint does not exist.'
-  SASO-INFRA-9004:
-    title: Method not allowed
-    detail: 'The requested HTTP method is not supported on this endpoint.'

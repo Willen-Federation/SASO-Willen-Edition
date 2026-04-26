@@ -19,8 +19,6 @@ final class AuthPresenter implements Presenter
         )->flatMap(
             $this->success->isError(fn($v)=>$v->isError)
         )->flatMap(
-            $this->success->providers(fn($v)=>$v->providers)
-        )->flatMap(
             fn($v)=>$this->success
         )->getOrElse($this->success);
     }

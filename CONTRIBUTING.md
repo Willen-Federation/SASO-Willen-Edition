@@ -37,40 +37,29 @@ This project follows the [Contributor Covenant v2.1](CODE_OF_CONDUCT.md). By par
 
 ## Development Setup
 
-### Docker (Colima / Docker Desktop) — recommended
+### Standard PHP environment
 
 ```bash
 git clone https://github.com/Willen-Federation/SASO-Willen-Edition.git
 cd SASO-Willen-Edition
 
-make up           # generates .env (APP_KEY/DB_PASSWORD/MARIADB_ROOT_PASSWORD), builds images, starts stack
-make install      # composer install inside the app container
-make migrate      # apply migrations against saso_db
-make qa           # cs-check + analyse + test
-
-open http://localhost:8080/installer/start
-```
-
-`.env` is created automatically with secure random secrets on first
-`make up`. Re-running `make up` is a no-op for `.env`. AI provider and
-Auth0 credentials are configured later from the admin Web UI (**Settings →
-AI / Auth Providers**) — they're stored encrypted in the `system_setting`
-table, not in `.env`.
-
-### Standard PHP environment (no Docker)
-
-```bash
-git clone https://github.com/Willen-Federation/SASO-Willen-Edition.git
-cd SASO-Willen-Edition
-
-cp .env.example .env
-$EDITOR .env             # set DB_DSN / DB_USER / DB_PASSWORD
+# Edit DSN, user, password
+$EDITOR config.json
 
 # Set RewriteBase to your install path
 $EDITOR .htaccess
 
-# Open the installer in a browser — APP_KEY is auto-generated on first hit
+# Open the installer in a browser
 open https://your-host.example.com/installer/start
+```
+
+### Docker (Colima / Docker Desktop)
+
+```bash
+make up           # build images, start app + db + adminer
+make install      # composer install inside the app container
+make migrate      # apply migrations/*.sql against saso_db
+make qa           # cs-check + analyse + test
 ```
 
 For local OIDC / SAML testing with Keycloak (optional profile):

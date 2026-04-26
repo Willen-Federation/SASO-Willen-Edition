@@ -10,13 +10,11 @@ site_description: >-
   Open-source inventory & warehouse management in PHP — barcodes, label
   printing (PDF), shelf management. Documentation for operators and
   contributors.
-site_url: https://saso-willen-edition.netlify.app/
+site_url: https://willen-federation.github.io/SASO-Willen-Edition/
 site_author: Willen Federation contributors
 copyright: >-
   Copyright &copy; Japan Standards Organization (日本標準機構) and
   Willen Federation contributors. Released under the GNU GPL v3.
-  &nbsp;|&nbsp;
-  <a href="https://www.netlify.com" rel="noopener">This site is powered by Netlify</a>
 
 repo_name: Willen-Federation/SASO-Willen-Edition
 repo_url: https://github.com/Willen-Federation/SASO-Willen-Edition
@@ -75,9 +73,6 @@ extra:
     - icon: fontawesome/brands/github
       link: https://github.com/Willen-Federation/SASO-Willen-Edition
       name: SASO on GitHub
-    - icon: simple/netlify
-      link: https://www.netlify.com
-      name: This site is powered by Netlify
   status:
     new: Recently added
     deprecated: Deprecated
@@ -113,10 +108,8 @@ plugins:
             Development: 開発
             Security: セキュリティ
             API Reference: API リファレンス
-            Authentication Providers: 認証プロバイダー
             Error Codes: エラーコード
             Changelog: 変更履歴
-            Code of Conduct: 行動規範
   - git-revision-date-localized:
       type: iso_date
       fallback_to_build_date: true
@@ -171,24 +164,11 @@ nav:
       - "ADR 0002 — OpenAPI as source of truth": architecture/adr/0002-openapi-as-source-of-truth.md
       - "ADR 0003 — Pluggable IdP": architecture/adr/0003-pluggable-idp.md
       - "ADR 0004 — RFC 7807 Problem Details": architecture/adr/0004-rfc7807-problem-details.md
-      - "ADR 0005 — OpenFeature with DB provider": architecture/adr/0005-openfeature-with-db-provider.md
-      - "ADR 0006 — System Setting Web UI": architecture/adr/0006-system-setting-web-ui.md
-      - "ADR 0007 — Phinx migrations": architecture/adr/0007-phinx-migrations.md
-      - "ADR 0009 — Multi-LLM gateway": architecture/adr/0009-multi-llm-gateway.md
-      - "ADR 0010 — Vector search via OpenSearch": architecture/adr/0010-vector-search-via-opensearch.md
-      - "ADR 0011 — Flexible attributes + locations": architecture/adr/0011-flexible-attributes-and-locations.md
-      - "ADR 0012 — Search + cache infrastructure": architecture/adr/0012-search-and-cache-infrastructure.md
-      - "ADR 0013 — Symfony Messenger queue": architecture/adr/0013-symfony-messenger-queue.md
-      - "ADR 0014 — Flutter pairing + MCP server": architecture/adr/0014-flutter-pairing-and-mcp-server.md
-      - "ADR 0015 — Plugin system": architecture/adr/0015-plugin-system.md
-      - "ADR 0016 — English as default locale": architecture/adr/0016-english-as-default-locale.md
   - Development:
       - development/index.md
       - Workflow: development/workflow.md
       - Testing: development/testing.md
   - Security: security.md
   - API Reference: api.md
-  - Authentication Providers: auth-providers/index.md
   - Error Codes: error-codes.md
   - Changelog: changelog.md
-  - Code of Conduct: code-of-conduct.md

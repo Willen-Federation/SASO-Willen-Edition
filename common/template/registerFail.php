@@ -43,8 +43,8 @@
     'size or color is too many.'=>'サイズまたは色が多すぎます。',
     'color is invalid.'=>'各色50字以内として下さい。',
     'size is invalid.'=>'各サイズ50字以内として下さい。',
-    default => '何らかの入力エラーがあります。'.htmlspecialchars($v->errorMessage, ENT_QUOTES, 'UTF-8'),
+    default => '何らかの入力エラーがあります。'.$v->errorMessage,
 }; ?></p>
-<p><a href="<?php echo htmlspecialchars('./'.$v->start, ENT_QUOTES, 'UTF-8'); ?>">登録画面</a></p>
+<p><a href="<?php echo './'.$v->start; ?>">登録画面</a></p>
 
 <?php }; ?>

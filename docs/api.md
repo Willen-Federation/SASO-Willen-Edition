@@ -1,46 +1,26 @@
 # API Reference
 
-The REST API lives at `/api/v1/*`. The contract is defined by an OpenAPI 3.1 specification committed under [`config/openapi.yaml`](https://github.com/Willen-Federation/SASO-Willen-Edition/blob/main/config/openapi.yaml) — see [ADR 0002](architecture/adr/0002-openapi-as-source-of-truth.md) for why it is the source of truth.
+The REST API at `/api/v1/*` and the OpenAPI 3.1 specification land in **M3 (REST + i18n + Errors)**. This page is a placeholder so the navigation is stable while M3 is in flight.
 
-## Status
+## Planned shape
 
-As of M3-D the API is bootstrapped with three meta endpoints. Domain endpoints (items, categories, labels, shelves, auth) land across M3-E and M4.
-
-| Endpoint | Method | What it does |
-|---|---|---|
-| `/api/v1/health` | `GET` | Liveness probe — returns `{status, version, time}`. Does not check downstream dependencies. |
-| `/api/v1/openapi.yaml` | `GET` | Returns this OpenAPI specification verbatim, ready for SDK generators. |
-| `/api/v1/docs` | `GET` | Embedded Swagger UI loaded against the spec above. |
-
-## Authentication
-
-Endpoints are unauthenticated until the M3-E auth surface lands. OIDC (browsers) and Bearer JWT (machine clients) follow the [`AuthProvider`](architecture/adr/0003-pluggable-idp.md) contract.
-
-## Errors
-
-Every failure response is `application/problem+json` (RFC 7807) with the SASO `code` and `traceId` extensions. See the [error codes catalogue](error-codes.md). Clients must branch on `code`; `title` and `detail` are localised strings whose wording may change between releases.
-
-## Versioning
-
-URL prefix only (`/api/v1`). Backwards-incompatible changes ship under `/api/v2`. The OpenAPI `info.version` mirrors the contract version.
-
-## Specification
-
-The committed YAML is the canonical artefact. The application also serves it at runtime — useful for SDK generators that prefer to fetch over HTTP.
-
-```bash
-curl -s https://your-saso/api/v1/openapi.yaml | head
-```
-
-For interactive exploration, point a browser at `/api/v1/docs` for an embedded Swagger UI, or open the [GitHub-hosted YAML](https://github.com/Willen-Federation/SASO-Willen-Edition/blob/main/config/openapi.yaml) in your editor's OpenAPI plugin.
+| Aspect | Plan |
+|---|---|
+| Routing | `nikic/fast-route` for the `/api/v1/*` tree, side-by-side with the legacy PHP screens |
+| Source of truth | A hand-written `config/openapi.yaml` (OpenAPI 3.1) — code is generated/checked from it, not the other way around |
+| Client documentation | Swagger UI embedded into this site via `mkdocs-render-swagger-plugin` |
+| Authentication | OIDC via `jumbojett/openid-connect-php` for browsers + Bearer JWT (RS256, 15 min) for non-browser clients |
+| Errors | RFC 7807 Problem Details with a `code` field carrying the `SASO-DOMAIN-NNNN` ID — see [Error Codes](error-codes.md) |
+| Versioning | URL prefix only (`/api/v1`); breaking changes ship under `/api/v2` |
+| Pagination / filtering | Cursor-based pagination with `limit` + `cursor` query parameters |
 
 ## Why two transports
 
-- Legacy PHP screens stay **PHPStyle** — server-side rendered, session-cookie auth, CSRF-protected forms. Operators on shared hosting keep their existing UX.
+- The legacy PHP screens stay **PHPStyle** — server-side rendered, session cookie auth, CSRF-protected forms. Operators on shared hosting keep their existing UX.
 - The REST API enables future SPA clients, a mobile app, and machine-to-machine integrations. The Application layer is shared; only the Presentation transport differs.
 
-The duality is recorded in [ADR 0001](architecture/adr/0001-clean-architecture-ddd.md) (Strangler Fig migration) and [ADR 0002](architecture/adr/0002-openapi-as-source-of-truth.md) (OpenAPI as source of truth).
+This duality is recorded in the planned **ADR 0001** (M3) and **ADR 0002** (OpenAPI as source of truth).
 
-## Migrating from `request.json`
+## Until M3 ships
 
-The legacy `request.json` / `flow.json` URL surface is **deprecated as of M3** and slated for removal in M5. New integrations should target `/api/v1/*`. Existing integrations get a per-feature deprecation window, announced in the [Changelog](changelog.md) when each legacy entry is migrated.
+Programmatic integrations should use the existing `request.json` / `flow.json` URL surface — but be aware those are deprecated as of M3 and removed in M5. New integrations should wait or be ready to migrate.

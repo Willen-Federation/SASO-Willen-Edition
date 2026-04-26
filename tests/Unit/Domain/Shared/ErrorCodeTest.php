@@ -14,10 +14,7 @@ final class ErrorCodeTest extends TestCase
     {
         foreach (ErrorCode::cases() as $code) {
             self::assertMatchesRegularExpression(
-                // Either the original 4-digit form (SASO-AUTH-1001) or the
-                // letter-prefixed 3-digit form (SASO-MCP-A001 / SASO-PLUGIN-B001)
-                // reserved for non-numeric domain ranges per ADRs 0014 and 0015.
-                '/^SASO-[A-Z]+-(?:\d{4}|[A-Z]\d{3})$/',
+                '/^SASO-[A-Z]+-\d{4}$/',
                 $code->value,
                 sprintf('Code %s does not match SASO-DOMAIN-NNNN', $code->name),
             );
@@ -45,18 +42,6 @@ final class ErrorCodeTest extends TestCase
         yield 'unhandled → 500'             => [ErrorCode::InfraUnhandled, 500];
         yield 'database unavailable → 503'  => [ErrorCode::InfraDatabaseUnavailable, 503];
         yield 'storage unavailable → 503'   => [ErrorCode::InfraStorageUnavailable, 503];
-        yield 'route not found → 404'       => [ErrorCode::InfraRouteNotFound, 404];
-        yield 'method not allowed → 405'    => [ErrorCode::InfraMethodNotAllowed, 405];
-        yield 'provider misconfigured → 503' => [ErrorCode::AuthProviderMisconfigured, 503];
-        yield 'callback state mismatch → 400' => [ErrorCode::AuthCallbackStateMismatch, 400];
-        yield 'callback validation failed → 400' => [ErrorCode::AuthCallbackValidationFailed, 400];
-        yield 'flag not found → 404' => [ErrorCode::FlagNotFound, 404];
-        yield 'ai provider not configured → 503' => [ErrorCode::AiProviderNotConfigured, 503];
-        yield 'ai rate limited → 429' => [ErrorCode::AiRateLimited, 429];
-        yield 'ai response malformed → 422' => [ErrorCode::AiResponseMalformed, 422];
-        yield 'ai context exceeded → 422' => [ErrorCode::AiContextExceeded, 422];
-        yield 'ai content policy → 422' => [ErrorCode::AiContentPolicy, 422];
-        yield 'plugin registry collision → 409' => [ErrorCode::PluginRegistryCollision, 409];
     }
 
     public function testHttpStatusIsAlwaysClientOrServerError(): void

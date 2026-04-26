@@ -26,15 +26,6 @@ if (!function_exists('__')) {
         ?string $locale = null,
         ?string $fallback = null,
     ): string {
-        // TranslatorRegistry::trans throws when no translator is bound (e.g.
-        // production hasn't completed i18n bootstrap, schema mismatch, etc.).
-        // A throwing __() turns every translation-using template into a
-        // whiteout, so we degrade gracefully to the caller-supplied fallback
-        // (or the bare key when none was provided) instead.
-        try {
-            return TranslatorRegistry::trans($key, $params, $locale, $fallback);
-        } catch (\Throwable $e) {
-            return $fallback ?? $key;
-        }
+        return TranslatorRegistry::trans($key, $params, $locale, $fallback);
     }
 }

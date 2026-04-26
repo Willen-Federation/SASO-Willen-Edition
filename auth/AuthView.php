@@ -11,7 +11,6 @@ final class AuthView implements View
     private \Closure $content;
     private string $restoredPath;
     private bool $isError;
-    private array $providers = [];
     public function display(): void
     {
         require_once 'auth/template/auth.php';

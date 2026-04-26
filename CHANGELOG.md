@@ -48,6 +48,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   result so a rejected upload short-circuits before any DB write.
 
 ### Added
+- **Bilingual developer documentation site** (M2-D). New `mkdocs.yml`
+  configures Material for MkDocs with the `mkdocs-static-i18n` plugin
+  (suffix mode: `foo.md` for English default, `foo.ja.md` for Japanese
+  override), `mkdocs-mermaid2-plugin`, `mkdocs-git-revision-date-localized`,
+  and `mkdocs-minify-plugin`. The docs tree under `docs/` ships scaffold
+  pages for Home / Getting Started (with full bilingual installation
+  walkthrough) / Configuration / Architecture / ADR Index / Development
+  (Workflow + Testing) / Security / API Reference / Error Codes /
+  Changelog. Pages without a Japanese sibling fall back to English. A new
+  `.github/workflows/docs.yml` runs `mkdocs build --strict` on every PR
+  touching `docs/`, `mkdocs.yml`, or `requirements.txt`, and on `main`
+  pushes deploys to GitHub Pages at
+  https://willen-federation.github.io/SASO-Willen-Edition/.
 - **Local development stack** (M2-C). New `docker/Dockerfile`
   (`php:8.2-apache` + `pdo_mysql` / `gd` / `zip` / `intl` / `mbstring` /
   `opcache` / `exif` + Composer 2), `docker/apache/000-default.conf`

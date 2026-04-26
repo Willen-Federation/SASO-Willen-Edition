@@ -1,0 +1,170 @@
+# =============================================================================
+# SASO — Willen Edition / Material for MkDocs configuration
+# -----------------------------------------------------------------------------
+# Bilingual (English default + Japanese) documentation. Pages without a
+# `.ja.md` sibling fall back to the English version automatically.
+# =============================================================================
+
+site_name: SASO — Willen Edition
+site_description: >-
+  Open-source inventory & warehouse management in PHP — barcodes, label
+  printing (PDF), shelf management. Documentation for operators and
+  contributors.
+site_url: https://willen-federation.github.io/SASO-Willen-Edition/
+site_author: Willen Federation contributors
+copyright: >-
+  Copyright &copy; Japan Standards Organization (日本標準機構) and
+  Willen Federation contributors. Released under the GNU GPL v3.
+
+repo_name: Willen-Federation/SASO-Willen-Edition
+repo_url: https://github.com/Willen-Federation/SASO-Willen-Edition
+edit_uri: edit/main/docs/
+
+docs_dir: docs
+exclude_docs: |
+  /screenshots/
+
+theme:
+  name: material
+  language: en
+  features:
+    # `navigation.instant` is intentionally NOT enabled — mkdocs-static-i18n
+    # warns that the contextual language switcher is incompatible with the
+    # instant-loading mode in current Material releases. Re-evaluate when the
+    # upstream issue closes.
+    - navigation.tracking
+    - navigation.sections
+    - navigation.indexes
+    - navigation.top
+    - navigation.footer
+    - search.suggest
+    - search.share
+    - content.code.copy
+    - content.code.annotate
+    - content.action.edit
+    - content.action.view
+    - content.tabs.link
+    - toc.follow
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/weather-sunny
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/weather-night
+        name: Switch to light mode
+  font:
+    text: Inter
+    code: JetBrains Mono
+  icon:
+    repo: fontawesome/brands/github
+    edit: material/pencil
+    view: material/eye
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/Willen-Federation/SASO-Willen-Edition
+      name: SASO on GitHub
+  status:
+    new: Recently added
+    deprecated: Deprecated
+
+# -----------------------------------------------------------------------------
+# Plugins
+# -----------------------------------------------------------------------------
+plugins:
+  - search:
+      lang:
+        - en
+        - ja
+  # Bilingual rendering. Material's i18n integration uses the suffix-style
+  # convention: `foo.md` is the default (English) page, `foo.ja.md` is the
+  # Japanese override. Pages without a sibling render the default for both
+  # locales — fine for placeholder pages that still need translation.
+  - i18n:
+      docs_structure: suffix
+      reconfigure_material: true
+      languages:
+        - locale: en
+          name: English
+          default: true
+          build: true
+        - locale: ja
+          name: 日本語
+          build: true
+          nav_translations:
+            Home: ホーム
+            Getting Started: はじめに
+            Configuration: 設定
+            Architecture: アーキテクチャ
+            Development: 開発
+            Security: セキュリティ
+            API Reference: API リファレンス
+            Error Codes: エラーコード
+            Changelog: 変更履歴
+  - git-revision-date-localized:
+      type: iso_date
+      fallback_to_build_date: true
+      enable_creation_date: false
+  - mermaid2
+
+# -----------------------------------------------------------------------------
+# Markdown extensions — match the conventions used in the root-level docs
+# -----------------------------------------------------------------------------
+markdown_extensions:
+  - admonition
+  - attr_list
+  - def_list
+  - footnotes
+  - md_in_html
+  - tables
+  - toc:
+      permalink: true
+  - pymdownx.details
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:mermaid2.fence_mermaid_custom
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+
+# -----------------------------------------------------------------------------
+# Navigation
+# -----------------------------------------------------------------------------
+nav:
+  - Home: index.md
+  - Getting Started:
+      - getting-started/index.md
+      - Installation: getting-started/installation.md
+      - Configuration: getting-started/configuration.md
+  - Architecture:
+      - architecture/index.md
+      - ADR Index: architecture/adr.md
+  - Development:
+      - development/index.md
+      - Workflow: development/workflow.md
+      - Testing: development/testing.md
+  - Security: security.md
+  - API Reference: api.md
+  - Error Codes: error-codes.md
+  - Changelog: changelog.md

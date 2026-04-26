@@ -1,0 +1,14 @@
+# =============================================================================
+# Documentation toolchain (Material for MkDocs + bilingual + helpers)
+# -----------------------------------------------------------------------------
+# Used by `mkdocs serve` locally and by .github/workflows/docs.yml in CI.
+# Pin to compatible major versions; bumps go through normal PR review so the
+# rendered output is checked in the deploy workflow's `mkdocs build --strict`.
+# =============================================================================
+
+mkdocs-material>=9.5,<10.0
+mkdocs-static-i18n>=1.2,<2.0
+mkdocs-mermaid2-plugin>=1.1,<2.0
+mkdocs-git-revision-date-localized-plugin>=1.2,<2.0
+mkdocs-minify-plugin>=0.8,<1.0
+pymdown-extensions>=10.7,<11.0

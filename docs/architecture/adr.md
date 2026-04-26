@@ -2,16 +2,21 @@
 
 Architecture Decision Records (ADRs) capture significant choices and the reasoning behind them. We use the [MADR](https://adr.github.io/madr/) format.
 
-ADR files will live under `docs/architecture/adr/0001-*.md` once the first decision lands in **M3**. Until then this page reserves the slot.
+ADRs live under `docs/architecture/adr/` and are numbered sequentially. They are immutable once accepted — a later decision that replaces or modifies an earlier one creates a new ADR that supersedes the old one.
 
-## Planned ADRs
+## Accepted
+
+| Number | Topic | Date | Milestone |
+|---|---|---|---|
+| [0001](adr/0001-clean-architecture-ddd.md) | Adopt Clean Architecture + DDD layout under `src/` | 2026-04-26 | M3 |
+| [0002](adr/0002-openapi-as-source-of-truth.md) | OpenAPI 3.1 as the single source of truth for `/api/v1/*` | 2026-04-26 | M3 |
+| [0003](adr/0003-pluggable-idp.md) | Pluggable IdP (`AuthProvider` interface) with OIDC + SAML implementations | 2026-04-26 | M3 |
+| [0004](adr/0004-rfc7807-problem-details.md) | RFC 7807 Problem Details + `SASO-DOMAIN-NNNN` codes | 2026-04-26 | M3 |
+
+## Planned
 
 | Number | Topic | Milestone |
 |---|---|---|
-| 0001 | Adopt Clean Architecture + DDD layout under `src/` | M3 |
-| 0002 | OpenAPI 3.1 as the single source of truth for `/api/v1/*` | M3 |
-| 0003 | Pluggable IdP (`AuthProvider` interface) with OIDC + SAML implementations | M3 |
-| 0004 | RFC 7807 Problem Details + `SASO-DOMAIN-NNNN` codes | M3 |
 | 0005 | OpenFeature SDK + DB-backed provider for Feature Flags | M4 |
 | 0006 | `system_setting` DB table editable from the admin Web UI | M4 |
 | 0007 | Phinx for schema migrations | M4 |
@@ -22,7 +27,7 @@ ADR files will live under `docs/architecture/adr/0001-*.md` once the first decis
 Each ADR follows MADR's slim template:
 
 ```
-# 0001 — Adopt Clean Architecture + DDD layout under src/
+# NNNN — short title
 
 * Status: accepted | proposed | superseded by ADR-NNNN
 * Date: YYYY-MM-DD
@@ -35,4 +40,4 @@ Each ADR follows MADR's slim template:
 ## Consequences
 ```
 
-ADRs are immutable once accepted. A later decision that replaces or modifies an earlier one creates a new ADR that supersedes the old one.
+Numbers are assigned at PR-open time. If two ADRs collide, the later one is renumbered before merge.

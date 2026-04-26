@@ -13,18 +13,13 @@ use InvalidArgumentException;
  * via auto-increment in M4). Wrapped in a value object here so domain
  * code does not pass raw integers between layers — IDs from different
  * tables look identical and are easy to mix up.
- *
- * `0` is reserved as a draft sentinel meaning "not yet persisted" — the
- * insert path on `PdoAuthProviderRepository` binds the value verbatim and
- * lets MySQL/SQLite auto-increment assign a real id. Any negative value
- * is a programming error.
  */
 final readonly class AuthProviderId
 {
     public function __construct(public int $value)
     {
-        if ($value < 0) {
-            throw new InvalidArgumentException('AuthProviderId must be a non-negative integer (0 = draft, >0 = persisted).');
+        if ($value < 1) {
+            throw new InvalidArgumentException('AuthProviderId must be a positive integer.');
         }
     }
 

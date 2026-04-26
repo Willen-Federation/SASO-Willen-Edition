@@ -18,11 +18,11 @@ final class AuthProviderIdTest extends TestCase
         self::assertSame('42', $id->asString());
     }
 
-    public function testZeroIsDraftSentinel(): void
+    public function testRejectsZero(): void
     {
-        $id = new AuthProviderId(0);
-        self::assertSame(0, $id->value);
-        self::assertSame('0', $id->asString());
+        $this->expectException(InvalidArgumentException::class);
+
+        new AuthProviderId(0);
     }
 
     public function testRejectsNegative(): void

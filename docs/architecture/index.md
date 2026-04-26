@@ -47,7 +47,7 @@ SASO is being progressively refactored from its v2.4 layout into a Clean Archite
 └── docs/                         (this tree)
 ```
 
-The Strangler Fig migration runs across **M3 (REST + i18n + Errors)** and **M4 (DDD + Feature Flag + Web Settings)**. ADR 0001 (planned) records the decision; subsequent ADRs document each significant move.
+The Strangler Fig migration runs across **M3 (REST + i18n + Errors)** and **M4 (DDD + Feature Flag + Web Settings)**. [ADR 0001](adr/0001-clean-architecture-ddd.md) records the decision; subsequent ADRs ([0002](adr/0002-openapi-as-source-of-truth.md), [0003](adr/0003-pluggable-idp.md), [0004](adr/0004-rfc7807-problem-details.md)) document each significant move.
 
 ## See also
 

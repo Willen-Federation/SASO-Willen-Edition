@@ -1,0 +1,36 @@
+# Keep the build context small. Everything not COPY'd by the Dockerfile is
+# excluded; the project source lands inside the container at runtime via the
+# bind mount declared in docker-compose.yml, so it does not need to ship in
+# the image either.
+
+.git/
+.github/
+.idea/
+.vscode/
+.claude/
+
+vendor/
+node_modules/
+site/
+build/
+coverage/
+
+.env
+.env.*
+!.env.example
+
+*.cache
+.phpunit.cache/
+.php-cs-fixer.cache
+
+# Documentation, tests, and migrations are present in the bind-mount but do
+# not need to be baked into the image.
+docs/
+tests/
+migrations/
+
+# Editor and OS junk
+*.swp
+*.swo
+.DS_Store
+Thumbs.db

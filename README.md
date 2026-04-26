@@ -145,7 +145,16 @@ This fork modernizes SASO across six milestones. See [`/Users/akira/.claude/plan
 
 ## Documentation
 
-Material for MkDocs based developer documentation will be published to GitHub Pages (M2).
+📚 **[https://willen-federation.github.io/SASO-Willen-Edition/](https://willen-federation.github.io/SASO-Willen-Edition/)** — full developer documentation site (English / 日本語) built with Material for MkDocs.
+
+Local preview:
+
+```bash
+pip install -r requirements.txt
+mkdocs serve         # → http://localhost:8000
+```
+
+Repository-level references:
 
 - [Original Japanese README](ORIGINAL_README.md)
 - [Contributing guide](CONTRIBUTING.md)

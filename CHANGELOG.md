@@ -48,6 +48,50 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   result so a rejected upload short-circuits before any DB write.
 
 ### Added
+- **`item_attribute_definition` storage tier** (M6-E2). Direct
+  response to the user's "サイズなどのスペックなどカテゴリを自由に追加"
+  requirement; ships the schema half of the EAV pattern contracted
+  by [ADR 0011](docs/architecture/adr/0011-flexible-attributes-and-locations.md).
+  The `item_attribute_value` table (per-item typed values) pairs
+  with the Item domain in M6-E3. The admin UI for managing
+  definitions ships in M6-E3 alongside the value tier.
+
+  Migration (`migrations/M6/`):
+  * `20260427120003_create_item_attribute_definition.php` — `code`
+    UNIQUE (canonical key), bilingual labels (`label_en` /
+    `label_ja`), `value_type` enum
+    (string/int/float/bool/enum/barcode), `unit`, `required` flag,
+    `enum_values` JSON, `validation_regex`, `sort_order`. Reversible.
+
+  Domain layer (`src/Domain/Item/Attribute/`):
+  * `AttributeCode` — readonly, format-validated. 1-120 chars,
+    lowercase alphanumeric + `_` + `.`.
+  * `AttributeValueType` — backed enum with `isNumeric()` and
+    `requiresEnumValues()` predicates.
+  * `AttributeDefinition` — full aggregate. Constructor invariants
+    enforce: positive id, non-empty bilingual labels, enum types
+    must declare a non-empty `enumValues` list, non-enum types must
+    not, `validationRegex` (when present) must be a syntactically
+    valid PCRE pattern, `sortOrder ≥ 0`. `localisedLabel(locale)`
+    accessor returns the right label; unknown locales fall through
+    to English.
+  * `Repository/AttributeDefinitionRepository` interface —
+    `findById` / `findByCode` / `listOrdered` / `save` / `delete`.
+
+  Infrastructure layer (`src/Infrastructure/Item/Attribute/`):
+  * `PdoAttributeDefinitionRepository` — concrete PDO impl. JSON-
+    encodes `enum_values` on write, decodes on read. Re-reads after
+    `save()` so callers always see the persisted shape.
+
+  Tests (32 new, 492 total): `AttributeCodeTest` (7),
+  `AttributeValueTypeTest` (3), `AttributeDefinitionTest` (11 —
+  every invariant including enum/non-enum mismatch both directions
+  + invalid PCRE regex rejection + bilingual label fallback),
+  `PdoAttributeDefinitionRepositoryTest` (7 — find-on-missing, save
+  + re-read, enum-values JSON round-trip, save updates in place,
+  `listOrdered` sorted by `sort_order` then `code`, unique-code
+  enforced by DB, delete), `CreateItemAttributeDefinitionTest` (4 —
+  migration smoke check).
 - **Search domain tier** (M6-D2). Establishes the keyword + vector
   search contract recorded in
   [ADR 0010](docs/architecture/adr/0010-vector-search-via-opensearch.md).

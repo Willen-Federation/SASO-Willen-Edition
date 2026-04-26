@@ -8,10 +8,8 @@ use DateTimeImmutable;
 use DateTimeZone;
 use PDO;
 use Saso\Domain\StorageLocation\LocationCode;
-use Saso\Domain\StorageLocation\LocationType;
 use Saso\Domain\StorageLocation\Repository\StorageLocationRepository;
 use Saso\Domain\StorageLocation\StorageLocation;
-use Saso\Domain\StorageLocation\StorageOperationalStatus;
 
 /**
  * PDO-backed {@see StorageLocationRepository}.
@@ -83,8 +81,7 @@ final class PdoStorageLocationRepository implements StorageLocationRepository
         if ($existing === null) {
             $stmt = $this->pdo->prepare(
                 'INSERT INTO storage_location (id, parent_id, code, name, position, depth, '.
-                'location_type, description, capacity, notes, operational_status, created_at, updated_at) '.
-                'VALUES (:id, :parent, :code, :name, :pos, :depth, :ltype, :desc, :cap, :notes, :ostatus, :ca, :ua)',
+                'created_at, updated_at) VALUES (:id, :parent, :code, :name, :pos, :depth, :ca, :ua)',
             );
             $stmt->bindValue('id', $location->id, PDO::PARAM_INT);
             $stmt->bindValue('parent', $location->parentId, $location->parentId === null ? PDO::PARAM_NULL : PDO::PARAM_INT);
@@ -92,19 +89,13 @@ final class PdoStorageLocationRepository implements StorageLocationRepository
             $stmt->bindValue('name', $location->name);
             $stmt->bindValue('pos', $location->position, PDO::PARAM_INT);
             $stmt->bindValue('depth', $location->depth, PDO::PARAM_INT);
-            $stmt->bindValue('ltype', $location->locationType->value);
-            $stmt->bindValue('desc', $location->description);
-            $stmt->bindValue('cap', $location->capacity, $location->capacity === null ? PDO::PARAM_NULL : PDO::PARAM_INT);
-            $stmt->bindValue('notes', $location->notes);
-            $stmt->bindValue('ostatus', $location->operationalStatus->value);
             $stmt->bindValue('ca', $location->createdAt->setTimezone($this->timezone)->format('Y-m-d H:i:s'));
             $stmt->bindValue('ua', $now);
             $stmt->execute();
         } else {
             $stmt = $this->pdo->prepare(
                 'UPDATE storage_location SET parent_id = :parent, code = :code, name = :name, '.
-                'position = :pos, depth = :depth, location_type = :ltype, description = :desc, '.
-                'capacity = :cap, notes = :notes, operational_status = :ostatus, updated_at = :ua WHERE id = :id',
+                'position = :pos, depth = :depth, updated_at = :ua WHERE id = :id',
             );
             $stmt->bindValue('id', $location->id, PDO::PARAM_INT);
             $stmt->bindValue('parent', $location->parentId, $location->parentId === null ? PDO::PARAM_NULL : PDO::PARAM_INT);
@@ -112,11 +103,6 @@ final class PdoStorageLocationRepository implements StorageLocationRepository
             $stmt->bindValue('name', $location->name);
             $stmt->bindValue('pos', $location->position, PDO::PARAM_INT);
             $stmt->bindValue('depth', $location->depth, PDO::PARAM_INT);
-            $stmt->bindValue('ltype', $location->locationType->value);
-            $stmt->bindValue('desc', $location->description);
-            $stmt->bindValue('cap', $location->capacity, $location->capacity === null ? PDO::PARAM_NULL : PDO::PARAM_INT);
-            $stmt->bindValue('notes', $location->notes);
-            $stmt->bindValue('ostatus', $location->operationalStatus->value);
             $stmt->bindValue('ua', $now);
             $stmt->execute();
         }
@@ -145,18 +131,6 @@ final class PdoStorageLocationRepository implements StorageLocationRepository
     {
         $parent = $row['parent_id'] ?? null;
 
-        $locationType = isset($row['location_type']) && is_string($row['location_type'])
-            ? (LocationType::tryFrom($row['location_type']) ?? LocationType::Bin)
-            : LocationType::Bin;
-
-        $capacity = isset($row['capacity']) && $row['capacity'] !== null
-            ? (int) $row['capacity']
-            : null;
-
-        $operationalStatus = isset($row['operational_status']) && is_string($row['operational_status'])
-            ? (StorageOperationalStatus::tryFrom($row['operational_status']) ?? StorageOperationalStatus::Available)
-            : StorageOperationalStatus::Available;
-
         return new StorageLocation(
             id: (int) $row['id'],
             parentId: $parent === null ? null : (int) $parent,
@@ -166,11 +140,6 @@ final class PdoStorageLocationRepository implements StorageLocationRepository
             depth: (int) $row['depth'],
             createdAt: new DateTimeImmutable((string) $row['created_at'], $this->timezone),
             updatedAt: new DateTimeImmutable((string) $row['updated_at'], $this->timezone),
-            locationType: $locationType,
-            description: isset($row['description']) && is_string($row['description']) ? $row['description'] : null,
-            capacity: $capacity,
-            notes: isset($row['notes']) && is_string($row['notes']) ? $row['notes'] : null,
-            operationalStatus: $operationalStatus,
         );
     }
 }

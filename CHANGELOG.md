@@ -48,6 +48,89 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   result so a rejected upload short-circuits before any DB write.
 
 ### Added
+- **`feature_flag` + `error_log_aggregate` + `feature_flag_audit`
+  storage tier** (M4-E1). Establishes the database half of the
+  OpenFeature integration contracted by
+  [ADR 0005](docs/architecture/adr/0005-openfeature-with-db-provider.md).
+  The OpenFeature `DbProvider`, the `error_log_aggregate` writer wired
+  into `ProblemExceptionHandler`, and the cron `CircuitBreaker` script
+  land in M4-E2 against this stable contract.
+
+  Migrations (`migrations/M4/`):
+  * `20260426120004_create_feature_flag.php` — operator-managed
+    flag rows: `key_name` (unique, indexed), `description`,
+    `enabled`, `rollout_percent` (0-100, TINYINT UNSIGNED),
+    `conditions` JSON for targeting rules, `error_threshold` +
+    `error_window_min` for the circuit-breaker policy
+    (`error_threshold = 0` means "never auto-disable"),
+    `auto_disabled_at` + `auto_disable_reason` for breaker
+    diagnostics.
+  * `20260426120005_create_error_log_aggregate.php` — per-flag error
+    counts in time buckets. No FK to `feature_flag.key_name` —
+    the writer runs synchronously from the global exception handler
+    and a stale flag delete must not block error logging. Indexed
+    on `(feature_key, window_start)` for the breaker sweep.
+  * `20260426120006_create_feature_flag_audit.php` — append-only
+    history of every toggle. `flag_key` denormalised so audit rows
+    survive flag deletion; `changed_by` is either a member id, the
+    literal `circuit_breaker`, or `installer` for bootstrap rows.
+
+  All three migrations reversible.
+
+  Domain layer (`src/Domain/Feature/`):
+  * `FeatureKey` — readonly, format-validated (1-120 chars,
+    lowercase alphanumeric + `.`/`_`). Mirrors LaunchDarkly /
+    GrowthBook / ConfigCat naming so flag keys port cleanly.
+  * `FeatureFlag` — full aggregate with constructor invariants
+    (`id >= 1`, non-empty description, `0 <= rolloutPercent <= 100`,
+    `errorThreshold >= 0`, `errorWindowMinutes >= 1`). Named
+    mutators: `withEnabled(bool)` for admin toggles,
+    `tripBreaker(at, reason)` for circuit-breaker events. Both
+    return fresh aggregates so the value is safe to share between
+    request-scoped caches.
+  * `FeatureFlagAuditEntry` — readonly view with
+    `isCircuitBreakerEvent()` predicate.
+  * `Repository/FeatureFlagRepository` — `findByKey` /
+    `findById` / `listAll` / `save` / `delete`.
+  * `Repository/ErrorLogAggregateRepository` — `recordError` (hot
+    path) / `countSince` (read by the breaker) /
+    `purgeOlderThan` (retention).
+  * `Repository/FeatureFlagAuditRepository` — `record` /
+    `listForFlag` (newest-first, limit-bounded). No update/delete
+    — audit is append-only.
+  * `Exception/FlagNotFoundException` typed to a new
+    `SASO-FLAG-7001` (404) error code with EN + JA translations.
+
+  Infrastructure layer (`src/Infrastructure/FeatureFlag/`):
+  * `PdoFeatureFlagRepository` — concrete PDO impl. JSON-encodes
+    `conditions` on write, decodes on read. Re-reads the row after
+    `save()` so callers always get the persisted shape.
+  * `PdoErrorLogAggregateRepository` — each error becomes a one-row
+    "tick" with `count = 1`; the breaker sums over the window. We
+    do not bucket on write because clock skew across application
+    hosts makes shared bucket boundaries fragile — exact ticks +
+    window-end column means the sweep query stays correct.
+  * `PdoFeatureFlagAuditRepository` — single INSERT per write;
+    `listForFlag` returns newest-first with a stable secondary sort
+    on `id DESC` so sub-second resolution doesn't randomise order.
+
+  SQL portable across MariaDB and SQLite (test substrate).
+
+  Tests (44 new, 299 total): `FeatureKey` (7 — format invariants),
+  `FeatureFlag` (10 — full storage, breaker mutator, all five
+  constructor invariants), `FeatureFlagAuditEntry` (2),
+  `FlagNotFoundException` (3 — error code wiring, key in context,
+  message includes key), `CreateFeatureFlagTest` (4 — three-file
+  migration smoke check), `PdoFeatureFlagRepositoryTest` (7 —
+  find-on-missing, save + re-read, save updates in place,
+  conditions JSON round-trip, breaker state round-trip, listAll
+  alpha order, delete), `PdoErrorLogAggregateRepositoryTest` (5 —
+  empty count, record + count, window filter, key filter, purge
+  returns row count and prunes correctly),
+  `PdoFeatureFlagAuditRepositoryTest` (5 — record + listForFlag
+  round-trip, newest-first ordering, key filtering, limit, breaker
+  event detection). `ErrorCodeTest` data provider extended with
+  the new code.
 - **`auth_provider` + `member_external_identity` storage tier** (M4-D).
   Establishes the database half of the Pluggable IdP design contracted
   by [ADR 0003](docs/architecture/adr/0003-pluggable-idp.md). Two

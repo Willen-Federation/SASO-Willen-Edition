@@ -34,6 +34,9 @@ Within each domain the four-digit suffix counts upward starting at `0001`. **Cod
 | `SASO-AUTH-1003` | 403 | CSRF token mismatch | Submitted CSRF token did not validate against the session token |
 | `SASO-AUTH-1004` | 401 | Authentication required | Endpoint requires an authenticated principal but none was supplied |
 | `SASO-AUTH-1005` | 403 | Access denied       | Authenticated, but lacks the role or permission for the requested action |
+| `SASO-AUTH-1006` | 503 | Authentication provider is misconfigured | An `AuthProvider` cannot drive a login because its stored configuration is incomplete or unreachable (e.g. discovery URL 404, expired SAML certificate). Operator-actionable; the affected provider stays disabled until the row is fixed |
+| `SASO-AUTH-1007` | 400 | Authentication callback could not be matched to a pending request | OIDC `state` / SAML `RelayState` did not match the value the application stored on `beginLogin()`. Most often caused by an expired login attempt (cookies cleared between hops); rarely indicates an attempted CSRF on the callback |
+| `SASO-AUTH-1008` | 400 | Authentication callback failed verification | The IdP response (OIDC token signature, SAML assertion signature, nonce, audience, expiry) failed verification |
 
 ### `INFRA` — infrastructure
 

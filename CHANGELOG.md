@@ -48,6 +48,46 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   result so a rejected upload short-circuits before any DB write.
 
 ### Added
+- **Pluggable IdP scaffold** (M3-E). Establishes the contract recorded
+  in [ADR 0003](docs/architecture/adr/0003-pluggable-idp.md) so the
+  concrete `LocalProvider` / `OidcProvider` / `SamlProvider` adapters
+  and the `auth_provider` admin UI can land in M4 against a stable
+  surface. New `Saso\Domain\Auth\AuthProvider` interface defines the
+  full lifecycle (`beginLogin` → IdP → `completeLogin` →
+  `AuthenticatedIdentity`, plus `supportsLogout` / `beginLogout`).
+  Value objects: `AuthProviderId`, `AuthProviderType` (enum:
+  local/oidc/saml — values match the future DB column verbatim),
+  `AuthenticatedIdentity` (subject + email + display name + raw claims),
+  `LoginContext` (return URL + state + nonce), `CallbackRequest`
+  (read-only HTTP envelope), `LogoutContext`, `Redirect` (3xx + URL),
+  and `ClaimMapping` (operator-configurable map from IdP claim names
+  to SASO `Member` fields, OIDC defaults baked in). Typed exceptions
+  `AuthFailedException` (factories: `invalidCredentials`,
+  `stateMismatch`, `callbackInvalid`) and
+  `ProviderMisconfiguredException` wired to three new error codes:
+  `SASO-AUTH-1006` (provider misconfigured, 503), `SASO-AUTH-1007`
+  (callback state mismatch, 400), `SASO-AUTH-1008` (callback
+  validation failed, 400). All three ship with EN + JA translations.
+  `Saso\Infrastructure\Auth\Crypto\SecretEncryptor` is the AES-256-GCM
+  authenticated-encryption primitive for OIDC client secrets and SAML
+  private keys at rest. Wire format `[1-byte version | 12-byte IV |
+  N-byte ciphertext | 16-byte tag]` lets us rotate the algorithm
+  without bricking already-stored secrets. The 32-byte key is the
+  application's `APP_KEY`; `generateKey()` produces a fresh one for
+  the installer. Composer dependencies installed and ready for M4:
+  `jumbojett/openid-connect-php` ^1.0, `onelogin/php-saml` ^4.1.
+  **38 new unit tests** (183 total): `AuthProviderId` validation,
+  `AuthProviderType` enum invariants, `AuthenticatedIdentity` field
+  storage and empty-subject rejection, `ClaimMapping` defaults +
+  overrides + missing-claim safety, `Redirect` URL/status validation,
+  `AuthFailedException` / `ProviderMisconfiguredException` factory
+  semantics across the three new error codes, and a 12-case
+  `SecretEncryptor` suite covering round-trip, IV uniqueness,
+  ciphertext / tag tampering, wrong-key rejection, version-byte
+  rejection, key-length validation, empty plaintext, and 50-call key
+  uniqueness. New `docs/auth-providers/index.md` plus a sidebar entry
+  (EN + JA nav translation) document the contract and stake out where
+  the per-IdP setup guides will live.
 - **REST API surface with OpenAPI 3.1 as source of truth** (M3-D). New
   `config/openapi.yaml` is the canonical contract for `/api/v1/*` —
   paths, methods, schemas, and an `x-handler` extension that names the

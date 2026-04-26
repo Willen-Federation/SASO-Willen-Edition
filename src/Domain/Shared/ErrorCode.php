@@ -19,11 +19,14 @@ namespace Saso\Domain\Shared;
 enum ErrorCode: string
 {
     // ── Authentication & session (1xxx) ──────────────────────────────────
-    case AuthInvalidCredentials = 'SASO-AUTH-1001';
-    case AuthSessionExpired     = 'SASO-AUTH-1002';
-    case AuthCsrfMismatch       = 'SASO-AUTH-1003';
-    case AuthUnauthorized       = 'SASO-AUTH-1004';
-    case AuthForbidden          = 'SASO-AUTH-1005';
+    case AuthInvalidCredentials       = 'SASO-AUTH-1001';
+    case AuthSessionExpired           = 'SASO-AUTH-1002';
+    case AuthCsrfMismatch             = 'SASO-AUTH-1003';
+    case AuthUnauthorized             = 'SASO-AUTH-1004';
+    case AuthForbidden                = 'SASO-AUTH-1005';
+    case AuthProviderMisconfigured    = 'SASO-AUTH-1006';
+    case AuthCallbackStateMismatch    = 'SASO-AUTH-1007';
+    case AuthCallbackValidationFailed = 'SASO-AUTH-1008';
 
     // ── Infrastructure (9xxx) ────────────────────────────────────────────
     case InfraUnhandled           = 'SASO-INFRA-9000';
@@ -48,6 +51,11 @@ enum ErrorCode: string
 
             self::AuthCsrfMismatch,
             self::AuthForbidden           => 403,
+
+            self::AuthCallbackStateMismatch,
+            self::AuthCallbackValidationFailed => 400,
+
+            self::AuthProviderMisconfigured    => 503,
 
             self::InfraRouteNotFound      => 404,
             self::InfraMethodNotAllowed   => 405,
@@ -83,11 +91,14 @@ enum ErrorCode: string
     public function defaultTitle(): string
     {
         return match ($this) {
-            self::AuthInvalidCredentials   => 'Invalid credentials',
-            self::AuthSessionExpired       => 'Session expired',
-            self::AuthCsrfMismatch         => 'CSRF token mismatch',
-            self::AuthUnauthorized         => 'Authentication required',
-            self::AuthForbidden            => 'Access denied',
+            self::AuthInvalidCredentials       => 'Invalid credentials',
+            self::AuthSessionExpired           => 'Session expired',
+            self::AuthCsrfMismatch             => 'CSRF token mismatch',
+            self::AuthUnauthorized             => 'Authentication required',
+            self::AuthForbidden                => 'Access denied',
+            self::AuthProviderMisconfigured    => 'Authentication provider is misconfigured',
+            self::AuthCallbackStateMismatch    => 'Authentication callback could not be matched to a pending request',
+            self::AuthCallbackValidationFailed => 'Authentication callback failed verification',
             self::InfraUnhandled           => 'Internal server error',
             self::InfraDatabaseUnavailable => 'Database unavailable',
             self::InfraStorageUnavailable  => 'Storage unavailable',

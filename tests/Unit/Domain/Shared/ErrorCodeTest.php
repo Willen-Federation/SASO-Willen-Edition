@@ -44,6 +44,9 @@ final class ErrorCodeTest extends TestCase
         yield 'storage unavailable → 503'   => [ErrorCode::InfraStorageUnavailable, 503];
         yield 'route not found → 404'       => [ErrorCode::InfraRouteNotFound, 404];
         yield 'method not allowed → 405'    => [ErrorCode::InfraMethodNotAllowed, 405];
+        yield 'provider misconfigured → 503' => [ErrorCode::AuthProviderMisconfigured, 503];
+        yield 'callback state mismatch → 400' => [ErrorCode::AuthCallbackStateMismatch, 400];
+        yield 'callback validation failed → 400' => [ErrorCode::AuthCallbackValidationFailed, 400];
     }
 
     public function testHttpStatusIsAlwaysClientOrServerError(): void

@@ -48,6 +48,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   result so a rejected upload short-circuits before any DB write.
 
 ### Added
+- **ADRs 0005-0007** (M4-A). MADR-format records of the three
+  load-bearing M4 architecture decisions: OpenFeature PHP SDK + a
+  SASO-owned `feature_flag` DB provider with cron + tail-of-request
+  fallback circuit breaker (`feature_flag` / `error_log_aggregate` /
+  `feature_flag_audit` schema sketched, evaluation pipeline through
+  the OpenFeature client interface so call sites stay decoupled);
+  `system_setting` DB table editable from the admin Web UI with a
+  documented precedence chain (`.env` → real env var →
+  `system_setting` → `config.json` → hard-coded default), secrets
+  encrypted at rest via the M3-E `SecretEncryptor` and `.env`-shadowed
+  rows banner-flagged in the UI; Phinx for schema migrations with the
+  `phinx_log` version table, a Web wrapper for the M5 installer, and
+  five conventions covering atomicity, reversibility, backfill scope,
+  test integration, and bounded-context layout. ADR index page
+  promotes 0005-0007 from Planned to Accepted; the seven ADRs are
+  exposed in the MkDocs sidebar.
 - **Pluggable IdP scaffold** (M3-E). Establishes the contract recorded
   in [ADR 0003](docs/architecture/adr/0003-pluggable-idp.md) so the
   concrete `LocalProvider` / `OidcProvider` / `SamlProvider` adapters

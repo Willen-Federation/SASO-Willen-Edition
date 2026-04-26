@@ -41,6 +41,9 @@ enum ErrorCode: string
     case AiContextExceeded       = 'SASO-AI-8004';
     case AiContentPolicy         = 'SASO-AI-8005';
 
+    // ── Plugin system (Bxxx) — cf. ADR 0015 ──────────────────────────────
+    case PluginRegistryCollision = 'SASO-PLUGIN-B001';
+
     // ── Infrastructure (9xxx) ────────────────────────────────────────────
     case InfraUnhandled           = 'SASO-INFRA-9000';
     case InfraDatabaseUnavailable = 'SASO-INFRA-9001';
@@ -76,6 +79,8 @@ enum ErrorCode: string
             self::AiResponseMalformed,
             self::AiContextExceeded,
             self::AiContentPolicy              => 422,
+
+            self::PluginRegistryCollision      => 409,
 
             self::AiRateLimited                => 429,
 
@@ -130,6 +135,7 @@ enum ErrorCode: string
             self::AiResponseMalformed          => 'AI provider returned a malformed response',
             self::AiContextExceeded            => 'AI prompt exceeds the provider context window',
             self::AiContentPolicy              => 'AI provider refused the request as policy-violating',
+            self::PluginRegistryCollision      => 'Plugin attempted to register against a reserved core name',
             self::InfraUnhandled           => 'Internal server error',
             self::InfraDatabaseUnavailable => 'Database unavailable',
             self::InfraStorageUnavailable  => 'Storage unavailable',

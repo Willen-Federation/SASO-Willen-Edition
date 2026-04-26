@@ -59,6 +59,9 @@ error:
   SASO-AI-8005:
     title: AI provider refused the request as policy-violating
     detail: 'The AI provider declined the request on safety grounds. Edit the prompt or content and try again.'
+  SASO-PLUGIN-B001:
+    title: Plugin attempted to register against a reserved core name
+    detail: 'A plugin tried to register an extension under a name reserved for core SASO. Plugins must use vendor-prefixed names (e.g. "vendor:custom-llm").'
   SASO-INFRA-9000:
     title: Internal server error
     detail: 'An unexpected error occurred. Reference: {traceId}.'

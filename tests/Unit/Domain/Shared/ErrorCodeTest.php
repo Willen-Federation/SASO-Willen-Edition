@@ -14,7 +14,10 @@ final class ErrorCodeTest extends TestCase
     {
         foreach (ErrorCode::cases() as $code) {
             self::assertMatchesRegularExpression(
-                '/^SASO-[A-Z]+-\d{4}$/',
+                // Either the original 4-digit form (SASO-AUTH-1001) or the
+                // letter-prefixed 3-digit form (SASO-MCP-A001 / SASO-PLUGIN-B001)
+                // reserved for non-numeric domain ranges per ADRs 0014 and 0015.
+                '/^SASO-[A-Z]+-(?:\d{4}|[A-Z]\d{3})$/',
                 $code->value,
                 sprintf('Code %s does not match SASO-DOMAIN-NNNN', $code->name),
             );
@@ -53,6 +56,7 @@ final class ErrorCodeTest extends TestCase
         yield 'ai response malformed → 422' => [ErrorCode::AiResponseMalformed, 422];
         yield 'ai context exceeded → 422' => [ErrorCode::AiContextExceeded, 422];
         yield 'ai content policy → 422' => [ErrorCode::AiContentPolicy, 422];
+        yield 'plugin registry collision → 409' => [ErrorCode::PluginRegistryCollision, 409];
     }
 
     public function testHttpStatusIsAlwaysClientOrServerError(): void

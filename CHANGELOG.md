@@ -48,6 +48,49 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   result so a rejected upload short-circuits before any DB write.
 
 ### Added
+- **First plugin extension-point registry: `AiAssistantRegistry`**
+  (M6-J2-pre). Establishes the registry shape for the six typed
+  registries promised by [ADR 0015](docs/architecture/adr/0015-plugin-system.md);
+  the other four (`AuthProviderRegistry`, `McpToolRegistry`,
+  `DomainEventBus`, `ApiRouteRegistry`) follow the same pattern in
+  M6-J2.
+
+  Domain layer (`src/Domain/Plugin/Registry/`):
+  * `RegistryName` — readonly, format-validated identifier.
+    1-120 chars, lowercase alphanumeric + `_` + `-` + `:`. The
+    convention: names without a `:` are core-reserved (e.g.
+    `openai`, `null`); vendor-prefixed names (`acme:custom-llm`)
+    are plugin-owned. `isReserved()` predicate.
+  * `AiAssistantRegistry` interface — `register` /
+    `unregister` / `get` / `has` / `names`. Plugins call
+    `register()` from `Plugin::register()`; the M6-F
+    `AssistantRouter` reads the resolved name to dispatch.
+  * `Exception/RegistryCollisionException` typed to a new
+    `SASO-PLUGIN-B001` (409) error code.
+
+  Infrastructure layer (`src/Infrastructure/Plugin/Registry/`):
+  * `InMemoryAiAssistantRegistry` — request-scoped instance.
+    `register()` enforces the reserved-name rule (throws
+    `RegistryCollisionException` if a plugin tries to displace a
+    core entry). `registerCore()` is the seeding path used by the
+    composition root and is idempotent. Plugins owning
+    vendor-prefixed names may freely re-register their own entries.
+
+  Error code `SASO-PLUGIN-B001` (409) ships with EN + JA
+  translations. `ErrorCodeTest` format regex extended to allow the
+  letter-prefixed sequence number convention established by
+  [ADR 0014](docs/architecture/adr/0014-flutter-pairing-and-mcp-server.md)
+  (`SASO-MCP-A001`, `SASO-PLUGIN-B001`).
+
+  Tests (18 new, 510 total): `RegistryNameTest` (8 — format
+  invariants + `isReserved` detection + equality),
+  `InMemoryAiAssistantRegistryTest` (9 — empty start,
+  `registerCore` seeds, plugin registers vendor name,
+  reserved-name collision throws with structured context, plugin
+  re-register own vendor name overwrites, `registerCore`
+  idempotent, reserved registration on empty registry allowed,
+  `unregister` removes, `names()` returns `RegistryName`
+  instances).
 - **`item_attribute_definition` storage tier** (M6-E2). Direct
   response to the user's "サイズなどのスペックなどカテゴリを自由に追加"
   requirement; ships the schema half of the EAV pattern contracted

@@ -42,6 +42,8 @@ Within each domain the four-digit suffix counts upward starting at `0001`. **Cod
 | `SASO-INFRA-9000` | 500 | Internal server error | Catch-all for any uncaught exception that does not extend `DomainException`. The full stack is logged; the response body carries only `traceId` |
 | `SASO-INFRA-9001` | 503 | Database unavailable  | Could not connect to the configured DSN, or the connection dropped mid-transaction |
 | `SASO-INFRA-9002` | 503 | Storage unavailable   | Filesystem path required by the request was not writable / readable |
+| `SASO-INFRA-9003` | 404 | Endpoint not found    | API router could not match the request path against any operation declared in `config/openapi.yaml` |
+| `SASO-INFRA-9004` | 405 | Method not allowed    | API router matched the path but not the HTTP method; allowed methods are listed in the server log under `context.allowed` |
 
 The remaining domains (`ITEM`, `LABEL`, `SHELF`, `INSTALL`, `CONFIG`, `FLAG`) reserve their numeric ranges and will be filled as M3-D and M4 land.
 

@@ -48,6 +48,37 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   result so a rejected upload short-circuits before any DB write.
 
 ### Added
+- **REST API surface with OpenAPI 3.1 as source of truth** (M3-D). New
+  `config/openapi.yaml` is the canonical contract for `/api/v1/*` —
+  paths, methods, schemas, and an `x-handler` extension that names the
+  PHP callable per operation (cf. ADR 0002). `composer require
+  nikic/fast-route:^1.3`. The new `Saso\Presentation\Api\V1\Router`
+  reads the spec at boot, builds a fast-route dispatcher from it, and
+  refuses to start if the handler map omits an `operationId` declared
+  in the YAML — schema/code drift is detected at construction, not at
+  runtime. `Saso\Presentation\Api\V1\OpenApiSpec` is the parser
+  (loads from disk or YAML string), `HttpRequest`/`JsonResponse`/
+  `RawResponse` are minimal request/response value objects (PSR-7
+  deferred until a real need surfaces). Three meta endpoints ship in
+  this PR: `GET /api/v1/health` (liveness probe — `{status, version,
+  time}`, never touches the database), `GET /api/v1/openapi.yaml`
+  (serves the spec verbatim), `GET /api/v1/docs` (embedded Swagger UI
+  loaded from unpkg). `Saso\Presentation\Api\V1\Bootstrap` is the
+  composition root; `index.php` short-circuits to it whenever
+  `REQUEST_URI` starts with `/api/v1/`, so the legacy router (PHP
+  screens) is untouched. Two new error codes ship for routing
+  failures: `SASO-INFRA-9003` (route not found, 404) and
+  `SASO-INFRA-9004` (method not allowed, 405). Both come with EN +
+  JA translations and dedicated `RouteNotFoundException` /
+  `MethodNotAllowedException` factories under
+  `src/Domain/Shared/Exception/`. **24 new unit tests** (145 total)
+  cover spec parsing, route extraction, request parsing,
+  JSON/raw response encoding, controller behaviour, router dispatch
+  (FOUND, NOT_FOUND, METHOD_NOT_ALLOWED, handler exception → Problem
+  Details, missing-handler boot rejection), and end-to-end Problem
+  Details correlation through the router. CI bumps PHPStan's memory
+  limit to 512M (the OpenAPI/translation graph crosses 1.12's default
+  128M ceiling on the GitHub-hosted runner).
 - **i18n with Symfony Translation + bilingual catalogue** (M3-C).
   `composer require symfony/translation:^7.2 symfony/yaml:^7.2`. New
   `Saso\Infrastructure\Translation\Translator` adapts Symfony's contract

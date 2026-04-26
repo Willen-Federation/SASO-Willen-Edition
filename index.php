@@ -37,6 +37,19 @@ if (is_file(__DIR__.'/vendor/autoload.php')) {
 require_once 'ClassLoader.php';
 spl_autoload_register(ClassLoader::load($config));
 
+// --- M3 REST API surface ----------------------------------------------------
+// Requests under /api/v1/* are handled by the schema-first router declared
+// in config/openapi.yaml (cf. ADR 0002). Legacy screens, the installer, and
+// every existing PHP page continue to fall through to the request.json
+// router below.
+$requestPath = (string) (parse_url((string) ($_SERVER['REQUEST_URI'] ?? '/'), PHP_URL_PATH) ?? '/');
+if (str_starts_with($requestPath, '/api/v1/') || $requestPath === '/api/v1') {
+    \Saso\Presentation\Api\V1\Bootstrap::dispatch(
+        \Saso\Presentation\Api\V1\HttpRequest::fromGlobals(),
+    );
+    exit;
+}
+
 // --- M1 security hotfix: session cookie hardening ---------------------------
 // HttpOnly blocks document.cookie reads, SameSite=Lax mitigates CSRF on
 // top-level navigations, and Secure is set whenever config.https is true so

@@ -28,6 +28,9 @@ enum ErrorCode: string
     case AuthCallbackStateMismatch    = 'SASO-AUTH-1007';
     case AuthCallbackValidationFailed = 'SASO-AUTH-1008';
 
+    // ── Configuration (6xxx) ─────────────────────────────────────────────
+    case ConfigSettingNotFound = 'SASO-CONFIG-6001';
+
     // ── Infrastructure (9xxx) ────────────────────────────────────────────
     case InfraUnhandled           = 'SASO-INFRA-9000';
     case InfraDatabaseUnavailable = 'SASO-INFRA-9001';
@@ -56,6 +59,8 @@ enum ErrorCode: string
             self::AuthCallbackValidationFailed => 400,
 
             self::AuthProviderMisconfigured    => 503,
+
+            self::ConfigSettingNotFound        => 404,
 
             self::InfraRouteNotFound      => 404,
             self::InfraMethodNotAllowed   => 405,
@@ -99,6 +104,7 @@ enum ErrorCode: string
             self::AuthProviderMisconfigured    => 'Authentication provider is misconfigured',
             self::AuthCallbackStateMismatch    => 'Authentication callback could not be matched to a pending request',
             self::AuthCallbackValidationFailed => 'Authentication callback failed verification',
+            self::ConfigSettingNotFound        => 'System setting not found',
             self::InfraUnhandled           => 'Internal server error',
             self::InfraDatabaseUnavailable => 'Database unavailable',
             self::InfraStorageUnavailable  => 'Storage unavailable',

@@ -48,6 +48,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   result so a rejected upload short-circuits before any DB write.
 
 ### Added
+- **Local development stack** (M2-C). New `docker/Dockerfile`
+  (`php:8.2-apache` + `pdo_mysql` / `gd` / `zip` / `intl` / `mbstring` /
+  `opcache` / `exif` + Composer 2), `docker/apache/000-default.conf`
+  (`AllowOverride All` so the project's `.htaccess` is honored),
+  `docker/php/saso.ini` (dev-tuned overrides), `docker/mariadb/init.sql`
+  (UTF-8 collation), and `docker-compose.yml` (`app` + `mariadb:10.6` +
+  `adminer:4`, plus an optional `--profile sso` Keycloak service for OIDC /
+  SAML testing). Apple Silicon compatibility via `platform: linux/amd64`,
+  bind-mount `:cached` hint for macOS file performance, and a
+  health-checked DB so `app` waits for MariaDB. `.dockerignore` keeps the
+  build context small.
+- **Project `Makefile`** with targets for the full development loop:
+  `make up` / `make down` / `make install` / `make migrate` / `make test` /
+  `make analyse` / `make cs-check` / `make cs-fix` / `make qa` /
+  `make shell` / `make db-shell` / `make logs` / `make ps` / `make help`.
+  Targets are idempotent and use `-T` exec for clean piped output.
 - **Test, lint, and static-analysis tooling** (M2-B). `phpunit.xml.dist`
   configures three suites (Unit / Integration / Feature) with strict
   PHPUnit 10.5 settings (`failOnRisky`, `failOnWarning`,

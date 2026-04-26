@@ -1,0 +1,108 @@
+# =============================================================================
+# SASO — local development stack (Colima / Docker Desktop compatible)
+# -----------------------------------------------------------------------------
+# Quick start (see Makefile for friendlier commands):
+#   docker compose up -d              # app + db + adminer
+#   docker compose --profile sso up   # adds Keycloak for OIDC / SAML testing
+#
+# Apple Silicon: `platform: linux/amd64` is set explicitly so MariaDB and
+# Keycloak run under qemu when no native arm64 image is available — this
+# matches the deployment surface most operators target. Removing the platform
+# pin will drop those images on Apple Silicon hosts.
+# =============================================================================
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    image: saso/app:dev
+    container_name: saso-app
+    platform: linux/amd64
+    ports:
+      - "8080:80"
+    volumes:
+      # Bind-mount the project so edits are picked up without rebuilding.
+      # `:cached` is a macOS-only hint that improves bind-mount throughput;
+      # ignored on Linux hosts.
+      - ./:/var/www/html:cached
+      - composer-cache:/root/.composer/cache
+    environment:
+      # `.env` overlays still apply — these env vars are visible to PHP via
+      # getenv() and are picked up by EnvLoader::get when the .env file omits
+      # them. Set the DSN to point at the compose-internal `db` hostname.
+      DB_DSN: "mysql:host=db;dbname=saso_db;charset=utf8mb4"
+      DB_USER: "saso_user"
+      DB_PASSWORD: "saso_dev_password"
+      APP_HTTPS: "false"
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - saso
+
+  db:
+    image: mariadb:10.6
+    container_name: saso-db
+    platform: linux/amd64
+    restart: unless-stopped
+    environment:
+      MARIADB_ROOT_PASSWORD: rootpw
+      MARIADB_DATABASE: saso_db
+      MARIADB_USER: saso_user
+      MARIADB_PASSWORD: saso_dev_password
+    volumes:
+      - db-data:/var/lib/mysql
+      - ./docker/mariadb/init.sql:/docker-entrypoint-initdb.d/01-init.sql:ro
+    healthcheck:
+      test:
+        ["CMD-SHELL", "mariadb-admin ping -uroot -p$$MARIADB_ROOT_PASSWORD || exit 1"]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+      start_period: 15s
+    networks:
+      - saso
+
+  adminer:
+    image: adminer:4
+    container_name: saso-adminer
+    platform: linux/amd64
+    ports:
+      - "8081:8080"
+    environment:
+      ADMINER_DEFAULT_SERVER: db
+      ADMINER_DESIGN: nette
+    depends_on:
+      db:
+        condition: service_started
+    networks:
+      - saso
+
+  # Optional OIDC / SAML test IdP. Enabled with `--profile sso`:
+  #     docker compose --profile sso up -d
+  # The default admin credentials are admin / admin and the dev mode disables
+  # the production-readiness checks. Do NOT expose this port outside localhost.
+  keycloak:
+    image: quay.io/keycloak/keycloak:24.0
+    container_name: saso-keycloak
+    platform: linux/amd64
+    profiles:
+      - sso
+    command: ["start-dev"]
+    environment:
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+      KC_HEALTH_ENABLED: "true"
+    ports:
+      - "8082:8080"
+    networks:
+      - saso
+
+volumes:
+  db-data:
+  composer-cache:
+
+networks:
+  saso:
+    driver: bridge

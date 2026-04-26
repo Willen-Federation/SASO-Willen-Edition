@@ -81,21 +81,42 @@ Follow the on-screen wizard to create the initial administrator account.
 
 ## Quick Start (Docker)
 
-> Docker support is on the roadmap (M2). The target experience:
+Tested with **Colima** and **Docker Desktop** on macOS / Linux. Apple Silicon hosts run the images under qemu (`platform: linux/amd64`) so the developer environment matches the deployment surface most operators target.
 
 ```bash
-# Requires Colima or Docker Desktop
-make install        # composer install in container
-make up             # docker compose up -d (Apache + MariaDB + Adminer)
-make migrate        # run database migrations
-open http://localhost:8080
+# Recommended Colima sizing on macOS:
+colima start --cpu 4 --memory 4 --disk 20
+
+# 1) Build images and start the stack (Apache + PHP + MariaDB + Adminer)
+make up
+
+# 2) Install Composer dependencies inside the app container
+make install
+
+# 3) Apply pending SQL migrations (idempotent)
+make migrate
+
+# 4) Open the application and the DB admin UI
+open http://localhost:8080      # SASO web installer / app
+open http://localhost:8081      # Adminer  → server: db / user: saso_user / password: saso_dev_password
 ```
 
-For development with an SSO test IdP:
+For development with an OIDC / SAML test IdP:
 
 ```bash
-docker compose --profile sso up -d   # adds Keycloak
+make up-sso              # adds Keycloak at http://localhost:8082 (admin / admin)
 ```
+
+`make help` lists every target. Common ones:
+
+| Target | What it does |
+|---|---|
+| `make up` / `make down` | Start / stop the stack |
+| `make shell` | Open a bash shell in the `app` container |
+| `make test` / `make analyse` / `make cs-check` | Run PHPUnit / PHPStan / PHP-CS-Fixer |
+| `make qa` | Run all three QA tools in sequence |
+| `make migrate` | Apply each `migrations/*.sql` against the dev DB |
+| `make db-shell` | Open a MariaDB client connected to `saso_db` |
 
 ## Configuration
 

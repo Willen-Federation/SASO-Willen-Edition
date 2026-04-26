@@ -53,21 +53,24 @@ $EDITOR .htaccess
 open https://your-host.example.com/installer/start
 ```
 
-### Docker (planned, M2)
-
-Once Docker support is merged:
+### Docker (Colima / Docker Desktop)
 
 ```bash
-make install   # composer install in container
-make up        # docker compose up -d
-make migrate   # run database migrations
+make up           # build images, start app + db + adminer
+make install      # composer install inside the app container
+make migrate      # apply migrations/*.sql against saso_db
+make qa           # cs-check + analyse + test
 ```
 
-For local SSO testing with Keycloak:
+For local OIDC / SAML testing with Keycloak (optional profile):
 
 ```bash
-docker compose --profile sso up -d
+make up-sso       # same as `make up` plus Keycloak on :8082
 ```
+
+`make help` lists every target. The `app` container bind-mounts the
+repository at `/var/www/html`, so file edits are visible immediately
+without rebuilding the image.
 
 ## Branching & Workflow
 

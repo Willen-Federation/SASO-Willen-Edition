@@ -48,6 +48,39 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   result so a rejected upload short-circuits before any DB write.
 
 ### Added
+- **ADRs 0015-0016** (M6-A2). Two strategic architecture decisions
+  added in response to user follow-up requests:
+  * **0015 Plugin system** — Composer-discovered packages with typed
+    extension-point registries (`AuthProviderRegistry`,
+    `AiAssistantRegistry`, `McpToolRegistry`, `DomainEventBus`,
+    `ApiRouteRegistry`, `SystemSettingService`). Plugins ship as
+    Composer packages whose `composer.json` declares
+    `extra.saso.plugin.class` — SASO walks
+    `vendor/composer/installed.json` once at boot, instantiates each
+    plugin, and asks it to register against the typed registries.
+    Lifecycle (install / activate / register / deactivate / uninstall)
+    is recorded in a new `plugin_registry` table; `SAFE_MODE=true`
+    skips every plugin so a misbehaving third-party cannot brick the
+    instance. Plugins cannot replace core providers (collisions
+    rejected on canonical names) — only add new ones.
+  * **0016 English as default locale + extract legacy JA strings** —
+    flips the configured-default locale to `en` for new installs;
+    existing JA operators are unaffected because the `LocaleResolver`
+    chain still picks JA when `default_locale = ja` (`system_setting`)
+    or `Member.locale = ja`. A one-shot extraction script walks the
+    legacy templates, finds JA literals, proposes translation keys,
+    and emits `git apply`-able patches. Per-template extraction PRs
+    land in M6-A3 onwards. CI gains an
+    `audit_untranslated_strings.php` check that fails when a new
+    template introduces a JA literal without a `__()` call. PDF
+    labels stay JA-only by default; a `report.locale` system_setting
+    flips them to EN once the bundled `IPAex` font is confirmed.
+
+  ADR index page extends the Accepted table to 0015-0016;
+  `mkdocs.yml` nav exposes both files in the Architecture sidebar
+  (EN + JA rendering verified via `mkdocs build --strict`). Total
+  architecture decisions on record: 15 accepted (0001-0007 +
+  0009-0016), 1 planned (0008, M5).
 - **AI gateway scaffold** (M6-B). Establishes the vendor-agnostic
   contract recorded in
   [ADR 0009](docs/architecture/adr/0009-multi-llm-gateway.md).

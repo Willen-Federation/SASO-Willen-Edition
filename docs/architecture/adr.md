@@ -12,14 +12,14 @@ ADRs live under `docs/architecture/adr/` and are numbered sequentially. They are
 | [0002](adr/0002-openapi-as-source-of-truth.md) | OpenAPI 3.1 as the single source of truth for `/api/v1/*` | 2026-04-26 | M3 |
 | [0003](adr/0003-pluggable-idp.md) | Pluggable IdP (`AuthProvider` interface) with OIDC + SAML implementations | 2026-04-26 | M3 |
 | [0004](adr/0004-rfc7807-problem-details.md) | RFC 7807 Problem Details + `SASO-DOMAIN-NNNN` codes | 2026-04-26 | M3 |
+| [0005](adr/0005-openfeature-with-db-provider.md) | OpenFeature SDK + DB-backed provider with cron circuit breaker | 2026-04-26 | M4 |
+| [0006](adr/0006-system-setting-web-ui.md) | `system_setting` DB table editable from the admin Web UI | 2026-04-26 | M4 |
+| [0007](adr/0007-phinx-migrations.md) | Phinx for schema migrations | 2026-04-26 | M4 |
 
 ## Planned
 
 | Number | Topic | Milestone |
 |---|---|---|
-| 0005 | OpenFeature SDK + DB-backed provider for Feature Flags | M4 |
-| 0006 | `system_setting` DB table editable from the admin Web UI | M4 |
-| 0007 | Phinx for schema migrations | M4 |
 | 0008 | Vendor-bundled release ZIP for shared-hosting deploys | M5 |
 
 ## Format

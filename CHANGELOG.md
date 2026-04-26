@@ -48,6 +48,56 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   result so a rejected upload short-circuits before any DB write.
 
 ### Added
+- **`plugin_registry` storage tier** (M6-J1). Establishes the
+  persistence half of the plugin lifecycle contracted by
+  [ADR 0015](docs/architecture/adr/0015-plugin-system.md). The
+  Composer-based discovery loop (`PluginDiscovery` + `PluginContext`
+  facade with the six typed registries) lands in M6-J2 against this
+  stable contract.
+
+  Migration (`migrations/M6/`):
+  * `20260427120000_create_plugin_registry.php` — `package` (unique),
+    `class`, `name`, `version`, `activated_at`, `deactivated_at`,
+    `last_seen_at`, `settings_json` JSON. Indexed on `(package)` and
+    `(deactivated_at)` for the active-plugin list. Reversible.
+
+  Domain layer (`src/Domain/Plugin/`):
+  * `Plugin` — marker interface (`metadata()` only in this PR; full
+    lifecycle methods `register` / `activate` / `deactivate` add in
+    M6-J2 alongside the discovery loop).
+  * `PluginMetadata` — readonly value object. Validates Composer-style
+    `vendor/name` package format, non-empty name + version, default
+    `versionCompat = '*'`.
+  * `PluginRecord` — immutable view of one row. Validates `id ≥ 1`,
+    Composer-style package, non-empty class. `isActive()` predicate;
+    `withDeactivatedAt()` and `withLastSeenAt()` non-mutating
+    mutators.
+  * `Repository/PluginRepository` interface — `findByPackage` /
+    `findById` / `listActive` / `listAll` / `activate` / `markSeen` /
+    `deactivate`.
+
+  Infrastructure layer (`src/Infrastructure/Plugin/`):
+  * `PdoPluginRepository` — concrete PDO impl. `activate()` is an
+    upsert: a new row gets the current timestamp; an existing row
+    has its `deactivated_at` cleared and `class` + `version` refreshed
+    (plugin authors sometimes move their entry class between
+    releases) while the original `activated_at` is preserved so audit
+    history survives re-activation. JSON-encodes `settings_json` on
+    write, decodes on read.
+
+  `phinx.php` extends its `migrations` paths to include
+  `migrations/M6` so `make migrate` picks up the new file.
+
+  Tests (15 new, 386 total): `PluginMetadataTest` (6 — full
+  invariants + default versionCompat), `PluginRecordTest` (6 — id /
+  package validation, `isActive` flip, non-mutating mutators),
+  `PdoPluginRepositoryTest` (9 — find-on-missing, activate inserts +
+  re-reads, re-activation refreshes class/version while preserving
+  id, re-activation clears `deactivated_at`, `listActive` filters,
+  `listAll` ordered by name, `markSeen` updates `last_seen_at`,
+  `deactivate` sets timestamp, `settings_json` round-trip),
+  `CreatePluginRegistryTest` (4 — file path, class name, extends
+  `AbstractMigration`, is final).
 - **ADRs 0015-0016** (M6-A2). Two strategic architecture decisions
   added in response to user follow-up requests:
   * **0015 Plugin system** — Composer-discovered packages with typed

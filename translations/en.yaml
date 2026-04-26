@@ -38,6 +38,9 @@ error:
   SASO-AUTH-1008:
     title: Authentication callback failed verification
     detail: 'The sign-in response from the identity provider failed verification. Please try again or contact an administrator.'
+  SASO-CONFIG-6001:
+    title: System setting not found
+    detail: 'The requested system setting does not exist. Ask an administrator to verify the key spelling or to seed a default value.'
   SASO-INFRA-9000:
     title: Internal server error
     detail: 'An unexpected error occurred. Reference: {traceId}.'

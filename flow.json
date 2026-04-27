@@ -93,5 +93,10 @@
     },
     "barcode": {
         "start": "\\saso\\barcode\\StartDIContainer"
+    },
+    "admin": {
+        "flags": "\\saso\\admin\\FlagsDIContainer",
+        "auth": "\\saso\\admin\\AuthDIContainer",
+        "mobile": "\\saso\\admin\\MobileDIContainer"
     }
 }

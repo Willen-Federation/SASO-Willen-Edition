@@ -240,5 +240,19 @@
             "matter": "shelf",
             "action": "pdf"
         }
+    },
+    "admin": {
+        "flags": {
+            "matter": "admin",
+            "action": "flags"
+        },
+        "auth": {
+            "matter": "admin",
+            "action": "auth"
+        },
+        "mobile": {
+            "matter": "admin",
+            "action": "mobile"
+        }
     }
 }

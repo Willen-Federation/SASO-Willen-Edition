@@ -52,12 +52,17 @@ final class InstallView implements View
         }
 
         // Step 3: Write .env with the verified credentials.
-        $envPath    = dirname(__DIR__) . '/.env';
+        // Preserve APP_KEY if it already exists (re-install must not rotate the key).
+        $envPath = dirname(__DIR__) . '/.env';
+        $existingEnv = \saso\util\EnvLoader::loadFile($envPath);
+        $appKey  = \saso\util\EnvLoader::get($existingEnv, 'APP_KEY')
+            ?? base64_encode(\Saso\Infrastructure\Auth\Crypto\SecretEncryptor::generateKey());
         $envContent = implode("\n", [
             "DB_DSN={$dsn}",
             "DB_USER={$user}",
             "DB_PASSWORD={$pass}",
             "APP_HTTPS={$https}",
+            "APP_KEY={$appKey}",
             '',
         ]);
         if (file_put_contents($envPath, $envContent) === false) {

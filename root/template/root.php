@@ -46,11 +46,21 @@
           <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownAdmin" role="button" data-bs-toggle="dropdown" aria-expanded="false">
             管理
           </a>
-          <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+          <ul class="dropdown-menu" aria-labelledby="navbarDropdownAdmin">
             <li><a class="dropdown-item" href="./label/start/">ラベル寸法管理</a></li>
             <li><a class="dropdown-item" href="./category/start/">分類管理</a></li>
             <li><hr class="dropdown-divider"></li>
             <li><a class="dropdown-item" href="./start/password/">パスワード変更</a></li>
+          </ul>
+        </li>
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownSystem" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            システム管理
+          </a>
+          <ul class="dropdown-menu" aria-labelledby="navbarDropdownSystem">
+            <li><a class="dropdown-item" href="./admin/flags/">機能フラグ</a></li>
+            <li><a class="dropdown-item" href="./admin/auth/">認証プロバイダ</a></li>
+            <li><a class="dropdown-item" href="./admin/mobile/">モバイルデバイス</a></li>
           </ul>
         </li>
       </ul>

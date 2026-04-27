@@ -3,9 +3,10 @@
 use saso\entity\Member;
 use saso\repository;
 
-// $pdo may be injected by InstallView (installer context). Fall back to the
-// shared singleton only when running outside the web installer (e.g. tests).
-$pdo = $pdo ?? repository\DBConnection::getPdo();
+// $pdo and $tableCharset may be injected by InstallView (installer context).
+// Fall back to shared singleton / utf8mb4 when running outside the web installer.
+$pdo         = $pdo         ?? repository\DBConnection::getPdo();
+$tableCharset = $tableCharset ?? 'utf8mb4';
 
 $sql = [];
 $sql[] = "CREATE TABLE Item (
@@ -24,7 +25,7 @@ $sql[] = "CREATE TABLE Item (
     , archive INT(1) NOT NULL DEFAULT 0
     , archiveNote VARCHAR(50)
     , archiveAt DATETIME
-   
+
     , PRIMARY KEY(dateCode, serial)
 )";
 $sql[] = "CREATE TABLE Category (
@@ -33,7 +34,7 @@ $sql[] = "CREATE TABLE Category (
     , categoryLeft INT NOT NULL
     , categoryRight INT NOT NULL
     , CHECK (categoryLeft < categoryRight)
-    
+
     , PRIMARY KEY(categoryId)
 )";
 $sql[] = "CREATE TABLE Color (
@@ -42,7 +43,7 @@ $sql[] = "CREATE TABLE Color (
     , colorName VARCHAR(50) NOT NULL
     , image MEDIUMBLOB
     , imageType VARCHAR(100)
-    
+
     , PRIMARY KEY(concatId, colorCode)
 )";
 $sql[] = "CREATE TABLE Size (
@@ -50,7 +51,7 @@ $sql[] = "CREATE TABLE Size (
     , sizeCode CHAR(2) NOT NULL
     , sizeName VARCHAR(50) NOT NULL
     , orderNumber INT(2)
-    
+
     , PRIMARY KEY(concatId, sizeCode)
 )";
 $sql[] = "CREATE TABLE Detale (
@@ -90,7 +91,7 @@ $sql[] = "CREATE TABLE Member (
 
 foreach($sql as $value){
     try{
-        $pdo->query($value." DEFAULT CHARSET=utf8");
+        $pdo->query($value." DEFAULT CHARSET={$tableCharset}");
     }catch(\PDOException $e){
         echo $e;
         die('データベース作成時にエラーが発生しました。最初から全てやり直して下さい。');

@@ -60,6 +60,16 @@ final class InMemoryMcpToolRegistryTest extends TestCase
 
     private function fakeTool(): McpTool
     {
-        return new class () implements McpTool {};
+        return new class () implements McpTool {
+            public function name(): string { return 'fake_tool'; }
+
+            public function description(): string { return 'A fake tool for tests.'; }
+
+            public function inputSchema(): array { return ['type' => 'object']; }
+
+            public function invoke(array $input, int $deviceId): array { return []; }
+
+            public function requiredScope(): ?string { return null; }
+        };
     }
 }

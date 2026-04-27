@@ -59,6 +59,15 @@ error:
   SASO-AI-8005:
     title: AI provider refused the request as policy-violating
     detail: 'The AI provider declined the request on safety grounds. Edit the prompt or content and try again.'
+  SASO-MCP-A001:
+    title: Unknown MCP tool
+    detail: 'The requested MCP tool is not registered or has been disabled by an administrator.'
+  SASO-MCP-A002:
+    title: MCP request malformed
+    detail: 'The JSON-RPC 2.0 envelope is invalid. Verify that the request body is well-formed JSON with the required "jsonrpc", "method", and "id" fields.'
+  SASO-MCP-A003:
+    title: Scope insufficient for the requested MCP tool
+    detail: 'This MCP tool requires a scope that the current device token does not carry. Re-pair the device with the required scope to proceed.'
   SASO-PLUGIN-B001:
     title: Plugin attempted to register against a reserved core name
     detail: 'A plugin tried to register an extension under a name reserved for core SASO. Plugins must use vendor-prefixed names (e.g. "vendor:custom-llm").'

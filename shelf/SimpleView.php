@@ -7,8 +7,8 @@ use saso\framework\View;
 final class SimpleView implements View
 {
     use Setter;
-    public string $title;
-    public \Closure $content;
+    private string $title;
+    private \Closure $content;
 
     public function display(): void
     {

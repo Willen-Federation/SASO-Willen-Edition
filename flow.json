@@ -44,6 +44,7 @@
         "path": "\\saso\\category\\PathDIContainer"
     },
     "item": {
+        "fromBarcode": "\\saso\\item\\FromBarcodeDIContainer",
         "archiveList": "\\saso\\item\\ArchiveListDIContainer",
         "archiveAllFrame": "\\saso\\item\\ArchiveAllFrameDIContainer",
         "archiveAll": "\\saso\\item\\ArchiveAllDIContainer",
@@ -73,6 +74,7 @@
         "labelAmountFeatures": "\\saso\\feature\\LabelAmountFeaturesDIContainer"
     },
     "shelf": {
+        "simple": "\\saso\\shelf\\SimpleDIContainer",
         "menu": "\\saso\\shelf\\MenuDIContainer",
         "multi": "\\saso\\shelf\\MultiDIContainer",
         "single": "\\saso\\shelf\\SingleDIContainer",
@@ -92,6 +94,14 @@
         "pdf": "\\saso\\label\\PdfDIContainer"
     },
     "barcode": {
-        "start": "\\saso\\barcode\\StartDIContainer"
+        "start": "\\saso\\barcode\\StartDIContainer",
+        "sheet": "\\saso\\barcode\\SheetDIContainer"
+    },
+    "verify": {
+        "start": "\\saso\\verify\\StartDIContainer"
+    },
+    "admin": {
+        "feature-flags": "\\saso\\admin\\FeatureFlagsDIContainer",
+        "auth-providers": "\\saso\\admin\\AuthProvidersDIContainer"
     }
 }

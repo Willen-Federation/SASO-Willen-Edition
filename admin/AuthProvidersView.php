@@ -1,24 +1,19 @@
 <?php
-namespace saso\verify;
+namespace saso\admin;
 
 use saso\framework\Setter;
 use saso\framework\View;
 
-final class StartView implements View
+final class AuthProvidersView implements View
 {
     use Setter;
     private string $title;
     private \Closure $content;
-    public ?array $verifyResults = null;
-    public ?string $lastChecked = null;
-    public int $totalItems = 0;
-    public int $verifiedCount = 0;
-    public int $discrepancyCount = 0;
-    public int $unverifiedCount = 0;
+    public array $providers = [];
 
     public function display(): void
     {
-        require_once 'verify/template/start.php';
+        require_once 'admin/template/auth-providers.php';
     }
 
     public function onRoot(): bool

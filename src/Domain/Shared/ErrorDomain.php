@@ -14,11 +14,15 @@ namespace Saso\Domain\Shared;
 enum ErrorDomain: string
 {
     case Auth    = 'AUTH';
+    case Mobile  = 'MOBILE';
     case Item    = 'ITEM';
     case Label   = 'LABEL';
     case Shelf   = 'SHELF';
     case Install = 'INSTALL';
     case Config  = 'CONFIG';
     case Flag    = 'FLAG';
+    case Ai      = 'AI';
+    case Mcp     = 'MCP';
+    case Plugin  = 'PLUGIN';
     case Infra   = 'INFRA';
 }

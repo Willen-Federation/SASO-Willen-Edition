@@ -32,8 +32,9 @@ interface McpTool
     /**
      * Execute the tool and return a result map.
      *
-     * @param array<string, mixed> $input   validated `arguments` from the caller
-     * @param int                  $deviceId device_token.id from the verified JWT
+     * @param array<string, mixed> $input validated `arguments` from the caller
+     * @param int $deviceId device_token.id from the verified JWT
+     *
      * @return array<string, mixed>
      */
     public function invoke(array $input, int $deviceId): array;

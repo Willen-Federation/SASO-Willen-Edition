@@ -11,7 +11,6 @@ use PHPUnit\Framework\TestCase;
 use Saso\Domain\Mcp\McpTool;
 use Saso\Domain\MobileConnect\DeviceToken;
 use Saso\Domain\MobileConnect\Jwt\JwtService;
-use Saso\Domain\MobileConnect\Repository\DeviceTokenRepository;
 use Saso\Domain\Plugin\Registry\RegistryName;
 use Saso\Infrastructure\MobileConnect\PdoDeviceTokenRepository;
 use Saso\Infrastructure\Plugin\Registry\InMemoryMcpToolRegistry;
@@ -191,15 +190,30 @@ final class McpServerTest extends TestCase
     private function makeFakeTool(): McpTool
     {
         return new class () implements McpTool {
-            public function name(): string { return 'echo_tool'; }
+            public function name(): string
+            {
+                return 'echo_tool';
+            }
 
-            public function description(): string { return 'Echoes input.'; }
+            public function description(): string
+            {
+                return 'Echoes input.';
+            }
 
-            public function inputSchema(): array { return ['type' => 'object', 'properties' => ['msg' => ['type' => 'string']]]; }
+            public function inputSchema(): array
+            {
+                return ['type' => 'object', 'properties' => ['msg' => ['type' => 'string']]];
+            }
 
-            public function invoke(array $input, int $deviceId): array { return ['echo' => $input['msg'] ?? '']; }
+            public function invoke(array $input, int $deviceId): array
+            {
+                return ['echo' => $input['msg'] ?? ''];
+            }
 
-            public function requiredScope(): ?string { return null; }
+            public function requiredScope(): ?string
+            {
+                return null;
+            }
         };
     }
 }

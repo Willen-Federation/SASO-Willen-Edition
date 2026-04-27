@@ -7,13 +7,6 @@ namespace Saso\Presentation\Mcp;
 use DateTimeImmutable;
 use DateTimeZone;
 use RuntimeException;
-use Saso\Domain\Mcp\Exception\MalformedMcpRequestException;
-use Saso\Domain\Mcp\Exception\McpScopeInsufficientException;
-use Saso\Domain\Mcp\Exception\UnknownMcpToolException;
-use Saso\Domain\Mcp\McpTool;
-use Saso\Domain\MobileConnect\Exception\DeviceTokenExpiredException;
-use Saso\Domain\MobileConnect\Exception\DeviceTokenRevokedException;
-use Saso\Domain\MobileConnect\Exception\DeviceTokenNotFoundException;
 use Saso\Domain\MobileConnect\Jwt\JwtService;
 use Saso\Domain\MobileConnect\Repository\DeviceTokenRepository;
 use Saso\Domain\Plugin\Registry\McpToolRegistry;
@@ -52,8 +45,8 @@ final class McpServer
     /**
      * Entry point called from the Bootstrap.
      *
-     * @param array<string, string> $headers   HTTP request headers (lowercase keys)
-     * @param string                $rawBody   raw request body
+     * @param array<string, string> $headers HTTP request headers (lowercase keys)
+     * @param string $rawBody raw request body
      */
     public function handle(array $headers, string $rawBody): McpResponse
     {
@@ -123,7 +116,7 @@ final class McpServer
     }
 
     /**
-     * @param array<string, mixed>  $params
+     * @param array<string, mixed> $params
      * @param array<string, string> $headers
      */
     private function handleToolsCall(int|string|null $id, array $params, array $headers): McpResponse
@@ -183,8 +176,10 @@ final class McpServer
     /**
      * Verifies the Bearer JWT and device token state.
      *
-     * @param  array<string, string> $headers
+     * @param array<string, string> $headers
+     *
      * @return int device_token.id
+     *
      * @throws RuntimeException on any auth failure
      */
     private function authenticate(array $headers): int

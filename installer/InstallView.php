@@ -21,7 +21,8 @@ final class InstallView implements View
         $charset = in_array($_POST['db_charset'] ?? '', ['utf8mb4', 'utf8'], true)
             ? $_POST['db_charset']
             : 'utf8mb4';
-        $https   = !empty($_POST['https_enabled']) ? 'true' : 'false';
+        $https         = !empty($_POST['https_enabled']) ? 'true' : 'false';
+        $confirmReset  = !empty($_POST['confirm_reset']);
 
         $portPart = ($port !== '') ? ";port={$port}" : '';
         $dsn = "mysql:host={$host}{$portPart};dbname={$name};charset={$charset}";
@@ -39,14 +40,15 @@ final class InstallView implements View
             );
         }
 
-        // Step 2: Ensure the target database is empty to avoid half-installs.
+        // Step 2: Check for existing tables.
         $existing = $pdo->query('SHOW TABLES')->fetchAll(\PDO::FETCH_COLUMN);
         if (!empty($existing)) {
-            self::abort(
-                'データベースにテーブルが既に存在します',
-                'データベース「' . htmlspecialchars($name, ENT_QUOTES, 'UTF-8') . '」には既にテーブルがあります。'
-                . '空のデータベースを用意してから再実行してください。',
-            );
+            if (!$confirmReset) {
+                // Ask the user whether to drop all existing tables.
+                self::confirmReset($existing, $_POST);
+            }
+            // User confirmed — drop everything and start fresh.
+            self::dropAllTables($pdo, $existing);
         }
 
         // Step 3: Write .env with the verified credentials.
@@ -71,6 +73,79 @@ final class InstallView implements View
         require_once 'installer/createTables.php';
 
         util\Redirect::redirect('installer/installed');
+    }
+
+    /**
+     * Render a confirmation page listing the tables to be dropped.
+     * All form values are forwarded as hidden fields so the user does not
+     * need to re-enter them. Never returns.
+     */
+    private static function confirmReset(array $tables, array $post): never
+    {
+        $tableRows = implode('', array_map(
+            fn($t) => '<li><code>' . htmlspecialchars($t, ENT_QUOTES, 'UTF-8') . '</code></li>',
+            $tables,
+        ));
+
+        // Build hidden fields that replay every submitted value.
+        $hidden = '';
+        $replay = [
+            'db_host', 'db_port', 'db_name', 'db_user', 'db_password',
+            'db_charset', 'https_enabled', 'name', 'id', 'password', 'password_confirm',
+        ];
+        foreach ($replay as $key) {
+            if (isset($post[$key])) {
+                $k = htmlspecialchars($key,        ENT_QUOTES, 'UTF-8');
+                $v = htmlspecialchars($post[$key], ENT_QUOTES, 'UTF-8');
+                $hidden .= "<input type='hidden' name='{$k}' value='{$v}'>\n";
+            }
+        }
+
+        echo <<<HTML
+        <!DOCTYPE html>
+        <html lang="ja">
+        <head>
+          <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1">
+          <title>データベースの初期化確認</title>
+          <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
+        </head>
+        <body class="bg-light">
+        <div class="container py-5" style="max-width:640px">
+          <div class="card border-danger">
+            <div class="card-header bg-danger text-white fw-bold">
+              <i class="bi bi-exclamation-triangle-fill me-2"></i>データベースの初期化確認
+            </div>
+            <div class="card-body">
+              <p>データベースに以下のテーブルが既に存在します。<br>
+              インストールを続けると、<strong>これらのテーブルとデータがすべて削除</strong>されます。</p>
+              <ul class="mb-3">{$tableRows}</ul>
+              <p class="text-danger fw-bold">この操作は取り消せません。本当によろしいですか？</p>
+              <form method="post" action="./installer/install/">
+                {$hidden}
+                <input type="hidden" name="confirm_reset" value="1">
+                <div class="d-flex gap-2">
+                  <button type="submit" class="btn btn-danger">初期化してインストール</button>
+                  <a href="javascript:history.back()" class="btn btn-secondary">戻る</a>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+        </body>
+        </html>
+        HTML;
+        exit;
+    }
+
+    /** Drop every table in the given list, disabling FK checks first. */
+    private static function dropAllTables(\PDO $pdo, array $tables): void
+    {
+        $pdo->exec('SET FOREIGN_KEY_CHECKS = 0');
+        foreach ($tables as $table) {
+            $pdo->exec('DROP TABLE IF EXISTS `' . str_replace('`', '', $table) . '`');
+        }
+        $pdo->exec('SET FOREIGN_KEY_CHECKS = 1');
     }
 
     /** Emit a minimal error page and halt. Never returns. */

@@ -25,18 +25,19 @@ final class ListStorageLocationsToolTest extends TestCase
         $this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         $this->pdo->exec(
             'CREATE TABLE storage_location (
-                id            INTEGER PRIMARY KEY,
-                parent_id     INTEGER,
-                code          TEXT NOT NULL UNIQUE,
-                name          TEXT NOT NULL,
-                position      INTEGER NOT NULL DEFAULT 0,
-                depth         INTEGER NOT NULL DEFAULT 0,
-                location_type TEXT NOT NULL DEFAULT \'bin\',
-                description   TEXT,
-                capacity      INTEGER,
-                notes         TEXT,
-                created_at    TEXT NOT NULL,
-                updated_at    TEXT NOT NULL
+                id                 INTEGER PRIMARY KEY,
+                parent_id          INTEGER,
+                code               TEXT NOT NULL UNIQUE,
+                name               TEXT NOT NULL,
+                position           INTEGER NOT NULL DEFAULT 0,
+                depth              INTEGER NOT NULL DEFAULT 0,
+                location_type      TEXT NOT NULL DEFAULT \'bin\',
+                description        TEXT,
+                capacity           INTEGER,
+                notes              TEXT,
+                operational_status TEXT NOT NULL DEFAULT \'available\',
+                created_at         TEXT NOT NULL,
+                updated_at         TEXT NOT NULL
             )',
         );
         $this->repo = new PdoStorageLocationRepository($this->pdo, new DateTimeZone('UTC'));

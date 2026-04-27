@@ -11,6 +11,7 @@ use Saso\Domain\StorageLocation\LocationCode;
 use Saso\Domain\StorageLocation\LocationType;
 use Saso\Domain\StorageLocation\Repository\StorageLocationRepository;
 use Saso\Domain\StorageLocation\StorageLocation;
+use Saso\Domain\StorageLocation\StorageOperationalStatus;
 
 /**
  * PDO-backed {@see StorageLocationRepository}.
@@ -82,8 +83,8 @@ final class PdoStorageLocationRepository implements StorageLocationRepository
         if ($existing === null) {
             $stmt = $this->pdo->prepare(
                 'INSERT INTO storage_location (id, parent_id, code, name, position, depth, '.
-                'location_type, description, capacity, notes, created_at, updated_at) '.
-                'VALUES (:id, :parent, :code, :name, :pos, :depth, :ltype, :desc, :cap, :notes, :ca, :ua)',
+                'location_type, description, capacity, notes, operational_status, created_at, updated_at) '.
+                'VALUES (:id, :parent, :code, :name, :pos, :depth, :ltype, :desc, :cap, :notes, :ostatus, :ca, :ua)',
             );
             $stmt->bindValue('id', $location->id, PDO::PARAM_INT);
             $stmt->bindValue('parent', $location->parentId, $location->parentId === null ? PDO::PARAM_NULL : PDO::PARAM_INT);
@@ -95,6 +96,7 @@ final class PdoStorageLocationRepository implements StorageLocationRepository
             $stmt->bindValue('desc', $location->description);
             $stmt->bindValue('cap', $location->capacity, $location->capacity === null ? PDO::PARAM_NULL : PDO::PARAM_INT);
             $stmt->bindValue('notes', $location->notes);
+            $stmt->bindValue('ostatus', $location->operationalStatus->value);
             $stmt->bindValue('ca', $location->createdAt->setTimezone($this->timezone)->format('Y-m-d H:i:s'));
             $stmt->bindValue('ua', $now);
             $stmt->execute();
@@ -102,7 +104,7 @@ final class PdoStorageLocationRepository implements StorageLocationRepository
             $stmt = $this->pdo->prepare(
                 'UPDATE storage_location SET parent_id = :parent, code = :code, name = :name, '.
                 'position = :pos, depth = :depth, location_type = :ltype, description = :desc, '.
-                'capacity = :cap, notes = :notes, updated_at = :ua WHERE id = :id',
+                'capacity = :cap, notes = :notes, operational_status = :ostatus, updated_at = :ua WHERE id = :id',
             );
             $stmt->bindValue('id', $location->id, PDO::PARAM_INT);
             $stmt->bindValue('parent', $location->parentId, $location->parentId === null ? PDO::PARAM_NULL : PDO::PARAM_INT);
@@ -114,6 +116,7 @@ final class PdoStorageLocationRepository implements StorageLocationRepository
             $stmt->bindValue('desc', $location->description);
             $stmt->bindValue('cap', $location->capacity, $location->capacity === null ? PDO::PARAM_NULL : PDO::PARAM_INT);
             $stmt->bindValue('notes', $location->notes);
+            $stmt->bindValue('ostatus', $location->operationalStatus->value);
             $stmt->bindValue('ua', $now);
             $stmt->execute();
         }
@@ -150,6 +153,10 @@ final class PdoStorageLocationRepository implements StorageLocationRepository
             ? (int) $row['capacity']
             : null;
 
+        $operationalStatus = isset($row['operational_status']) && is_string($row['operational_status'])
+            ? (StorageOperationalStatus::tryFrom($row['operational_status']) ?? StorageOperationalStatus::Available)
+            : StorageOperationalStatus::Available;
+
         return new StorageLocation(
             id: (int) $row['id'],
             parentId: $parent === null ? null : (int) $parent,
@@ -163,6 +170,7 @@ final class PdoStorageLocationRepository implements StorageLocationRepository
             description: isset($row['description']) && is_string($row['description']) ? $row['description'] : null,
             capacity: $capacity,
             notes: isset($row['notes']) && is_string($row['notes']) ? $row['notes'] : null,
+            operationalStatus: $operationalStatus,
         );
     }
 }

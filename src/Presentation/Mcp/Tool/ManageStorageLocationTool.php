@@ -13,6 +13,7 @@ use Saso\Domain\StorageLocation\LocationCode;
 use Saso\Domain\StorageLocation\LocationType;
 use Saso\Domain\StorageLocation\Repository\StorageLocationRepository;
 use Saso\Domain\StorageLocation\StorageLocation;
+use Saso\Domain\StorageLocation\StorageOperationalStatus;
 
 /**
  * MCP tool: `manage_storage_location`
@@ -37,6 +38,11 @@ use Saso\Domain\StorageLocation\StorageLocation;
 final class ManageStorageLocationTool implements McpTool
 {
     private const LOCATION_TYPES = ['facility', 'zone', 'aisle', 'rack', 'shelf', 'tier', 'bin'];
+
+    private const OPERATIONAL_STATUSES = [
+        'available', 'receiving', 'shipping', 'reserved',
+        'no_outbound', 'maintenance', 'full', 'closed',
+    ];
 
     public function __construct(
         private readonly PDO $pdo,
@@ -106,9 +112,14 @@ final class ManageStorageLocationTool implements McpTool
                     'minimum'     => 0,
                     'description' => 'Maximum number of items this location can hold. null = unlimited.',
                 ],
-                'notes'        => [
+                'notes'             => [
                     'type'        => ['string', 'null'],
                     'description' => 'Operator notes (e.g. temperature zone, hazard flags, access restrictions).',
+                ],
+                'operationalStatus' => [
+                    'type'        => 'string',
+                    'enum'        => self::OPERATIONAL_STATUSES,
+                    'description' => 'Operational state: available(利用可能) | receiving(入庫中) | shipping(出庫中) | reserved(キープ) | no_outbound(出庫禁止) | maintenance(メンテナンス中) | full(満杯) | closed(閉鎖).',
                 ],
             ],
         ];
@@ -163,10 +174,11 @@ final class ManageStorageLocationTool implements McpTool
             );
         }
 
-        $locationType = $this->parseLocationType($input);
-        $description  = $this->parseNullableString($input, 'description');
-        $capacity     = $this->parseNullableCapacity($input);
-        $notes        = $this->parseNullableString($input, 'notes');
+        $locationType      = $this->parseLocationType($input);
+        $description       = $this->parseNullableString($input, 'description');
+        $capacity          = $this->parseNullableCapacity($input);
+        $notes             = $this->parseNullableString($input, 'notes');
+        $operationalStatus = $this->parseOperationalStatus($input);
 
         $depth = 0;
         if ($parentId !== null) {
@@ -182,8 +194,8 @@ final class ManageStorageLocationTool implements McpTool
         $now  = (new DateTimeImmutable('now', new DateTimeZone('UTC')))->format('Y-m-d H:i:s');
         $stmt = $this->pdo->prepare(
             'INSERT INTO storage_location '.
-            '(parent_id, code, name, position, depth, location_type, description, capacity, notes, created_at, updated_at) '.
-            'VALUES (:parent, :code, :name, :pos, :depth, :ltype, :desc, :cap, :notes, :ca, :ua)',
+            '(parent_id, code, name, position, depth, location_type, description, capacity, notes, operational_status, created_at, updated_at) '.
+            'VALUES (:parent, :code, :name, :pos, :depth, :ltype, :desc, :cap, :notes, :ostatus, :ca, :ua)',
         );
         $stmt->bindValue('parent', $parentId, $parentId === null ? PDO::PARAM_NULL : PDO::PARAM_INT);
         $stmt->bindValue('code', $code->toString());
@@ -194,6 +206,7 @@ final class ManageStorageLocationTool implements McpTool
         $stmt->bindValue('desc', $description);
         $stmt->bindValue('cap', $capacity, $capacity === null ? PDO::PARAM_NULL : PDO::PARAM_INT);
         $stmt->bindValue('notes', $notes);
+        $stmt->bindValue('ostatus', $operationalStatus->value);
         $stmt->bindValue('ca', $now);
         $stmt->bindValue('ua', $now);
         $stmt->execute();
@@ -257,6 +270,10 @@ final class ManageStorageLocationTool implements McpTool
             ? $this->parseNullableString($input, 'notes')
             : $location->notes;
 
+        $operationalStatus = array_key_exists('operationalStatus', $input)
+            ? $this->parseOperationalStatus($input)
+            : $location->operationalStatus;
+
         $updated = new StorageLocation(
             id: $location->id,
             parentId: $location->parentId,
@@ -270,6 +287,7 @@ final class ManageStorageLocationTool implements McpTool
             description: $description,
             capacity: $capacity,
             notes: $notes,
+            operationalStatus: $operationalStatus,
         );
 
         $saved = $this->locations->save($updated);
@@ -303,21 +321,43 @@ final class ManageStorageLocationTool implements McpTool
     private function serialize(StorageLocation $loc): array
     {
         return [
-            'id'           => $loc->id,
-            'parentId'     => $loc->parentId,
-            'code'         => $loc->code->toString(),
-            'name'         => $loc->name,
-            'locationType' => $loc->locationType->value,
+            'id'               => $loc->id,
+            'parentId'         => $loc->parentId,
+            'code'             => $loc->code->toString(),
+            'name'             => $loc->name,
+            'locationType'     => $loc->locationType->value,
             'locationTypeLabel' => [
                 'en' => $loc->locationType->labelEn(),
                 'ja' => $loc->locationType->labelJa(),
             ],
-            'position'     => $loc->position,
-            'depth'        => $loc->depth,
-            'description'  => $loc->description,
-            'capacity'     => $loc->capacity,
-            'notes'        => $loc->notes,
+            'position'          => $loc->position,
+            'depth'             => $loc->depth,
+            'description'       => $loc->description,
+            'capacity'          => $loc->capacity,
+            'notes'             => $loc->notes,
+            'operationalStatus' => $loc->operationalStatus->value,
+            'operationalStatusLabel' => [
+                'en' => $loc->operationalStatus->labelEn(),
+                'ja' => $loc->operationalStatus->labelJa(),
+            ],
+            'canReceive' => $loc->operationalStatus->canReceive(),
+            'canShip'    => $loc->operationalStatus->canShip(),
         ];
+    }
+
+    /** @param array<string, mixed> $input */
+    private function parseOperationalStatus(array $input): StorageOperationalStatus
+    {
+        $raw    = isset($input['operationalStatus']) ? (string) $input['operationalStatus'] : 'available';
+        $status = StorageOperationalStatus::tryFrom($raw);
+
+        if ($status === null) {
+            throw new InvalidArgumentException(
+                sprintf('"operationalStatus" must be one of: %s.', implode(', ', self::OPERATIONAL_STATUSES)),
+            );
+        }
+
+        return $status;
     }
 
     /** @param array<string, mixed> $input */

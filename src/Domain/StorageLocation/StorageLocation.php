@@ -18,6 +18,9 @@ use InvalidArgumentException;
  * Detail fields (locationType, description, capacity, notes) were
  * added in M6-I-006 to support fine-grained physical addressing:
  *   Facility → Zone → Aisle → Rack → Shelf → Tier → Bin
+ *
+ * `operationalStatus` tracks the current operational state of the
+ * location (available / receiving / shipping / reserved / etc.).
  */
 final readonly class StorageLocation
 {
@@ -34,6 +37,7 @@ final readonly class StorageLocation
         public ?string $description = null,
         public ?int $capacity = null,
         public ?string $notes = null,
+        public StorageOperationalStatus $operationalStatus = StorageOperationalStatus::Available,
     ) {
         if ($id < 1) {
             throw new InvalidArgumentException('StorageLocation.id must be a positive integer.');
@@ -81,6 +85,7 @@ final readonly class StorageLocation
             description: $this->description,
             capacity: $this->capacity,
             notes: $this->notes,
+            operationalStatus: $this->operationalStatus,
         );
     }
 
@@ -99,6 +104,7 @@ final readonly class StorageLocation
             description: $this->description,
             capacity: $this->capacity,
             notes: $this->notes,
+            operationalStatus: $this->operationalStatus,
         );
     }
 }

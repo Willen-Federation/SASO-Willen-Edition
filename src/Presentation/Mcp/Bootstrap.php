@@ -7,6 +7,7 @@ namespace Saso\Presentation\Mcp;
 use PDO;
 use Saso\Domain\MobileConnect\Jwt\JwtService;
 use Saso\Domain\Plugin\Registry\RegistryName;
+use Saso\Infrastructure\Category\PdoCategoryRepository;
 use Saso\Infrastructure\Item\Attribute\PdoAttributeDefinitionRepository;
 use Saso\Infrastructure\MobileConnect\PdoDeviceTokenRepository;
 use Saso\Infrastructure\Plugin\Registry\InMemoryMcpToolRegistry;
@@ -16,8 +17,11 @@ use Saso\Presentation\Mcp\Tool\AssignItemLocationTool;
 use Saso\Presentation\Mcp\Tool\DefineAttributeTool;
 use Saso\Presentation\Mcp\Tool\GetItemAttributesTool;
 use Saso\Presentation\Mcp\Tool\GetItemTool;
+use Saso\Presentation\Mcp\Tool\GetStorageLocationTreeTool;
 use Saso\Presentation\Mcp\Tool\ListAttributesTool;
+use Saso\Presentation\Mcp\Tool\ListCategoriesTool;
 use Saso\Presentation\Mcp\Tool\ListStorageLocationsTool;
+use Saso\Presentation\Mcp\Tool\ManageCategoryTool;
 use Saso\Presentation\Mcp\Tool\ManageStorageLocationTool;
 use Saso\Presentation\Mcp\Tool\RegisterItemTool;
 use Saso\Presentation\Mcp\Tool\SearchItemsTool;
@@ -50,8 +54,13 @@ use Saso\Presentation\Mcp\Tool\UpdateItemTool;
  *   define_attribute        — Create or update an attribute definition
  *
  * Storage locations:
- *   list_storage_locations  — List root or child storage locations
- *   manage_storage_location — Create, update, or delete a storage location
+ *   list_storage_locations    — List root or child storage locations (with operational status)
+ *   get_storage_location_tree — Nested tree JSON (入出庫・キープ・出庫禁止 status included)
+ *   manage_storage_location   — Create, update, or delete a storage location
+ *
+ * Categories:
+ *   list_categories — List all categories (flat or nested tree)
+ *   manage_category — Create, update, or delete a classification category
  */
 final class Bootstrap
 {
@@ -63,6 +72,7 @@ final class Bootstrap
         $tokenRepo  = new PdoDeviceTokenRepository($pdo);
         $locations  = new PdoStorageLocationRepository($pdo);
         $attributes = new PdoAttributeDefinitionRepository($pdo);
+        $categories = new PdoCategoryRepository($pdo);
         $search     = new NullSearchIndex();
 
         $registry = new InMemoryMcpToolRegistry();
@@ -85,7 +95,12 @@ final class Bootstrap
 
         // Storage locations
         $registry->registerCore(new RegistryName('list_storage_locations'), new ListStorageLocationsTool($locations));
+        $registry->registerCore(new RegistryName('get_storage_location_tree'), new GetStorageLocationTreeTool($pdo));
         $registry->registerCore(new RegistryName('manage_storage_location'), new ManageStorageLocationTool($pdo, $locations));
+
+        // Categories
+        $registry->registerCore(new RegistryName('list_categories'), new ListCategoriesTool($categories));
+        $registry->registerCore(new RegistryName('manage_category'), new ManageCategoryTool($pdo, $categories));
 
         $server = new McpServer($registry, $jwt, $tokenRepo);
 

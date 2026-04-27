@@ -19,7 +19,7 @@ final class AddItemStatusAndLocation extends AbstractMigration
 {
     public function up(): void
     {
-        $this->table('Item')
+        $this->table('item')
             ->addColumn('status', 'string', [
                 'limit'   => 32,
                 'null'    => false,
@@ -43,7 +43,7 @@ final class AddItemStatusAndLocation extends AbstractMigration
 
     public function down(): void
     {
-        $this->table('Item')
+        $this->table('item')
             ->dropForeignKey('storage_location_id')
             ->removeIndex(['storage_location_id'])
             ->removeIndex(['status'])

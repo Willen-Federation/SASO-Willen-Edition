@@ -64,13 +64,6 @@
     <?php } ?>
   </div>
 </nav>
-<?php if(file_exists('installer/installer.json')){ ?>
-<div class="alert alert-warning d-flex align-items-center" role="alert">
-<i class="bi flex-shrink-0 me-2 bi-exclamation-triangle-fill"></i>
-<p>まだインストールが済んでいないなら、「<a class="alert-link" href="./installer/start">installer/start</a>」にアクセスして下さい。
-<br>すでにインストール済みなら、フォルダ「installer」を削除して下さい。</p>
-</div>
-<?php } ?>
 
 <div class="container-fluid">
   <div class="row">

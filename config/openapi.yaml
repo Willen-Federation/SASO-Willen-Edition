@@ -239,12 +239,21 @@ paths:
       summary: Generate a QR pairing code.
       description: |
         Generates a short-lived (10 min) one-time pairing token and returns it
-        as a QR code image (base64 PNG data URI) and the raw deep-link URI.
+        as a QR code image (base64 PNG data URI) and the raw QR payload string.
 
-        The Flutter app scans the QR, parses the `saso://connect` deep-link,
-        and exchanges the token at `POST /api/v1/mobile/connect`.
+        **QR payload format (proprietary — app-only readable):**
 
-        **Deep-link format:** `saso://connect?token=<TOKEN>&url=<SERVER_URL>`
+        ```
+        SASO1:<base64url_token>|<server_base_url>
+        ```
+
+        The `SASO1:` prefix is a magic marker recognised exclusively by the SASO
+        Flutter app. A generic QR scanner displays opaque text with no actionable
+        link, preventing accidental OS-level deep-link interception.
+
+        The Flutter app detects the prefix, extracts the token and server URL,
+        then automatically calls `POST /api/v1/mobile/connect` — no user
+        interaction beyond pointing the camera at the QR code.
       operationId: createPairingCode
       x-handler: 'Saso\Presentation\Api\V1\Controller\Mobile\QrController::handle'
       requestBody:
@@ -266,13 +275,18 @@ paths:
   /mobile/connect:
     post:
       tags: [mobile]
-      summary: Exchange a pairing code for a device token.
+      summary: Exchange a pairing code for a JWT token pair.
       description: |
-        The Flutter app calls this endpoint after scanning the QR code.
-        On success, the pairing code is consumed (single use) and a
-        long-lived device token is returned. The device stores this token
-        and includes it as `Authorization: Bearer <token>` on all
-        subsequent API calls.
+        The Flutter app calls this automatically after scanning the QR and
+        detecting the `SASO1:` prefix. On success the pairing code is consumed
+        (single use) and an OAuth2-style token pair is returned:
+
+        - `access_token` — HS256 JWT, valid 1 hour, use as `Authorization: Bearer`
+        - `refresh_token` — opaque long-lived token (1 year), use to renew the JWT
+          via `POST /api/v1/mobile/token/refresh`
+
+        Store both tokens securely (Flutter secure_storage or equivalent). The
+        refresh token is rotated on every refresh call.
       operationId: mobileConnect
       x-handler: 'Saso\Presentation\Api\V1\Controller\Mobile\ConnectController::handle'
       requestBody:
@@ -283,11 +297,43 @@ paths:
               $ref: '#/components/schemas/ConnectRequest'
       responses:
         '201':
-          description: Device token issued.
+          description: JWT token pair issued.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ConnectResponse'
+                $ref: '#/components/schemas/TokenPairResponse'
+        '400':
+          $ref: '#/components/responses/ProblemBadRequest'
+        '404':
+          $ref: '#/components/responses/ProblemNotFound'
+        '500':
+          $ref: '#/components/responses/ProblemInternalError'
+
+  /mobile/token/refresh:
+    post:
+      tags: [mobile]
+      summary: Refresh the JWT access token.
+      description: |
+        Exchanges a valid refresh token for a new JWT access token and a
+        rotated refresh token. The old refresh token is invalidated immediately
+        — the app MUST persist the new `refresh_token` and discard the old one.
+
+        Replaying an old refresh token returns `404 SASO-MOBILE-2004`.
+      operationId: refreshMobileToken
+      x-handler: 'Saso\Presentation\Api\V1\Controller\Mobile\TokenRefreshController::handle'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TokenRefreshRequest'
+      responses:
+        '200':
+          description: New JWT token pair issued.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenPairResponse'
         '400':
           $ref: '#/components/responses/ProblemBadRequest'
         '404':
@@ -536,15 +582,19 @@ components:
 
     PairingCodeResponse:
       type: object
-      required: [label, deepLink, qrDataUri, expiresAt]
+      required: [label, qrPayload, qrDataUri, expiresAt]
       properties:
         label:
           type: string
           example: iPad mini (stock room)
-        deepLink:
+        qrPayload:
           type: string
-          description: The `saso://connect` URI encoded inside the QR.
-          example: 'saso://connect?token=ABC123&url=https%3A%2F%2Fsaso.example.com'
+          description: |
+            The raw string encoded in the QR image. Format:
+            `SASO1:<base64url_token>|<server_url>`
+            The Flutter app parses this string directly; a generic QR
+            scanner displays opaque text with no actionable link.
+          example: 'SASO1:dGhpcyBpcyBhIHRlc3Q|https://saso.example.com'
         qrDataUri:
           type: string
           description: PNG QR code as a `data:image/png;base64,…` data URI.
@@ -561,7 +611,9 @@ components:
       properties:
         token:
           type: string
-          description: Raw URL-safe base64 token extracted from the QR deep-link.
+          description: |
+            Raw token extracted from the QR payload (the segment between
+            `SASO1:` and `|`).
           example: dGhpcyBpcyBhIHRlc3Q
         deviceName:
           type: string
@@ -569,28 +621,54 @@ components:
           description: Human-readable name the Flutter app supplies for this device.
           example: iPad mini
 
-    ConnectResponse:
+    TokenRefreshRequest:
       type: object
-      required: [id, deviceToken, deviceName, expiresAt]
+      required: [refresh_token]
       properties:
-        id:
-          type: integer
-          description: Numeric device token ID (use for revocation).
-          example: 1
-        deviceToken:
+        refresh_token:
+          type: string
+          description: Opaque refresh token from POST /mobile/connect or the previous refresh.
+          example: X9kL2mNpQ3rS4tU5vW6x
+
+    TokenPairResponse:
+      type: object
+      required: [access_token, token_type, expires_in, refresh_token, device_id, expires_at]
+      description: OAuth2-style token response (RFC 6749 §5.1).
+      properties:
+        access_token:
           type: string
           description: |
-            Long-lived raw device token. Returned **once** at issuance.
-            Store it securely (e.g. Flutter secure storage) and include as
-            `Authorization: Bearer <deviceToken>` on subsequent requests.
-          example: X9kL2mNpQ3rS4tU5vW6x
-        deviceName:
+            HS256 JWT access token (valid for `expires_in` seconds).
+            Include as `Authorization: Bearer <access_token>` on API calls.
+          example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+        token_type:
           type: string
+          enum: [Bearer]
+          example: Bearer
+        expires_in:
+          type: integer
+          description: Access token lifetime in seconds (3600 = 1 hour).
+          example: 3600
+        refresh_token:
+          type: string
+          description: |
+            Long-lived opaque refresh token (valid ~1 year). Store securely
+            and use to obtain a new access token via POST /mobile/token/refresh.
+            **Rotated on every refresh** — discard the old token after each call.
+          example: Y0zM3nOpQ4rT5uV6wX7y
+        device_id:
+          type: integer
+          description: Numeric device record ID (use for admin revocation).
+          example: 1
+        device_name:
+          type: string
+          description: Device name as supplied during pairing.
           example: iPad mini
-        expiresAt:
+        expires_at:
           type: string
           format: date-time
-          example: '2027-04-26T12:00:00Z'
+          description: Access token expiry (RFC 3339).
+          example: '2026-04-26T13:00:00Z'
 
     MobileConfigBundle:
       type: object

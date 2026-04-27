@@ -8,12 +8,17 @@ use DateTimeImmutable;
 use InvalidArgumentException;
 
 /**
- * Long-lived API credential for a paired Flutter device.
+ * Long-lived refresh-token record for a paired Flutter device.
  *
- * Issued after a successful pairing-code exchange. The device presents
- * this token as `Authorization: Bearer <rawToken>` on subsequent API
- * calls. The DB stores only the SHA-256 hash; the raw token is returned
- * once at issuance and never stored in plaintext.
+ * After the JWT switch the device_token row acts as the refresh-token
+ * record. The short-lived JWT access token (1 h) is stateless (never
+ * stored). The opaque refresh token (1 year) is stored only as a
+ * SHA-256 hash in `refreshTokenHash`; the raw value is returned once
+ * at issuance and never re-read from the DB.
+ *
+ * `token_hash` retains the original pairing exchange hash for backward
+ * compatibility. New code uses `refreshTokenHash` exclusively for the
+ * OAuth2 refresh grant.
  *
  * Expiry defaults to one year from issuance. Admins may revoke a token
  * at any time via DELETE /api/v1/mobile/tokens/{id}.
@@ -25,6 +30,7 @@ final readonly class DeviceToken
     public function __construct(
         public int $id,
         public string $tokenHash,
+        public ?string $refreshTokenHash,
         public string $deviceName,
         public bool $revoked,
         public ?DateTimeImmutable $lastUsedAt,
@@ -52,6 +58,7 @@ final readonly class DeviceToken
         return new self(
             id: $this->id,
             tokenHash: $this->tokenHash,
+            refreshTokenHash: $this->refreshTokenHash,
             deviceName: $this->deviceName,
             revoked: true,
             lastUsedAt: $this->lastUsedAt,
@@ -65,6 +72,7 @@ final readonly class DeviceToken
         return new self(
             id: $this->id,
             tokenHash: $this->tokenHash,
+            refreshTokenHash: $this->refreshTokenHash,
             deviceName: $this->deviceName,
             revoked: $this->revoked,
             lastUsedAt: $at,

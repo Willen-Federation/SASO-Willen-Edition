@@ -22,13 +22,14 @@ final class PdoDeviceTokenRepositoryTest extends TestCase
         $this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         $this->pdo->exec(
             'CREATE TABLE device_token (
-                id           INTEGER PRIMARY KEY,
-                token_hash   TEXT NOT NULL UNIQUE,
-                device_name  TEXT NOT NULL,
-                revoked      INTEGER NOT NULL DEFAULT 0,
-                last_used_at TEXT,
-                expires_at   TEXT NOT NULL,
-                created_at   TEXT NOT NULL
+                id                 INTEGER PRIMARY KEY,
+                token_hash         TEXT NOT NULL UNIQUE,
+                refresh_token_hash TEXT UNIQUE,
+                device_name        TEXT NOT NULL,
+                revoked            INTEGER NOT NULL DEFAULT 0,
+                last_used_at       TEXT,
+                expires_at         TEXT NOT NULL,
+                created_at         TEXT NOT NULL
             )',
         );
         $this->repo = new PdoDeviceTokenRepository($this->pdo, new DateTimeZone('UTC'));
@@ -92,6 +93,7 @@ final class PdoDeviceTokenRepositoryTest extends TestCase
         return new DeviceToken(
             id: $id,
             tokenHash: $hash,
+            refreshTokenHash: null,
             deviceName: 'My Phone',
             revoked: false,
             lastUsedAt: null,

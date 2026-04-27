@@ -26,6 +26,15 @@ final class PdoDeviceTokenRepository implements DeviceTokenRepository
         return $row === false ? null : $this->hydrate($row);
     }
 
+    public function findByRefreshTokenHash(string $hash): ?DeviceToken
+    {
+        $stmt = $this->pdo->prepare('SELECT * FROM device_token WHERE refresh_token_hash = :hash');
+        $stmt->execute(['hash' => $hash]);
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        return $row === false ? null : $this->hydrate($row);
+    }
+
     public function findById(int $id): ?DeviceToken
     {
         $stmt = $this->pdo->prepare('SELECT * FROM device_token WHERE id = :id');
@@ -66,6 +75,9 @@ final class PdoDeviceTokenRepository implements DeviceTokenRepository
         return new DeviceToken(
             id: (int) $row['id'],
             tokenHash: (string) $row['token_hash'],
+            refreshTokenHash: isset($row['refresh_token_hash']) && is_string($row['refresh_token_hash'])
+                ? $row['refresh_token_hash']
+                : null,
             deviceName: (string) $row['device_name'],
             revoked: (int) $row['revoked'] === 1,
             lastUsedAt: is_string($lastUsed) && $lastUsed !== ''
@@ -82,11 +94,13 @@ final class PdoDeviceTokenRepository implements DeviceTokenRepository
 
         if ($existing === null) {
             $stmt = $this->pdo->prepare(
-                'INSERT INTO device_token (id, token_hash, device_name, revoked, last_used_at, expires_at, created_at) '.
-                'VALUES (:id, :hash, :device_name, :revoked, :last_used_at, :expires_at, :created_at)',
+                'INSERT INTO device_token '.
+                '(id, token_hash, refresh_token_hash, device_name, revoked, last_used_at, expires_at, created_at) '.
+                'VALUES (:id, :hash, :refresh_hash, :device_name, :revoked, :last_used_at, :expires_at, :created_at)',
             );
             $stmt->bindValue('id', $token->id, PDO::PARAM_INT);
             $stmt->bindValue('hash', $token->tokenHash);
+            $stmt->bindValue('refresh_hash', $token->refreshTokenHash);
             $stmt->bindValue('device_name', $token->deviceName);
             $stmt->bindValue('revoked', $token->revoked ? 1 : 0, PDO::PARAM_INT);
             $stmt->bindValue('last_used_at', $token->lastUsedAt?->setTimezone($this->timezone)->format('Y-m-d H:i:s'));
@@ -96,11 +110,12 @@ final class PdoDeviceTokenRepository implements DeviceTokenRepository
         } else {
             $stmt = $this->pdo->prepare(
                 'UPDATE device_token SET device_name = :device_name, revoked = :revoked, '.
-                'last_used_at = :last_used_at WHERE id = :id',
+                'refresh_token_hash = :refresh_hash, last_used_at = :last_used_at WHERE id = :id',
             );
             $stmt->bindValue('id', $token->id, PDO::PARAM_INT);
             $stmt->bindValue('device_name', $token->deviceName);
             $stmt->bindValue('revoked', $token->revoked ? 1 : 0, PDO::PARAM_INT);
+            $stmt->bindValue('refresh_hash', $token->refreshTokenHash);
             $stmt->bindValue('last_used_at', $token->lastUsedAt?->setTimezone($this->timezone)->format('Y-m-d H:i:s'));
             $stmt->execute();
         }

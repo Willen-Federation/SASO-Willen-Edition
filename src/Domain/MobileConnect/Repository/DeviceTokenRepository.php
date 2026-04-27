@@ -10,6 +10,8 @@ interface DeviceTokenRepository
 {
     public function findByTokenHash(string $hash): ?DeviceToken;
 
+    public function findByRefreshTokenHash(string $hash): ?DeviceToken;
+
     public function findById(int $id): ?DeviceToken;
 
     /**

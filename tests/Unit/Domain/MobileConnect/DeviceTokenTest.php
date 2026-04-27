@@ -18,6 +18,7 @@ final class DeviceTokenTest extends TestCase
         $token  = new DeviceToken(
             id: 1,
             tokenHash: str_repeat('b', 64),
+            refreshTokenHash: null,
             deviceName: 'iPad mini',
             revoked: false,
             lastUsedAt: null,
@@ -97,6 +98,7 @@ final class DeviceTokenTest extends TestCase
         new DeviceToken(
             id: 1,
             tokenHash: '',
+            refreshTokenHash: null,
             deviceName: 'device',
             revoked: false,
             lastUsedAt: null,
@@ -111,6 +113,7 @@ final class DeviceTokenTest extends TestCase
         new DeviceToken(
             id: 1,
             tokenHash: str_repeat('b', 64),
+            refreshTokenHash: null,
             deviceName: '',
             revoked: false,
             lastUsedAt: null,
@@ -129,6 +132,7 @@ final class DeviceTokenTest extends TestCase
         return new DeviceToken(
             id: $id,
             tokenHash: str_repeat('b', 64),
+            refreshTokenHash: null,
             deviceName: 'Test Device',
             revoked: $revoked,
             lastUsedAt: null,

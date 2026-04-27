@@ -16,23 +16,34 @@ use Saso\Presentation\Api\V1\Response\JsonResponse;
 /**
  * POST /api/v1/mobile/pairing-codes
  *
- * Generates a short-lived pairing code and returns it as:
- *   - `qrDataUri`  — data:image/png;base64,<PNG> ready for an <img> tag
- *   - `deepLink`   — the raw saso://connect URI embedded in the QR
- *   - `expiresAt`  — RFC 3339 UTC expiry
- *   - `label`      — echoed back for UI display
+ * Generates a short-lived pairing token and returns:
+ *   - `qrDataUri`  — data:image/png;base64,<PNG> for embedding in an <img> tag
+ *   - `qrPayload`  — the raw string encoded into the QR (for custom rendering)
+ *   - `expiresAt`  — RFC 3339 UTC expiry (10 minutes)
+ *   - `label`      — echoed back
  *
- * The Flutter app scans the QR, extracts `deepLink`, and calls
- * POST /api/v1/mobile/connect with the token from the URI.
+ * QR payload format (proprietary, app-only readable):
+ *
+ *   SASO1:<base64url_token>|<server_base_url>
+ *
+ * The `SASO1:` prefix is a magic marker recognised exclusively by the
+ * SASO Flutter app. A generic QR scanner will display opaque text and
+ * offer no actionable link — so the token cannot be accidentally
+ * intercepted by OS-level deep-link routing or browser auto-open.
+ *
+ * The Flutter app reads the QR text, detects the `SASO1:` prefix,
+ * splits on `|`, extracts the raw token and server URL, then calls
+ * POST /api/v1/mobile/connect automatically — no user interaction
+ * beyond pointing the camera.
  *
  * Body (JSON, optional):
  *   label  string  — human-readable name for this pairing session
- *   url    string  — override the server URL embedded in the QR (useful
- *                    when the server is behind a reverse proxy with a
- *                    different hostname than $_SERVER['HTTP_HOST'])
+ *   url    string  — override the server URL embedded in the QR
  */
 final class QrController
 {
+    private const PAYLOAD_PREFIX = 'SASO1:';
+
     public function __construct(
         private readonly PairingCodeRepository $codes,
         private readonly QrCodeRenderer $renderer,
@@ -71,19 +82,14 @@ final class QrController
 
         $this->codes->save($code);
 
-        $deepLink = sprintf(
-            'saso://connect?token=%s&url=%s',
-            urlencode($rawToken),
-            urlencode($serverUrl),
-        );
-
-        $pngBase64 = $this->renderer->renderBase64($deepLink);
+        $qrPayload = self::PAYLOAD_PREFIX.$rawToken.'|'.rtrim($serverUrl, '/');
+        $pngBase64 = $this->renderer->renderBase64($qrPayload);
 
         return new JsonResponse(
             status: 201,
             body: [
                 'label'      => $label,
-                'deepLink'   => $deepLink,
+                'qrPayload'  => $qrPayload,
                 'qrDataUri'  => 'data:image/png;base64,'.$pngBase64,
                 'expiresAt'  => $expiry->format(DateTimeInterface::RFC3339),
             ],

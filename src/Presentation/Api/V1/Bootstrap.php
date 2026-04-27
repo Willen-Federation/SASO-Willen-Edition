@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Saso\Presentation\Api\V1;
 
 use PDO;
+use Saso\Domain\MobileConnect\Jwt\JwtService;
 use Saso\Infrastructure\FeatureFlag\PdoFeatureFlagRepository;
 use Saso\Infrastructure\Logging\MonologFactory;
 use Saso\Infrastructure\MobileConnect\PdoDeviceTokenRepository;
@@ -22,6 +23,7 @@ use Saso\Presentation\Api\V1\Controller\Mobile\ConfigBundleController;
 use Saso\Presentation\Api\V1\Controller\Mobile\ConnectController;
 use Saso\Presentation\Api\V1\Controller\Mobile\QrController;
 use Saso\Presentation\Api\V1\Controller\Mobile\TokenListController;
+use Saso\Presentation\Api\V1\Controller\Mobile\TokenRefreshController;
 use Saso\Presentation\Api\V1\Controller\Mobile\TokenRevokeController;
 use Saso\Presentation\Api\V1\Controller\OpenApiController;
 use Saso\Presentation\Api\V1\Controller\SwaggerUiController;
@@ -36,18 +38,9 @@ use Saso\Presentation\Http\Problem\ProblemRenderer;
  * inside the API surface. Owns the wiring of the OpenAPI spec loader,
  * translator, locale resolver, exception handler, and controller map —
  * legacy code never sees these classes.
- *
- * No DI container yet; M3 ships with a hand-written composition root
- * because the wiring is small enough to fit on screen and explicit
- * dependencies make the boundaries between layers easy to audit.
  */
 final class Bootstrap
 {
-    /**
-     * Entry point: dispatch the current request to the API router. The
-     * legacy front controller calls this when `REQUEST_URI` starts with
-     * `/api/v1/`; everything else falls through to the legacy router.
-     */
     public static function dispatch(HttpRequest $request): void
     {
         $logger     = MonologFactory::create();
@@ -84,6 +77,7 @@ final class Bootstrap
         $swaggerUi = new SwaggerUiController();
 
         $pdo = self::createPdo();
+        $jwt = new JwtService(self::jwtSecret());
 
         $flagRepo   = new PdoFeatureFlagRepository($pdo);
         $codeRepo   = new PdoPairingCodeRepository($pdo);
@@ -96,11 +90,12 @@ final class Bootstrap
         $flagUpdate = new FeatureFlagUpdateController($flagRepo);
         $flagDelete = new FeatureFlagDeleteController($flagRepo);
 
-        $qr          = new QrController($codeRepo, $qrRenderer);
-        $connect     = new ConnectController($codeRepo, $tokenRepo);
+        $qr           = new QrController($codeRepo, $qrRenderer);
+        $connect      = new ConnectController($codeRepo, $tokenRepo, $jwt);
         $configBundle = new ConfigBundleController($flagRepo);
-        $tokenList   = new TokenListController($tokenRepo);
-        $tokenRevoke = new TokenRevokeController($tokenRepo);
+        $tokenList    = new TokenListController($tokenRepo);
+        $tokenRevoke  = new TokenRevokeController($tokenRepo);
+        $tokenRefresh = new TokenRefreshController($tokenRepo, $jwt);
 
         return [
             'getHealth'       => [$health, 'handle'],
@@ -115,6 +110,7 @@ final class Bootstrap
 
             'createPairingCode' => [$qr, 'handle'],
             'mobileConnect'     => [$connect, 'handle'],
+            'refreshMobileToken' => [$tokenRefresh, 'handle'],
             'getMobileConfig'   => [$configBundle, 'handle'],
             'listDeviceTokens'  => [$tokenList, 'handle'],
             'revokeDeviceToken' => [$tokenRevoke, 'handle'],
@@ -128,8 +124,6 @@ final class Bootstrap
 
     private static function createPdo(): PDO
     {
-        // Reuse the legacy singleton when available; fall back to a fresh
-        // connection from config.json so tests can inject their own DSN.
         if (class_exists(\saso\repository\DBConnection::class)) {
             return \saso\repository\DBConnection::getPdo();
         }
@@ -146,5 +140,31 @@ final class Bootstrap
                 PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
             ],
         );
+    }
+
+    /**
+     * Resolves the JWT signing secret.
+     *
+     * Resolution order (highest first):
+     *   1. JWT_SECRET environment variable (raw string, ≥ 32 chars)
+     *   2. APP_KEY environment variable used as HMAC key input
+     *   3. Derived from the database DSN (development fallback only)
+     */
+    private static function jwtSecret(): string
+    {
+        $jwtSecret = getenv('JWT_SECRET');
+        if (is_string($jwtSecret) && strlen($jwtSecret) >= 32) {
+            return $jwtSecret;
+        }
+
+        $appKey = getenv('APP_KEY');
+        if (is_string($appKey) && $appKey !== '') {
+            return hash('sha256', $appKey, binary: true);
+        }
+
+        $config = \saso\ConfigLoader::load();
+        $dsn    = (string) ($config['database']['dsn'] ?? 'saso-fallback');
+
+        return hash('sha256', 'saso-jwt-'.$dsn, binary: true);
     }
 }

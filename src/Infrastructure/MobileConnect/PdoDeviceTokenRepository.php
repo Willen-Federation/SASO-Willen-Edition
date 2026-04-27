@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Saso\Infrastructure\MobileConnect;
 
-use DateTimeImmutable;
 use DateTimeZone;
 use PDO;
 use Saso\Domain\MobileConnect\DeviceToken;

@@ -6,10 +6,10 @@ namespace Saso\Presentation\Api\V1;
 
 use PDO;
 use Saso\Infrastructure\FeatureFlag\PdoFeatureFlagRepository;
+use Saso\Infrastructure\Logging\MonologFactory;
 use Saso\Infrastructure\MobileConnect\PdoDeviceTokenRepository;
 use Saso\Infrastructure\MobileConnect\PdoPairingCodeRepository;
 use Saso\Infrastructure\MobileConnect\QrCodeRenderer;
-use Saso\Infrastructure\Logging\MonologFactory;
 use Saso\Infrastructure\Translation\TranslatorFactory;
 use Saso\Infrastructure\Translation\TranslatorRegistry;
 use Saso\Presentation\Api\V1\Controller\FeatureFlag\FeatureFlagCreateController;

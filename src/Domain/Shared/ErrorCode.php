@@ -28,6 +28,15 @@ enum ErrorCode: string
     case AuthCallbackStateMismatch    = 'SASO-AUTH-1007';
     case AuthCallbackValidationFailed = 'SASO-AUTH-1008';
 
+    // ── Mobile / QR connect (2xxx) ───────────────────────────────────────
+    case MobilePairingCodeNotFound   = 'SASO-MOBILE-2001';
+    case MobilePairingCodeExpired    = 'SASO-MOBILE-2002';
+    case MobilePairingCodeUsed       = 'SASO-MOBILE-2003';
+    case MobileTokenNotFound         = 'SASO-MOBILE-2004';
+    case MobileTokenRevoked          = 'SASO-MOBILE-2005';
+    case MobileTokenExpired          = 'SASO-MOBILE-2006';
+    case MobileInvalidRequest        = 'SASO-MOBILE-2007';
+
     // ── Configuration (6xxx) ─────────────────────────────────────────────
     case ConfigSettingNotFound = 'SASO-CONFIG-6001';
 
@@ -72,6 +81,15 @@ enum ErrorCode: string
             self::AuthCallbackValidationFailed => 400,
 
             self::AuthProviderMisconfigured    => 503,
+
+            self::MobilePairingCodeNotFound,
+            self::MobileTokenNotFound          => 404,
+
+            self::MobilePairingCodeExpired,
+            self::MobilePairingCodeUsed,
+            self::MobileTokenRevoked,
+            self::MobileTokenExpired,
+            self::MobileInvalidRequest         => 400,
 
             self::ConfigSettingNotFound,
             self::FlagNotFound                 => 404,
@@ -128,6 +146,13 @@ enum ErrorCode: string
             self::AuthProviderMisconfigured    => 'Authentication provider is misconfigured',
             self::AuthCallbackStateMismatch    => 'Authentication callback could not be matched to a pending request',
             self::AuthCallbackValidationFailed => 'Authentication callback failed verification',
+            self::MobilePairingCodeNotFound    => 'Pairing code not found',
+            self::MobilePairingCodeExpired     => 'Pairing code has expired',
+            self::MobilePairingCodeUsed        => 'Pairing code has already been used',
+            self::MobileTokenNotFound          => 'Device token not found',
+            self::MobileTokenRevoked           => 'Device token has been revoked',
+            self::MobileTokenExpired           => 'Device token has expired',
+            self::MobileInvalidRequest         => 'Invalid mobile connect request',
             self::ConfigSettingNotFound        => 'System setting not found',
             self::FlagNotFound                 => 'Feature flag not found',
             self::AiProviderNotConfigured      => 'AI provider is not configured',

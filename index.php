@@ -50,6 +50,21 @@ if (str_starts_with($requestPath, '/api/v1/') || $requestPath === '/api/v1') {
     exit;
 }
 
+// --- M6-I MCP endpoint ------------------------------------------------------
+// POST /mcp — JSON-RPC 2.0 Model Context Protocol server (cf. ADR 0014).
+// Any HTTP method other than POST receives a 405.
+if ($requestPath === '/mcp') {
+    if (($_SERVER['REQUEST_METHOD'] ?? 'GET') !== 'POST') {
+        http_response_code(405);
+        header('Allow: POST');
+        header('Content-Type: application/json; charset=utf-8');
+        echo json_encode(['jsonrpc' => '2.0', 'id' => null, 'error' => ['code' => -32600, 'message' => 'Method not allowed — use POST']]);
+        exit;
+    }
+    \Saso\Presentation\Mcp\Bootstrap::dispatch();
+    exit;
+}
+
 // --- M1 security hotfix: session cookie hardening ---------------------------
 // HttpOnly blocks document.cookie reads, SameSite=Lax mitigates CSRF on
 // top-level navigations, and Secure is set whenever config.https is true so

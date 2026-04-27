@@ -50,6 +50,11 @@ enum ErrorCode: string
     case AiContextExceeded       = 'SASO-AI-8004';
     case AiContentPolicy         = 'SASO-AI-8005';
 
+    // ── MCP server (Axxx) — cf. ADR 0014 ─────────────────────────────────
+    case McpUnknownTool       = 'SASO-MCP-A001';
+    case McpMalformedRequest  = 'SASO-MCP-A002';
+    case McpScopeInsufficient = 'SASO-MCP-A003';
+
     // ── Plugin system (Bxxx) — cf. ADR 0015 ──────────────────────────────
     case PluginRegistryCollision = 'SASO-PLUGIN-B001';
 
@@ -97,6 +102,10 @@ enum ErrorCode: string
             self::AiResponseMalformed,
             self::AiContextExceeded,
             self::AiContentPolicy              => 422,
+
+            self::McpUnknownTool               => 404,
+            self::McpMalformedRequest          => 400,
+            self::McpScopeInsufficient         => 403,
 
             self::PluginRegistryCollision      => 409,
 
@@ -160,6 +169,9 @@ enum ErrorCode: string
             self::AiResponseMalformed          => 'AI provider returned a malformed response',
             self::AiContextExceeded            => 'AI prompt exceeds the provider context window',
             self::AiContentPolicy              => 'AI provider refused the request as policy-violating',
+            self::McpUnknownTool               => 'Unknown MCP tool',
+            self::McpMalformedRequest          => 'MCP request malformed',
+            self::McpScopeInsufficient         => 'Scope insufficient for the requested MCP tool',
             self::PluginRegistryCollision      => 'Plugin attempted to register against a reserved core name',
             self::InfraUnhandled           => 'Internal server error',
             self::InfraDatabaseUnavailable => 'Database unavailable',

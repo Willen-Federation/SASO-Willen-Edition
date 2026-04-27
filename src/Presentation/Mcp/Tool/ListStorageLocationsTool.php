@@ -71,11 +71,20 @@ final class ListStorageLocationsTool implements McpTool
     private static function serialize(StorageLocation $loc): array
     {
         return [
-            'id'       => $loc->id,
-            'parentId' => $loc->parentId,
-            'code'     => $loc->code->toString(),
-            'name'     => $loc->name,
-            'depth'    => $loc->depth,
+            'id'           => $loc->id,
+            'parentId'     => $loc->parentId,
+            'code'         => $loc->code->toString(),
+            'name'         => $loc->name,
+            'locationType' => $loc->locationType->value,
+            'locationTypeLabel' => [
+                'en' => $loc->locationType->labelEn(),
+                'ja' => $loc->locationType->labelJa(),
+            ],
+            'position'     => $loc->position,
+            'depth'        => $loc->depth,
+            'description'  => $loc->description,
+            'capacity'     => $loc->capacity,
+            'notes'        => $loc->notes,
         ];
     }
 }

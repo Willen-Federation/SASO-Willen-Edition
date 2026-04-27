@@ -23,14 +23,18 @@ final class PdoStorageLocationRepositoryTest extends TestCase
 
         $this->pdo->exec(
             'CREATE TABLE storage_location (
-                id          INTEGER PRIMARY KEY,
-                parent_id   INTEGER,
-                code        TEXT NOT NULL UNIQUE,
-                name        TEXT NOT NULL,
-                position    INTEGER NOT NULL DEFAULT 0,
-                depth       INTEGER NOT NULL,
-                created_at  TEXT NOT NULL,
-                updated_at  TEXT NOT NULL
+                id            INTEGER PRIMARY KEY,
+                parent_id     INTEGER,
+                code          TEXT NOT NULL UNIQUE,
+                name          TEXT NOT NULL,
+                position      INTEGER NOT NULL DEFAULT 0,
+                depth         INTEGER NOT NULL,
+                location_type TEXT NOT NULL DEFAULT \'bin\',
+                description   TEXT,
+                capacity      INTEGER,
+                notes         TEXT,
+                created_at    TEXT NOT NULL,
+                updated_at    TEXT NOT NULL
             )',
         );
 

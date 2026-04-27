@@ -4,10 +4,25 @@ declare(strict_types=1);
 
 namespace Saso\Presentation\Api\V1;
 
+use PDO;
+use Saso\Infrastructure\FeatureFlag\PdoFeatureFlagRepository;
+use Saso\Infrastructure\MobileConnect\PdoDeviceTokenRepository;
+use Saso\Infrastructure\MobileConnect\PdoPairingCodeRepository;
+use Saso\Infrastructure\MobileConnect\QrCodeRenderer;
 use Saso\Infrastructure\Logging\MonologFactory;
 use Saso\Infrastructure\Translation\TranslatorFactory;
 use Saso\Infrastructure\Translation\TranslatorRegistry;
+use Saso\Presentation\Api\V1\Controller\FeatureFlag\FeatureFlagCreateController;
+use Saso\Presentation\Api\V1\Controller\FeatureFlag\FeatureFlagDeleteController;
+use Saso\Presentation\Api\V1\Controller\FeatureFlag\FeatureFlagGetController;
+use Saso\Presentation\Api\V1\Controller\FeatureFlag\FeatureFlagListController;
+use Saso\Presentation\Api\V1\Controller\FeatureFlag\FeatureFlagUpdateController;
 use Saso\Presentation\Api\V1\Controller\HealthController;
+use Saso\Presentation\Api\V1\Controller\Mobile\ConfigBundleController;
+use Saso\Presentation\Api\V1\Controller\Mobile\ConnectController;
+use Saso\Presentation\Api\V1\Controller\Mobile\QrController;
+use Saso\Presentation\Api\V1\Controller\Mobile\TokenListController;
+use Saso\Presentation\Api\V1\Controller\Mobile\TokenRevokeController;
 use Saso\Presentation\Api\V1\Controller\OpenApiController;
 use Saso\Presentation\Api\V1\Controller\SwaggerUiController;
 use Saso\Presentation\Http\I18n\LocaleResolver;
@@ -68,15 +83,68 @@ final class Bootstrap
         $openApi   = new OpenApiController($spec);
         $swaggerUi = new SwaggerUiController();
 
+        $pdo = self::createPdo();
+
+        $flagRepo   = new PdoFeatureFlagRepository($pdo);
+        $codeRepo   = new PdoPairingCodeRepository($pdo);
+        $tokenRepo  = new PdoDeviceTokenRepository($pdo);
+        $qrRenderer = new QrCodeRenderer();
+
+        $flagList   = new FeatureFlagListController($flagRepo);
+        $flagCreate = new FeatureFlagCreateController($flagRepo);
+        $flagGet    = new FeatureFlagGetController($flagRepo);
+        $flagUpdate = new FeatureFlagUpdateController($flagRepo);
+        $flagDelete = new FeatureFlagDeleteController($flagRepo);
+
+        $qr          = new QrController($codeRepo, $qrRenderer);
+        $connect     = new ConnectController($codeRepo, $tokenRepo);
+        $configBundle = new ConfigBundleController($flagRepo);
+        $tokenList   = new TokenListController($tokenRepo);
+        $tokenRevoke = new TokenRevokeController($tokenRepo);
+
         return [
             'getHealth'       => [$health, 'handle'],
             'getOpenApiSpec'  => [$openApi, 'yaml'],
             'getSwaggerUi'    => [$swaggerUi, 'page'],
+
+            'listFeatureFlags'  => [$flagList, 'handle'],
+            'createFeatureFlag' => [$flagCreate, 'handle'],
+            'getFeatureFlag'    => [$flagGet, 'handle'],
+            'updateFeatureFlag' => [$flagUpdate, 'handle'],
+            'deleteFeatureFlag' => [$flagDelete, 'handle'],
+
+            'createPairingCode' => [$qr, 'handle'],
+            'mobileConnect'     => [$connect, 'handle'],
+            'getMobileConfig'   => [$configBundle, 'handle'],
+            'listDeviceTokens'  => [$tokenList, 'handle'],
+            'revokeDeviceToken' => [$tokenRevoke, 'handle'],
         ];
     }
 
     public static function specPath(): string
     {
         return dirname(__DIR__, 4).'/config/openapi.yaml';
+    }
+
+    private static function createPdo(): PDO
+    {
+        // Reuse the legacy singleton when available; fall back to a fresh
+        // connection from config.json so tests can inject their own DSN.
+        if (class_exists(\saso\repository\DBConnection::class)) {
+            return \saso\repository\DBConnection::getPdo();
+        }
+
+        $config = \saso\ConfigLoader::load();
+        $db     = $config['database'];
+
+        return new PDO(
+            (string) ($db['dsn'] ?? ''),
+            (string) ($db['user'] ?? ''),
+            (string) ($db['password'] ?? ''),
+            [
+                PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
+                PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+            ],
+        );
     }
 }

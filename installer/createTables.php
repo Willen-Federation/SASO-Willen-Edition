@@ -3,6 +3,10 @@
 use saso\entity\Member;
 use saso\repository;
 
+// $pdo may be injected by InstallView (installer context). Fall back to the
+// shared singleton only when running outside the web installer (e.g. tests).
+$pdo = $pdo ?? repository\DBConnection::getPdo();
+
 $sql = [];
 $sql[] = "CREATE TABLE Item (
       dateCode CHAR(4) NOT NULL
@@ -84,7 +88,6 @@ $sql[] = "CREATE TABLE Member (
     , userName VARCHAR(50) NOT NULL
 )";
 
-$pdo = repository\DBConnection::getPdo();
 foreach($sql as $value){
     try{
         $pdo->query($value." DEFAULT CHARSET=utf8");

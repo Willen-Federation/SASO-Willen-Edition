@@ -19,10 +19,17 @@ final class InstallUsecase implements Usecase
     }
     public function handle(DTO $data): void
     {
-        $this->output = $data->id->flatMap(
+        $this->output = $data->dbHost->flatMap(
+            fn($h)=>$data->dbPort->flatMap(
+            fn($pt)=>$data->dbName->flatMap(
+            fn($dn)=>$data->dbUser->flatMap(
+            fn($du)=>$data->dbPassword->flatMap(
+            fn($dp)=>$data->dbCharset->flatMap(
+            fn($dc)=>$data->httpsEnabled->flatMap(
+            fn($hs)=>$data->id->flatMap(
             fn($v)=>$data->name->flatMap(
             fn($n)=>$data->password->flatMap(
             fn($p)=>new Member($v, $n, $p)
-        )));
+        ))))))))));
     }
 }

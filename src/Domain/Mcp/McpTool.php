@@ -43,7 +43,7 @@ interface McpTool
      * OAuth2 scope required to call this tool, or `null` if no scope check
      * is needed (read-only tools available to any authenticated device).
      *
-     * Example: `'items:write'` for {@see RegisterItemTool}.
+     * Example: `'items:write'` for {@see \Saso\Presentation\Mcp\Tool\RegisterItemTool}.
      */
     public function requiredScope(): ?string;
 }

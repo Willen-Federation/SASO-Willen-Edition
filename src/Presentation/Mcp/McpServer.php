@@ -16,14 +16,14 @@ use Saso\Domain\Plugin\Registry\RegistryName;
  * JSON-RPC 2.0 endpoint for the Model Context Protocol (cf. ADR 0014, M6-I).
  *
  * Handles three methods:
- *   - `initialize`    — server capability handshake
- *   - `tools/list`    — discovery: returns all registered, enabled tools
- *   - `tools/call`    — dispatch: validates auth + scope, invokes the tool
+ *   - `initialize`    — server capability handshake (no auth required)
+ *   - `tools/list`    — discovery: returns all registered, enabled tools (auth required)
+ *   - `tools/call`    — dispatch: validates auth + scope, invokes the tool (auth required)
  *
- * Auth: every call must carry `Authorization: Bearer <jwt>` issued by
- * `POST /api/v1/mobile/connect`. The JWT is verified via JwtService;
- * the `sub` claim yields the device_token ID which is then hydrated and
- * checked for revocation / expiry.
+ * Auth: `tools/list` and `tools/call` require `Authorization: Bearer <jwt>` issued
+ * by `POST /api/v1/mobile/connect`. The JWT is verified via JwtService; the `sub`
+ * claim yields the device_token ID which is hydrated and checked for revocation/expiry.
+ * `initialize` is unauthenticated per the MCP protocol handshake spec.
  *
  * Error shape:  JSON-RPC 2.0 error object embedded in the response;
  * HTTP status is always 200 for well-formed envelopes (per spec), 400
@@ -55,7 +55,11 @@ final class McpServer
             return McpResponse::parseError();
         }
 
-        $id     = $envelope['id'] ?? null;
+        $rawId = $envelope['id'] ?? null;
+        if (!is_int($rawId) && !is_string($rawId) && $rawId !== null) {
+            return McpResponse::invalidRequest(null);
+        }
+        $id     = $rawId;
         $method = $envelope['method'] ?? '';
         $params = $envelope['params'] ?? [];
 
@@ -69,7 +73,7 @@ final class McpServer
 
         return match ($method) {
             'initialize'  => $this->handleInitialize($id, $params),
-            'tools/list'  => $this->handleToolsList($id, $headers, $rawBody),
+            'tools/list'  => $this->handleToolsList($id, $headers),
             'tools/call'  => $this->handleToolsCall($id, $params, $headers),
             default       => McpResponse::methodNotFound($id, $method),
         };
@@ -91,7 +95,7 @@ final class McpServer
     }
 
     /** @param array<string, string> $headers */
-    private function handleToolsList(int|string|null $id, array $headers, string $rawBody): McpResponse
+    private function handleToolsList(int|string|null $id, array $headers): McpResponse
     {
         try {
             $this->authenticate($headers);
@@ -106,7 +110,7 @@ final class McpServer
                 continue;
             }
             $tools[] = [
-                'name'        => $tool->name(),
+                'name'        => $name->toString(),
                 'description' => $tool->description(),
                 'inputSchema' => $tool->inputSchema(),
             ];
@@ -162,8 +166,8 @@ final class McpServer
             $result = $tool->invoke($arguments, $deviceId);
         } catch (\InvalidArgumentException $e) {
             return McpResponse::invalidParams($id, $e->getMessage());
-        } catch (\Throwable $e) {
-            return McpResponse::internalError($id, $e->getMessage());
+        } catch (\Throwable) {
+            return McpResponse::internalError($id);
         }
 
         return McpResponse::result($id, [

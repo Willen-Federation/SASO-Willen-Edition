@@ -67,6 +67,7 @@ final class ListStorageLocationsTool implements McpTool
         return null;
     }
 
+    /** @return array<string, mixed> */
     private static function serialize(StorageLocation $loc): array
     {
         return [

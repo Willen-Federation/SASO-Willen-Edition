@@ -30,7 +30,7 @@ final class SearchItemsTool implements McpTool
 
     public function description(): string
     {
-        return 'Search the item catalogue by keyword. Returns matching items with id, name, and category.';
+        return 'Search the item catalogue by keyword. Returns matching items with id, name, and score.';
     }
 
     public function inputSchema(): array

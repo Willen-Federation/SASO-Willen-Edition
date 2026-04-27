@@ -22,7 +22,10 @@ final readonly class McpResponse
 {
     private const JSONRPC = '2.0';
 
-    /** @param array<string, mixed>|null $result */
+    /**
+     * @param array<string, mixed>|null $result
+     * @param array<string, mixed>|null $error
+     */
     private function __construct(
         public ?int $httpStatus,
         public array|null $result,

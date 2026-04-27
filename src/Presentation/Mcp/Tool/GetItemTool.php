@@ -74,7 +74,11 @@ final class GetItemTool implements McpTool
         return null;
     }
 
-    /** @param array<string, mixed> $row */
+    /**
+     * @param array<string, mixed> $row
+     *
+     * @return array<string, mixed>
+     */
     private function serialize(array $row): array
     {
         return [

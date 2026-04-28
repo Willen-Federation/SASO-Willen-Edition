@@ -48,7 +48,8 @@
             "Saso\\": "src/"
         },
         "files": [
-            "src/Infrastructure/Translation/functions.php"
+            "src/Infrastructure/Translation/functions.php",
+            "framework/ui/helpers.php"
         ]
     },
     "autoload-dev": {

@@ -182,6 +182,10 @@
         }
     },
     "label": {
+        "wizard": {
+           "matter": "label",
+           "action": "wizard"
+        },
         "start": {
            "matter": "label",
            "action": "edit"

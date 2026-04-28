@@ -7,6 +7,7 @@ namespace Saso\Presentation\Mcp;
 use PDO;
 use Saso\Domain\MobileConnect\Jwt\JwtService;
 use Saso\Domain\Plugin\Registry\RegistryName;
+use Saso\Infrastructure\Barcode\PdoBarcodeRepository;
 use Saso\Infrastructure\Category\PdoCategoryRepository;
 use Saso\Infrastructure\Item\Attribute\PdoAttributeDefinitionRepository;
 use Saso\Infrastructure\MobileConnect\PdoDeviceTokenRepository;
@@ -18,16 +19,21 @@ use Saso\Presentation\Mcp\Tool\DefineAttributeTool;
 use Saso\Presentation\Mcp\Tool\GetItemAttributesTool;
 use Saso\Presentation\Mcp\Tool\GetItemTool;
 use Saso\Presentation\Mcp\Tool\GetStorageLocationTreeTool;
+use Saso\Presentation\Mcp\Tool\LinkBarcodeToItemTool;
 use Saso\Presentation\Mcp\Tool\ListAttributesTool;
 use Saso\Presentation\Mcp\Tool\ListCategoriesTool;
+use Saso\Presentation\Mcp\Tool\ListPendingBarcodesTool;
 use Saso\Presentation\Mcp\Tool\ListStorageLocationsTool;
 use Saso\Presentation\Mcp\Tool\ManageCategoryTool;
 use Saso\Presentation\Mcp\Tool\ManageStorageLocationTool;
+use Saso\Presentation\Mcp\Tool\MintBarcodeBatchTool;
 use Saso\Presentation\Mcp\Tool\RegisterItemTool;
+use Saso\Presentation\Mcp\Tool\ResolveBarcodeTool;
 use Saso\Presentation\Mcp\Tool\SearchItemsTool;
 use Saso\Presentation\Mcp\Tool\SetItemAttributeTool;
 use Saso\Presentation\Mcp\Tool\SetItemStatusTool;
 use Saso\Presentation\Mcp\Tool\UpdateItemTool;
+use Saso\Presentation\Mcp\Tool\VoidBarcodeTool;
 
 /**
  * Composition root for `POST /mcp`.
@@ -101,6 +107,14 @@ final class Bootstrap
         // Categories
         $registry->registerCore(new RegistryName('list_categories'), new ListCategoriesTool($categories));
         $registry->registerCore(new RegistryName('manage_category'), new ManageCategoryTool($pdo, $categories));
+
+        // Pending-barcode pool (label-first workflow, M6-J3 Phase 3)
+        $barcodes = new PdoBarcodeRepository($pdo);
+        $registry->registerCore(new RegistryName('mint_barcode_batch'),    new MintBarcodeBatchTool($barcodes));
+        $registry->registerCore(new RegistryName('list_pending_barcodes'), new ListPendingBarcodesTool($barcodes));
+        $registry->registerCore(new RegistryName('link_barcode_to_item'),  new LinkBarcodeToItemTool($barcodes));
+        $registry->registerCore(new RegistryName('void_barcode'),          new VoidBarcodeTool($barcodes));
+        $registry->registerCore(new RegistryName('resolve_barcode'),       new ResolveBarcodeTool($barcodes));
 
         $server = new McpServer($registry, $jwt, $tokenRepo);
 

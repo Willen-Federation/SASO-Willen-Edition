@@ -233,3 +233,17 @@ ui:
   not_found:
     title: ページが見つかりません
     body: お探しのページは存在しません。
+  label_wizard:
+    title: '印刷→登録（ラベル先行）'
+    step1: ラベルシートの選択
+    step1_help: プリンターにセットするシートを選んでください。選んだシートに合わせてコードを発行します。
+    step2: 発行 & 印刷
+    step2_help: 数量を選んで PDF をダウンロードし、プリンターにセットします。
+    count: ラベル枚数
+    print: '発行して PDF を取得'
+    step3: 商品にひも付け
+    step3_help: 印刷したラベルをスキャンして、商品情報に関連付けます。
+    step3_note: '発行後、サイドバーの「保留中のラベル」から確認できます。'
+    go_to_pending: 保留中のラベルを開く
+    requirements_title: マイグレーションの実行が必要です
+    requirements_body: 'barcode_pool / barcode_batch / label_sheet_layout / location_map テーブルを作成するため、M6 マイグレーション 20260428120000–20260428120004 を実行してください。'

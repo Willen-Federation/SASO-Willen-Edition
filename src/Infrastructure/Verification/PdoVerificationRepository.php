@@ -156,8 +156,8 @@ final class PdoVerificationRepository implements VerificationRepository
     public function summarise(int $sessionId): VerificationSummary
     {
         $stmt = $this->pdo->prepare(
-            "SELECT result, COUNT(*) AS n FROM verification_event "
-            ."WHERE session_id = :s GROUP BY result"
+            'SELECT result, COUNT(*) AS n FROM verification_event '
+            .'WHERE session_id = :s GROUP BY result'
         );
         $stmt->bindValue('s', $sessionId, PDO::PARAM_INT);
         $stmt->execute();

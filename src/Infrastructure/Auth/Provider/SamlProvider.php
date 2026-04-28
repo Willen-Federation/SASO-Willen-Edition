@@ -5,11 +5,11 @@ declare(strict_types=1);
 namespace Saso\Infrastructure\Auth\Provider;
 
 use OneLogin\Saml2\Auth as SamlAuth;
+use Saso\Domain\Auth\AuthenticatedIdentity;
 use Saso\Domain\Auth\AuthProvider;
 use Saso\Domain\Auth\AuthProviderId;
 use Saso\Domain\Auth\AuthProviderRecord;
 use Saso\Domain\Auth\AuthProviderType;
-use Saso\Domain\Auth\AuthenticatedIdentity;
 use Saso\Domain\Auth\CallbackRequest;
 use Saso\Domain\Auth\ClaimMapping;
 use Saso\Domain\Auth\Exception\AuthFailedException;

@@ -6,9 +6,9 @@ namespace Saso\Application\Auth;
 
 use DateTimeImmutable;
 use PDO;
+use Saso\Domain\Auth\AuthenticatedIdentity;
 use Saso\Domain\Auth\AuthProvider;
 use Saso\Domain\Auth\AuthProviderId;
-use Saso\Domain\Auth\AuthenticatedIdentity;
 use Saso\Domain\Auth\CallbackRequest;
 use Saso\Domain\Auth\Exception\AuthFailedException;
 use Saso\Domain\Auth\ExternalIdentity;

@@ -177,8 +177,8 @@ final class PdoBarcodeRepository implements BarcodeRepository
     {
         $stmt = $this->pdo->prepare(
             'UPDATE barcode_pool SET '
-            ." status = :status, linked_item_id = :item, linked_at = :linkedAt, "
-            ." linked_by_device_id = :device, voided_at = :voidedAt, void_reason = :reason "
+            .' status = :status, linked_item_id = :item, linked_at = :linkedAt, '
+            .' linked_by_device_id = :device, voided_at = :voidedAt, void_reason = :reason '
             .' WHERE id = :id'
         );
         $stmt->bindValue('status',   $barcode->status->value);

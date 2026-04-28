@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Saso\Infrastructure\Auth\Provider;
 
-use Jumbojett\OpenIDConnectClient;
 use Saso\Domain\Auth\AuthenticatedIdentity;
 use Saso\Domain\Auth\AuthProvider;
 use Saso\Domain\Auth\AuthProviderId;
@@ -17,6 +16,7 @@ use Saso\Domain\Auth\Exception\ProviderMisconfiguredException;
 use Saso\Domain\Auth\LoginContext;
 use Saso\Domain\Auth\LogoutContext;
 use Saso\Domain\Auth\Redirect;
+use Saso\Infrastructure\Auth\OidcClientBridge;
 use Throwable;
 
 /**
@@ -132,12 +132,7 @@ abstract class BaseOidcProvider implements AuthProvider
         $this->decorateClient($client);
         $client->setRedirectURL($this->callbackUrl);
         $client->addScope($this->scopes());
-        // jumbojett v1 reads the nonce off the session by itself, but we
-        // forward our explicit value so callers can audit which nonce was
-        // checked when needed.
-        if (method_exists($client, 'setNonce')) {
-            $client->setNonce($expectedNonce);
-        }
+        $client->setNonceValue($expectedNonce);
 
         try {
             $authenticated = $client->authenticate();
@@ -213,7 +208,7 @@ abstract class BaseOidcProvider implements AuthProvider
      * parameters before the user is redirected. The default implementation
      * is a no-op.
      */
-    protected function decorateClient(OpenIDConnectClient $client): void
+    protected function decorateClient(OidcClientBridge $client): void
     {
     }
 
@@ -236,9 +231,7 @@ abstract class BaseOidcProvider implements AuthProvider
     {
         $client = $this->buildClient();
         try {
-            $endpoint = method_exists($client, 'getProviderConfigValue')
-                ? (string) $client->getProviderConfigValue('end_session_endpoint', '')
-                : '';
+            $endpoint = (string) $client->getEndpointConfig('end_session_endpoint', '');
         } catch (Throwable) {
             $endpoint = '';
         }
@@ -262,11 +255,9 @@ abstract class BaseOidcProvider implements AuthProvider
      * return it as a Redirect rather than letting the lib drive the
      * `header(Location)` itself.
      */
-    protected function buildAuthorizationUrl(OpenIDConnectClient $client, LoginContext $context): string
+    protected function buildAuthorizationUrl(OidcClientBridge $client, LoginContext $context): string
     {
-        $endpoint = method_exists($client, 'getProviderConfigValue')
-            ? (string) $client->getProviderConfigValue('authorization_endpoint', '')
-            : '';
+        $endpoint = (string) $client->getEndpointConfig('authorization_endpoint', '');
         if ($endpoint === '') {
             throw ProviderMisconfiguredException::for(
                 $this->record->name,
@@ -283,32 +274,19 @@ abstract class BaseOidcProvider implements AuthProvider
             'nonce'         => $context->nonce,
         ];
 
-        // Subclasses' decorateClient() may have stashed extra params via
-        // setAdditionalAuthParams(); jumbojett stores those internally.
-        // We extract them via reflection-free property access where possible.
-        if (method_exists($client, 'getAdditionalAuthParams')) {
-            $extra = $client->getAdditionalAuthParams();
-            if (is_array($extra)) {
-                /** @var array<string, scalar> $extra */
-                $params = array_merge($extra, $params);
-            }
-        }
-
         return $endpoint.(str_contains($endpoint, '?') ? '&' : '?').http_build_query($params);
     }
 
-    protected function buildClient(): OpenIDConnectClient
+    protected function buildClient(): OidcClientBridge
     {
-        $client = new OpenIDConnectClient(
+        $client = new OidcClientBridge(
             (string) $this->record->issuerOrMetadataUrl,
             (string) $this->record->clientId,
             (string) $this->record->clientSecret,
         );
         // jumbojett defaults to RS256 only; explicitly accept the common
         // OIDC signing algorithms.
-        if (method_exists($client, 'setAllowImplicitFlow')) {
-            $client->setAllowImplicitFlow(false);
-        }
+        $client->setAllowImplicitFlow(false);
         return $client;
     }
 
@@ -386,6 +364,7 @@ abstract class BaseOidcProvider implements AuthProvider
      * AuthenticatedIdentity::$claims.
      *
      * @param array<int|string, mixed> $in
+     *
      * @return array<string, mixed>
      */
     private static function stringifyKeys(array $in): array

@@ -46,9 +46,9 @@ final class RecordVerificationScanTool implements McpTool
             sessionId:          (int) ($input['sessionId'] ?? 0),
             scannedCode:        (string) ($input['scannedCode'] ?? ''),
             resolvedKind:       ResolvedKind::from((string) ($input['resolvedKind'] ?? 'unknown')),
-            resolvedItemId:     isset($input['resolvedItemId'])     && is_string($input['resolvedItemId']) ? $input['resolvedItemId']     : null,
+            resolvedItemId:     isset($input['resolvedItemId'])     && is_string($input['resolvedItemId']) ? $input['resolvedItemId'] : null,
             expectedLocationId: isset($input['expectedLocationId']) && is_int($input['expectedLocationId']) ? $input['expectedLocationId'] : null,
-            actualLocationId:   isset($input['actualLocationId'])   && is_int($input['actualLocationId'])   ? $input['actualLocationId']   : null,
+            actualLocationId:   isset($input['actualLocationId'])   && is_int($input['actualLocationId']) ? $input['actualLocationId'] : null,
             deviceId:           $deviceId,
         );
 

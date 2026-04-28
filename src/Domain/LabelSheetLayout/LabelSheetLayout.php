@@ -43,11 +43,21 @@ final readonly class LabelSheetLayout
         public DateTimeImmutable $createdAt,
         public DateTimeImmutable $updatedAt,
     ) {
-        if ($id < 1)        throw new InvalidArgumentException('id must be >= 1.');
-        if ($columns < 1)   throw new InvalidArgumentException('columns must be >= 1.');
-        if ($rows < 1)      throw new InvalidArgumentException('rows must be >= 1.');
-        if ($labelWidthMm  <= 0) throw new InvalidArgumentException('labelWidthMm must be > 0.');
-        if ($labelHeightMm <= 0) throw new InvalidArgumentException('labelHeightMm must be > 0.');
+        if ($id < 1) {
+            throw new InvalidArgumentException('id must be >= 1.');
+        }
+        if ($columns < 1) {
+            throw new InvalidArgumentException('columns must be >= 1.');
+        }
+        if ($rows < 1) {
+            throw new InvalidArgumentException('rows must be >= 1.');
+        }
+        if ($labelWidthMm  <= 0) {
+            throw new InvalidArgumentException('labelWidthMm must be > 0.');
+        }
+        if ($labelHeightMm <= 0) {
+            throw new InvalidArgumentException('labelHeightMm must be > 0.');
+        }
     }
 
     /**

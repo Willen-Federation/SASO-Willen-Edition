@@ -76,14 +76,14 @@ final class PdoVerificationRepository implements VerificationRepository
             .'(mode, area_code, scope_location_id, started_by, started_at, completed_at, status, notes) '
             .'VALUES (:mode, :area, :scope, :by, :sa, :ca, :status, :notes)'
         );
-        $stmt->bindValue('mode',   $session->mode->value);
-        $stmt->bindValue('area',   $session->areaCode, $session->areaCode === null ? PDO::PARAM_NULL : PDO::PARAM_STR);
-        $stmt->bindValue('scope',  $session->scopeLocationId, $session->scopeLocationId === null ? PDO::PARAM_NULL : PDO::PARAM_INT);
-        $stmt->bindValue('by',     $session->startedBy, $session->startedBy === null ? PDO::PARAM_NULL : PDO::PARAM_STR);
-        $stmt->bindValue('sa',     $session->startedAt->format('Y-m-d H:i:s'));
-        $stmt->bindValue('ca',     $session->completedAt?->format('Y-m-d H:i:s'), $session->completedAt === null ? PDO::PARAM_NULL : PDO::PARAM_STR);
+        $stmt->bindValue('mode', $session->mode->value);
+        $stmt->bindValue('area', $session->areaCode, $session->areaCode === null ? PDO::PARAM_NULL : PDO::PARAM_STR);
+        $stmt->bindValue('scope', $session->scopeLocationId, $session->scopeLocationId === null ? PDO::PARAM_NULL : PDO::PARAM_INT);
+        $stmt->bindValue('by', $session->startedBy, $session->startedBy === null ? PDO::PARAM_NULL : PDO::PARAM_STR);
+        $stmt->bindValue('sa', $session->startedAt->format('Y-m-d H:i:s'));
+        $stmt->bindValue('ca', $session->completedAt?->format('Y-m-d H:i:s'), $session->completedAt === null ? PDO::PARAM_NULL : PDO::PARAM_STR);
         $stmt->bindValue('status', $session->status->value);
-        $stmt->bindValue('notes',  $session->notes, $session->notes === null ? PDO::PARAM_NULL : PDO::PARAM_STR);
+        $stmt->bindValue('notes', $session->notes, $session->notes === null ? PDO::PARAM_NULL : PDO::PARAM_STR);
         $stmt->execute();
 
         return new VerificationSession(
@@ -107,15 +107,15 @@ final class PdoVerificationRepository implements VerificationRepository
             .' actual_location_id, result, scanned_at, device_id) '
             .'VALUES (:s, :code, :kind, :item, :expected, :actual, :result, :at, :dev)'
         );
-        $stmt->bindValue('s',        $event->sessionId, PDO::PARAM_INT);
-        $stmt->bindValue('code',     $event->scannedCode);
-        $stmt->bindValue('kind',     $event->resolvedKind->value);
-        $stmt->bindValue('item',     $event->resolvedItemId, $event->resolvedItemId === null ? PDO::PARAM_NULL : PDO::PARAM_STR);
+        $stmt->bindValue('s', $event->sessionId, PDO::PARAM_INT);
+        $stmt->bindValue('code', $event->scannedCode);
+        $stmt->bindValue('kind', $event->resolvedKind->value);
+        $stmt->bindValue('item', $event->resolvedItemId, $event->resolvedItemId === null ? PDO::PARAM_NULL : PDO::PARAM_STR);
         $stmt->bindValue('expected', $event->expectedLocationId, $event->expectedLocationId === null ? PDO::PARAM_NULL : PDO::PARAM_INT);
-        $stmt->bindValue('actual',   $event->actualLocationId, $event->actualLocationId === null ? PDO::PARAM_NULL : PDO::PARAM_INT);
-        $stmt->bindValue('result',   $event->result->value);
-        $stmt->bindValue('at',       $event->scannedAt->format('Y-m-d H:i:s'));
-        $stmt->bindValue('dev',      $event->deviceId, $event->deviceId === null ? PDO::PARAM_NULL : PDO::PARAM_INT);
+        $stmt->bindValue('actual', $event->actualLocationId, $event->actualLocationId === null ? PDO::PARAM_NULL : PDO::PARAM_INT);
+        $stmt->bindValue('result', $event->result->value);
+        $stmt->bindValue('at', $event->scannedAt->format('Y-m-d H:i:s'));
+        $stmt->bindValue('dev', $event->deviceId, $event->deviceId === null ? PDO::PARAM_NULL : PDO::PARAM_INT);
         $stmt->execute();
 
         return new VerificationEvent(
@@ -140,7 +140,7 @@ final class PdoVerificationRepository implements VerificationRepository
             .' FROM verification_event WHERE session_id = :s '
             .' ORDER BY scanned_at DESC, id DESC LIMIT :lim OFFSET :off'
         );
-        $stmt->bindValue('s',   $sessionId, PDO::PARAM_INT);
+        $stmt->bindValue('s', $sessionId, PDO::PARAM_INT);
         $stmt->bindValue('lim', $limit, PDO::PARAM_INT);
         $stmt->bindValue('off', $offset, PDO::PARAM_INT);
         $stmt->execute();

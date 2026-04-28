@@ -15,7 +15,7 @@ declare(strict_types=1);
  *         (also wired as `make i18n-check`)
  */
 
-require_once __DIR__ . '/../../vendor/autoload.php';
+require_once __DIR__.'/../../vendor/autoload.php';
 
 $root = dirname(__DIR__, 2);
 
@@ -29,7 +29,7 @@ $keys = [];
 $roots = ['root/template', 'auth', 'item', 'label', 'shelf', 'category', 'feature', 'common', 'start', 'archive', 'installer', 'verify', 'authExt', 'featureAdmin'];
 
 foreach ($roots as $sub) {
-    $absSub = $root . '/' . $sub;
+    $absSub = $root.'/'.$sub;
     if (!is_dir($absSub)) {
         continue;
     }
@@ -75,7 +75,7 @@ if (empty($missing)) {
 }
 
 foreach ($missing as $lc => $list) {
-    fwrite(STDERR, "Missing in {$lc} (" . count($list) . "):\n");
+    fwrite(STDERR, "Missing in {$lc} (".count($list)."):\n");
     foreach ($list as $k) {
         fwrite(STDERR, "  - {$k}\n");
     }

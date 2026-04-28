@@ -192,7 +192,7 @@ final class SamlProvider implements AuthProvider
     private function buildSettings(): array
     {
         $cfg = $this->configMap();
-        $entityId      = isset($cfg['entity_id'])     && is_string($cfg['entity_id'])     ? $cfg['entity_id']     : $this->acsUrl;
+        $entityId      = isset($cfg['entity_id'])     && is_string($cfg['entity_id']) ? $cfg['entity_id'] : $this->acsUrl;
         $nameIdFormat  = isset($cfg['nameid_format']) && is_string($cfg['nameid_format']) ? $cfg['nameid_format'] : 'urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress';
 
         $idp = [
@@ -244,6 +244,7 @@ final class SamlProvider implements AuthProvider
      * the `_raw` key for callers that need it.
      *
      * @param array<string, list<string>> $attrs
+     *
      * @return array<string, mixed>
      */
     private static function flattenAttributes(array $attrs): array

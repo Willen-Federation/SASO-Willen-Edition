@@ -181,13 +181,13 @@ final class PdoBarcodeRepository implements BarcodeRepository
             .' linked_by_device_id = :device, voided_at = :voidedAt, void_reason = :reason '
             .' WHERE id = :id'
         );
-        $stmt->bindValue('status',   $barcode->status->value);
-        $stmt->bindValue('item',     $barcode->linkedItemId, $barcode->linkedItemId === null ? PDO::PARAM_NULL : PDO::PARAM_STR);
+        $stmt->bindValue('status', $barcode->status->value);
+        $stmt->bindValue('item', $barcode->linkedItemId, $barcode->linkedItemId === null ? PDO::PARAM_NULL : PDO::PARAM_STR);
         $stmt->bindValue('linkedAt', $barcode->linkedAt?->format('Y-m-d H:i:s'), $barcode->linkedAt === null ? PDO::PARAM_NULL : PDO::PARAM_STR);
-        $stmt->bindValue('device',   $barcode->linkedByDeviceId, $barcode->linkedByDeviceId === null ? PDO::PARAM_NULL : PDO::PARAM_INT);
+        $stmt->bindValue('device', $barcode->linkedByDeviceId, $barcode->linkedByDeviceId === null ? PDO::PARAM_NULL : PDO::PARAM_INT);
         $stmt->bindValue('voidedAt', $barcode->voidedAt?->format('Y-m-d H:i:s'), $barcode->voidedAt === null ? PDO::PARAM_NULL : PDO::PARAM_STR);
-        $stmt->bindValue('reason',   $barcode->voidReason, $barcode->voidReason === null ? PDO::PARAM_NULL : PDO::PARAM_STR);
-        $stmt->bindValue('id',       $barcode->id, PDO::PARAM_INT);
+        $stmt->bindValue('reason', $barcode->voidReason, $barcode->voidReason === null ? PDO::PARAM_NULL : PDO::PARAM_STR);
+        $stmt->bindValue('id', $barcode->id, PDO::PARAM_INT);
         $stmt->execute();
     }
 

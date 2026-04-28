@@ -43,7 +43,7 @@ final class ListPendingBarcodesTool implements McpTool
 
     public function invoke(array $input, int $deviceId): array
     {
-        $limit  = isset($input['limit'])  ? min(200, max(1, (int) $input['limit']))  : 50;
+        $limit  = isset($input['limit']) ? min(200, max(1, (int) $input['limit'])) : 50;
         $offset = isset($input['offset']) ? max(0, (int) $input['offset']) : 0;
 
         $rows = $this->barcodes->listByStatus(BarcodeStatus::Pending, $limit, $offset);

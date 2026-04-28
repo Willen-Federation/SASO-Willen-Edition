@@ -49,7 +49,7 @@ final class UpdateFeatureFlagTool implements McpTool
     public function invoke(array $input, int $deviceId): array
     {
         $key     = (string) ($input['key']     ?? '');
-        $enabled = (bool)   ($input['enabled'] ?? false);
+        $enabled = (bool) ($input['enabled'] ?? false);
 
         $flag = $this->flags->findByKey(new FeatureKey($key));
         if ($flag === null) {

@@ -119,22 +119,22 @@ final class Bootstrap
 
         // Pending-barcode pool (label-first workflow, M6-J3 Phase 3)
         $barcodes = new PdoBarcodeRepository($pdo);
-        $registry->registerCore(new RegistryName('mint_barcode_batch'),    new MintBarcodeBatchTool($barcodes));
+        $registry->registerCore(new RegistryName('mint_barcode_batch'), new MintBarcodeBatchTool($barcodes));
         $registry->registerCore(new RegistryName('list_pending_barcodes'), new ListPendingBarcodesTool($barcodes));
-        $registry->registerCore(new RegistryName('link_barcode_to_item'),  new LinkBarcodeToItemTool($barcodes));
-        $registry->registerCore(new RegistryName('void_barcode'),          new VoidBarcodeTool($barcodes));
-        $registry->registerCore(new RegistryName('resolve_barcode'),       new ResolveBarcodeTool($barcodes));
+        $registry->registerCore(new RegistryName('link_barcode_to_item'), new LinkBarcodeToItemTool($barcodes));
+        $registry->registerCore(new RegistryName('void_barcode'), new VoidBarcodeTool($barcodes));
+        $registry->registerCore(new RegistryName('resolve_barcode'), new ResolveBarcodeTool($barcodes));
 
         // Data verification (照合) — M6-J3 Phase 4
         $verifications = new VerificationService(new PdoVerificationRepository($pdo));
-        $registry->registerCore(new RegistryName('start_verification_session'),    new StartVerificationSessionTool($verifications));
-        $registry->registerCore(new RegistryName('record_verification_scan'),      new RecordVerificationScanTool($verifications));
+        $registry->registerCore(new RegistryName('start_verification_session'), new StartVerificationSessionTool($verifications));
+        $registry->registerCore(new RegistryName('record_verification_scan'), new RecordVerificationScanTool($verifications));
         $registry->registerCore(new RegistryName('complete_verification_session'), new CompleteVerificationSessionTool($verifications));
-        $registry->registerCore(new RegistryName('get_verification_summary'),      new GetVerificationSummaryTool($verifications));
+        $registry->registerCore(new RegistryName('get_verification_summary'), new GetVerificationSummaryTool($verifications));
 
         // Feature flags — M6-J3 Phase 5
         $flags = new PdoFeatureFlagRepository($pdo);
-        $registry->registerCore(new RegistryName('list_feature_flags'),  new ListFeatureFlagsTool($flags));
+        $registry->registerCore(new RegistryName('list_feature_flags'), new ListFeatureFlagsTool($flags));
         $registry->registerCore(new RegistryName('update_feature_flag'), new UpdateFeatureFlagTool($flags));
 
         $server = new McpServer($registry, $jwt, $tokenRepo);

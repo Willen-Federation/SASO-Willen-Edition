@@ -13,6 +13,9 @@ final class RootOutput implements DTO
         private bool $authed,
         private string $matter,
         private string $action,
+        private string $currentLocale,
+        /** @var list<string> */
+        private array $supportedLocales,
     )
     {
     }

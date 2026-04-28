@@ -40,7 +40,7 @@ final class LocalProvider implements AuthProvider
     public function __construct(
         private readonly AuthProviderRecord $record,
         private readonly PDO $pdo,
-        private readonly string $loginUrl = '/auth/start',
+        private readonly string $loginUrl = './auth/start',
     ) {
         if ($record->type !== AuthProviderType::Local) {
             throw ProviderMisconfiguredException::for(

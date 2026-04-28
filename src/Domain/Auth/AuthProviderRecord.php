@@ -25,7 +25,7 @@ use DateTimeImmutable;
 final readonly class AuthProviderRecord
 {
     /**
-     * @param array<string, string>|null $claimMapping
+     * @param array<string, mixed>|null $claimMapping
      */
     public function __construct(
         public AuthProviderId $id,

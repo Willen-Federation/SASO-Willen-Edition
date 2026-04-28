@@ -12,6 +12,9 @@
         "logout": "\\saso\\auth\\LogoutDIContainer",
         "password": "\\saso\\auth\\PasswordDIContainer"
     },
+    "authExt": {
+        "providers": "\\saso\\authExt\\ProvidersDIContainer"
+    },
     "image": {
         "start": "\\saso\\image\\StartDIContainer",
         "add": "\\saso\\image\\AddDIContainer",
@@ -91,7 +94,8 @@
         "features": "\\saso\\label\\FeaturesDIContainer",
         "deleteAll": "\\saso\\label\\DeleteAllDIContainer",
         "shortName": "\\saso\\label\\ShortNameDIContainer",
-        "pdf": "\\saso\\label\\PdfDIContainer"
+        "pdf": "\\saso\\label\\PdfDIContainer",
+        "wizard": "\\saso\\label\\WizardDIContainer"
     },
     "barcode": {
         "start": "\\saso\\barcode\\StartDIContainer",
@@ -99,6 +103,9 @@
     },
     "verify": {
         "start": "\\saso\\verify\\StartDIContainer"
+    },
+    "featureAdmin": {
+        "list": "\\saso\\featureAdmin\\ListDIContainer"
     },
     "admin": {
         "feature-flags": "\\saso\\admin\\FeatureFlagsDIContainer",

@@ -3,6 +3,10 @@
         "start": {
            "matter": "auth",
            "action": "start"
+        },
+        "providers": {
+           "matter": "authExt",
+           "action": "providers"
         }
     },
     "js": {
@@ -178,6 +182,10 @@
         }
     },
     "label": {
+        "wizard": {
+           "matter": "label",
+           "action": "wizard"
+        },
         "start": {
            "matter": "label",
            "action": "edit"
@@ -217,6 +225,18 @@
         "outputPdf": {
             "matter": "label",
             "action": "pdf"
+        }
+    },
+    "verify": {
+        "start": {
+           "matter": "verify",
+           "action": "start"
+        }
+    },
+    "admin": {
+        "feature-flags": {
+           "matter": "featureAdmin",
+           "action": "list"
         }
     },
     "shelf": {

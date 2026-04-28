@@ -16,19 +16,6 @@ final class ProvidersDIContainer implements DIContainer
 
     public function di(\Closure $inside, array $query, array $post, array $config, \DateTime $now): void
     {
-        if (isset($query['edit'])
-            && is_numeric($query['edit'])
-            && !isset($query['delete'])
-        ) {
-            $this->ctrl    = new ProviderController($query, $post);
-            $this->usecase = new EmptyUsecase(
-                new ProviderPresenter(
-                    new ProviderView($query, $post),
-                ),
-            );
-            return;
-        }
-
         $this->ctrl    = new ProvidersListController();
         $this->usecase = new EmptyUsecase(
             new ProvidersListPresenter(

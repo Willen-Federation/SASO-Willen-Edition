@@ -9,7 +9,6 @@ final class WizardView implements View
     use Setter;
     private string $title = '';
     private \Closure $content;
-    public array $sheets = [];
 
     public function display(): void
     {

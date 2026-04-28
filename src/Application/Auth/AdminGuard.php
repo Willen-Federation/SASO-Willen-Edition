@@ -43,69 +43,6 @@ final class AdminGuard
         return $memberId === 'bootstrap';
     }
 
-    /**
-     * Check whether the given member has a specific permission key.
-     *
-     * Permissions are stored as a JSON array in the Role table.
-     * Falls back to isAdmin() when the Role table does not yet exist
-     * (e.g. before the migration runs).
-     */
-    public function hasPermission(?string $memberId, string $permission): bool
-    {
-        if ($memberId === null || $memberId === '') {
-            return false;
-        }
-        try {
-            $stmt = $this->pdo->prepare(
-                'SELECT r.permissions
-                   FROM Member m
-                   LEFT JOIN Role r ON r.name = m.role
-                  WHERE m.id = :id
-                  LIMIT 1'
-            );
-            $stmt->bindValue(':id', $memberId);
-            $stmt->execute();
-            $row = $stmt->fetch(PDO::FETCH_ASSOC);
-            if ($row !== false && isset($row['permissions'])) {
-                $perms = json_decode((string) $row['permissions'], true);
-                return is_array($perms) && in_array($permission, $perms, true);
-            }
-        } catch (\Throwable) {
-            // Role table not available — fall back to binary admin check
-        }
-        return $this->isAdmin($memberId);
-    }
-
-    /**
-     * Return all permission keys granted to the given member, or [] on error.
-     *
-     * @return list<string>
-     */
-    public function getPermissions(?string $memberId): array
-    {
-        if ($memberId === null || $memberId === '') {
-            return [];
-        }
-        try {
-            $stmt = $this->pdo->prepare(
-                'SELECT r.permissions
-                   FROM Member m
-                   LEFT JOIN Role r ON r.name = m.role
-                  WHERE m.id = :id
-                  LIMIT 1'
-            );
-            $stmt->bindValue(':id', $memberId);
-            $stmt->execute();
-            $row = $stmt->fetch(PDO::FETCH_ASSOC);
-            if ($row !== false && isset($row['permissions'])) {
-                $perms = json_decode((string) $row['permissions'], true);
-                return is_array($perms) ? $perms : [];
-            }
-        } catch (\Throwable) {
-        }
-        return $this->isAdmin($memberId) ? array_keys(\saso\entity\Role::PERMISSIONS) : [];
-    }
-
     public function isAuthenticated(): bool
     {
         return isset($_SESSION['id']) && $_SESSION['id'] !== '';

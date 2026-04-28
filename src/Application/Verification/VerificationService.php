@@ -123,7 +123,8 @@ final class VerificationService
 
     /**
      * Pure classifier — chooses the VerificationResult given what the
-     * Presentation layer already resolved.
+     * Presentation layer already resolved. Documented in
+     * `docs/architecture/adr/0017-tailadmin-ui-migration.md` (Phase 4).
      */
     private function classify(
         VerificationSession $session,

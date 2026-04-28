@@ -32,56 +32,7 @@ final class ListView implements View
             : (new AdminGuard($pdo))->isAdmin(
                 isset($_SESSION['id']) && is_string($_SESSION['id']) ? $_SESSION['id'] : null,
             );
-
-        if ($this->authorized && $_SERVER['REQUEST_METHOD'] === 'POST') {
-            $this->handlePost($pdo);
-        }
-
         $this->flags = $this->load();
-    }
-
-    private function handlePost(\PDO $pdo): void
-    {
-        $flagKey = $_POST['flag_key'] ?? '';
-        $action = $_POST['action'] ?? '';
-        if ($flagKey !== '' && in_array($action, ['enable', 'disable'], true)) {
-            $repo = new \Saso\Infrastructure\FeatureFlag\PdoFeatureFlagRepository($pdo);
-            $flag = $repo->findByKey(new \Saso\Domain\Feature\FeatureKey($flagKey));
-            if ($flag) {
-                $newEnabled = $action === 'enable';
-                $updated = new \Saso\Domain\Feature\FeatureFlag(
-                    id: $flag->id,
-                    key: $flag->key,
-                    description: $flag->description,
-                    enabled: $newEnabled,
-                    rolloutPercent: $flag->rolloutPercent,
-                    conditions: $flag->conditions,
-                    errorThreshold: $flag->errorThreshold,
-                    errorWindowMinutes: $flag->errorWindowMinutes,
-                    autoDisabledAt: $flag->autoDisabledAt,
-                    autoDisableReason: $flag->autoDisableReason,
-                    createdAt: $flag->createdAt,
-                    updatedAt: new \DateTimeImmutable('now', new \DateTimeZone('UTC'))
-                );
-                $repo->save($updated);
-
-                // Audit
-                $auditStmt = $pdo->prepare(
-                    'INSERT INTO feature_flag_audit (flag_key, old_enabled, new_enabled, changed_by, changed_at, reason) ' .
-                    'VALUES (:key, :old, :new, :by, :at, :reason)'
-                );
-                $auditStmt->execute([
-                    'key' => $flag->key->toString(),
-                    'old' => $flag->enabled ? 1 : 0,
-                    'new' => $newEnabled ? 1 : 0,
-                    'by' => $_SESSION['id'] ?? 'admin',
-                    'at' => date('Y-m-d H:i:s'),
-                    'reason' => "Toggled via Web UI",
-                ]);
-            }
-            header('Location: ./admin/feature-flags/');
-            exit;
-        }
     }
 
     public function display(): void

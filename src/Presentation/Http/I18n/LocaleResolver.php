@@ -35,6 +35,7 @@ final class LocaleResolver
         ?string $queryLang = null,
         ?string $memberLocale = null,
         ?string $acceptLanguage = null,
+        ?string $cookieLocale = null,
     ): string {
         if ($queryLang !== null && $this->isSupported($queryLang)) {
             return $queryLang;
@@ -42,6 +43,13 @@ final class LocaleResolver
 
         if ($memberLocale !== null && $this->isSupported($memberLocale)) {
             return $memberLocale;
+        }
+
+        // Cookie wins over Accept-Language because it represents an explicit
+        // user choice (the language switcher writes it). Falls below member
+        // preference so logged-in users still see their saved preference.
+        if ($cookieLocale !== null && $this->isSupported($cookieLocale)) {
+            return $cookieLocale;
         }
 
         if ($acceptLanguage !== null && $acceptLanguage !== '') {

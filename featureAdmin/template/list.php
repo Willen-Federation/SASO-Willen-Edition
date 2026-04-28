@@ -22,36 +22,17 @@
       'body' => function () use ($v) {
         $rows = [];
         foreach ($v->flags as $f) {
-            $isTripped = $f['autoDisabledAt'] !== null;
-            $statusBadge = $isTripped
-                ? '<span class="badge bg-danger">'.ui_text(__('ui.feature_flags.status.tripped', [], null, 'Breaker tripped')).'</span>'
+            $statusBadge = $f['autoDisabledAt'] !== null
+                ? '<span class="ta-badge ta-badge-danger">'.ui_text(__('ui.feature_flags.status.tripped', [], null, 'Breaker tripped')).'</span>'
                 : ($f['enabled']
-                    ? '<span class="badge bg-success">'.ui_text(__('ui.feature_flags.status.active', [], null, 'Active')).'</span>'
-                    : '<span class="badge bg-secondary">'.ui_text(__('ui.feature_flags.status.disabled', [], null, 'Disabled')).'</span>');
-            $rolloutBadge = '<span class="badge bg-primary">'.((int) $f['rolloutPercent']).'%</span>';
-            
-            $toggleAction = $f['enabled'] ? 'disable' : 'enable';
-            $toggleLabel = $f['enabled'] ? 'Disable' : 'Enable';
-            $toggleVariant = $f['enabled'] ? 'danger' : 'success';
-            
-            $csrf = htmlspecialchars(\saso\util\CSRFtoken::current(), ENT_QUOTES, 'UTF-8');
-            $keyHtml = htmlspecialchars($f['key'], ENT_QUOTES, 'UTF-8');
-            
-            $actionForm = <<<HTML
-<form method="POST" action="" class="d-inline-block m-0">
-    <input type="hidden" name="csrftoken" value="{$csrf}">
-    <input type="hidden" name="flag_key" value="{$keyHtml}">
-    <input type="hidden" name="action" value="{$toggleAction}">
-    <button type="submit" class="btn btn-sm btn-{$toggleVariant}">{$toggleLabel}</button>
-</form>
-HTML;
-
+                    ? '<span class="ta-badge ta-badge-success">'.ui_text(__('ui.feature_flags.status.active', [], null, 'Active')).'</span>'
+                    : '<span class="ta-badge ta-badge-gray">'.ui_text(__('ui.feature_flags.status.disabled', [], null, 'Disabled')).'</span>');
+            $rolloutBadge = '<span class="ta-badge ta-badge-primary">'.((int) $f['rolloutPercent']).'%</span>';
             $rows[] = [
-                ['value' => '<code class="small font-monospace">'.ui_text((string) $f['key']).'</code>', 'html' => true],
+                ['value' => '<code class="text-theme-xs">'.ui_text((string) $f['key']).'</code>', 'html' => true],
                 ['value' => ui_text((string) $f['description'])],
                 ['value' => $rolloutBadge,  'html' => true],
                 ['value' => $statusBadge,   'html' => true],
-                ['value' => $actionForm,    'html' => true],
             ];
         }
         ui('table', [
@@ -60,7 +41,6 @@ HTML;
                 ['label' => __('ui.feature_flags.col.description', [], null, 'Description')],
                 ['label' => __('ui.feature_flags.col.rollout',     [], null, 'Rollout')],
                 ['label' => __('ui.feature_flags.col.status',      [], null, 'Status')],
-                ['label' => __('ui.feature_flags.col.actions',     [], null, 'Actions')],
             ],
             'rows'    => $rows,
             'caption' => __('ui.feature_flags.table_caption', [], null, 'Configured feature flags'),
@@ -69,6 +49,14 @@ HTML;
       },
     ]);
   ?>
+
+  <div class="mt-6">
+    <?php ui('alert', [
+      'variant' => 'info',
+      'title'   => __('ui.feature_flags.help.title', [], null, 'How to update'),
+      'body'    => __('ui.feature_flags.help.body', [], null, 'Toggle flags via the REST API at /api/v1/feature-flags or the MCP tools list_feature_flags / update_feature_flag. The full inline edit screen ships in a follow-up.'),
+    ]); ?>
+  </div>
 
 <?php } ?>
 

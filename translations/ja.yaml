@@ -181,3 +181,55 @@ ui:
     help:
       title: この画面について
       body: '本リリースでは閲覧専用です。Phinx マイグレーション M4/20260426120002_create_auth_provider.php で行を投入してください。作成/編集フォームは次リリースで提供します。'
+  dashboard:
+    quick_links: ショートカット
+    item_register_help: カタログに新しい SKU を追加します。
+    shelf_help: 棚番の作成や棚ラベル印刷を行います。
+    label_help: 商品用のバーコードラベルを生成します。
+    archive_help: アーカイブ済み商品を閲覧します。
+    archive_all_help: 有効な商品をまとめてアーカイブします。
+    category_help: 分類ツリーを管理します。
+    label_size_help: A4 シートのレイアウトを設定します。
+    password_help: サインイン用パスワードを変更します。
+  password:
+    title: パスワード変更
+    subtitle: パスワードはどこかに書き留めておいてください。忘れると復元できません。
+    changed: パスワードが変更されました。
+    wrong_current: 現在のパスワードが正しくありません。
+    help: '半角英数、8〜20文字。'
+    mismatch: パスワードが一致しません。
+    field:
+      now: 現在のパスワード
+      new: 新しいパスワード
+      confirm: 新しいパスワード確認
+    submit: パスワード変更
+  category:
+    title: 分類ツリー
+    add_root: ルート分類を追加
+    help: '分類の追加・名称変更・並び替えができます。ドラッグは未対応のため、各行のインライン操作をご利用ください。'
+    empty: '読み込み中…'
+  item:
+    register:
+      title: 商品の新規登録
+      submit: 商品を登録
+    field:
+      name: 商品名
+      name_help: 50字以内。
+      name_ph: コットンTシャツ
+      category: 分類
+      selected_category: '選択中の分類：'
+      deselect_category: 選択解除
+      price: 価格
+      price_help: '9桁まで、カンマ区切り可。'
+      colors: 色
+      colors_help: 複数入力する場合は半角カンマで区切ります。
+      sizes: サイズ
+      sizes_help: '複数入力する場合は半角カンマで区切ります。色数×サイズ数 ≤ 100。'
+      packaging: 梱包
+      plastic: プラ
+      plastic_note: 付記（任意）
+      paper: 紙
+      paper_note: 付記（任意）
+  not_found:
+    title: ページが見つかりません
+    body: お探しのページは存在しません。

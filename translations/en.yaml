@@ -198,3 +198,55 @@ ui:
     help:
       title: About this screen
       body: 'Provider management is read-only in this release. Use the Phinx migration M4/20260426120002_create_auth_provider.php to seed rows; the create/edit form ships in a follow-up.'
+  dashboard:
+    quick_links: Quick links
+    item_register_help: Add a new SKU to the catalogue.
+    shelf_help: Create or print shelf labels.
+    label_help: Generate barcode labels for items.
+    archive_help: Browse archived items.
+    archive_all_help: Archive every active item in one step.
+    category_help: Manage the category tree.
+    label_size_help: Configure A4 sheet layouts.
+    password_help: Change your sign-in credentials.
+  password:
+    title: Change password
+    subtitle: Save the new password somewhere safe — it cannot be recovered if lost.
+    changed: Password updated successfully.
+    wrong_current: The current password is not correct.
+    help: 'Half-width letters and digits, 8–20 chars.'
+    mismatch: Passwords do not match.
+    field:
+      now: Current password
+      new: New password
+      confirm: Confirm new password
+    submit: Change password
+  category:
+    title: Category tree
+    add_root: Add root category
+    help: 'Add, rename, and reorder categories. Drag is not supported yet — use the controls inline next to each row.'
+    empty: 'Loading…'
+  item:
+    register:
+      title: Register a new product
+      submit: Register product
+    field:
+      name: Product name
+      name_help: Up to 50 characters.
+      name_ph: Cotton T-shirt
+      category: Category
+      selected_category: 'Selected category:'
+      deselect_category: Deselect
+      price: Price
+      price_help: 'Up to 9 digits, comma-separated allowed.'
+      colors: Colors
+      colors_help: Comma-separated for multiple values.
+      sizes: Sizes
+      sizes_help: 'Comma-separated for multiple values. colors × sizes ≤ 100.'
+      packaging: Packaging
+      plastic: Plastic
+      plastic_note: Note (optional)
+      paper: Paper
+      paper_note: Note (optional)
+  not_found:
+    title: Not found
+    body: The page you are looking for does not exist.

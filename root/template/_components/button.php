@@ -26,6 +26,7 @@ $name        = $name ?? null;
 $valueAttr   = $value ?? null;
 $extraClass  = $extraClass ?? '';
 $aria        = $aria ?? [];
+$id          = $id ?? null;
 
 $variantClass = [
     'primary'   => 'btn-primary',
@@ -49,12 +50,14 @@ foreach ($aria as $k => $v) {
 }
 
 if ($type === 'link') { ?>
-  <a href="<?php echo ui_attr($href); ?>" class="<?php echo ui_attr($cls); ?>" <?php echo $ariaAttrs; ?>>
+  <a <?php if ($id !== null): ?>id="<?php echo ui_attr($id); ?>"<?php endif; ?>
+     href="<?php echo ui_attr($href); ?>" class="<?php echo ui_attr($cls); ?>" <?php echo $ariaAttrs; ?>>
     <?php echo $icon ?? ''; ?>
     <span><?php echo ui_text($label); ?></span>
   </a>
 <?php } else { ?>
   <button type="<?php echo ui_attr($type); ?>"
+          <?php if ($id !== null): ?>id="<?php echo ui_attr($id); ?>"<?php endif; ?>
           class="<?php echo ui_attr($cls); ?>"
           <?php if ($disabled): ?>disabled<?php endif; ?>
           <?php if ($name !== null): ?>name="<?php echo ui_attr($name); ?>"<?php endif; ?>

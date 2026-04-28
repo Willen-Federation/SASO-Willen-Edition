@@ -8,10 +8,31 @@
             'tone'  => 'primary',
         ],
         [
+            'href'  => './barcode/sheet/',
+            'icon'  => 'printer',
+            'label' => __('ui.sidebar.barcode_sheet', [], null, 'Barcode sheet'),
+            'help'  => __('ui.dashboard.barcode_sheet_help', [], null, 'Print a sheet of unique barcodes.'),
+            'tone'  => 'success',
+        ],
+        [
+            'href'  => './shelf/simple/',
+            'icon'  => 'grid',
+            'label' => __('ui.sidebar.shelf_simple', [], null, 'Shelf setup'),
+            'help'  => __('ui.dashboard.shelf_simple_help', [], null, 'Quickly configure shelf ranges.'),
+            'tone'  => 'success',
+        ],
+        [
+            'href'  => './verify/start/',
+            'icon'  => 'check-circle',
+            'label' => __('ui.sidebar.verify', [], null, 'Data verify'),
+            'help'  => __('ui.dashboard.verify_help', [], null, 'Run stocktakes or spot-checks.'),
+            'tone'  => 'primary',
+        ],
+        [
             'href'  => './shelf/start/',
             'icon'  => 'grid',
-            'label' => __('ui.sidebar.shelf_create', [], null, 'Shelf number'),
-            'help'  => __('ui.dashboard.shelf_help', [], null, 'Create or print shelf labels.'),
+            'label' => __('ui.sidebar.shelf_create', [], null, 'Shelf labels'),
+            'help'  => __('ui.dashboard.shelf_help', [], null, 'Detailed shelf management and labels.'),
             'tone'  => 'success',
         ],
         [

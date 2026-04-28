@@ -247,3 +247,22 @@ ui:
     go_to_pending: 保留中のラベルを開く
     requirements_title: マイグレーションの実行が必要です
     requirements_body: 'barcode_pool / barcode_batch / label_sheet_layout / location_map テーブルを作成するため、M6 マイグレーション 20260428120000–20260428120004 を実行してください。'
+  verify:
+    title: データ照合
+    start_title: 照合セッションを開始
+    start_help: 'モードと範囲を選択してから、スキャンを開始します。セッションが active のうちは /verify/{id} で再開できます。'
+    mode: モード
+    area: エリアコード
+    area_help: 特定の棚エリアに限定する場合に指定します。空欄の場合は倉庫全体が対象になります。
+    begin: セッション開始
+    recent: 最近のセッション
+    recent_caption: 直近の照合セッション
+    no_recent: まだ照合セッションが記録されていません。
+    mode.stocktake: 棚卸（全数）
+    mode.spot: 個別照合
+    mcp_title: モバイル / MCP
+    mcp_body: 'モバイル端末は MCP ツール start_verification_session / record_verification_scan / complete_verification_session / get_verification_summary でフロー全体を操作できます。'
+    col:
+      mode: モード
+      started: 開始
+      status: 状態

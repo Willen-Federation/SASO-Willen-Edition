@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Saso\Presentation\Mcp;
 
 use PDO;
+use Saso\Application\Verification\VerificationService;
 use Saso\Domain\MobileConnect\Jwt\JwtService;
 use Saso\Domain\Plugin\Registry\RegistryName;
 use Saso\Infrastructure\Barcode\PdoBarcodeRepository;
@@ -14,11 +15,14 @@ use Saso\Infrastructure\MobileConnect\PdoDeviceTokenRepository;
 use Saso\Infrastructure\Plugin\Registry\InMemoryMcpToolRegistry;
 use Saso\Infrastructure\Search\NullSearchIndex;
 use Saso\Infrastructure\StorageLocation\PdoStorageLocationRepository;
+use Saso\Infrastructure\Verification\PdoVerificationRepository;
 use Saso\Presentation\Mcp\Tool\AssignItemLocationTool;
+use Saso\Presentation\Mcp\Tool\CompleteVerificationSessionTool;
 use Saso\Presentation\Mcp\Tool\DefineAttributeTool;
 use Saso\Presentation\Mcp\Tool\GetItemAttributesTool;
 use Saso\Presentation\Mcp\Tool\GetItemTool;
 use Saso\Presentation\Mcp\Tool\GetStorageLocationTreeTool;
+use Saso\Presentation\Mcp\Tool\GetVerificationSummaryTool;
 use Saso\Presentation\Mcp\Tool\LinkBarcodeToItemTool;
 use Saso\Presentation\Mcp\Tool\ListAttributesTool;
 use Saso\Presentation\Mcp\Tool\ListCategoriesTool;
@@ -27,11 +31,13 @@ use Saso\Presentation\Mcp\Tool\ListStorageLocationsTool;
 use Saso\Presentation\Mcp\Tool\ManageCategoryTool;
 use Saso\Presentation\Mcp\Tool\ManageStorageLocationTool;
 use Saso\Presentation\Mcp\Tool\MintBarcodeBatchTool;
+use Saso\Presentation\Mcp\Tool\RecordVerificationScanTool;
 use Saso\Presentation\Mcp\Tool\RegisterItemTool;
 use Saso\Presentation\Mcp\Tool\ResolveBarcodeTool;
 use Saso\Presentation\Mcp\Tool\SearchItemsTool;
 use Saso\Presentation\Mcp\Tool\SetItemAttributeTool;
 use Saso\Presentation\Mcp\Tool\SetItemStatusTool;
+use Saso\Presentation\Mcp\Tool\StartVerificationSessionTool;
 use Saso\Presentation\Mcp\Tool\UpdateItemTool;
 use Saso\Presentation\Mcp\Tool\VoidBarcodeTool;
 
@@ -115,6 +121,13 @@ final class Bootstrap
         $registry->registerCore(new RegistryName('link_barcode_to_item'),  new LinkBarcodeToItemTool($barcodes));
         $registry->registerCore(new RegistryName('void_barcode'),          new VoidBarcodeTool($barcodes));
         $registry->registerCore(new RegistryName('resolve_barcode'),       new ResolveBarcodeTool($barcodes));
+
+        // Data verification (照合) — M6-J3 Phase 4
+        $verifications = new VerificationService(new PdoVerificationRepository($pdo));
+        $registry->registerCore(new RegistryName('start_verification_session'),    new StartVerificationSessionTool($verifications));
+        $registry->registerCore(new RegistryName('record_verification_scan'),      new RecordVerificationScanTool($verifications));
+        $registry->registerCore(new RegistryName('complete_verification_session'), new CompleteVerificationSessionTool($verifications));
+        $registry->registerCore(new RegistryName('get_verification_summary'),      new GetVerificationSummaryTool($verifications));
 
         $server = new McpServer($registry, $jwt, $tokenRepo);
 

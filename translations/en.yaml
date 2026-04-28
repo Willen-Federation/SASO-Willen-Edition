@@ -264,3 +264,22 @@ ui:
     go_to_pending: Open pending labels
     requirements_title: Required
     requirements_body: 'Run the M6 migrations 20260428120000–20260428120004 to create the barcode_pool, barcode_batch, label_sheet_layout, and location_map tables.'
+  verify:
+    title: Data verification
+    start_title: Start a verification session
+    start_help: 'Pick a mode and a scope, then begin scanning. Sessions can be resumed via /verify/{id} as long as they are still active.'
+    mode: Mode
+    area: Area code
+    area_help: Limit the scope to a specific shelf area. Leave blank for the whole warehouse.
+    begin: Begin session
+    recent: Recent sessions
+    recent_caption: Most recent verification sessions
+    no_recent: No verification sessions have been recorded yet.
+    mode.stocktake: Stocktake (棚卸)
+    mode.spot: Spot verify (個別照合)
+    mcp_title: Mobile / MCP
+    mcp_body: 'Mobile devices can drive the entire flow via the MCP tools start_verification_session, record_verification_scan, complete_verification_session, get_verification_summary.'
+    col:
+      mode: Mode
+      started: Started
+      status: Status

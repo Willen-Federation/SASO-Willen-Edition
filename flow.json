@@ -97,5 +97,8 @@
     },
     "barcode": {
         "start": "\\saso\\barcode\\StartDIContainer"
+    },
+    "verify": {
+        "start": "\\saso\\verify\\StartDIContainer"
     }
 }

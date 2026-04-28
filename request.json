@@ -227,6 +227,12 @@
             "action": "pdf"
         }
     },
+    "verify": {
+        "start": {
+           "matter": "verify",
+           "action": "start"
+        }
+    },
     "shelf": {
         "put": {
             "matter": "feature",

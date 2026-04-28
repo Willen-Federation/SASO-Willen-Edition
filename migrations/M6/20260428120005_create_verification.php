@@ -32,7 +32,7 @@ final class CreateVerification extends AbstractMigration
                 'limit' => 32,
                 'null'  => true,
             ])
-            ->addColumn('scope_location_id', 'biginteger', [
+            ->addColumn('scope_location_id', 'integer', [
                 'signed' => false,
                 'null'   => true,
             ])
@@ -56,7 +56,7 @@ final class CreateVerification extends AbstractMigration
         $this->table('verification_event', [
             'comment' => 'Per-scan event recorded against a verification_session.',
         ])
-            ->addColumn('session_id',   'biginteger', ['signed' => false, 'null' => false])
+            ->addColumn('session_id',   'integer', ['signed' => false, 'null' => false])
             ->addColumn('scanned_code', 'string',     ['limit' => 20, 'null' => false])
             ->addColumn('resolved_kind', 'string', [
                 'limit'   => 16,
@@ -64,8 +64,8 @@ final class CreateVerification extends AbstractMigration
                 'comment' => 'pending | feature | unknown',
             ])
             ->addColumn('resolved_item_id',     'string',     ['limit' => 64, 'null' => true])
-            ->addColumn('expected_location_id', 'biginteger', ['signed' => false, 'null' => true])
-            ->addColumn('actual_location_id',   'biginteger', ['signed' => false, 'null' => true])
+            ->addColumn('expected_location_id', 'integer', ['signed' => false, 'null' => true])
+            ->addColumn('actual_location_id',   'integer', ['signed' => false, 'null' => true])
             ->addColumn('result', 'string', [
                 'limit'   => 24,
                 'null'    => false,

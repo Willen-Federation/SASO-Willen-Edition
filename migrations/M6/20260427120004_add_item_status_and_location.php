@@ -19,14 +19,14 @@ final class AddItemStatusAndLocation extends AbstractMigration
 {
     public function up(): void
     {
-        $this->table('item')
+        $this->table('Item')
             ->addColumn('status', 'string', [
                 'limit'   => 32,
                 'null'    => false,
                 'default' => 'active',
                 'comment' => 'Lifecycle status: active | archived | discontinued | pending.',
             ])
-            ->addColumn('storage_location_id', 'biginteger', [
+            ->addColumn('storage_location_id', 'integer', [
                 'null'    => true,
                 'signed'  => false,
                 'comment' => 'FK → storage_location.id; null = unassigned.',
@@ -43,7 +43,7 @@ final class AddItemStatusAndLocation extends AbstractMigration
 
     public function down(): void
     {
-        $this->table('item')
+        $this->table('Item')
             ->dropForeignKey('storage_location_id')
             ->removeIndex(['storage_location_id'])
             ->removeIndex(['status'])

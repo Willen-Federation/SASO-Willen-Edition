@@ -213,16 +213,6 @@ ui:
     help:
       title: About this screen
       body: 'Provider management is read-only in this release. Use the Phinx migration M4/20260426120002_create_auth_provider.php to seed rows; the create/edit form ships in a follow-up.'
-  dashboard:
-    quick_links: Quick links
-    item_register_help: Add a new SKU to the catalogue.
-    shelf_help: Create or print shelf labels.
-    label_help: Generate barcode labels for items.
-    archive_help: Browse archived items.
-    archive_all_help: Archive every active item in one step.
-    category_help: Manage the category tree.
-    label_size_help: Configure A4 sheet layouts.
-    password_help: Change your sign-in credentials.
   password:
     title: Change password
     subtitle: Save the new password somewhere safe — it cannot be recovered if lost.

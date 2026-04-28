@@ -130,6 +130,84 @@ ui:
     status:
       active: Active
       disabled: Disabled
+    help:
+      title: About this screen
+      body: 'Provider management is read-only in this release. Use the Phinx migration M4/20260426120002_create_auth_provider.php to seed rows; the create/edit form ships in a follow-up.'
+  password:
+    title: Change password
+    subtitle: Save the new password somewhere safe — it cannot be recovered if lost.
+    changed: Password updated successfully.
+    wrong_current: The current password is not correct.
+    help: 'Half-width letters and digits, 8–20 chars.'
+    mismatch: Passwords do not match.
+    field:
+      now: Current password
+      new: New password
+      confirm: Confirm new password
+    submit: Change password
+  category:
+    title: Category tree
+    add_root: Add root category
+    help: 'Add, rename, and reorder categories. Drag is not supported yet — use the controls inline next to each row.'
+    empty: 'Loading…'
+  item:
+    register:
+      title: Register a new product
+      submit: Register product
+    field:
+      name: Product name
+      name_help: Up to 50 characters.
+      name_ph: Cotton T-shirt
+      category: Category
+      selected_category: 'Selected category:'
+      deselect_category: Deselect
+      price: Price
+      price_help: 'Up to 9 digits, comma-separated allowed.'
+      colors: Colors
+      colors_help: Comma-separated for multiple values.
+      sizes: Sizes
+      sizes_help: 'Comma-separated for multiple values. colors × sizes ≤ 100.'
+      packaging: Packaging
+      plastic: Plastic
+      plastic_note: Note (optional)
+      paper: Paper
+      paper_note: Note (optional)
+  not_found:
+    title: Not found
+    body: The page you are looking for does not exist.
+  label_wizard:
+    title: 'Print → Register (label-first)'
+    step1: Pick a label sheet
+    step1_help: Choose the printer sheet you will load. The system reserves codes for that sheet only.
+    step2: Mint & print
+    step2_help: Pick a quantity, then download the PDF and load the printer.
+    count: How many labels?
+    print: 'Mint & download PDF'
+    step3: Attach items
+    step3_help: Scan a printed label and pair it to the new product information.
+    step3_note: 'Pending barcodes are listed under "Pending labels" in the sidebar after minting.'
+    go_to_pending: Open pending labels
+    requirements_title: Required
+    requirements_body: 'Run the M6 migrations 20260428120000–20260428120004 to create the barcode_pool, barcode_batch, label_sheet_layout, and location_map tables.'
+  verify:
+    title: Data verification
+    start_title: Start a verification session
+    start_help: 'Pick a mode and a scope, then begin scanning. Sessions can be resumed via /verify/{id} as long as they are still active.'
+    mode: Mode
+    area: Area code
+    area_help: Limit the scope to a specific shelf area. Leave blank for the whole warehouse.
+    begin: Begin session
+    recent: Recent sessions
+    recent_caption: Most recent verification sessions
+    no_recent: No verification sessions have been recorded yet.
+    mode.stocktake: Stocktake (棚卸)
+    mode.spot: Spot verify (個別照合)
+    mcp_title: Mobile / MCP
+    mcp_body: 'Mobile devices can drive the entire flow via the MCP tools start_verification_session, record_verification_scan, complete_verification_session, get_verification_summary.'
+    col:
+      mode: Mode
+      started: Started
+      status: Status
   feature_flags:
     title: Feature Flags
     refresh: Refresh

@@ -133,10 +133,10 @@ final class CreateLabelSheetLayout extends AbstractMigration
 
         $now = (new DateTimeImmutable('now'))->format('Y-m-d H:i:s');
         $insert = $this->getAdapter()->getConnection()->prepare(
-            'INSERT INTO `label_sheet_layout` '
-            .'(`code`, `vendor`, `product_name_en`, `product_name_ja`, `paper_size`, `columns`, `rows`, '
-            .' `label_width_mm`, `label_height_mm`, `margin_top_mm`, `margin_left_mm`, `gap_x_mm`, `gap_y_mm`, '
-            .' `corner_radius_mm`, `is_active`, `is_seeded`, `is_verified`, `created_at`, `updated_at`)'
+            'INSERT INTO label_sheet_layout '
+            .'(code, vendor, product_name_en, product_name_ja, paper_size,  `columns`, `rows`, '
+            .' label_width_mm, label_height_mm, margin_top_mm, margin_left_mm, gap_x_mm, gap_y_mm, '
+            .' corner_radius_mm, is_active, is_seeded, is_verified, created_at, updated_at)'
             .' VALUES (:code, :vendor, :pen, :pja, :psize, :cols, :rows, '
             .'         :w, :h, :mt, :ml, :gx, :gy, :cr, :active, :seeded, :verified, :ca, :ua)'
         );

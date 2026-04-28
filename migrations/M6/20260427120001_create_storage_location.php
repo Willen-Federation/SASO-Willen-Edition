@@ -24,18 +24,17 @@ final class CreateStorageLocation extends AbstractMigration
     public function up(): void
     {
         $this->table('storage_location', [
-            'id'           => false,
-            'primary_key'  => 'id',
-            'engine'       => 'InnoDB',
-            'collation'    => 'utf8mb4_unicode_ci',
-            'comment'      => 'Hierarchical storage locations with deterministic codes (ADR 0011).',
+            'id'        => false,
+            'primary_key' => ['id'],
+            'engine'    => 'InnoDB',
+            'collation' => 'utf8mb4_unicode_ci',
+            'comment'   => 'Hierarchical storage locations with deterministic codes (ADR 0011).',
         ])
-            ->addColumn('id', 'biginteger', [
-                'signed'   => false,
-                'null'     => false,
+            ->addColumn('id', 'integer', [
+                'signed' => false,
                 'identity' => true,
             ])
-            ->addColumn('parent_id', 'biginteger', [
+            ->addColumn('parent_id', 'integer', [
                 'signed'  => false,
                 'null'    => true,
                 'comment' => 'Self-FK; NULL for root nodes.',

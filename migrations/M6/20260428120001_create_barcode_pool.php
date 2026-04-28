@@ -32,7 +32,7 @@ final class CreateBarcodePool extends AbstractMigration
                 'default' => 'pending',
                 'comment' => 'pending | linked | voided',
             ])
-            ->addColumn('batch_id', 'biginteger', [
+            ->addColumn('batch_id', 'integer', [
                 'signed' => false,
                 'null'   => false,
             ])

@@ -170,3 +170,31 @@ ui:
     switch_to_dark: Switch to dark mode
     switch_to_light: Switch to light mode
     lang_switcher: Change language
+  auth:
+    login_title: Sign in
+    login_subtitle: Use your credentials or sign in with an external identity provider.
+    invalid_credentials: ID or password is incorrect.
+    sign_in_with: 'Sign in with {name}'
+    or_local: or
+    field:
+      id: Login ID
+      password: Password
+    submit: Sign in
+  auth_providers:
+    title: Authentication providers
+    add: Add provider
+    forbidden_title: Admin access required
+    forbidden_body: Sign in as a user with role=admin to manage authentication providers.
+    table_caption: Configured authentication providers
+    empty: No providers configured. Add Auth0, Cognito, Firebase, generic OIDC, or SAML.
+    col:
+      flavor: Type
+      name: Name
+      issuer: Issuer / Metadata
+      status: Status
+    status:
+      active: Active
+      disabled: Disabled
+    help:
+      title: About this screen
+      body: 'Provider management is read-only in this release. Use the Phinx migration M4/20260426120002_create_auth_provider.php to seed rows; the create/edit form ships in a follow-up.'

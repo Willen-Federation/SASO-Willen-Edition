@@ -153,3 +153,31 @@ ui:
     switch_to_dark: ダークモードに切り替え
     switch_to_light: ライトモードに切り替え
     lang_switcher: 言語を切り替え
+  auth:
+    login_title: サインイン
+    login_subtitle: 通常のID/パスワード、または外部IDプロバイダでサインインできます。
+    invalid_credentials: ID またはパスワードが正しくありません。
+    sign_in_with: '{name} でサインイン'
+    or_local: または
+    field:
+      id: ログインID
+      password: パスワード
+    submit: ログイン
+  auth_providers:
+    title: 認証プロバイダ
+    add: プロバイダを追加
+    forbidden_title: 管理者権限が必要です
+    forbidden_body: 認証プロバイダを管理するには role=admin のユーザーでサインインしてください。
+    table_caption: 設定済みの認証プロバイダ
+    empty: プロバイダが未登録です。Auth0 / Cognito / Firebase / 汎用OIDC / SAML を追加してください。
+    col:
+      flavor: 種別
+      name: 名前
+      issuer: Issuer / Metadata
+      status: 状態
+    status:
+      active: 有効
+      disabled: 無効
+    help:
+      title: この画面について
+      body: '本リリースでは閲覧専用です。Phinx マイグレーション M4/20260426120002_create_auth_provider.php で行を投入してください。作成/編集フォームは次リリースで提供します。'

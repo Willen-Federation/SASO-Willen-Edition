@@ -12,6 +12,9 @@
         "logout": "\\saso\\auth\\LogoutDIContainer",
         "password": "\\saso\\auth\\PasswordDIContainer"
     },
+    "authExt": {
+        "providers": "\\saso\\authExt\\ProvidersDIContainer"
+    },
     "image": {
         "start": "\\saso\\image\\StartDIContainer",
         "add": "\\saso\\image\\AddDIContainer",

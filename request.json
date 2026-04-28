@@ -3,6 +3,10 @@
         "start": {
            "matter": "auth",
            "action": "start"
+        },
+        "providers": {
+           "matter": "authExt",
+           "action": "providers"
         }
     },
     "js": {

@@ -99,6 +99,83 @@ if (class_exists(\Saso\Infrastructure\Translation\TranslatorFactory::class)) {
     $translator->setLocale($resolvedLocale);
 }
 
+// --- M4-D2 external auth endpoints ------------------------------------------
+// /auth/start/{providerId}   → redirect to IdP authorize endpoint
+// /auth/callback/{providerId} → handle IdP callback, set session, return to home
+// /auth/saml/acs/{providerId} → SAML AssertionConsumerService POST
+// /auth/saml/sls/{providerId} → SAML SingleLogoutService
+// All of these are wired via the LoginOrchestrator. They short-circuit the
+// legacy router so the path tail (provider id) does not have to be encoded
+// into request.json. Schema mismatches (M4 not migrated, no APP_KEY, etc.)
+// fall through to the login screen with `?error=auth_unavailable`.
+if (preg_match('#^/auth/(?:start|callback|saml/acs|saml/sls)/(\d+)/?$#', $requestPath, $authMatch) === 1) {
+    $authAction    = preg_match('#^/auth/start/#', $requestPath) === 1 ? 'start'
+        : (preg_match('#^/auth/callback/#', $requestPath) === 1 ? 'callback'
+        : (preg_match('#^/auth/saml/acs/#', $requestPath) === 1 ? 'acs' : 'sls'));
+    $providerIdInt = (int) $authMatch[1];
+
+    try {
+        $appKey = (string) (getenv('APP_KEY') ?: '');
+        if ($appKey === '') {
+            throw new RuntimeException('APP_KEY is not set; cannot bring up auth providers.');
+        }
+        $rawKey = base64_decode($appKey, true);
+        if ($rawKey === false || strlen($rawKey) !== 32) {
+            throw new RuntimeException('APP_KEY must be a base64-encoded 32-byte value.');
+        }
+
+        $pdo        = \saso\repository\DBConnection::getPdo();
+        $encryptor  = new \Saso\Infrastructure\Auth\Crypto\SecretEncryptor($rawKey);
+        $providers  = new \Saso\Infrastructure\Auth\Repository\PdoAuthProviderRepository($pdo, $encryptor);
+        $extIds     = new \Saso\Infrastructure\Auth\Repository\PdoExternalIdentityRepository($pdo);
+        $baseScheme = $onHttps ? 'https://' : 'http://';
+        $baseUrl    = $baseScheme.($_SERVER['HTTP_HOST'] ?? 'localhost').rtrim((string) ($config['programDir'] ?? ''), '/');
+        $factory    = new \Saso\Infrastructure\Auth\AuthProviderFactory($providers, $pdo, $baseUrl);
+        $orch       = new \Saso\Application\Auth\LoginOrchestrator($factory, $extIds, $pdo);
+        $providerId = new \Saso\Domain\Auth\AuthProviderId($providerIdInt);
+
+        if ($authAction === 'start') {
+            $returnTo = (string) ($_GET['return'] ?? './');
+            if (preg_match('#^/[^/\\\\]#', $returnTo) !== 1) {
+                $returnTo = './';
+            }
+            $redirect = $orch->beginLogin($providerId, $returnTo);
+            header('Location: '.$redirect->url, true, $redirect->status);
+            exit;
+        }
+
+        // callback / acs / sls
+        $callback = new \Saso\Domain\Auth\CallbackRequest(
+            method:  $_SERVER['REQUEST_METHOD'] ?? 'GET',
+            uri:     (string) ($_SERVER['REQUEST_URI'] ?? ''),
+            query:   array_map('strval', $_GET),
+            body:    array_map('strval', $_POST),
+            headers: [],
+        );
+
+        if ($authAction === 'sls') {
+            $logoutRedirect = $orch->beginLogout('./');
+            $_SESSION = [];
+            session_destroy();
+            header('Location: '.($logoutRedirect?->url ?? './'), true, 303);
+            exit;
+        }
+
+        $returnTo = $orch->handleCallback($providerId, $callback);
+        header('Location: '.$returnTo, true, 303);
+        exit;
+    } catch (\Throwable $e) {
+        // Log to whatever Monolog channel is reachable; rendering the raw
+        // message would expose state to the user. Hand off to the legacy
+        // login form with a generic error.
+        if (function_exists('error_log')) {
+            error_log('[saso-auth] '.$e->getMessage());
+        }
+        header('Location: ./auth/start?error=auth_unavailable', true, 303);
+        exit;
+    }
+}
+
 // --- Language switcher endpoint (POST /locale/set/{lc}) ---------------------
 // Writes the saso_locale cookie and 303-redirects back. Lives outside the
 // legacy router because it has to short-circuit before any auth gating —

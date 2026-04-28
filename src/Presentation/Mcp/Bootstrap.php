@@ -10,6 +10,7 @@ use Saso\Domain\MobileConnect\Jwt\JwtService;
 use Saso\Domain\Plugin\Registry\RegistryName;
 use Saso\Infrastructure\Barcode\PdoBarcodeRepository;
 use Saso\Infrastructure\Category\PdoCategoryRepository;
+use Saso\Infrastructure\FeatureFlag\PdoFeatureFlagRepository;
 use Saso\Infrastructure\Item\Attribute\PdoAttributeDefinitionRepository;
 use Saso\Infrastructure\MobileConnect\PdoDeviceTokenRepository;
 use Saso\Infrastructure\Plugin\Registry\InMemoryMcpToolRegistry;
@@ -26,6 +27,7 @@ use Saso\Presentation\Mcp\Tool\GetVerificationSummaryTool;
 use Saso\Presentation\Mcp\Tool\LinkBarcodeToItemTool;
 use Saso\Presentation\Mcp\Tool\ListAttributesTool;
 use Saso\Presentation\Mcp\Tool\ListCategoriesTool;
+use Saso\Presentation\Mcp\Tool\ListFeatureFlagsTool;
 use Saso\Presentation\Mcp\Tool\ListPendingBarcodesTool;
 use Saso\Presentation\Mcp\Tool\ListStorageLocationsTool;
 use Saso\Presentation\Mcp\Tool\ManageCategoryTool;
@@ -38,6 +40,7 @@ use Saso\Presentation\Mcp\Tool\SearchItemsTool;
 use Saso\Presentation\Mcp\Tool\SetItemAttributeTool;
 use Saso\Presentation\Mcp\Tool\SetItemStatusTool;
 use Saso\Presentation\Mcp\Tool\StartVerificationSessionTool;
+use Saso\Presentation\Mcp\Tool\UpdateFeatureFlagTool;
 use Saso\Presentation\Mcp\Tool\UpdateItemTool;
 use Saso\Presentation\Mcp\Tool\VoidBarcodeTool;
 
@@ -128,6 +131,11 @@ final class Bootstrap
         $registry->registerCore(new RegistryName('record_verification_scan'),      new RecordVerificationScanTool($verifications));
         $registry->registerCore(new RegistryName('complete_verification_session'), new CompleteVerificationSessionTool($verifications));
         $registry->registerCore(new RegistryName('get_verification_summary'),      new GetVerificationSummaryTool($verifications));
+
+        // Feature flags — M6-J3 Phase 5
+        $flags = new PdoFeatureFlagRepository($pdo);
+        $registry->registerCore(new RegistryName('list_feature_flags'),  new ListFeatureFlagsTool($flags));
+        $registry->registerCore(new RegistryName('update_feature_flag'), new UpdateFeatureFlagTool($flags));
 
         $server = new McpServer($registry, $jwt, $tokenRepo);
 

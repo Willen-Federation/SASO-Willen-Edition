@@ -233,6 +233,12 @@
            "action": "start"
         }
     },
+    "admin": {
+        "feature-flags": {
+           "matter": "featureAdmin",
+           "action": "list"
+        }
+    },
     "shelf": {
         "put": {
             "matter": "feature",

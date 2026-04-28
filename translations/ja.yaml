@@ -266,3 +266,22 @@ ui:
       mode: モード
       started: 開始
       status: 状態
+  feature_flags:
+    title: フィーチャーフラグ
+    refresh: 再読込
+    forbidden_title: 管理者権限が必要です
+    forbidden_body: フィーチャーフラグを管理するには role=admin のユーザーでサインインしてください。
+    table_caption: 登録済みのフィーチャーフラグ
+    empty: フラグが未登録です。M4 の feature_flag マイグレーションを実行し、REST API でシードしてください。
+    col:
+      key: キー
+      description: 説明
+      rollout: ロールアウト
+      status: 状態
+    status:
+      active: 有効
+      disabled: 無効
+      tripped: ブレーカ作動中
+    help:
+      title: 更新方法
+      body: 'REST API /api/v1/feature-flags もしくは MCP ツール list_feature_flags / update_feature_flag で切替できます。インライン編集画面は次リリースで提供します。'

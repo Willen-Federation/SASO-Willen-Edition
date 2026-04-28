@@ -283,3 +283,22 @@ ui:
       mode: Mode
       started: Started
       status: Status
+  feature_flags:
+    title: Feature flags
+    refresh: Refresh
+    forbidden_title: Admin access required
+    forbidden_body: Sign in as a user with role=admin to manage feature flags.
+    table_caption: Configured feature flags
+    empty: No flags registered. Run the M4 feature_flag migration and seed via the REST API.
+    col:
+      key: Key
+      description: Description
+      rollout: Rollout
+      status: Status
+    status:
+      active: Active
+      disabled: Disabled
+      tripped: Breaker tripped
+    help:
+      title: How to update
+      body: 'Toggle flags via the REST API at /api/v1/feature-flags or the MCP tools list_feature_flags / update_feature_flag. The full inline edit screen ships in a follow-up.'

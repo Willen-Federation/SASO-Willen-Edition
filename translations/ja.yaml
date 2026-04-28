@@ -110,11 +110,26 @@ ui:
     flags: フィーチャーフラグ
     auth_providers: 認証プロバイダ
     password: パスワード
+    barcode_sheet: バーコードシート
+    shelf_simple: 棚番設定
     group:
       main: メイン
       inventory: 在庫
       label: ラベル
       admin: 管理
+  dashboard:
+    quick_links: クイックリンク
+    item_register_help: 新しい商品をカタログに追加します。
+    barcode_sheet_help: ユニークなバーコードのシートを印刷します。
+    shelf_simple_help: 棚番の範囲を素早く設定します。
+    verify_help: 棚卸や個別照合を実行します。
+    shelf_help: 詳細な棚番管理とシール印刷を行います。
+    label_help: 商品用のバーコードラベルを生成します。
+    archive_help: アーカイブされた商品を閲覧します。
+    archive_all_help: すべてのアクティブな商品を一括でアーカイブします。
+    category_help: 分類ツリーを管理します。
+    label_size_help: A4ラベルシートのレイアウトを構成します。
+    password_help: サインイン用のパスワードを変更します。
   nav:
     home: ホーム
   button:

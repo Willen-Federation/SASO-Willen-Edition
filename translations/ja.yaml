@@ -83,3 +83,73 @@ error:
   SASO-INFRA-9004:
     title: 許可されていないメソッドです
     detail: このエンドポイントでは要求された HTTP メソッドはサポートされていません。
+
+# =============================================================================
+# UI namespace (M6-J3) — TailAdmin シェルとコンポーネントの日本語訳。
+# キー構成は en.yaml と同一。
+# =============================================================================
+
+ui:
+  app:
+    title: 'SASO {version}'
+  sidebar:
+    home: ホーム
+    label_first: 印刷 → 登録
+    item: 商品
+    item_register: 商品登録
+    item_archive: アーカイブ一覧
+    item_archiveAll: 一括アーカイブ
+    shelf: 棚
+    shelf_create: 棚番作成
+    shelf_map: 棚マップ
+    verify: データ照合
+    label: ラベル
+    label_print: 印刷
+    label_size: サイズ管理
+    category: 分類管理
+    flags: フィーチャーフラグ
+    auth_providers: 認証プロバイダ
+    password: パスワード
+    group:
+      main: メイン
+      inventory: 在庫
+      label: ラベル
+      admin: 管理
+  nav:
+    home: ホーム
+  button:
+    save: 保存
+    cancel: キャンセル
+    delete: 削除
+    submit: 送信
+    back: 戻る
+    close: 閉じる
+    dismiss: 閉じる
+    edit: 編集
+  user_menu:
+    change_password: パスワード変更
+    logout: ログアウト
+  installer:
+    unfinished: 'まだインストールが済んでいないなら、「'
+    link: installer/start
+    unfinished_tail: '」にアクセスしてください。すでにインストール済みなら、フォルダ「installer」を削除してください。'
+  footer:
+    copyright: '© {year} SASO — Willen Edition'
+    version: 'バージョン {version}'
+  pagination:
+    summary: 'ページ {current} / {last}'
+    prev: 前へ
+    next: 次へ
+  table:
+    empty: 'データがありません'
+  a11y:
+    skip_to_main: メインコンテンツへスキップ
+    sidebar: メイン
+    main_nav: メインナビゲーション
+    breadcrumb: パンくずリスト
+    pagination: ページネーション
+    tabs: タブ
+    toggle_sidebar: サイドバーの開閉
+    switch_to_dark: ダークモードに切り替え
+    switch_to_light: ライトモードに切り替え
+    lang_switcher: 言語を切り替え

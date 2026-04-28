@@ -1,0 +1,7 @@
+{
+  "_comment": "Routes that pa11y scans for WCAG2AA violations. Add a route here as soon as it is converted to TailAdmin so regressions are caught in CI. Each path is appended to PA11Y_BASE_URL (default http://localhost:8080) by `make pa11y`.",
+  "routes": [
+    "/",
+    "/auth/start"
+  ]
+}

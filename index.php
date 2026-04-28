@@ -79,6 +79,55 @@ session_set_cookie_params([
 ]);
 session_start();
 
+// --- M6-J3 i18n bootstrap (legacy path) -------------------------------------
+// Bind the translator before the legacy router runs so views can call __().
+// Locale precedence: ?lang= (explicit override) > saso_locale cookie >
+// Accept-Language > default. The cookie is written by the language-switcher
+// POST endpoint at /locale/set/{lc}; see authentication-agnostic short-circuit
+// below.
+if (class_exists(\Saso\Infrastructure\Translation\TranslatorFactory::class)) {
+    $translator = \Saso\Infrastructure\Translation\TranslatorFactory::create();
+    \Saso\Infrastructure\Translation\TranslatorRegistry::set($translator);
+
+    $localeResolver = new \Saso\Presentation\Http\I18n\LocaleResolver();
+    $resolvedLocale = $localeResolver->resolve(
+        queryLang:      isset($_GET['lang'])     ? (string) $_GET['lang']     : null,
+        memberLocale:   $_SESSION['locale']      ?? null,
+        acceptLanguage: $_SERVER['HTTP_ACCEPT_LANGUAGE'] ?? null,
+        cookieLocale:   $_COOKIE['saso_locale']  ?? null,
+    );
+    $translator->setLocale($resolvedLocale);
+}
+
+// --- Language switcher endpoint (POST /locale/set/{lc}) ---------------------
+// Writes the saso_locale cookie and 303-redirects back. Lives outside the
+// legacy router because it has to short-circuit before any auth gating —
+// the switcher is reachable from the login screen too.
+if (preg_match('#^/locale/set/([a-z]{2})/?$#', $requestPath, $m)) {
+    if (($_SERVER['REQUEST_METHOD'] ?? 'GET') !== 'POST') {
+        http_response_code(405);
+        header('Allow: POST');
+        exit;
+    }
+    $newLocale = $m[1];
+    if (in_array($newLocale, ['en', 'ja'], true)) {
+        setcookie('saso_locale', $newLocale, [
+            'expires'  => time() + 365 * 86400,
+            'path'     => '/',
+            'secure'   => !empty($config['https']),
+            'httponly' => false,  // readable by JS for client-side i18n
+            'samesite' => 'Lax',
+        ]);
+    }
+    $return = (string) ($_POST['return'] ?? $_SERVER['HTTP_REFERER'] ?? '/');
+    // Defend against open-redirect: only allow same-origin paths.
+    if (!preg_match('#^/[^/\\\\]#', $return)) {
+        $return = '/';
+    }
+    header('Location: ' . $return, true, 303);
+    exit;
+}
+
 $authed = isset($_SESSION['id']) && $_SESSION['time'] + 3600 > time();
 if($authed){
     $_SESSION['time'] = time();

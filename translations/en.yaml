@@ -86,3 +86,87 @@ error:
   SASO-INFRA-9004:
     title: Method not allowed
     detail: 'The requested HTTP method is not supported on this endpoint.'
+
+# =============================================================================
+# UI namespace (M6-J3) — strings used by the TailAdmin shell, components, and
+# page-level UI labels. Naming convention:
+#   ui.app.*           — application-level chrome
+#   ui.sidebar.*       — sidebar item labels (and group titles under .group.*)
+#   ui.nav.*           — navigation/breadcrumb fragments
+#   ui.button.*        — common button verbs (save / cancel / delete / ...)
+#   ui.form.<feat>.*   — form labels per feature
+#   ui.table.<feat>.*  — table headers per feature
+#   ui.a11y.*          — strings used solely as aria-label / sr-only text
+#   ui.flash.*         — toast / banner copy
+#   ui.empty.<feat>    — empty-state placeholders
+#   ui.confirm.*       — destructive-action confirmation prompts
+#   ui.user_menu.*     — header user-menu items
+#   ui.installer.*     — installer warning banner copy
+#   ui.footer.*        — footer copy
+#   ui.pagination.*    — pagination controls
+# =============================================================================
+
+ui:
+  app:
+    title: 'SASO {version}'
+  sidebar:
+    home: Home
+    label_first: Print → Register
+    item: Items
+    item_register: Register
+    item_archive: Archive list
+    item_archiveAll: Archive all
+    shelf: Shelves
+    shelf_create: Create
+    shelf_map: Map
+    verify: Verification
+    label: Label
+    label_print: Print
+    label_size: Sizes
+    category: Categories
+    flags: Feature flags
+    auth_providers: Auth providers
+    password: Password
+    group:
+      main: Main
+      inventory: Inventory
+      label: Labels
+      admin: Administration
+  nav:
+    home: Home
+  button:
+    save: Save
+    cancel: Cancel
+    delete: Delete
+    submit: Submit
+    back: Back
+    close: Close
+    dismiss: Dismiss
+    edit: Edit
+  user_menu:
+    change_password: Change password
+    logout: Sign out
+  installer:
+    unfinished: 'Installation has not been completed yet — open '
+    link: installer/start
+    unfinished_tail: '. If installation is already done, delete the "installer" directory.'
+  footer:
+    copyright: '© {year} SASO — Willen Edition'
+    version: 'Version {version}'
+  pagination:
+    summary: 'Page {current} / {last}'
+    prev: Prev
+    next: Next
+  table:
+    empty: 'No records'
+  a11y:
+    skip_to_main: Skip to main content
+    sidebar: Primary
+    main_nav: Main navigation
+    breadcrumb: Breadcrumb
+    pagination: Pagination
+    tabs: Tabs
+    toggle_sidebar: Toggle sidebar
+    switch_to_dark: Switch to dark mode
+    switch_to_light: Switch to light mode
+    lang_switcher: Change language

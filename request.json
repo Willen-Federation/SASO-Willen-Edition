@@ -268,18 +268,43 @@
         "passkeyDelete": { "matter": "mypage", "action": "passkeyDelete" }
     },
     "admin": {
-        "feature-flags":  { "matter": "admin", "action": "feature-flags" },
-        "aiSettings":     { "matter": "admin", "action": "aiSettings" },
-        "auth-providers": { "matter": "admin", "action": "auth-providers" }
+        "feature-flags": {
+           "matter": "featureAdmin",
+           "action": "list"
+        },
+        "auth-providers": {
+           "matter": "admin",
+           "action": "auth-providers"
+        }
     },
-    "verify": {
-        "start":  { "matter": "verify", "action": "start" },
-        "create": { "matter": "verify", "action": "create" }
-    },
-    "featureAdmin": {
-        "list": { "matter": "featureAdmin", "action": "list" }
-    },
-    "search": {
-        "start": { "matter": "search", "action": "start" }
+    "shelf": {
+        "put": {
+            "matter": "feature",
+            "action": "shelf"
+        },
+        "start": {
+            "matter": "shelf",
+            "action": "menu"
+        },
+        "map": {
+            "matter": "shelf",
+            "action": "menu"
+        },
+        "simple": {
+            "matter": "shelf",
+            "action": "simple"
+        },
+        "multi": {
+            "matter": "shelf",
+            "action": "multi"
+        },
+        "single": {
+            "matter": "shelf",
+            "action": "single"
+        },
+        "outputPdf": {
+            "matter": "shelf",
+            "action": "pdf"
+        }
     }
 }

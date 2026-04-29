@@ -85,7 +85,83 @@ error:
     title: 許可されていないメソッドです
     detail: このエンドポイントでは要求された HTTP メソッドはサポートされていません。
 ui:
+  app:
+    title: 'SASO {version}'
+  sidebar:
+    home: ホーム
+    label_first: 印刷 → 登録
+    item: 商品
+    item_register: 商品登録
+    item_archive: アーカイブ一覧
+    item_archiveAll: 一括アーカイブ
+    shelf: 棚
+    shelf_create: 棚番作成
+    shelf_map: 棚マップ
+    verify: データ照合
+    label: ラベル
+    label_print: 印刷
+    label_size: サイズ管理
+    category: 分類管理
+    flags: フィーチャーフラグ
+    auth_providers: 認証プロバイダ
+    password: パスワード
+    barcode_sheet: バーコードシート
+    shelf_simple: 棚番設定
+    group:
+      main: メイン
+      inventory: 在庫管理
+      label: ラベル作成
+      master: マスタ管理
+      system: システム設定
+      admin: 管理
+  dashboard:
+    quick_links: クイックリンク
+    item_register_help: 新しい商品をカタログに追加します。
+    barcode_sheet_help: ユニークなバーコードのシートを印刷します。
+    shelf_simple_help: 棚番の範囲を素早く設定します。
+    verify_help: 棚卸や個別照合を実行します。
+    shelf_help: 詳細な棚番管理とシール印刷を行います。
+    label_help: 商品用のバーコードラベルを生成します。
+    archive_help: アーカイブされた商品を閲覧します。
+    archive_all_help: すべてのアクティブな商品を一括でアーカイブします。
+    category_help: 分類ツリーを管理します。
+    label_size_help: A4ラベルシートのレイアウトを構成します。
+    password_help: サインイン用のパスワードを変更します。
+  header:
+    search_placeholder: 商品を検索...
+  nav:
+    home: ホーム
+  button:
+    save: 保存
+    cancel: キャンセル
+    delete: 削除
+    submit: 送信
+    back: 戻る
+    close: 閉じる
+    dismiss: 閉じる
+    edit: 編集
+  user_menu:
+    change_password: パスワード変更
+    logout: ログアウト
+  installer:
+    unfinished: 'まだインストールが済んでいないなら、「'
+    link: installer/start
+    unfinished_tail: '」にアクセスしてください。すでにインストール済みなら、フォルダ「installer」を削除してください。'
+  footer:
+    copyright: '© {year} SASO — Willen Edition'
+    version: 'バージョン {version}'
+  pagination:
+    summary: 'ページ {current} / {last}'
+    prev: 前へ
+    next: 次へ
+  table:
+    empty: 'データがありません'
   a11y:
+    skip_to_main: メインコンテンツへスキップ
+    search: 検索
+    sidebar: メイン
+    main_nav: メインナビゲーション
+    breadcrumb: パンくずリスト
     pagination: ページネーション
     tabs: タブ
   button:

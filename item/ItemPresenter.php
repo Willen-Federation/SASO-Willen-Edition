@@ -15,10 +15,9 @@ final class ItemPresenter implements Presenter
     }
     public function complete(Either $output): View
     {
-        return $output->flatMap(
+        $result = $output->flatMap(
             $this->success->item(fn($v)=>$v)
-        )->flatMap(
-            fn($v)=>$this->success
-        )->getOrElse($this->failure);
+        );
+        return $result->isRight() ? $this->success : $this->failure;
     }
 }

@@ -28,6 +28,25 @@
       </h1>
     </div>
 
+    <!-- Search bar (desktop) -->
+    <?php if ($authed): ?>
+      <div class="hidden grow justify-center px-4 sm:flex lg:px-6">
+        <div class="w-full max-w-md">
+          <label for="header-search" class="sr-only"><?php echo ui_text(__('ui.a11y.search', [], null, 'Search')); ?></label>
+          <div class="relative">
+            <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+              <?php ui('iconHeroicon', ['name' => 'search', 'class' => 'h-5 w-5 text-gray-400']); ?>
+            </div>
+            <input id="header-search"
+                   type="search"
+                   class="block w-full rounded-xl border border-gray-200 bg-gray-50 py-2 pl-10 pr-3 text-sm text-gray-900 placeholder-gray-500 focus:border-brand-500 focus:bg-white focus:outline-none focus:ring-1 focus:ring-brand-500 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 dark:placeholder-gray-400 dark:focus:border-brand-400"
+                   placeholder="<?php echo ui_attr(__('ui.header.search_placeholder', [], null, 'Search items...')); ?>"
+                   onkeypress="if(event.key === 'Enter') { location.href = './start/start/search/' + encodeURI(this.value.replace(/\//g, '')); }">
+          </div>
+        </div>
+      </div>
+    <?php endif; ?>
+
     <!-- Right controls -->
     <div class="flex items-center gap-2">
       <!-- Theme toggle -->

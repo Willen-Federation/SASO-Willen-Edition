@@ -1,28 +1,26 @@
 <?php
-namespace saso\installer;
+namespace saso\label;
 
-use saso\entity\Member;
 use saso\framework\DTO;
 use saso\framework\OutputForSingleEntity;
 use saso\framework\Presenter;
 use saso\framework\Usecase;
+use saso\repository\label\FindAllSheetLayouts;
+use saso\repository\Finder;
 use saso\util\monad\Either;
 
-final class InstallUsecase implements Usecase
+final class WizardUsecase implements Usecase
 {
     use OutputForSingleEntity;
     private Either $output;
+
     public function __construct(
+        private Finder $finder,
         private Presenter $presenter,
-    )
-    {
-    }
+    ) {}
+
     public function handle(DTO $data): void
     {
-        $this->output = $data->id->flatMap(
-            fn($v)=>$data->name->flatMap(
-            fn($n)=>$data->password->flatMap(
-            fn($p)=>new Member($v, $n, $p)
-        )));
+        $this->output = $this->finder->generate(new FindAllSheetLayouts());
     }
 }

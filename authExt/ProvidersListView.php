@@ -19,6 +19,7 @@ final class ProvidersListView implements View
     /** @var list<array{id:int,name:string,type:string,flavor:string,enabled:bool,is_default:bool,issuer:?string}> */
     public array $providers = [];
     public bool $authorized = false;
+    public string $title = '';
 
     public function __construct()
     {

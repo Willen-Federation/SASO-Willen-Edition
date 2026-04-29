@@ -6,6 +6,7 @@ namespace Saso\Presentation\Api\V1;
 
 use PDO;
 use Saso\Domain\MobileConnect\Jwt\JwtService;
+use Saso\Infrastructure\Barcode\PdoBarcodeRepository;
 use Saso\Infrastructure\FeatureFlag\PdoFeatureFlagRepository;
 use Saso\Infrastructure\Logging\MonologFactory;
 use Saso\Infrastructure\MobileConnect\PdoDeviceTokenRepository;
@@ -13,6 +14,7 @@ use Saso\Infrastructure\MobileConnect\PdoPairingCodeRepository;
 use Saso\Infrastructure\MobileConnect\QrCodeRenderer;
 use Saso\Infrastructure\Translation\TranslatorFactory;
 use Saso\Infrastructure\Translation\TranslatorRegistry;
+use Saso\Presentation\Api\V1\Controller\Barcode\BarcodeGetController;
 use Saso\Presentation\Api\V1\Controller\FeatureFlag\FeatureFlagCreateController;
 use Saso\Presentation\Api\V1\Controller\FeatureFlag\FeatureFlagDeleteController;
 use Saso\Presentation\Api\V1\Controller\FeatureFlag\FeatureFlagGetController;
@@ -97,6 +99,9 @@ final class Bootstrap
         $tokenRevoke  = new TokenRevokeController($tokenRepo);
         $tokenRefresh = new TokenRefreshController($tokenRepo, $jwt);
 
+        $barcodeRepo = new PdoBarcodeRepository($pdo);
+        $barcodeGet  = new BarcodeGetController($barcodeRepo);
+
         return [
             'getHealth'       => [$health, 'handle'],
             'getOpenApiSpec'  => [$openApi, 'yaml'],
@@ -114,6 +119,8 @@ final class Bootstrap
             'getMobileConfig'   => [$configBundle, 'handle'],
             'listDeviceTokens'  => [$tokenList, 'handle'],
             'revokeDeviceToken' => [$tokenRevoke, 'handle'],
+
+            'getBarcode'        => [$barcodeGet, 'handle'],
         ];
     }
 

@@ -23,16 +23,22 @@
           $rows = [];
           foreach ($v->providers as $p) {
               $statusBadge = $p['enabled']
-                  ? '<span class="ta-badge ta-badge-success">'.ui_text(__('ui.auth_providers.status.active', [], null, 'Active')).'</span>'
-                  : '<span class="ta-badge ta-badge-gray">'.ui_text(__('ui.auth_providers.status.disabled', [], null, 'Disabled')).'</span>';
+                  ? '<span class="badge badge-success">'.ui_text(__('ui.auth_providers.status.active', [], null, 'Active')).'</span>'
+                  : '<span class="badge bg-gray-2 dark:bg-meta-4 text-black dark:text-white">'.ui_text(__('ui.auth_providers.status.disabled', [], null, 'Disabled')).'</span>';
               $defaultMark = $p['is_default']
-                  ? '<span class="ml-1 text-warning-500" aria-label="default">★</span>'
+                  ? '<span class="ml-1 text-warning" aria-label="default">★</span>'
                   : '';
+              $editUrl   = './auth/provider/edit/' . $p['id'];
+              $deleteUrl = './auth/provider/delete/' . $p['id'];
+              $editLink = '<a href="'.ui_attr($editUrl).'" class="text-primary hover:underline text-sm">'.ui_text(__('ui.auth_providers.edit', [], null, 'Edit')).'</a>';
+              $deleteLink = '<a href="'.ui_attr($deleteUrl).'" class="text-danger hover:underline text-sm ml-3" onclick="return confirm(\''.ui_attr(__('ui.auth_providers.confirm_delete', [], null, 'Delete this provider?')).'\')">'.ui_text(__('ui.auth_providers.delete', [], null, 'Delete')).'</a>';
+
               $rows[] = [
-                  ['value' => '<span class="ta-badge ta-badge-primary uppercase">'.ui_text($p['flavor']).'</span>', 'html' => true],
+                  ['value' => '<span class="badge badge-primary uppercase">'.ui_text($p['flavor']).'</span>', 'html' => true],
                   ['value' => ui_text($p['name']).$defaultMark, 'html' => true],
                   ['value' => ui_text((string) ($p['issuer'] ?? '')) ],
                   ['value' => $statusBadge, 'html' => true],
+                  ['value' => $editLink . $deleteLink, 'html' => true],
               ];
           }
           ui('table', [
@@ -41,6 +47,7 @@
                   ['label' => __('ui.auth_providers.col.name',   [], null, 'Name')],
                   ['label' => __('ui.auth_providers.col.issuer', [], null, 'Issuer / Metadata')],
                   ['label' => __('ui.auth_providers.col.status', [], null, 'Status')],
+                  ['label' => __('ui.auth_providers.col.actions', [], null, 'Actions')],
               ],
               'rows'    => $rows,
               'caption' => __('ui.auth_providers.table_caption', [], null, 'Configured authentication providers'),
@@ -50,13 +57,7 @@
     ]);
   ?>
 
-  <div class="mt-6">
-    <?php ui('alert', [
-      'variant' => 'info',
-      'title'   => __('ui.auth_providers.help.title', [], null, 'About this screen'),
-      'body'    => __('ui.auth_providers.help.body', [], null, 'Provider management is read-only in this release. Use the Phinx migration `M4/20260426120002_create_auth_provider.php` to seed rows; the create/edit form ships in a follow-up.'),
-    ]); ?>
-  </div>
+
 
 <?php } ?>
 

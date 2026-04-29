@@ -416,6 +416,46 @@ paths:
         '500':
           $ref: '#/components/responses/ProblemInternalError'
 
+  /barcode/{code}:
+    parameters:
+      - name: code
+        in: path
+        required: true
+        description: The barcode string (e.g. BC000000001).
+        schema:
+          type: string
+          minLength: 1
+          maxLength: 64
+
+    get:
+      tags: [barcode]
+      summary: Resolve a barcode to its current state.
+      description: |
+        Returns details about a barcode from the `barcode_pool`. If the barcode
+        is already linked to an item, returns the item info as well.
+      operationId: getBarcode
+      x-handler: 'Saso\Presentation\Api\V1\Controller\Barcode\BarcodeGetController::handle'
+      responses:
+        '200':
+          description: Barcode found.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code: { type: string }
+                  status: { type: string, enum: [pending, linked, voided] }
+                  item:
+                    type: object
+                    nullable: true
+                    properties:
+                      id: { type: string }
+                      name: { type: string }
+        '404':
+          $ref: '#/components/responses/ProblemNotFound'
+        '500':
+          $ref: '#/components/responses/ProblemInternalError'
+
 components:
   schemas:
     HealthStatus:

@@ -3,12 +3,7 @@
   $lang = $_SESSION['lang'] ?? 'ja';
 ?>
 
-<nav aria-label="<?php echo $lang === 'ja' ? 'パンくず' : 'breadcrumb'; ?>" class="mb-6">
-  <ol class="breadcrumb">
-    <li class="breadcrumb-item"><a href="./"><?php echo $lang === 'ja' ? 'ホーム' : 'Home'; ?></a></li>
-    <li class="breadcrumb-item active" aria-current="page"><?php echo $lang === 'ja' ? '棚番作成' : 'Shelf Creation'; ?></li>
-  </ol>
-</nav>
+
 
 <div class="mb-4 flex gap-3">
   <a href="./shelf/simple/" class="btn-primary btn-sm flex items-center gap-1">

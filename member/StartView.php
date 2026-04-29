@@ -1,19 +1,19 @@
 <?php
-namespace saso\installer;
+namespace saso\member;
 
-use saso\entity\Member;
 use saso\framework\Setter;
 use saso\framework\View;
-use saso\util;
 
-final class InstallView implements View
+final class StartView implements View
 {
     use Setter;
-    private Member $member;
+    private \Closure $content;
+    private string $title;
+    public array $members = [];
+
     public function display(): void
     {
-        require_once 'installer/createTables.php';
-        util\Redirect::redirect('installer/installed');
+        require_once 'member/template/start.php';
     }
     public function onRoot(): bool
     {
@@ -21,11 +21,10 @@ final class InstallView implements View
     }
     public function getTitle(): string
     {
-        return '';
+        return $this->title ?? 'Members';
     }
     public function getContent(): \Closure
     {
-        return fn()=>null;
+        return $this->content;
     }
 }
-

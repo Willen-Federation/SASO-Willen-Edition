@@ -2,7 +2,9 @@
 module.exports = {
   content: [
     "./root/template/*.php",
+    "./root/template/**/*.php",
     "./auth/template/*.php",
+    "./authExt/template/*.php",
     "./start/template/*.php",
     "./item/template/*.php",
     "./label/template/*.php",
@@ -12,6 +14,8 @@ module.exports = {
     "./common/template/*.php",
     "./verify/template/*.php",
     "./admin/template/*.php",
+    "./search/template/*.php",
+    "./featureAdmin/template/*.php",
     "./css/input.css",
   ],
   darkMode: "class",

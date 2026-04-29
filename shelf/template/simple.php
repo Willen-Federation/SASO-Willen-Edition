@@ -3,15 +3,11 @@
   $lang = $_SESSION['lang'] ?? 'ja';
 ?>
 
-<nav aria-label="<?php echo $lang === 'ja' ? 'パンくず' : 'breadcrumb'; ?>" class="mb-6">
-  <ol class="breadcrumb">
-    <li class="breadcrumb-item"><a href="./"><?php echo $lang === 'ja' ? 'ホーム' : 'Home'; ?></a></li>
-    <li class="breadcrumb-item"><a href="./shelf/start/"><?php echo $lang === 'ja' ? '棚番作成' : 'Shelf Creation'; ?></a></li>
-    <li class="breadcrumb-item active" aria-current="page"><?php echo $lang === 'ja' ? '棚番簡易設定' : 'Quick Shelf Setup'; ?></li>
-  </ol>
-</nav>
 
+
+<script src="https://cdn.tailwindcss.com"></script>
 <div
+  class="p-6 max-w-7xl mx-auto"
   x-data="{
     rows: [{shelfNo: '', area: '', note: ''}],
     mapMode: false,
@@ -115,7 +111,7 @@
                     <td>
                       <button type="button" @click="removeRow(i)" x-show="rows.length > 1"
                         class="text-danger hover:text-meta-1" :aria-label="'行' + (i+1) + 'を削除'">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" style="width: 1rem; height: 1rem;" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
                       </button>
                     </td>
                   </tr>
@@ -135,11 +131,11 @@
 
           <div class="flex gap-3 mt-4">
             <button type="submit" class="btn-primary px-8">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" style="width: 1.25rem; height: 1.25rem;" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
               <?php echo $lang === 'ja' ? '保存する' : 'Save'; ?>
             </button>
             <a href="./shelf/label/" class="btn-secondary px-6">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" style="width: 1.25rem; height: 1.25rem;" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
               <?php echo $lang === 'ja' ? '棚番シール印刷' : 'Print Shelf Labels'; ?>
             </a>
           </div>
@@ -190,7 +186,7 @@
             >
               <div class="flex flex-col items-center">
                 <div class="bg-primary text-white text-xs px-1.5 py-0.5 rounded shadow font-bold" x-text="rows[pin.row]?.shelfNo || (pin.row+1)"></div>
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-primary drop-shadow" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-primary drop-shadow" style="width: 1.25rem; height: 1.25rem;" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
               </div>
             </div>
           </template>
@@ -209,7 +205,7 @@
       </div>
       <div class="card-body" x-show="!mapMode">
         <div class="flex flex-col items-center gap-3 py-8 text-body dark:text-bodydark">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-stroke" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 16l4.553-2.276A1 1 0 0021 19.382V8.618a1 1 0 00-.553-.894L15 5m0 13V5m0 0L9 7"/></svg>
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-gray-300" style="width: 3rem; height: 3rem;" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 16l4.553-2.276A1 1 0 0021 19.382V8.618a1 1 0 00-.553-.894L15 5m0 13V5m0 0L9 7"/></svg>
           <p class="text-sm"><?php echo $lang === 'ja' ? 'マップモードを有効にするとフロアマップ上に棚の位置をピンで設定できます' : 'Enable map mode to pin shelf positions on a floor map'; ?></p>
         </div>
       </div>

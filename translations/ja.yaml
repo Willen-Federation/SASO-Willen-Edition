@@ -114,8 +114,10 @@ ui:
     shelf_simple: 棚番設定
     group:
       main: メイン
-      inventory: 在庫
-      label: ラベル
+      inventory: 在庫管理
+      label: ラベル作成
+      master: マスタ管理
+      system: システム設定
       admin: 管理
   dashboard:
     quick_links: クイックリンク
@@ -130,6 +132,8 @@ ui:
     category_help: 分類ツリーを管理します。
     label_size_help: A4ラベルシートのレイアウトを構成します。
     password_help: サインイン用のパスワードを変更します。
+  header:
+    search_placeholder: 商品を検索...
   nav:
     home: ホーム
   button:
@@ -159,6 +163,7 @@ ui:
     empty: 'データがありません'
   a11y:
     skip_to_main: メインコンテンツへスキップ
+    search: 検索
     sidebar: メイン
     main_nav: メインナビゲーション
     breadcrumb: パンくずリスト

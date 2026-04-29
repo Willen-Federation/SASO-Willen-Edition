@@ -133,6 +133,8 @@ ui:
       main: Main
       inventory: Inventory
       label: Labels
+      master: Master data
+      system: System
       admin: Administration
   dashboard:
     quick_links: Quick links
@@ -147,6 +149,8 @@ ui:
     category_help: Manage the category tree.
     label_size_help: Configure A4 sheet layouts.
     password_help: Change your sign-in credentials.
+  header:
+    search_placeholder: Search items...
   nav:
     home: Home
   button:
@@ -176,6 +180,7 @@ ui:
     empty: 'No records'
   a11y:
     skip_to_main: Skip to main content
+    search: Search
     sidebar: Primary
     main_nav: Main navigation
     breadcrumb: Breadcrumb

@@ -23,10 +23,14 @@ $paths = [
     'key'         => '<circle cx="8" cy="14" r="4"/><path d="m11 11 9-9m-3 3 2 2m-5-5 2 2" stroke-linecap="round" stroke-linejoin="round"/>',
     'check-square'=> '<rect x="3" y="3" width="18" height="18" rx="2"/><path d="m7 12 3 3 7-7" stroke-linecap="round" stroke-linejoin="round"/>',
     'sparkles'    => '<path d="M12 3v3m0 12v3M3 12h3m12 0h3M5 5l2.1 2.1m9.8 9.8L19 19M5 19l2.1-2.1m9.8-9.8L19 5" stroke-linecap="round" stroke-linejoin="round"/>',
-    'archive'     => '<rect x="3" y="3" width="18" height="5" rx="1"/><path d="M5 8v11a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8M10 12h4" stroke-linecap="round" stroke-linejoin="round"/>',
+    'archive'     => '<path d="M21 8v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8m18-3a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v3h18V5ZM10 12h4" stroke-linecap="round" stroke-linejoin="round"/>',
     'list'        => '<path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01" stroke-linecap="round" stroke-linejoin="round"/>',
     'map'         => '<path d="m9 4-6 2v14l6-2 6 2 6-2V4l-6 2-6-2Zm0 0v14m6-12v14" stroke-linecap="round" stroke-linejoin="round"/>',
     'qr'          => '<path d="M3 3h6v6H3zM15 3h6v6h-6zM3 15h6v6H3zM15 15h3v3h-3zM18 18h3v3h-3z" stroke-linejoin="round"/>',
+    'plus-circle' => '<circle cx="12" cy="12" r="9"/><path d="M12 8v8m-4-4h8" stroke-linecap="round" stroke-linejoin="round"/>',
+    'search'      => '<circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3" stroke-linecap="round" stroke-linejoin="round"/>',
+    'check-circle'=> '<circle cx="12" cy="12" r="9"/><path d="m9 12 2 2 4-4" stroke-linecap="round" stroke-linejoin="round"/>',
+    'cog'         => '<path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1Z" stroke-linecap="round" stroke-linejoin="round"/>',
 ];
 $svg = $paths[$name] ?? '<circle cx="12" cy="12" r="9"/>';
 ?>

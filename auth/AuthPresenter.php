@@ -14,12 +14,12 @@ final class AuthPresenter implements Presenter
     }
     public function complete(Either $output): View
     {
-        return $output->flatMap(
+        $output->flatMap(
             $this->success->restoredPath(fn($v)=>$v->restoredPath)
         )->flatMap(
             $this->success->isError(fn($v)=>$v->isError)
-        )->flatMap(
-            fn($v)=>$this->success
-        )->getOrElse($this->success);
+        );
+        
+        return $this->success;
     }
 }

@@ -26,8 +26,9 @@ final class ConfigLoader
      */
     public static function load(string $relative=''): array
     {
+        $env = defined('saso\ENV') ? \saso\ENV : (defined('ENV') ? ENV : null);
         if(empty(self::$configFile)) {
-            self::$configFile = ENV===null?$relative.'config.json':$relative.'config_'.ENV.'.json';
+            self::$configFile = $env===null?$relative.'config.json':$relative.'config_'.$env.'.json';
         }
         $config = json_decode(file_get_contents(self::$configFile), true);
         $env = EnvLoader::loadFile($relative.'.env');

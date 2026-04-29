@@ -15,10 +15,10 @@ final class ShelvesPresenter implements Presenter
     }
     public function complete(Either $output): View
     {
-        return $output->flatMap(
-            $this->success->shelves(fn($v)=>$v)
-        )->flatMap(
-            fn($v)=>$this->success
-        )->getOrElse($this->failure);
+        $result = $output->flatMap(
+            $this->success->shelves(fn($v) => $v)
+        );
+
+        return $result->isRight() ? $this->success : $this->failure;
     }
 }

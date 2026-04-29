@@ -237,6 +237,10 @@
         "feature-flags": {
            "matter": "featureAdmin",
            "action": "list"
+        },
+        "auth-providers": {
+           "matter": "admin",
+           "action": "auth-providers"
         }
     },
     "shelf": {
@@ -247,6 +251,14 @@
         "start": {
             "matter": "shelf",
             "action": "menu"
+        },
+        "map": {
+            "matter": "shelf",
+            "action": "menu"
+        },
+        "simple": {
+            "matter": "shelf",
+            "action": "simple"
         },
         "multi": {
             "matter": "shelf",

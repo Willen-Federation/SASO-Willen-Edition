@@ -27,8 +27,8 @@ $this->content = function ($v) {
   <base href="<?php echo ui_attr($v->baseUrl); ?>">
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="stylesheet" href="./css/tailadmin.css">
-  <link rel="stylesheet" href="./css/style.css">
+  <link rel="stylesheet" href="./css/tailadmin.css?v=<?php echo $v->version; ?>">
+  <link rel="stylesheet" href="./css/style.css?v=<?php echo time(); ?>">
   <link rel="shortcut icon" href="./favicon.ico" type="image/vnd.microsoft.icon">
   <link rel="icon" href="./favicon.ico" type="image/vnd.microsoft.icon">
   <title><?php echo ui_text(__('ui.app.title', ['version' => $v->version], null, 'SASO {version}')); ?> &mdash; <?php echo ui_text($title); ?></title>

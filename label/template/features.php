@@ -1,6 +1,7 @@
 <?php $this->title = '商品ラベル印刷'; ?>
 <?php $this->content = function($v) {
   $lang = $_SESSION['lang'] ?? 'ja';
+  $labelCaches = is_array($v->labelCaches) ? $v->labelCaches : iterator_to_array($v->labelCaches);
 ?>
 
 <nav aria-label="<?php echo $lang === 'ja' ? 'パンくず' : 'breadcrumb'; ?>" class="mb-6">
@@ -14,8 +15,8 @@
   <div class="card-header flex items-center justify-between">
     <h2 class="font-semibold text-black dark:text-white">
       <?php echo $lang === 'ja' ? '印刷対象ラベル一覧' : 'Labels to Print'; ?>
-      <?php if(!empty($v->labelCaches)): ?>
-      <span class="ml-2 badge badge-primary"><?php echo count(array_filter($v->labelCaches)); ?></span>
+      <?php if(!empty($labelCaches)): ?>
+      <span class="ml-2 badge badge-primary"><?php echo count(array_filter($labelCaches)); ?></span>
       <?php endif; ?>
     </h2>
     <form method="post" action="./label/deleteAll/" class="no-print">
@@ -39,7 +40,7 @@
       <tbody>
         <?php
         $hasAny = false;
-        foreach($v->labelCaches as $labelCache) {
+        foreach($labelCaches as $labelCache) {
             if (!$labelCache) continue;
             $hasAny = true;
         ?>

@@ -1,9 +1,10 @@
 <?php
 namespace saso\label;
 
-use saso\common\EmptyUsecase;
+use saso\common\EmptyController;
 use saso\framework\DIContainer;
 use saso\framework\Flow;
+use saso\repository\DbFinder;
 
 final class WizardDIContainer implements DIContainer
 {
@@ -16,8 +17,9 @@ final class WizardDIContainer implements DIContainer
 
     public function di(\Closure $inside, array $query, array $post, array $config, \DateTime $now): void
     {
-        $this->ctrl    = new WizardController();
-        $this->usecase = new EmptyUsecase(
+        $this->ctrl    = new EmptyController();
+        $this->usecase = new WizardUsecase(
+            new DbFinder(),
             new WizardPresenter(
                 new WizardView(),
             ),

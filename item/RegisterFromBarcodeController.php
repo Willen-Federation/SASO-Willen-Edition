@@ -19,15 +19,12 @@ final class RegisterFromBarcodeController implements Controller, DTO
     public function __construct(array $post, \DateTime $now)
     {
         $this->barcodeId = (string) ($post['barcodeId'] ?? '');
-
+        
         $name = entity\Item::nameConstraint($post['itemName'] ?? '');
         $categoryId = monad\Maybe::of($post['categoryId'] ?? '')->filter(fn($v) => !empty($v));
         $price = entity\ItemVar::priceConstraint($post['price'] ?? '');
-
-        $explodeByComma = fn($train) => array_values(
-            array_filter(array_map(fn($v) => trim($v), explode(',', $train)))
-        );
-        $colorNames = $explodeByComma($post['colorName'] ?? '');
+        
+        $colorNames = array_filter([trim($post['colorName'] ?? '')]);
         $colors = monad\Either::of(array_keys($colorNames))
             ->filter(fn($v) => !empty($v))
             ->map(fn($v) => Each::t($v))
@@ -36,7 +33,7 @@ final class RegisterFromBarcodeController implements Controller, DTO
                 entity\Color::nameConstraint($colorNames[$v])
             )));
 
-        $sizeNames = $explodeByComma($post['sizeName'] ?? '');
+        $sizeNames = array_filter([trim($post['sizeName'] ?? '')]);
         $sizes = monad\Either::of(array_keys($sizeNames))
             ->filter(fn($v) => !empty($v))
             ->map(fn($v) => Each::t($v))

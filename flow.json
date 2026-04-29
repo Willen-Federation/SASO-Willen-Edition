@@ -13,12 +13,22 @@
         "password": "\\saso\\auth\\PasswordDIContainer"
     },
     "authExt": {
-        "providers": "\\saso\\authExt\\ProvidersDIContainer"
+        "providers": "\\saso\\authExt\\ProvidersDIContainer",
+        "provider": "\\saso\\authExt\\ProviderDIContainer"
     },
     "image": {
         "start": "\\saso\\image\\StartDIContainer",
         "add": "\\saso\\image\\AddDIContainer",
         "display": "\\saso\\image\\DisplayDIContainer"
+    },
+    "member": {
+        "start": "\\saso\\member\\StartDIContainer",
+        "add": "\\saso\\member\\AddDIContainer",
+        "edit": "\\saso\\member\\EditDIContainer",
+        "delete": "\\saso\\member\\DeleteDIContainer"
+    },
+    "search": {
+        "start": "\\saso\\search\\StartDIContainer"
     },
     "js": {
         "main": "\\saso\\js\\JSDIContainer",
@@ -65,7 +75,8 @@
         "changeSizeOrder": "\\saso\\item\\ChangeSizeOrderDIContainer",
         "addFeature": "\\saso\\item\\AddFeatureDIContainer",
         "archive": "\\saso\\item\\ArchiveDIContainer",
-        "reproduction": "\\saso\\item\\ReproductionDIContainer"
+        "reproduction": "\\saso\\item\\ReproductionDIContainer",
+        "registerFromBarcode": "\\saso\\item\\RegisterFromBarcodeDIContainer"
     },
     "feature": {
         "inventory": "\\saso\\feature\\AmountDIContainer",
@@ -79,6 +90,8 @@
     "shelf": {
         "simple": "\\saso\\shelf\\SimpleDIContainer",
         "menu": "\\saso\\shelf\\MenuDIContainer",
+        "map": "\\saso\\shelf\\MapDIContainer",
+        "simpleSave": "\\saso\\shelf\\SimpleSaveDIContainer",
         "multi": "\\saso\\shelf\\MultiDIContainer",
         "single": "\\saso\\shelf\\SingleDIContainer",
         "shelves": "\\saso\\shelf\\ShelvesDIContainer",
@@ -99,7 +112,8 @@
     },
     "barcode": {
         "start": "\\saso\\barcode\\StartDIContainer",
-        "sheet": "\\saso\\barcode\\SheetDIContainer"
+        "sheet": "\\saso\\barcode\\SheetDIContainer",
+        "printSheet": "\\saso\\barcode\\PrintSheetDIContainer"
     },
     "verify": {
         "start": "\\saso\\verify\\StartDIContainer"

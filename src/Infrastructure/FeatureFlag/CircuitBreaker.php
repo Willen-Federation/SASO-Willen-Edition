@@ -22,9 +22,9 @@ final class CircuitBreaker
     public function run(): void
     {
         $now = new DateTimeImmutable('now', $this->timezone);
-
+        
         $flags = $this->flagRepo->listAll();
-
+        
         foreach ($flags as $flag) {
             if (!$flag->enabled || $flag->errorThreshold === 0) {
                 continue;
@@ -33,7 +33,7 @@ final class CircuitBreaker
             $windowStart = $now->modify("-{$flag->errorWindowMinutes} minutes");
 
             $stmt = $this->pdo->prepare(
-                'SELECT SUM(count) as total_errors FROM error_log_aggregate '.
+                'SELECT SUM(count) as total_errors FROM error_log_aggregate ' .
                 'WHERE feature_key = :key AND window_start >= :window_start'
             );
             $stmt->bindValue('key', $flag->key->toString());
@@ -59,12 +59,12 @@ final class CircuitBreaker
                     createdAt: $flag->createdAt,
                     updatedAt: $now
                 );
-
+                
                 $this->flagRepo->save($disabledFlag);
 
                 // Audit log
                 $auditStmt = $this->pdo->prepare(
-                    'INSERT INTO feature_flag_audit (flag_key, old_enabled, new_enabled, changed_by, changed_at, reason) '.
+                    'INSERT INTO feature_flag_audit (flag_key, old_enabled, new_enabled, changed_by, changed_at, reason) ' .
                     'VALUES (:key, :old, :new, :by, :at, :reason)'
                 );
                 $auditStmt->execute([

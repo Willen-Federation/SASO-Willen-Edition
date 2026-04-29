@@ -16,15 +16,8 @@
   ];
 ?>
 
-<nav aria-label="<?php echo $lang === 'ja' ? 'パンくず' : 'breadcrumb'; ?>" class="mb-6">
-  <ol class="breadcrumb">
-    <li class="breadcrumb-item"><a href="./"><?php echo $lang === 'ja' ? 'ホーム' : 'Home'; ?></a></li>
-    <li class="breadcrumb-item active" aria-current="page"><?php echo $lang === 'ja' ? 'バーコードシート印刷' : 'Print Barcode Sheets'; ?></li>
-  </ol>
-</nav>
-
 <div class="mb-6 alert alert-success">
-  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+  <?php ui('iconHeroicon', ['name' => 'shield', 'class' => 'h-5 w-5 shrink-0']); ?>
   <div class="text-sm">
     <strong><?php echo $lang === 'ja' ? 'バーコードファースト方式' : 'Barcode-First Workflow'; ?></strong><br>
     <?php echo $lang === 'ja'
@@ -33,10 +26,12 @@
   </div>
 </div>
 
+<script src="https://cdn.tailwindcss.com"></script>
 <div
-  x-data="{
-    search: '',
-    brand: '',
+  class="p-6 max-w-7xl mx-auto"
+  x-data='{
+    search: "",
+    brand: "",
     selectedLayout: null,
     customCols: 3,
     customRows: 8,
@@ -44,19 +39,19 @@
     customH: 37,
     startNo: 1,
     count: 24,
-    prefix: 'BC',
-    presets: <?php echo json_encode($presetLayouts, JSON_UNESCAPED_UNICODE); ?>,
+    prefix: "BC",
+    presets: <?php echo htmlspecialchars(json_encode($presetLayouts, JSON_UNESCAPED_UNICODE), ENT_QUOTES, 'UTF-8'); ?>,
     get filtered() {
+      const q = this.search.toLowerCase();
       return this.presets.filter(p => {
-        const q = this.search.toLowerCase();
-        const brandOk = !this.brand || p.brand === this.brand;
-        const searchOk = !q || p.name.toLowerCase().includes(q) || p.code.toLowerCase().includes(q) || p.desc.toLowerCase().includes(q);
-        return brandOk && searchOk;
+        const bOk = !this.brand || p.brand === this.brand;
+        const sOk = !q || p.name.toLowerCase().includes(q) || p.code.toLowerCase().includes(q) || p.desc.toLowerCase().includes(q);
+        return bOk && sOk;
       });
     },
     selectLayout(l) {
       this.selectedLayout = l;
-      if (l.id !== 'custom') {
+      if (l.id !== "custom") {
         this.customCols = l.cols;
         this.customRows = l.rows;
         this.customW = l.w_mm;
@@ -65,11 +60,11 @@
       }
     },
     get labelsPerSheet() {
-      return (this.selectedLayout && this.selectedLayout.id !== 'custom')
+      return (this.selectedLayout && this.selectedLayout.id !== "custom")
         ? this.selectedLayout.cols * this.selectedLayout.rows
         : parseInt(this.customCols) * parseInt(this.customRows);
     }
-  }"
+  }'
 >
 
   <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
@@ -83,7 +78,9 @@
         <!-- Search + brand filter -->
         <div class="mb-4 flex flex-col gap-3 sm:flex-row">
           <div class="relative flex-1">
-            <svg xmlns="http://www.w3.org/2000/svg" class="absolute left-3 top-3.5 h-5 w-5 text-body" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+            <span class="absolute left-3 top-3 text-body">
+              <?php ui('iconHeroicon', ['name' => 'list', 'class' => 'h-5 w-5']); ?>
+            </span>
             <input
               x-model="search"
               type="search"
@@ -108,10 +105,10 @@
               type="button"
               @click="selectLayout(l)"
               class="flex items-start gap-3 rounded border p-3 text-left transition"
-              :class="selectedLayout?.id === l.id
+              :class="selectedLayout && selectedLayout.id === l.id
                 ? 'border-primary bg-primary bg-opacity-5 dark:bg-meta-4'
                 : 'border-stroke hover:border-primary dark:border-strokedark'"
-              :aria-pressed="selectedLayout?.id === l.id ? 'true' : 'false'"
+              :aria-pressed="selectedLayout && selectedLayout.id === l.id ? 'true' : 'false'"
             >
               <!-- Grid preview -->
               <div class="shrink-0 flex flex-col gap-0.5 mt-1" :style="'width:32px'">
@@ -119,7 +116,7 @@
                   <div class="flex gap-0.5">
                     <template x-for="c in Math.min(l.cols, 4)" :key="c">
                       <div class="h-1.5 rounded-sm"
-                        :class="selectedLayout?.id === l.id ? 'bg-primary' : 'bg-stroke dark:bg-strokedark'"
+                        :class="selectedLayout && selectedLayout.id === l.id ? 'bg-indigo-500' : 'bg-gray-300 dark:bg-gray-600'"
                         :style="'width:' + (28 / Math.min(l.cols, 4)) + 'px'">
                       </div>
                     </template>
@@ -139,7 +136,7 @@
         </div>
 
         <!-- Custom layout fields -->
-        <div x-show="selectedLayout?.id === 'custom'" x-transition class="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-4">
+        <div x-show="selectedLayout && selectedLayout.id === 'custom'" x-transition class="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-4">
           <div>
             <label class="form-label text-xs"><?php echo $lang === 'ja' ? '列数' : 'Columns'; ?></label>
             <input type="number" x-model.number="customCols" min="1" max="10" class="form-input py-2 text-sm" aria-label="列数">
@@ -193,23 +190,25 @@
 
         <!-- Selected layout summary -->
         <div x-show="selectedLayout" class="rounded border border-stroke dark:border-strokedark p-3 text-xs text-body dark:text-bodydark">
-          <p class="font-semibold text-black dark:text-white mb-1" x-text="selectedLayout?.name"></p>
-          <p x-text="selectedLayout?.desc"></p>
-          <p x-text="(selectedLayout?.id === 'custom' ? customW : selectedLayout?.w_mm) + 'mm × ' + (selectedLayout?.id === 'custom' ? customH : selectedLayout?.h_mm) + 'mm'"></p>
+          <p class="font-semibold text-black dark:text-white mb-1" x-text="selectedLayout && selectedLayout.name ? selectedLayout.name : ''"></p>
+          <p x-text="selectedLayout && selectedLayout.desc ? selectedLayout.desc : ''"></p>
+          <p x-text="(selectedLayout && selectedLayout.id === 'custom' ? customW : (selectedLayout ? selectedLayout.w_mm : 0)) + 'mm × ' + (selectedLayout && selectedLayout.id === 'custom' ? customH : (selectedLayout ? selectedLayout.h_mm : 0)) + 'mm'"></p>
         </div>
 
         <form method="post" action="./barcode/printSheet/" target="_blank">
-          <input type="hidden" name="layoutId" :value="selectedLayout?.id">
-          <input type="hidden" name="cols" :value="selectedLayout?.id === 'custom' ? customCols : selectedLayout?.cols">
-          <input type="hidden" name="rows" :value="selectedLayout?.id === 'custom' ? customRows : selectedLayout?.rows">
-          <input type="hidden" name="wMm" :value="selectedLayout?.id === 'custom' ? customW : selectedLayout?.w_mm">
-          <input type="hidden" name="hMm" :value="selectedLayout?.id === 'custom' ? customH : selectedLayout?.h_mm">
+          <input type="hidden" name="layoutId" :value="selectedLayout && selectedLayout.id ? selectedLayout.id : ''">
+          <input type="hidden" name="cols" :value="selectedLayout && selectedLayout.id === 'custom' ? customCols : (selectedLayout ? selectedLayout.cols : 0)">
+          <input type="hidden" name="rows" :value="selectedLayout && selectedLayout.id === 'custom' ? customRows : (selectedLayout ? selectedLayout.rows : 0)">
+          <input type="hidden" name="wMm" :value="selectedLayout && selectedLayout.id === 'custom' ? customW : (selectedLayout ? selectedLayout.w_mm : 0)">
+          <input type="hidden" name="hMm" :value="selectedLayout && selectedLayout.id === 'custom' ? customH : (selectedLayout ? selectedLayout.h_mm : 0)">
           <input type="hidden" name="prefix" :value="prefix">
           <input type="hidden" name="startNo" :value="startNo">
           <input type="hidden" name="count" :value="count">
           <button type="submit" class="btn-primary w-full" :disabled="!selectedLayout">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
-            <?php echo $lang === 'ja' ? 'バーコードシートを印刷' : 'Print Barcode Sheet'; ?>
+            <span class="flex items-center justify-center">
+              <?php ui('iconHeroicon', ['name' => 'printer', 'class' => 'h-5 w-5 mr-2']); ?>
+              <?php echo $lang === 'ja' ? 'バーコードシートを印刷' : 'Print Barcode Sheet'; ?>
+            </span>
           </button>
         </form>
 
@@ -224,3 +223,4 @@
 </div>
 
 <?php }; ?>
+

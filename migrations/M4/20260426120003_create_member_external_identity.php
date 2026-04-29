@@ -26,6 +26,20 @@ final class CreateMemberExternalIdentity extends AbstractMigration
 {
     public function up(): void
     {
+        if ($this->hasTable('member_external_identity')) {
+            // Table was created by a failed previous run; ensure FK is intact.
+            $this->execute(
+                'ALTER TABLE `member_external_identity`
+                 MODIFY COLUMN `auth_provider_id` INT UNSIGNED NOT NULL'
+            );
+            if (!$this->getAdapter()->hasForeignKey('member_external_identity', ['auth_provider_id'])) {
+                $this->table('member_external_identity')
+                    ->addForeignKey('auth_provider_id', 'auth_provider', 'id',
+                        ['delete' => 'CASCADE', 'update' => 'NO_ACTION'])
+                    ->update();
+            }
+            return;
+        }
         $this->table('member_external_identity', [
             'id'          => false,
             'primary_key' => ['auth_provider_id', 'external_subject'],
@@ -37,7 +51,7 @@ final class CreateMemberExternalIdentity extends AbstractMigration
                 'signed' => false,
                 'null'   => false,
             ])
-            ->addColumn('auth_provider_id', 'biginteger', [
+            ->addColumn('auth_provider_id', 'integer', [
                 'signed' => false,
                 'null'   => false,
             ])

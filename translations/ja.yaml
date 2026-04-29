@@ -196,16 +196,7 @@ ui:
     help:
       title: この画面について
       body: '本リリースでは閲覧専用です。Phinx マイグレーション M4/20260426120002_create_auth_provider.php で行を投入してください。作成/編集フォームは次リリースで提供します。'
-  dashboard:
-    quick_links: ショートカット
-    item_register_help: カタログに新しい SKU を追加します。
-    shelf_help: 棚番の作成や棚ラベル印刷を行います。
-    label_help: 商品用のバーコードラベルを生成します。
-    archive_help: アーカイブ済み商品を閲覧します。
-    archive_all_help: 有効な商品をまとめてアーカイブします。
-    category_help: 分類ツリーを管理します。
-    label_size_help: A4 シートのレイアウトを設定します。
-    password_help: サインイン用パスワードを変更します。
+
   password:
     title: パスワード変更
     subtitle: パスワードはどこかに書き留めておいてください。忘れると復元できません。

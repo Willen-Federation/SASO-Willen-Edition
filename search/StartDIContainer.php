@@ -1,20 +1,23 @@
 <?php
-namespace saso\installer;
+namespace saso\search;
 
 use saso\framework\DIContainer;
 use saso\framework\View;
 
-final class InstalledDIContainer implements DIContainer
+final class StartDIContainer implements DIContainer
 {
+    private View $view;
     public function isTopLevel(): bool
     {
         return false;
     }
     public function di(\Closure $inside, array $query, array $post, array $config, \DateTime $now): void
     {
+        $this->view = new StartView($inside, $query['search'] ?? '');
     }
     public function flow(): View
     {
-        return new InstalledView();
+        return $this->view;
     }
 }
+

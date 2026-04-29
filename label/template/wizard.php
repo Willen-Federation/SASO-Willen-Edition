@@ -5,15 +5,26 @@
   <?php
     ui('card', [
       'title' => '1. ' . __('ui.label_wizard.step1', [], null, 'Pick a label sheet'),
-      'body'  => function () { ?>
+      'body'  => function () use ($v) { ?>
         <p class="mb-3 text-theme-sm text-gray-500 dark:text-gray-400">
           <?php echo ui_text(__('ui.label_wizard.step1_help', [], null, 'Choose the printer sheet you will load. The system reserves codes for that sheet only.')); ?>
         </p>
+        <?php if (empty($v->sheets)): ?>
+          <?php ui('alert', ['variant' => 'warning', 'body' => __('ui.label_wizard.no_sheets', [], null, 'No label sheet layouts found. Please contact your administrator.')]); ?>
+        <?php else: ?>
         <ul class="space-y-2 text-theme-sm">
-          <li class="flex items-center justify-between rounded-lg border border-gray-200 px-3 py-2 dark:border-gray-700"><span class="font-medium">A_ONE_28171</span><span class="ta-badge ta-badge-primary">2×6</span></li>
-          <li class="flex items-center justify-between rounded-lg border border-gray-200 px-3 py-2 dark:border-gray-700"><span class="font-medium">A_ONE_28173</span><span class="ta-badge ta-badge-primary">2×5</span></li>
-          <li class="flex items-center justify-between rounded-lg border border-gray-200 px-3 py-2 dark:border-gray-700"><span class="font-medium">AVERY_5160</span><span class="ta-badge ta-badge-primary">3×10</span></li>
+          <?php foreach ($v->sheets as $s): ?>
+          <li class="flex items-center justify-between rounded-lg border border-gray-200 px-3 py-2 dark:border-gray-700">
+            <span class="font-medium"><?php echo ui_text($s->code); ?></span>
+            <span class="text-xs text-gray-500 dark:text-gray-400 flex-1 mx-3"><?php echo ui_text($s->product_name_ja); ?></span>
+            <span class="ta-badge ta-badge-primary"><?php echo (int)$s->columns; ?>×<?php echo (int)$s->rows; ?></span>
+            <?php if ($s->is_verified): ?>
+            <span class="ml-2 ta-badge ta-badge-success">✓</span>
+            <?php endif; ?>
+          </li>
+          <?php endforeach; ?>
         </ul>
+        <?php endif; ?>
       <?php },
     ]);
   ?>
@@ -21,11 +32,27 @@
   <?php
     ui('card', [
       'title' => '2. ' . __('ui.label_wizard.step2', [], null, 'Mint &amp; print'),
-      'body'  => function () { ?>
+      'body'  => function () use ($v) { ?>
         <p class="mb-3 text-theme-sm text-gray-500 dark:text-gray-400">
           <?php echo ui_text(__('ui.label_wizard.step2_help', [], null, 'Pick a quantity, then download the PDF and load the printer.')); ?>
         </p>
         <form method="post" action="./api/v1/barcodes/mint" class="space-y-3">
+          <?php
+          // Build sheet options from DB data
+          $sheetOptions = [];
+          foreach ($v->sheets as $s) {
+              $label = $s->code . ' (' . (int)$s->columns . '×' . (int)$s->rows . ')';
+              $sheetOptions[$s->id] = $label;
+          }
+          if (!empty($sheetOptions)) {
+              ui('formField', [
+                'name'    => 'sheet_layout_id',
+                'label'   => __('ui.label_wizard.sheet_type', [], null, 'Sheet type'),
+                'type'    => 'select',
+                'options' => $sheetOptions,
+              ]);
+          }
+          ?>
           <?php ui('formField', [
             'name'        => 'count',
             'label'       => __('ui.label_wizard.count', [], null, 'How many labels?'),
@@ -67,14 +94,6 @@
       <?php },
     ]);
   ?>
-</div>
-
-<div class="mt-6">
-  <?php ui('alert', [
-    'variant' => 'warning',
-    'title'   => __('ui.label_wizard.requirements_title', [], null, 'Required'),
-    'body'    => __('ui.label_wizard.requirements_body', [], null, 'Run the M6 migrations 20260428120000–20260428120004 to create the barcode_pool, barcode_batch, label_sheet_layout, and location_map tables.'),
-  ]); ?>
 </div>
 
 <?php }; ?>

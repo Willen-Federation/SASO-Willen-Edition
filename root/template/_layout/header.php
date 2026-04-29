@@ -65,12 +65,12 @@
           <ul x-show="open" x-cloak
               class="absolute right-0 mt-2 w-48 rounded-xl border border-gray-200 bg-white py-1 shadow-theme-md dark:border-gray-800 dark:bg-gray-dark">
             <li>
-              <a href="./start/password/" class="block px-3 py-2 text-theme-sm text-gray-700 hover:bg-gray-50 dark:text-gray-200 dark:hover:bg-white/[0.05]">
+              <a href="/start/password/" class="block px-3 py-2 text-theme-sm text-gray-700 hover:bg-gray-50 dark:text-gray-200 dark:hover:bg-white/[0.05]">
                 <?php echo ui_text(__('ui.user_menu.change_password', [], null, 'Change password')); ?>
               </a>
             </li>
             <li>
-              <a href="./start/logout/" class="block px-3 py-2 text-theme-sm text-error-600 hover:bg-error-50 dark:text-error-400 dark:hover:bg-error-950">
+              <a href="/start/logout/" class="block px-3 py-2 text-theme-sm text-error-600 hover:bg-error-50 dark:text-error-400 dark:hover:bg-error-950">
                 <?php echo ui_text(__('ui.user_menu.logout', [], null, 'Sign out')); ?>
               </a>
             </li>

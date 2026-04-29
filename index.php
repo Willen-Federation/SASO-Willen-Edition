@@ -43,6 +43,19 @@ spl_autoload_register(ClassLoader::load($config));
 // every existing PHP page continue to fall through to the request.json
 // router below.
 $requestPath = (string) (parse_url((string) ($_SERVER['REQUEST_URI'] ?? '/'), PHP_URL_PATH) ?? '/');
+
+// Automatic fallback redirect for users accessing the old /saso/ path
+if (str_starts_with($requestPath, '/saso/')) {
+    $newUri = preg_replace('#^/saso/#', '/', $requestPath);
+    $query = $_SERVER['QUERY_STRING'] ?? '';
+    if ($query !== '') {
+        $newUri .= '?' . $query;
+    }
+    $baseScheme = $onHttps ? 'https://' : 'http://';
+    header('Location: ' . $baseScheme . ($_SERVER['HTTP_HOST'] ?? 'localhost') . $newUri, true, 301);
+    exit;
+}
+
 if (str_starts_with($requestPath, '/api/v1/') || $requestPath === '/api/v1') {
     \Saso\Presentation\Api\V1\Bootstrap::dispatch(
         \Saso\Presentation\Api\V1\HttpRequest::fromGlobals(),

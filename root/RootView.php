@@ -76,8 +76,9 @@ final class RootView implements View
                 'type'  => 'group',
                 'label' => $t('ui.sidebar.group.main', 'Main'),
                 'items' => [
-                    ['key' => 'home',         'label' => $t('ui.sidebar.home',         'Home'),                    'href' => './',              'icon' => $svg('home')],
-                    ['key' => 'label_first',  'label' => $t('ui.sidebar.label_first',  'Print → register'),        'href' => './label/wizard/', 'icon' => $svg('sparkles'), 'new' => true],
+                    ['key' => 'home',         'label' => $t('ui.sidebar.home',         'Home'),                    'href' => '/',               'icon' => $svg('home')],
+                    ['key' => 'search',       'label' => $t('ui.sidebar.search',       'Search'),                  'href' => '/search/start/',  'icon' => $svg('list')],
+                    ['key' => 'label_first',  'label' => $t('ui.sidebar.label_first',  'Print → register'),        'href' => '/label/wizard/',  'icon' => $svg('sparkles'), 'new' => true],
                 ],
             ],
             [
@@ -89,9 +90,9 @@ final class RootView implements View
                         'label'    => $t('ui.sidebar.item', 'Items'),
                         'icon'     => $svg('box'),
                         'children' => [
-                            ['label' => $t('ui.sidebar.item_register',   'Register'),     'href' => './item/add/'],
-                            ['label' => $t('ui.sidebar.item_archive',    'Archive list'), 'href' => './archive/list/'],
-                            ['label' => $t('ui.sidebar.item_archiveAll', 'Archive all'),  'href' => './item/archivingAll/'],
+                            ['label' => $t('ui.sidebar.item_register',   'Register'),     'href' => '/item/add/'],
+                            ['label' => $t('ui.sidebar.item_archive',    'Archive list'), 'href' => '/archive/list/'],
+                            ['label' => $t('ui.sidebar.item_archiveAll', 'Archive all'),  'href' => '/item/archivingAll/'],
                         ],
                     ],
                     [
@@ -99,11 +100,11 @@ final class RootView implements View
                         'label'    => $t('ui.sidebar.shelf', 'Shelves'),
                         'icon'     => $svg('grid'),
                         'children' => [
-                            ['label' => $t('ui.sidebar.shelf_create', 'Create'), 'href' => './shelf/start/'],
-                            ['label' => $t('ui.sidebar.shelf_map',    'Map'),    'href' => './shelf/map/', 'new' => true],
+                            ['label' => $t('ui.sidebar.shelf_create', 'Create'), 'href' => '/shelf/start/'],
+                            ['label' => $t('ui.sidebar.shelf_map',    'Map'),    'href' => '/shelf/map/', 'new' => true],
                         ],
                     ],
-                    ['key' => 'verify', 'label' => $t('ui.sidebar.verify', 'Verification'), 'href' => './verify/start/', 'icon' => $svg('check-square'), 'new' => true],
+                    ['key' => 'verify', 'label' => $t('ui.sidebar.verify', 'Verification'), 'href' => '/verify/start/', 'icon' => $svg('check-square'), 'new' => true],
                 ],
             ],
             [
@@ -115,8 +116,8 @@ final class RootView implements View
                         'label'    => $t('ui.sidebar.label', 'Label'),
                         'icon'     => $svg('printer'),
                         'children' => [
-                            ['label' => $t('ui.sidebar.label_print', 'Print'), 'href' => './label/features/'],
-                            ['label' => $t('ui.sidebar.label_size',  'Sizes'), 'href' => './label/start/'],
+                            ['label' => $t('ui.sidebar.label_print', 'Print'), 'href' => '/label/features/'],
+                            ['label' => $t('ui.sidebar.label_size',  'Sizes'), 'href' => '/label/start/'],
                         ],
                     ],
                 ],
@@ -125,10 +126,11 @@ final class RootView implements View
                 'type'  => 'group',
                 'label' => $t('ui.sidebar.group.admin', 'Administration'),
                 'items' => [
-                    ['key' => 'category', 'label' => $t('ui.sidebar.category',        'Categories'),    'href' => './category/start/',      'icon' => $svg('tag')],
-                    ['key' => 'flags',    'label' => $t('ui.sidebar.flags',           'Feature flags'), 'href' => './admin/feature-flags/', 'icon' => $svg('toggle'),  'new' => true],
-                    ['key' => 'auth',     'label' => $t('ui.sidebar.auth_providers', 'Auth providers'),'href' => './auth/providers/',     'icon' => $svg('shield'),  'new' => true],
-                    ['key' => 'password', 'label' => $t('ui.sidebar.password',        'Password'),      'href' => './start/password/',      'icon' => $svg('key')],
+                    ['key' => 'category', 'label' => $t('ui.sidebar.category',        'Categories'),    'href' => '/category/start/',      'icon' => $svg('tag')],
+                    ['key' => 'users',    'label' => $t('ui.sidebar.users',           'Users'),         'href' => '/member/start/',        'icon' => $svg('users')],
+                    ['key' => 'flags',    'label' => $t('ui.sidebar.flags',           'Feature flags'), 'href' => '/admin/feature-flags/', 'icon' => $svg('toggle'),  'new' => true],
+                    ['key' => 'auth',     'label' => $t('ui.sidebar.auth_providers', 'Auth providers'),'href' => '/auth/providers/',     'icon' => $svg('shield'),  'new' => true],
+                    ['key' => 'password', 'label' => $t('ui.sidebar.password',        'Password'),      'href' => '/start/password/',      'icon' => $svg('key')],
                 ],
             ],
         ];
@@ -144,7 +146,7 @@ final class RootView implements View
             return [];
         }
         $crumbs = [
-            ['label' => __('ui.nav.home', [], null, 'Home'), 'href' => './'],
+            ['label' => __('ui.nav.home', [], null, 'Home'), 'href' => '/'],
         ];
         if ($this->matter !== '' && $this->matter !== 'start') {
             $crumbs[] = ['label' => $title];

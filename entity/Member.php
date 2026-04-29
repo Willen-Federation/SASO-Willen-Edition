@@ -10,6 +10,7 @@ final class Member
         private string $id,
         private string $name,
         private string $password,
+        private string $role = 'operator',
     )
     {
     }

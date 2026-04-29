@@ -1,17 +1,23 @@
 <?php
-namespace saso\installer;
+namespace saso\search;
 
 use saso\framework\Setter;
 use saso\framework\View;
 
-final class ConfigView implements View
+final class StartView implements View
 {
     use Setter;
-    private string $title;
     private \Closure $content;
+    private string $title;
+
+    public function __construct(
+        public readonly \Closure $inside,
+        public string $search = ''
+    ) {}
+
     public function display(): void
     {
-        require_once 'installer/template/config.php';
+        require_once 'search/template/start.php';
     }
     public function onRoot(): bool
     {
@@ -19,10 +25,11 @@ final class ConfigView implements View
     }
     public function getTitle(): string
     {
-        return $this->title;
+        return $this->title ?? 'Search Items';
     }
     public function getContent(): \Closure
     {
         return $this->content;
     }
 }
+

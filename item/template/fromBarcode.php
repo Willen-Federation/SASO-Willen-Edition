@@ -3,14 +3,6 @@
   $lang = $_SESSION['lang'] ?? 'ja';
 ?>
 
-<nav aria-label="<?php echo $lang === 'ja' ? 'パンくず' : 'breadcrumb'; ?>" class="mb-6">
-  <ol class="breadcrumb">
-    <li class="breadcrumb-item"><a href="./"><?php echo $lang === 'ja' ? 'ホーム' : 'Home'; ?></a></li>
-    <li class="breadcrumb-item"><a href="./barcode/sheet/"><?php echo $lang === 'ja' ? 'バーコードシート印刷' : 'Print Barcode Sheets'; ?></a></li>
-    <li class="breadcrumb-item active" aria-current="page"><?php echo $lang === 'ja' ? 'バーコードから商品登録' : 'Register from Barcode'; ?></li>
-  </ol>
-</nav>
-
 <div
   x-data="{
     barcodeInput: '',
@@ -25,7 +17,12 @@
       try {
         const res = await fetch('./api/v1/barcode/' + encodeURIComponent(this.barcodeInput.trim()));
         const data = await res.json();
-        if (data.item) { this.lookupResult = data; }
+        if (data.item || data.code) { 
+          this.lookupResult = data; 
+          if (!data.item) {
+             this.lookupError = null;
+          }
+        }
         else { this.lookupError = '<?php echo $lang === 'ja' ? 'バーコードが見つかりません' : 'Barcode not found'; ?>'; }
       } catch(e) {
         this.lookupError = '<?php echo $lang === 'ja' ? '検索エラーが発生しました' : 'Lookup error occurred'; ?>';
@@ -54,7 +51,9 @@
           <label for="barcode-input" class="form-label"><?php echo $lang === 'ja' ? 'バーコード番号' : 'Barcode Number'; ?></label>
           <div class="flex gap-2">
             <div class="relative flex-1">
-              <svg xmlns="http://www.w3.org/2000/svg" class="absolute left-3 top-3.5 h-5 w-5 text-body" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"/></svg>
+              <span class="absolute left-3 top-3 text-body">
+                <?php ui('iconHeroicon', ['name' => 'qr', 'class' => 'h-5 w-5']); ?>
+              </span>
               <input
                 id="barcode-input"
                 x-model="barcodeInput"
@@ -68,7 +67,7 @@
             </div>
             <button type="button" @click="lookup()" class="btn-primary px-6" :disabled="loading">
               <span x-show="!loading"><?php echo $lang === 'ja' ? '検索' : 'Search'; ?></span>
-              <span x-show="loading">
+              <span x-show="loading" class="flex items-center">
                 <svg class="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
               </span>
             </button>
@@ -77,12 +76,12 @@
         </div>
 
         <!-- Lookup result: already registered -->
-        <div x-show="lookupResult?.item?.id" class="alert alert-success mt-4">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        <div x-show="lookupResult && lookupResult.item && lookupResult.item.id" class="alert alert-success mt-4">
+          <?php ui('iconHeroicon', ['name' => 'check-square', 'class' => 'h-5 w-5 shrink-0']); ?>
           <div>
             <p class="font-medium"><?php echo $lang === 'ja' ? '商品登録済み' : 'Already Registered'; ?></p>
-            <p class="text-sm" x-text="lookupResult?.item?.name"></p>
-            <a :href="'./item/start/item/' + lookupResult?.item?.id" class="text-sm underline">
+            <p class="text-sm" x-text="lookupResult && lookupResult.item ? lookupResult.item.name : ''"></p>
+            <a :href="'./item/start/item/' + (lookupResult && lookupResult.item ? lookupResult.item.id : '')" class="text-sm underline">
               <?php echo $lang === 'ja' ? '商品詳細を見る →' : 'View product details →'; ?>
             </a>
           </div>
@@ -126,7 +125,7 @@
           <div class="mb-4">
             <label for="fb-price" class="form-label"><?php echo $lang === 'ja' ? '価格' : 'Price'; ?></label>
             <div class="relative">
-              <span class="absolute left-4 top-3.5 text-body">¥</span>
+              <span class="absolute left-4 top-3 text-body">¥</span>
               <input id="fb-price" type="text" name="price" pattern="^[0-9,]+$" maxlength="11" class="form-input pl-8" placeholder="0">
             </div>
           </div>
@@ -140,8 +139,10 @@
           </div>
 
           <button type="submit" class="btn-primary w-full" :disabled="!barcodeInput">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
-            <?php echo $lang === 'ja' ? '商品情報を登録する' : 'Register Product'; ?>
+            <span class="flex items-center justify-center">
+              <?php ui('iconHeroicon', ['name' => 'plus', 'class' => 'h-5 w-5 mr-2']); ?>
+              <?php echo $lang === 'ja' ? '商品情報を登録する' : 'Register Product'; ?>
+            </span>
           </button>
         </form>
       </div>
@@ -152,3 +153,4 @@
 </div>
 
 <?php }; ?>
+

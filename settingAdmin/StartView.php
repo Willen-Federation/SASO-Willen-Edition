@@ -1,0 +1,111 @@
+<?php
+namespace saso\settingAdmin;
+
+use Saso\Application\Auth\AdminGuard;
+use saso\framework\Setter;
+use saso\framework\View;
+use saso\repository\DBConnection;
+use Saso\Domain\Setting\SettingValue;
+use Saso\Infrastructure\Setting\PdoSystemSettingService;
+use Saso\Infrastructure\Auth\Crypto\SecretEncryptor;
+
+final class StartView implements View
+{
+    use Setter;
+    private \Closure $content;
+    public bool $authorized = false;
+    public string $message = '';
+    
+    public array $settings = [];
+    public array $envOverrides = [];
+
+    public function __construct(private array $query, private array $post)
+    {
+        $pdo = DBConnection::getPdo();
+        $this->authorized = (new AdminGuard($pdo))->isAdmin(
+            isset($_SESSION['id']) && is_string($_SESSION['id']) ? $_SESSION['id'] : null,
+        );
+
+        if (!$this->authorized) {
+            return;
+        }
+
+        $appKey = (string)(getenv('APP_KEY') ?: '');
+        $encryptor = null;
+        if ($appKey !== '') {
+            $rawKey = base64_decode($appKey, true);
+            if ($rawKey !== false && strlen($rawKey) === 32) {
+                $encryptor = new SecretEncryptor($rawKey);
+            }
+        }
+
+        $settingService = new PdoSystemSettingService($pdo, $encryptor);
+        
+        $this->envOverrides = [
+            'APP_HTTPS' => getenv('APP_HTTPS') !== false,
+            'SAFE_MODE' => getenv('SAFE_MODE') !== false,
+        ];
+
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $this->handlePost($settingService, $_SESSION['id'] ?? 'admin');
+            $this->message = 'Settings saved successfully.';
+        }
+
+        $this->loadSettings($settingService);
+    }
+
+    private function handlePost(PdoSystemSettingService $settingService, string $memberId): void
+    {
+        $fields = [
+            'default_locale' => 'string',
+            'mail.smtp_host' => 'string',
+            'mail.smtp_port' => 'int',
+            'outputRow' => 'int',
+            'sheetAmount' => 'int',
+            'auth.mode' => 'string',
+        ];
+
+        foreach ($fields as $key => $type) {
+            if (isset($this->post[$key])) {
+                $val = $this->post[$key];
+                if ($type === 'int') {
+                    $settingValue = SettingValue::int((int)$val);
+                } else {
+                    $settingValue = SettingValue::string((string)$val);
+                }
+                $settingService->set($key, $settingValue, $memberId, 'Updated via Web UI');
+            }
+        }
+    }
+
+    private function loadSettings(PdoSystemSettingService $settingService): void
+    {
+        // Safe to call get() for each field
+        $this->settings['default_locale'] = $settingService->getString('default_locale', 'en');
+        $this->settings['mail.smtp_host'] = $settingService->getString('mail.smtp_host', '');
+        $this->settings['mail.smtp_port'] = $settingService->getInt('mail.smtp_port', 25);
+        $this->settings['outputRow'] = $settingService->getInt('outputRow', 2);
+        $this->settings['sheetAmount'] = $settingService->getInt('sheetAmount', 10);
+        $this->settings['auth.mode'] = $settingService->getString('auth.mode', 'local');
+    }
+
+    public function display(): void
+    {
+        require_once 'settingAdmin/template/start.php';
+    }
+
+    public function onRoot(): bool
+    {
+        return true;
+    }
+
+    public function getTitle(): string
+    {
+        return __('ui.settings.title', [], null, 'System Settings');
+    }
+
+    public function getContent(): \Closure
+    {
+        return $this->content;
+    }
+}

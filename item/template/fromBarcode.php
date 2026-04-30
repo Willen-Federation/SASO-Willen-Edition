@@ -49,7 +49,13 @@
         </p>
         <div class="mb-4">
           <label for="barcode-input" class="form-label"><?php echo $lang === 'ja' ? 'バーコード番号' : 'Barcode Number'; ?></label>
-          <div class="flex gap-2">
+          <?php
+          $inputId     = 'barcode-input';
+          $buttonLabel = __('ui.scanner.open', [], null, 'Scan Barcode / QR');
+          $uniqueId    = 'frombarcode';
+          include __DIR__ . '/../../root/template/_components/barcodeScanner.php';
+          ?>
+          <div class="mt-2 flex gap-2">
             <div class="relative flex-1">
               <span class="absolute left-3 top-3 text-body">
                 <?php ui('iconHeroicon', ['name' => 'qr', 'class' => 'h-5 w-5']); ?>

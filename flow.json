@@ -121,6 +121,9 @@
     "featureAdmin": {
         "list": "\\saso\\featureAdmin\\ListDIContainer"
     },
+    "settingAdmin": {
+        "start": "\\saso\\settingAdmin\\StartDIContainer"
+    },
     "admin": {
         "feature-flags": "\\saso\\admin\\FeatureFlagsDIContainer",
         "auth-providers": "\\saso\\admin\\AuthProvidersDIContainer"

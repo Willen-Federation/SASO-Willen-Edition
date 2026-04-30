@@ -6,6 +6,8 @@ namespace Saso\Presentation\Api\V1;
 
 use PDO;
 use Saso\Domain\MobileConnect\Jwt\JwtService;
+use Saso\Infrastructure\Auth\Crypto\SecretEncryptor;
+use Saso\Infrastructure\Auth\Repository\PdoAuthProviderRepository;
 use Saso\Infrastructure\Barcode\PdoBarcodeRepository;
 use Saso\Infrastructure\FeatureFlag\PdoFeatureFlagRepository;
 use Saso\Infrastructure\Logging\MonologFactory;
@@ -15,6 +17,9 @@ use Saso\Infrastructure\MobileConnect\PdoPairingCodeRepository;
 use Saso\Infrastructure\MobileConnect\QrCodeRenderer;
 use Saso\Infrastructure\Translation\TranslatorFactory;
 use Saso\Infrastructure\Translation\TranslatorRegistry;
+use Saso\Presentation\Api\V1\Controller\Auth\ProviderGetController;
+use Saso\Presentation\Api\V1\Controller\Auth\ProviderListController;
+use Saso\Presentation\Api\V1\Controller\Auth\ProviderTestController;
 use Saso\Presentation\Api\V1\Controller\Barcode\BarcodeGetController;
 use Saso\Presentation\Api\V1\Controller\Config\FieldsController;
 use Saso\Presentation\Api\V1\Controller\FeatureFlag\FeatureFlagCreateController;
@@ -109,6 +114,11 @@ final class Bootstrap
         $draftCreate  = new DraftCreateController($pdo, $bus, $jwt);
         $configFields = new FieldsController($pdo);
 
+        $authProviderRepo = self::createAuthProviderRepository($pdo);
+        $providerList     = new ProviderListController($authProviderRepo);
+        $providerGet      = new ProviderGetController($authProviderRepo);
+        $providerTest     = new ProviderTestController($authProviderRepo);
+
         return [
             'getHealth'       => [$health, 'handle'],
             'getOpenApiSpec'  => [$openApi, 'yaml'],
@@ -131,6 +141,10 @@ final class Bootstrap
 
             'createItemDraft'   => [$draftCreate, 'handle'],
             'getConfigFields'   => [$configFields, 'handle'],
+
+            'listAuthProviders' => [$providerList, 'handle'],
+            'getAuthProvider'   => [$providerGet, 'handle'],
+            'testAuthProvider'  => [$providerTest, 'handle'],
         ];
     }
 
@@ -157,6 +171,18 @@ final class Bootstrap
                 PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
             ],
         );
+    }
+
+    private static function createAuthProviderRepository(PDO $pdo): PdoAuthProviderRepository
+    {
+        $appKey = (string) (getenv('APP_KEY') ?: '');
+        if ($appKey !== '') {
+            $raw = base64_decode($appKey, true);
+            if ($raw !== false && strlen($raw) === 32) {
+                return new PdoAuthProviderRepository($pdo, new SecretEncryptor($raw));
+            }
+        }
+        return new PdoAuthProviderRepository($pdo, new SecretEncryptor(SecretEncryptor::generateKey()));
     }
 
     /**

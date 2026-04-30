@@ -26,20 +26,22 @@ final class BarcodeGetController
         try {
             $code = new BarcodeCode($codeString);
         } catch (\InvalidArgumentException) {
-            return ProblemResponse::notFound('SASO-BARCODE-4001', "Invalid barcode format: $codeString"); // @phpstan-ignore class.notFound
+            return ProblemResponse::notFound('SASO-BARCODE-4001', "Invalid barcode format: $codeString");
         }
 
         $row = $this->barcodes->findByCode($code);
         if ($row === null) {
-            return ProblemResponse::notFound('SASO-BARCODE-4004', "Barcode not found: $codeString"); // @phpstan-ignore class.notFound
+            return ProblemResponse::notFound('SASO-BARCODE-4004', "Barcode not found: $codeString");
         }
 
         $itemInfo = null;
         if ($row->linkedItemId !== null) {
             $finder = new DbFinder();
             $item = $finder->current(new FindOneById(), ['id' => $row->linkedItemId]);
-            if ($item->isJust()) { // @phpstan-ignore method.notFound
-                $itemEntity = $item->get(); // @phpstan-ignore method.notFound
+            /** @phpstan-ignore-next-line */
+            if ($item->isJust()) {
+                /** @phpstan-ignore-next-line */
+                $itemEntity = $item->get();
                 $itemInfo = [
                     'id'   => $row->linkedItemId,
                     'name' => $itemEntity->name,
@@ -47,10 +49,13 @@ final class BarcodeGetController
             }
         }
 
-        return new JsonResponse([ // @phpstan-ignore arguments.count, argument.type
-            'code'   => $row->code->asString(),
-            'status' => $row->status->value,
-            'item'   => $itemInfo,
-        ]);
+        return new JsonResponse(
+            status: 200,
+            body: [
+                'code'   => $row->code->asString(),
+                'status' => $row->status->value,
+                'item'   => $itemInfo,
+            ],
+        );
     }
 }

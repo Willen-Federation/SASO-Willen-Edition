@@ -4,12 +4,13 @@ declare(strict_types=1);
 
 namespace Saso\Infrastructure\FeatureFlag;
 
-use OpenFeature\interfaces\common\Metadata;
+use DateTime;
+use OpenFeature\interfaces\common\Metadata as MetadataInterface;
 use OpenFeature\interfaces\flags\EvaluationContext;
 use OpenFeature\interfaces\provider\Provider;
 use OpenFeature\interfaces\provider\ResolutionDetails;
 use OpenFeature\interfaces\provider\ResolutionError;
-use Psr\Log\LoggerAwareTrait;
+use Psr\Log\LoggerInterface;
 use Saso\Domain\Feature\FeatureKey;
 use Saso\Domain\Feature\Repository\FeatureFlagRepository;
 
@@ -18,9 +19,9 @@ use Saso\Domain\Feature\Repository\FeatureFlagRepository;
  */
 final class DbProvider implements Provider
 {
-    use LoggerAwareTrait;
-
-    /** @var array<string, \Saso\Domain\Feature\FeatureFlag|null> */
+    /**
+     * @var array<string, \Saso\Domain\Feature\FeatureFlag|null> Request-scoped cache
+     */
     private array $cache = [];
 
     public function __construct(
@@ -28,9 +29,14 @@ final class DbProvider implements Provider
     ) {
     }
 
-    public function getMetadata(): Metadata
+    public function setLogger(LoggerInterface $logger): void
     {
-        return new class () implements Metadata {
+        // Logger accepted but not used — provider operates silently.
+    }
+
+    public function getMetadata(): MetadataInterface
+    {
+        return new class () implements MetadataInterface {
             public function getName(): string
             {
                 return 'SasoDbProvider';
@@ -104,16 +110,18 @@ final class DbProvider implements Provider
         }
     }
 
-    private function buildResolution(mixed $value, string $reason): ResolutionDetails
+    /** @param bool|string|int|float|DateTime|array<mixed>|null $value */
+    private function buildResolution(bool|string|int|float|DateTime|array|null $value, string $reason): ResolutionDetails
     {
         return new class ($value, $reason) implements ResolutionDetails {
+            /** @param bool|string|int|float|DateTime|array<mixed>|null $value */
             public function __construct(
-                private readonly mixed $value,
+                private readonly bool|string|int|float|DateTime|array|null $value,
                 private readonly string $reason,
             ) {
             }
 
-            public function getValue(): bool|string|int|float|\DateTime|array|null
+            public function getValue(): bool|string|int|float|DateTime|array|null
             {
                 return $this->value;
             }

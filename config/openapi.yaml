@@ -416,6 +416,98 @@ paths:
         '500':
           $ref: '#/components/responses/ProblemInternalError'
 
+  # ---------------------------------------------------------------------------
+  # Item Drafts (mobile capture flow)
+  # ---------------------------------------------------------------------------
+
+  /items/drafts:
+    post:
+      tags: [mobile]
+      summary: Create an item draft from a mobile capture.
+      description: |
+        Accepts a multipart/form-data upload from the mobile app. Saves the
+        image to `uploads/item_drafts/`, inserts an `item_draft` row, and
+        dispatches a `ProcessItemDraft` message for background enrichment
+        (ISBN/JAN lookup, AI vision analysis).
+
+        **Auth:** `Authorization: Bearer <JWT>` (issued by POST /api/v1/mobile/connect).
+
+        Form fields:
+          * `image`        — product photo (required; JPEG, PNG, WebP, GIF; ≤ 20 MB)
+          * `item_name`    — initial item name (optional)
+          * `jan_code`     — JAN/EAN barcode string (optional)
+          * `isbn`         — ISBN (optional)
+          * `price`        — price hint (optional)
+          * `barcode_hint` — barcode string to associate with the draft (optional)
+      operationId: createItemDraft
+      x-handler: 'Saso\Presentation\Api\V1\Controller\Item\DraftCreateController::handle'
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [image]
+              properties:
+                image:
+                  type: string
+                  format: binary
+                  description: Product photo (JPEG, PNG, WebP, GIF; ≤ 20 MB).
+                item_name:
+                  type: string
+                  maxLength: 500
+                jan_code:
+                  type: string
+                  maxLength: 64
+                isbn:
+                  type: string
+                  maxLength: 20
+                price:
+                  type: string
+                  maxLength: 64
+                barcode_hint:
+                  type: string
+                  maxLength: 64
+      responses:
+        '201':
+          description: Item draft created and queued for processing.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ItemDraftCreatedResponse'
+        '400':
+          $ref: '#/components/responses/ProblemBadRequest'
+        '401':
+          $ref: '#/components/responses/ProblemUnauthorized'
+        '500':
+          $ref: '#/components/responses/ProblemInternalError'
+
+  # ---------------------------------------------------------------------------
+  # Config / Field definitions
+  # ---------------------------------------------------------------------------
+
+  /config/fields:
+    get:
+      tags: [mobile]
+      summary: Get mobile-visible item attribute field definitions.
+      description: |
+        Returns all `item_attribute_definition` rows with `show_on_mobile = 1`,
+        ordered by `sort_order`. The Flutter app fetches this list on startup
+        to dynamically build the item-capture form.
+      operationId: getConfigFields
+      x-handler: 'Saso\Presentation\Api\V1\Controller\Config\FieldsController::handle'
+      responses:
+        '200':
+          description: List of mobile-visible field definitions.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/FieldDefinition'
+        '500':
+          $ref: '#/components/responses/ProblemInternalError'
+
   /barcode/{code}:
     parameters:
       - name: code
@@ -788,6 +880,60 @@ components:
         total:
           type: integer
           example: 2
+
+    ItemDraftCreatedResponse:
+      type: object
+      required: [draft_id, status]
+      properties:
+        draft_id:
+          type: integer
+          description: ID of the newly created item_draft row.
+          example: 123
+        status:
+          type: string
+          enum: [queued]
+          description: Initial processing status.
+          example: queued
+
+    FieldDefinition:
+      type: object
+      required: [code, labelEn, labelJa, valueType, required, enumValues, showOnMobile, sortOrder]
+      properties:
+        code:
+          type: string
+          description: Unique attribute code (e.g. "weight").
+          example: weight
+        labelEn:
+          type: string
+          description: English display label.
+          example: Weight
+        labelJa:
+          type: string
+          description: Japanese display label.
+          example: 重さ
+        valueType:
+          type: string
+          description: Data type of the attribute value.
+          example: float
+        required:
+          type: boolean
+          description: Whether the field is mandatory on mobile capture.
+          example: false
+        enumValues:
+          type: array
+          nullable: true
+          items:
+            type: string
+          description: Allowed values when valueType is "enum", otherwise null.
+          example: null
+        showOnMobile:
+          type: boolean
+          description: Always true for results from this endpoint.
+          example: true
+        sortOrder:
+          type: integer
+          description: Display order on mobile (ascending).
+          example: 10
 
     ProblemDetails:
       type: object

@@ -9,18 +9,21 @@ use Saso\Domain\MobileConnect\Jwt\JwtService;
 use Saso\Infrastructure\Barcode\PdoBarcodeRepository;
 use Saso\Infrastructure\FeatureFlag\PdoFeatureFlagRepository;
 use Saso\Infrastructure\Logging\MonologFactory;
+use Saso\Infrastructure\Messaging\MessageBusFactory;
 use Saso\Infrastructure\MobileConnect\PdoDeviceTokenRepository;
 use Saso\Infrastructure\MobileConnect\PdoPairingCodeRepository;
 use Saso\Infrastructure\MobileConnect\QrCodeRenderer;
 use Saso\Infrastructure\Translation\TranslatorFactory;
 use Saso\Infrastructure\Translation\TranslatorRegistry;
 use Saso\Presentation\Api\V1\Controller\Barcode\BarcodeGetController;
+use Saso\Presentation\Api\V1\Controller\Config\FieldsController;
 use Saso\Presentation\Api\V1\Controller\FeatureFlag\FeatureFlagCreateController;
 use Saso\Presentation\Api\V1\Controller\FeatureFlag\FeatureFlagDeleteController;
 use Saso\Presentation\Api\V1\Controller\FeatureFlag\FeatureFlagGetController;
 use Saso\Presentation\Api\V1\Controller\FeatureFlag\FeatureFlagListController;
 use Saso\Presentation\Api\V1\Controller\FeatureFlag\FeatureFlagUpdateController;
 use Saso\Presentation\Api\V1\Controller\HealthController;
+use Saso\Presentation\Api\V1\Controller\Item\DraftCreateController;
 use Saso\Presentation\Api\V1\Controller\Mobile\ConfigBundleController;
 use Saso\Presentation\Api\V1\Controller\Mobile\ConnectController;
 use Saso\Presentation\Api\V1\Controller\Mobile\QrController;
@@ -102,6 +105,10 @@ final class Bootstrap
         $barcodeRepo = new PdoBarcodeRepository($pdo);
         $barcodeGet  = new BarcodeGetController($barcodeRepo);
 
+        $bus          = MessageBusFactory::create([]);
+        $draftCreate  = new DraftCreateController($pdo, $bus, $jwt);
+        $configFields = new FieldsController($pdo);
+
         return [
             'getHealth'       => [$health, 'handle'],
             'getOpenApiSpec'  => [$openApi, 'yaml'],
@@ -113,14 +120,17 @@ final class Bootstrap
             'updateFeatureFlag' => [$flagUpdate, 'handle'],
             'deleteFeatureFlag' => [$flagDelete, 'handle'],
 
-            'createPairingCode' => [$qr, 'handle'],
-            'mobileConnect'     => [$connect, 'handle'],
+            'createPairingCode'  => [$qr, 'handle'],
+            'mobileConnect'      => [$connect, 'handle'],
             'refreshMobileToken' => [$tokenRefresh, 'handle'],
-            'getMobileConfig'   => [$configBundle, 'handle'],
-            'listDeviceTokens'  => [$tokenList, 'handle'],
-            'revokeDeviceToken' => [$tokenRevoke, 'handle'],
+            'getMobileConfig'    => [$configBundle, 'handle'],
+            'listDeviceTokens'   => [$tokenList, 'handle'],
+            'revokeDeviceToken'  => [$tokenRevoke, 'handle'],
 
             'getBarcode'        => [$barcodeGet, 'handle'],
+
+            'createItemDraft'   => [$draftCreate, 'handle'],
+            'getConfigFields'   => [$configFields, 'handle'],
         ];
     }
 

@@ -2,10 +2,10 @@
 <?php $this->content = function ($v) { ?>
 <?php $csrf = \saso\util\CSRFtoken::current(); ?>
 
-<?php /* Title rendered by root.php's <h2 class="page-title">; don't duplicate it. */ ?>
+<h2 class="mb-4">認証プロバイダーの追加</h2>
 
 <?php if ($v->errorMessage !== '') { ?>
-<div class="alert alert-danger" role="alert"><?php echo htmlspecialchars($v->errorMessage, ENT_QUOTES, 'UTF-8'); ?></div>
+<div class="alert alert-danger"><?php echo htmlspecialchars($v->errorMessage, ENT_QUOTES, 'UTF-8'); ?></div>
 <?php } ?>
 
 <!-- ======================================================
@@ -19,10 +19,10 @@
 
     <div class="col-md-4">
       <div class="card h-100 provider-card" data-provider="auth0" role="button" tabindex="0"
-           aria-pressed="false">
+           aria-pressed="false" style="cursor:pointer;">
         <div class="card-body">
           <h6 class="card-title d-flex align-items-center gap-2">
-            <i class="bi bi-shield-lock text-primary"></i> Auth0
+            <i class="bi bi-shield-lock-fill text-primary"></i> Auth0
           </h6>
           <p class="card-text text-muted small">
             クラウド型 IDaaS。<strong>Auth0 ドメイン</strong>・<strong>クライアント ID</strong>・
@@ -34,14 +34,14 @@
 
     <div class="col-md-4">
       <div class="card h-100 provider-card" data-provider="cognito" role="button" tabindex="0"
-           aria-pressed="false">
+           aria-pressed="false" style="cursor:pointer;">
         <div class="card-body">
           <h6 class="card-title d-flex align-items-center gap-2">
-            <i class="bi bi-cloud text-warning"></i> Amazon Cognito
+            <i class="bi bi-cloud-fill text-warning"></i> Amazon Cognito
           </h6>
           <p class="card-text text-muted small">
             AWS マネージド認証。<strong>リージョン</strong>・<strong>ユーザープール ID</strong>・
-            <strong>クライアント ID</strong>・<strong>クライアントシークレット</strong>で設定完了.
+            <strong>クライアント ID</strong>・<strong>クライアントシークレット</strong>で設定完了。
           </p>
         </div>
       </div>
@@ -49,10 +49,10 @@
 
     <div class="col-md-4">
       <div class="card h-100 provider-card" data-provider="firebase" role="button" tabindex="0"
-           aria-pressed="false">
+           aria-pressed="false" style="cursor:pointer;">
         <div class="card-body">
           <h6 class="card-title d-flex align-items-center gap-2">
-            <i class="bi bi-flame text-danger"></i> Firebase Authentication
+            <i class="bi bi-fire text-danger"></i> Firebase Authentication
           </h6>
           <p class="card-text text-muted small">
             Google のモバイルファースト認証。<strong>プロジェクト ID</strong>・
@@ -75,10 +75,10 @@
 
     <div class="col-md-6">
       <div class="card h-100 provider-card" data-provider="oidc" role="button" tabindex="0"
-           aria-pressed="false">
+           aria-pressed="false" style="cursor:pointer;">
         <div class="card-body">
           <h6 class="card-title d-flex align-items-center gap-2">
-            <i class="bi bi-key text-secondary"></i> 汎用 OIDC
+            <i class="bi bi-key-fill text-secondary"></i> 汎用 OIDC
           </h6>
           <p class="card-text text-muted small">
             OpenID Connect 対応の任意の ID プロバイダー（Keycloak・Microsoft Entra ID など）。
@@ -91,10 +91,10 @@
 
     <div class="col-md-6">
       <div class="card h-100 provider-card" data-provider="saml" role="button" tabindex="0"
-           aria-pressed="false">
+           aria-pressed="false" style="cursor:pointer;">
         <div class="card-body">
           <h6 class="card-title d-flex align-items-center gap-2">
-            <i class="bi bi-building text-secondary"></i> SAML 2.0
+            <i class="bi bi-building-fill text-secondary"></i> SAML 2.0
           </h6>
           <p class="card-text text-muted small">
             エンタープライズ向け SAML ID プロバイダー（Active Directory Federation Services・Shibboleth など）。
@@ -116,8 +116,8 @@
 
   <!-- Auth0 フォーム -->
   <div id="form-auth0" class="provider-form d-none">
-    <h5 class="mb-3"><i class="bi bi-shield-lock text-primary me-2"></i>Auth0 の設定</h5>
-    <form method="post" novalidate>
+    <h5 class="mb-3"><i class="bi bi-shield-lock-fill text-primary me-2"></i>Auth0 の設定</h5>
+    <form method="post">
       <input type="hidden" name="csrftoken" value="<?php echo htmlspecialchars($csrf, ENT_QUOTES, 'UTF-8'); ?>">
       <input type="hidden" name="provider_template" value="auth0">
       <div class="row g-3">
@@ -130,11 +130,8 @@
         <div class="col-md-6">
           <label for="auth0-domain" class="form-label">Auth0 ドメイン <span class="text-danger">*</span></label>
           <input type="text" class="form-control" id="auth0-domain" name="auth0_domain"
-                 placeholder="例: example.auth0.com" required
-                 autocomplete="off" inputmode="url"
-                 pattern="(?:https?://)?[A-Za-z0-9.\-]+(?:\.[A-Za-z]{2,})+/?.*">
-          <div class="form-text"><code>https://</code> は省略可。貼り付けた場合は自動で除去されます。</div>
-          <div id="auth0-domain-feedback" class="small text-muted mt-1"></div>
+                 placeholder="例: example.auth0.com" required>
+          <div class="form-text">テナントのドメイン（<code>https://</code> は不要）。</div>
         </div>
         <div class="col-md-6">
           <label for="auth0-client-id" class="form-label">クライアント ID <span class="text-danger">*</span></label>
@@ -146,11 +143,9 @@
           <input type="password" class="form-control" id="auth0-client-secret" name="client_secret"
                  placeholder="Auth0 アプリのクライアントシークレット" required>
         </div>
-        <div class="col-12 d-flex flex-wrap gap-2">
+        <div class="col-12">
           <button type="submit" class="btn btn-primary">保存</button>
-          <button type="button" class="btn btn-outline-primary" data-test-connection="auth0">接続をテスト</button>
-          <button type="button" class="btn btn-outline-secondary" onclick="clearSelection()">キャンセル</button>
-          <span id="auth0-test-result" class="align-self-center small"></span>
+          <button type="button" class="btn btn-outline-secondary ms-2" onclick="clearSelection()">キャンセル</button>
         </div>
       </div>
     </form>
@@ -158,7 +153,7 @@
 
   <!-- Amazon Cognito フォーム -->
   <div id="form-cognito" class="provider-form d-none">
-    <h5 class="mb-3"><i class="bi bi-cloud text-warning me-2"></i>Amazon Cognito の設定</h5>
+    <h5 class="mb-3"><i class="bi bi-cloud-fill text-warning me-2"></i>Amazon Cognito の設定</h5>
     <form method="post">
       <input type="hidden" name="csrftoken" value="<?php echo htmlspecialchars($csrf, ENT_QUOTES, 'UTF-8'); ?>">
       <input type="hidden" name="provider_template" value="cognito">
@@ -200,7 +195,7 @@
 
   <!-- Firebase Authentication フォーム -->
   <div id="form-firebase" class="provider-form d-none">
-    <h5 class="mb-3"><i class="bi bi-flame text-danger me-2"></i>Firebase Authentication の設定</h5>
+    <h5 class="mb-3"><i class="bi bi-fire text-danger me-2"></i>Firebase Authentication の設定</h5>
     <form method="post">
       <input type="hidden" name="csrftoken" value="<?php echo htmlspecialchars($csrf, ENT_QUOTES, 'UTF-8'); ?>">
       <input type="hidden" name="provider_template" value="firebase">
@@ -238,7 +233,7 @@
 
   <!-- 汎用 OIDC フォーム -->
   <div id="form-oidc" class="provider-form d-none">
-    <h5 class="mb-3"><i class="bi bi-key text-secondary me-2"></i>汎用 OIDC の設定</h5>
+    <h5 class="mb-3"><i class="bi bi-key-fill text-secondary me-2"></i>汎用 OIDC の設定</h5>
     <form method="post">
       <input type="hidden" name="csrftoken" value="<?php echo htmlspecialchars($csrf, ENT_QUOTES, 'UTF-8'); ?>">
       <input type="hidden" name="provider_template" value="oidc">
@@ -280,7 +275,7 @@
 
   <!-- SAML 2.0 フォーム -->
   <div id="form-saml" class="provider-form d-none">
-    <h5 class="mb-3"><i class="bi bi-building text-secondary me-2"></i>SAML 2.0 の設定</h5>
+    <h5 class="mb-3"><i class="bi bi-building-fill text-secondary me-2"></i>SAML 2.0 の設定</h5>
     <form method="post">
       <input type="hidden" name="csrftoken" value="<?php echo htmlspecialchars($csrf, ENT_QUOTES, 'UTF-8'); ?>">
       <input type="hidden" name="provider_template" value="saml">
@@ -348,111 +343,6 @@
         e.preventDefault();
         selectProvider(card.dataset.provider);
       }
-    });
-  });
-
-  // ----------------------------------------------------------------------
-  //  Auth0 domain normalisation
-  //
-  //  Operators routinely paste "https://example.auth0.com" into the Domain
-  //  field even though the placeholder shows it without a scheme. The
-  //  server strips the scheme defensively (cf. ProviderSaveController), but
-  //  doing it on the client too gives instant feedback and stops Safari
-  //  from rejecting the submit with "The string did not match the expected
-  //  pattern" — the symptom the user reported as "unexpected syntax".
-  // ----------------------------------------------------------------------
-  function normaliseAuth0Domain(value) {
-    if (typeof value !== 'string') return '';
-    var v = value.trim();
-    v = v.replace(/^[a-zA-Z][a-zA-Z0-9+.\-]*:\/\//, '');
-    v = v.replace(/^\/+|\s+$/g, '').replace(/\/+$/g, '');
-    return v;
-  }
-
-  var auth0Domain = document.getElementById('auth0-domain');
-  var auth0Feedback = document.getElementById('auth0-domain-feedback');
-  if (auth0Domain) {
-    auth0Domain.addEventListener('blur', function () {
-      var cleaned = normaliseAuth0Domain(auth0Domain.value);
-      if (cleaned !== auth0Domain.value) {
-        auth0Domain.value = cleaned;
-      }
-      if (auth0Feedback) {
-        auth0Feedback.textContent = cleaned ? '保存される発行者: https://' + cleaned : '';
-      }
-    });
-    auth0Domain.addEventListener('paste', function (e) {
-      var pasted = (e.clipboardData || window.clipboardData).getData('text');
-      var cleaned = normaliseAuth0Domain(pasted);
-      if (cleaned && cleaned !== pasted) {
-        e.preventDefault();
-        auth0Domain.value = cleaned;
-        if (auth0Feedback) {
-          auth0Feedback.textContent = '貼り付け値から https:// を除去しました: https://' + cleaned;
-        }
-      }
-    });
-  }
-
-  // ----------------------------------------------------------------------
-  //  Server-side test-connection probe
-  //
-  //  Posts the relevant form fields to the wizard's `?action=test`
-  //  endpoint, which performs the OIDC discovery (or SAML metadata) fetch
-  //  server-side and validates the document. This replaces an earlier
-  //  client-side `fetch(..., { mode: 'no-cors' })` that returned an opaque
-  //  response with no body and status 0 — operators reported it both as
-  //  spurious failures *and* spurious successes.
-  // ----------------------------------------------------------------------
-  function escapeHtml(s) {
-    return String(s == null ? '' : s)
-      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
-  }
-
-  document.querySelectorAll('[data-test-connection]').forEach(function (btn) {
-    btn.addEventListener('click', function () {
-      var flavor = btn.getAttribute('data-test-connection');
-      var form = btn.closest('form');
-      var resultEl = form.querySelector('#' + flavor + '-test-result');
-
-      // Run the same client-side normalisation the server uses, so the
-      // value we POST matches the value the user is about to save.
-      var auth0Input = form.querySelector('[name=auth0_domain]');
-      if (auth0Input) {
-        auth0Input.value = normaliseAuth0Domain(auth0Input.value);
-      }
-
-      if (resultEl) resultEl.innerHTML = '<span class="text-muted">接続を確認中…</span>';
-      btn.disabled = true;
-      var t0 = Date.now();
-
-      var fd = new FormData(form);
-      // FormData includes every field on the form. The CSRF token hidden
-      // input is already on the form, so it ships automatically.
-      fetch('?action=test', {
-        method: 'POST',
-        body: fd,
-        credentials: 'same-origin',
-        cache: 'no-store',
-        headers: { 'Accept': 'application/json' },
-      })
-        .then(function (r) { return r.json().then(function (j) { return { status: r.status, json: j }; }); })
-        .then(function (resp) {
-          var ms = Date.now() - t0;
-          var msg = (resp.json && resp.json.message) ? resp.json.message : ('HTTP ' + resp.status);
-          if (resp.json && resp.json.ok) {
-            if (resultEl) resultEl.innerHTML = '<span class="text-success">✓ ' + escapeHtml(msg) + ' (' + ms + 'ms)</span>';
-          } else {
-            if (resultEl) resultEl.innerHTML = '<span class="text-danger">✗ ' + escapeHtml(msg) + '</span>';
-          }
-        })
-        .catch(function (err) {
-          if (resultEl) resultEl.innerHTML = '<span class="text-danger">接続できません: ' + escapeHtml(err && err.message ? err.message : 'ネットワークエラー') + '</span>';
-        })
-        .finally(function () {
-          btn.disabled = false;
-        });
     });
   });
 }());

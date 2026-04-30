@@ -15,36 +15,11 @@ final class ProviderNewDIContainer implements DIContainer
 
     public function isTopLevel(): bool
     {
-        // AJAX test-connection should not be wrapped in the application layout.
-        return ($_GET['action'] ?? '') === 'test';
+        return false;
     }
 
     public function di(\Closure $inside, array $query, array $post, array $config, \DateTime $now): void
     {
-        // AJAX probe used by the wizard's "接続をテスト" button. Reuses the
-        // same builder methods the save flow does, so the URL we probe is
-        // the URL we would persist.
-        if (($_GET['action'] ?? '') === 'test'
-            && ($_SERVER['REQUEST_METHOD'] ?? '') === 'POST') {
-            
-            $token = (string) ($post['csrftoken'] ?? '');
-            if (!\saso\util\CSRFtoken::verify($token)) {
-                $this->ctrl = new \saso\common\EmptyController();
-                $this->usecase = new \saso\common\EmptyUsecase(
-                    new \saso\common\FailJsonView(errorMessage: 'CSRF token invalid.')
-                );
-                return;
-            }
-
-            $this->ctrl = new ProviderTestController($post);
-            $this->usecase = new ProviderTestUsecase(
-                new ProviderTestPresenter(
-                    new ProviderTestView()
-                )
-            );
-            return;
-        }
-
         if (empty($post)) {
             $this->ctrl    = new ProviderNewController($query);
             $this->usecase = new EmptyUsecase(

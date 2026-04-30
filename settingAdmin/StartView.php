@@ -5,6 +5,7 @@ use Saso\Application\Auth\AdminGuard;
 use saso\framework\Setter;
 use saso\framework\View;
 use saso\repository\DBConnection;
+use Saso\Domain\Setting\SettingKey;
 use Saso\Domain\Setting\SettingValue;
 use Saso\Infrastructure\Setting\PdoSystemSettingService;
 use Saso\Infrastructure\Auth\Crypto\SecretEncryptor;
@@ -15,7 +16,7 @@ final class StartView implements View
     private \Closure $content;
     public bool $authorized = false;
     public string $message = '';
-    
+
     public array $settings = [];
     public array $envOverrides = [];
 
@@ -31,7 +32,7 @@ final class StartView implements View
         }
 
         $appKey = (string)(getenv('APP_KEY') ?: '');
-        $encryptor = null;
+        $encryptor = new SecretEncryptor(str_repeat("\x00", 32)); // fallback no-op key
         if ($appKey !== '') {
             $rawKey = base64_decode($appKey, true);
             if ($rawKey !== false && strlen($rawKey) === 32) {
@@ -40,7 +41,7 @@ final class StartView implements View
         }
 
         $settingService = new PdoSystemSettingService($pdo, $encryptor);
-        
+
         $this->envOverrides = [
             'APP_HTTPS' => getenv('APP_HTTPS') !== false,
             'SAFE_MODE' => getenv('SAFE_MODE') !== false,
@@ -60,33 +61,39 @@ final class StartView implements View
             'default_locale' => 'string',
             'mail.smtp_host' => 'string',
             'mail.smtp_port' => 'int',
-            'outputRow' => 'int',
-            'sheetAmount' => 'int',
-            'auth.mode' => 'string',
+            'outputRow'      => 'int',
+            'sheetAmount'    => 'int',
+            'auth.mode'      => 'string',
         ];
 
-        foreach ($fields as $key => $type) {
-            if (isset($this->post[$key])) {
-                $val = $this->post[$key];
-                if ($type === 'int') {
-                    $settingValue = SettingValue::int((int)$val);
-                } else {
-                    $settingValue = SettingValue::string((string)$val);
-                }
-                $settingService->set($key, $settingValue, $memberId, 'Updated via Web UI');
+        foreach ($fields as $keyStr => $type) {
+            if (isset($this->post[$keyStr])) {
+                $val = $this->post[$keyStr];
+                $settingValue = $type === 'int'
+                    ? SettingValue::int((int) $val)
+                    : SettingValue::string((string) $val);
+                $settingService->set(new SettingKey($keyStr), $settingValue, $memberId, 'Updated via Web UI');
             }
         }
     }
 
     private function loadSettings(PdoSystemSettingService $settingService): void
     {
-        // Safe to call get() for each field
-        $this->settings['default_locale'] = $settingService->getString('default_locale', 'en');
-        $this->settings['mail.smtp_host'] = $settingService->getString('mail.smtp_host', '');
-        $this->settings['mail.smtp_port'] = $settingService->getInt('mail.smtp_port', 25);
-        $this->settings['outputRow'] = $settingService->getInt('outputRow', 2);
-        $this->settings['sheetAmount'] = $settingService->getInt('sheetAmount', 10);
-        $this->settings['auth.mode'] = $settingService->getString('auth.mode', 'local');
+        $defaults = [
+            'default_locale' => ['string', 'en'],
+            'mail.smtp_host' => ['string', ''],
+            'mail.smtp_port' => ['int',    25],
+            'outputRow'      => ['int',    2],
+            'sheetAmount'    => ['int',    10],
+            'auth.mode'      => ['string', 'local'],
+        ];
+
+        foreach ($defaults as $keyStr => [$type, $default]) {
+            $val = $settingService->get(new SettingKey($keyStr));
+            $this->settings[$keyStr] = $val !== null
+                ? ($type === 'int' ? $val->asInt() : $val->asString())
+                : $default;
+        }
     }
 
     public function display(): void

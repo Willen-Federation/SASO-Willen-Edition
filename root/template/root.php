@@ -36,6 +36,8 @@ $this->content = function ($v) {
   <script defer src="./js/alpine-focus.min.js"></script>
   <script defer src="./js/alpine.min.js"></script>
   <script src="./js/tailadmin.js"></script>
+  <script src="./js/html5-qrcode.min.js"></script>
+  <script src="./js/scanner.js"></script>
   <style>[x-cloak]{display:none!important}</style>
 </head>
 <body x-data="taSidebar()" class="bg-gray-50 text-gray-700 dark:bg-gray-900 dark:text-gray-300">

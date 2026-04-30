@@ -131,6 +131,9 @@ ui:
     password: Password
     barcode_sheet: Barcode sheet
     shelf_simple: Shelf setup
+    drafts: "Draft Items"
+    scan_stock: "Scan & Stock"
+    ai_settings: "AI Settings"
     group:
       main: Main
       inventory: Inventory
@@ -237,6 +240,23 @@ ui:
     register:
       title: Register a new product
       submit: Register product
+      image_section_title: "Product Photo"
+      image_drop: "Drop photo or tap to select"
+      take_photo: "Take Photo"
+      skip_image: "Enter manually"
+      skip_image_confirm: "Register without a photo? Items without images are harder to identify later."
+      ai_queued: "Added to confirmation queue. AI is analyzing your image."
+      ai_badge: "AI suggestion"
+      draft_confirm_title: "Review & Confirm"
+    draft:
+      list_title: "Draft Items (Awaiting Confirmation)"
+      status_queued: "Queued"
+      status_processing: "Processing…"
+      status_ready: "Ready for Review"
+      status_failed: "Failed"
+      confirm_btn: "Confirm & Register"
+      discard_btn: "Discard Draft"
+      discard_confirm: "Are you sure you want to discard this draft? This cannot be undone."
     field:
       name: Product name
       name_help: Up to 50 characters.
@@ -326,3 +346,31 @@ ui:
     title: System Settings
     forbidden_title: Admin access required
     forbidden_body: Sign in as a user with role=admin to manage settings.
+  scanner:
+    open: "Scan Barcode / QR"
+    scanning: "Scanning…"
+    camera_denied: "Camera access denied. Please allow camera access and try again."
+    close: "Close"
+  scan_stock:
+    title: "Scan to Register Stock"
+    mode_stock: "Stock In (入庫)"
+    mode_shipment: "Stock Out (出庫)"
+    mode_inventory: "Stocktake (棚卸)"
+    submit: "Apply"
+  ai_settings:
+    title: "AI Settings"
+    provider_section: "AI Provider"
+    vision_provider: "Vision Provider"
+    chat_provider: "Chat Provider"
+    api_keys_section: "API Keys"
+    prompts_section: "Extraction Prompts"
+    prompt_ja: "Japanese Prompt"
+    prompt_en: "English Prompt"
+    batch_section: "Batch Processing"
+    rate_limit: "Rate Limit (requests/minute)"
+    save: "Save Settings"
+    saved: "Settings saved."
+    provider_none: "None (disabled)"
+    provider_openai: "OpenAI (GPT-4o)"
+    provider_gemini: "Google Gemini"
+    provider_claude: "Anthropic Claude"

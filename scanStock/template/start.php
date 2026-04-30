@@ -21,7 +21,6 @@ $this->content = function ($v) {
     submitting: false,
     submitSuccess: false,
     submitError: null,
-    csrfToken: <?php echo json_encode(\saso\util\CSRFtoken::current(), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT); ?>,
 
     async onBarcodeDetected(code) {
       this.scannedCode = code;
@@ -45,30 +44,21 @@ $this->content = function ($v) {
     },
 
     actionEndpoint() {
-      const id    = this.item ? this.item.id        : '';
-      const color = this.item ? this.item.colorCode  : '';
-      const size  = this.item ? this.item.sizeCode   : '';
-      const tail  = 'item/' + id + '/color/' + color + '/size/' + size + '/';
-      if (this.mode === 'stock')     return './item/stock/'     + tail;
-      if (this.mode === 'shipment')  return './item/shipment/'  + tail;
-      if (this.mode === 'inventory') return './item/inventory/' + tail;
-      return './item/stock/' + tail;
+      if (this.mode === 'stock')     return './item/stock/';
+      if (this.mode === 'shipment')  return './item/shipment/';
+      if (this.mode === 'inventory') return './item/inventory/';
+      return './item/stock/';
     },
 
     async submitStock() {
       if (!this.item) return;
-      if (!this.item.colorCode || !this.item.sizeCode) {
-        this.submitError = <?php echo json_encode($lang === 'ja' ? 'この商品には色・サイズが登録されていません' : 'This item has no color/size registered'); ?>;
-        return;
-      }
       this.submitting   = true;
       this.submitSuccess = false;
       this.submitError  = null;
       try {
         const form = new FormData();
-        form.append('kind',      this.mode);
-        form.append('amount',    this.quantity);
-        form.append('csrftoken', this.csrfToken);
+        form.append('itemId',   this.item.id);
+        form.append('quantity', this.quantity);
         const res = await fetch(this.actionEndpoint(), { method: 'POST', body: form });
         if (!res.ok) throw new Error(res.statusText);
         this.submitSuccess = true;
@@ -85,13 +75,16 @@ $this->content = function ($v) {
   @barcode-detected.window="onBarcodeDetected($event.detail.code)"
 >
 
-  <div class="mb-4">
-    <h1 class="h4 fw-semibold"><?php echo ui_text($title); ?></h1>
+  <div class="mb-6">
+    <h1 class="text-title-md2 font-semibold text-black dark:text-white">
+      <?php echo ui_text($title); ?>
+    </h1>
   </div>
 
-  <div class="card mb-4">
+  {{-- Mode selector --}}
+  <div class="card mb-6">
     <div class="card-body">
-      <div class="d-flex flex-wrap gap-2" role="tablist"
+      <div class="flex flex-wrap gap-2" role="tablist"
            aria-label="<?php echo ui_attr($lang === 'ja' ? '登録モード' : 'Stock mode'); ?>">
         <button
           type="button"
@@ -127,19 +120,20 @@ $this->content = function ($v) {
     </div>
   </div>
 
-  <div class="card mb-4">
+  {{-- Scanner + manual input --}}
+  <div class="card mb-6">
     <div class="card-header">
-      <h2 class="card-title">
+      <h2 class="font-semibold text-black dark:text-white">
         <?php echo ui_text($lang === 'ja' ? 'バーコードをスキャン' : 'Scan Barcode'); ?>
       </h2>
     </div>
     <div class="card-body">
-      <div class="row g-3">
-        <div class="col-md-8">
+      <div class="flex flex-col gap-4 sm:flex-row sm:items-end">
+        <div class="flex-1">
           <label for="scan-stock-barcode" class="form-label">
             <?php echo ui_text($lang === 'ja' ? 'バーコード' : 'Barcode'); ?>
           </label>
-          <div class="input-group">
+          <div class="flex gap-2">
             <?php
             $inputId     = 'scan-stock-barcode';
             $buttonLabel = __('ui.scanner.open', [], null, 'Scan Barcode / QR');
@@ -150,7 +144,7 @@ $this->content = function ($v) {
               id="scan-stock-barcode"
               x-model="scannedCode"
               type="text"
-              class="form-control"
+              class="form-input flex-1"
               placeholder="<?php echo ui_attr($lang === 'ja' ? 'バーコード番号' : 'Barcode number'); ?>"
               @keydown.enter.prevent="onBarcodeDetected(scannedCode)"
               autocomplete="off"
@@ -158,35 +152,41 @@ $this->content = function ($v) {
             <button
               type="button"
               @click="onBarcodeDetected(scannedCode)"
-              class="btn btn-primary"
+              class="btn-primary px-4"
               :disabled="loading || !scannedCode.trim()"
             >
               <span x-show="!loading">
-                <i class="bi bi-search me-1" aria-hidden="true"></i><?php echo ui_text($lang === 'ja' ? '検索' : 'Find'); ?>
+                <?php echo ui_text($lang === 'ja' ? '検索' : 'Find'); ?>
               </span>
-              <span x-show="loading" class="d-flex align-items-center gap-1">
-                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+              <span x-show="loading" class="flex items-center gap-1">
+                <svg class="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                </svg>
               </span>
             </button>
           </div>
-          <div x-show="itemError" x-text="itemError" class="mt-1 small text-danger" role="alert"></div>
+          <p x-show="itemError" x-text="itemError" class="mt-2 text-sm text-danger" role="alert"></p>
         </div>
       </div>
     </div>
   </div>
 
-  <div x-show="item" class="card mb-4">
+  {{-- Item info + quantity form --}}
+  <div x-show="item" class="card mb-6">
     <div class="card-body">
 
-      <div class="mb-4 d-flex align-items-start gap-3">
-        <div>
-          <p class="fw-semibold mb-1" x-text="item && item.name"></p>
-          <p class="small text-muted mb-0">
+      {{-- Item summary --}}
+      <div class="mb-4 flex items-start gap-4">
+        <div class="flex-1">
+          <p class="font-semibold text-black dark:text-white" x-text="item && item.name"></p>
+          <p class="mt-1 text-sm text-body dark:text-bodydark">
             ID: <span x-text="item && item.id"></span>
           </p>
         </div>
       </div>
 
+      {{-- Quantity input --}}
       <div class="mb-4">
         <label for="scan-stock-qty" class="form-label">
           <?php echo ui_text($lang === 'ja' ? '数量' : 'Quantity'); ?>
@@ -196,25 +196,29 @@ $this->content = function ($v) {
           type="number"
           x-model.number="quantity"
           min="1"
-          class="form-control"
-          style="width:8rem;"
+          class="form-input w-32"
         >
       </div>
 
+      {{-- Success / error messages --}}
       <div x-show="submitSuccess" class="alert alert-success mb-4" role="status">
         <?php echo ui_text($lang === 'ja' ? '登録しました' : 'Registered successfully'); ?>
       </div>
       <div x-show="submitError" x-text="submitError" class="alert alert-danger mb-4" role="alert"></div>
 
+      {{-- Submit --}}
       <button
         type="button"
         @click="submitStock()"
-        class="btn btn-primary w-100"
+        class="btn-primary w-full"
         :disabled="submitting || !item"
       >
         <span x-show="!submitting"><?php echo ui_text($submitLabel); ?></span>
-        <span x-show="submitting" class="d-flex align-items-center justify-content-center gap-2">
-          <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+        <span x-show="submitting" class="flex items-center justify-center gap-2">
+          <svg class="animate-spin h-5 w-5" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+          </svg>
           <?php echo ui_text($lang === 'ja' ? '登録中…' : 'Registering…'); ?>
         </span>
       </button>

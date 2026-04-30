@@ -28,8 +28,8 @@ $wrapperId = 'saso-scanner-wrapper-' . $uniqueId;
 <div id="<?php echo htmlspecialchars($wrapperId, ENT_QUOTES, 'UTF-8'); ?>"
      x-data="{
        ...sasoScanner(),
-       _readerId: <?php echo htmlspecialchars(json_encode($readerId), ENT_QUOTES, 'UTF-8'); ?>,
-       _targetInput: <?php echo htmlspecialchars(json_encode($inputId), ENT_QUOTES, 'UTF-8'); ?>,
+       _readerId: <?php echo json_encode($readerId); ?>,
+       _targetInput: <?php echo json_encode($inputId); ?>,
 
        openScanner() {
          this.result = null;
@@ -82,10 +82,15 @@ $wrapperId = 'saso-scanner-wrapper-' . $uniqueId;
   <button
     type="button"
     @click="openScanner()"
-    class="btn btn-secondary d-inline-flex align-items-center gap-2 <?php echo htmlspecialchars($buttonClass, ENT_QUOTES, 'UTF-8'); ?>"
+    class="btn btn-secondary inline-flex items-center gap-2 <?php echo htmlspecialchars($buttonClass, ENT_QUOTES, 'UTF-8'); ?>"
     aria-label="<?php echo ui_attr(__('ui.scanner.open', [], null, 'Scan Barcode / QR')); ?>"
   >
-    <i class="bi bi-qr-code" aria-hidden="true"></i>
+    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 shrink-0" fill="none" viewBox="0 0 24 24"
+         stroke="currentColor" aria-hidden="true">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+        d="M3 9V5a2 2 0 012-2h4M3 15v4a2 2 0 002 2h4m6-18h4a2 2 0 012 2v4m0 6v4a2 2 0 01-2 2h-4
+           M9 9h1v1H9zm0 5h1v1H9zm5-5h1v1h-1zm0 5h1v1h-1z"/>
+    </svg>
     <span><?php echo ui_text($buttonLabel); ?></span>
   </button>
 
@@ -93,44 +98,47 @@ $wrapperId = 'saso-scanner-wrapper-' . $uniqueId;
   <div
     x-show="active"
     x-cloak
-    class="position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center"
-    style="z-index:9999;"
+    class="fixed inset-0 z-99999 flex items-center justify-center"
     role="dialog"
     aria-modal="true"
     aria-label="<?php echo ui_attr(__('ui.scanner.open', [], null, 'Scan Barcode / QR')); ?>"
     @keydown.escape.window="closeScanner()"
   >
-    <div class="position-absolute top-0 start-0 w-100 h-100" style="background:rgba(0,0,0,.7);" @click="closeScanner()"></div>
+    <div class="absolute inset-0 bg-black/70" @click="closeScanner()"></div>
 
-    <div class="position-relative bg-white rounded shadow-lg p-4" style="width:100%;max-width:24rem;z-index:1;"
+    <div class="relative z-10 w-full max-w-sm rounded-xl bg-white p-6 shadow-2xl dark:bg-gray-800"
          x-trap.inert.noscroll="active">
 
-      <div class="d-flex align-items-center justify-content-between mb-3">
-        <h2 class="h6 fw-semibold mb-0">
+      <div class="mb-4 flex items-center justify-between">
+        <h2 class="text-base font-semibold text-gray-800 dark:text-white">
           <?php echo ui_text(__('ui.scanner.open', [], null, 'Scan Barcode / QR')); ?>
         </h2>
         <button
           type="button"
           @click="closeScanner()"
-          class="btn-close"
+          class="rounded-lg p-1 text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-white/10"
           aria-label="<?php echo ui_attr(__('ui.scanner.close', [], null, 'Close')); ?>"
-        ></button>
+        >
+          <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M6 6 18 18M6 18 18 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+        </button>
       </div>
 
-      <p x-show="!error" class="mb-3 small text-muted">
+      <p x-show="!error" class="mb-3 text-sm text-gray-500 dark:text-gray-400">
         <?php echo ui_text(__('ui.scanner.scanning', [], null, 'Scanning…')); ?>
       </p>
 
       <div
         id="<?php echo htmlspecialchars($readerId, ENT_QUOTES, 'UTF-8'); ?>"
-        class="rounded overflow-hidden bg-black"
+        class="overflow-hidden rounded-lg bg-black"
         style="min-height:250px;"
         x-show="!error"
       ></div>
 
       <div
         x-show="error"
-        class="alert alert-danger mt-3"
+        class="mt-4 rounded-lg bg-red-50 p-4 text-sm text-red-700 dark:bg-red-900/30 dark:text-red-300"
         role="alert"
       >
         <template x-if="error === 'camera_denied'">
@@ -141,7 +149,7 @@ $wrapperId = 'saso-scanner-wrapper-' . $uniqueId;
         </template>
       </div>
 
-      <button type="button" @click="closeScanner()" class="btn btn-secondary mt-4 w-100">
+      <button type="button" @click="closeScanner()" class="btn btn-secondary mt-4 w-full">
         <?php echo ui_text(__('ui.scanner.close', [], null, 'Close')); ?>
       </button>
     </div>

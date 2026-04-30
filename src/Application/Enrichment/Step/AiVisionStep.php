@@ -10,10 +10,8 @@ use Saso\Domain\Ai\Exception\AiProviderNotConfiguredException;
 use Saso\Domain\Ai\Exception\AiRateLimitedException;
 use Saso\Domain\Ai\Exception\AiUpstreamException;
 use Saso\Domain\Ai\StructuredExtractionRequest;
-use Saso\Domain\Feature\FeatureKey;
-use Saso\Domain\Feature\Repository\FeatureFlagRepository;
 
-final class AiVisionStep implements AiVisionStepInterface
+final class AiVisionStep
 {
     private const EXTRACTION_SCHEMA = [
         'type'       => 'object',
@@ -29,10 +27,8 @@ final class AiVisionStep implements AiVisionStepInterface
         'required'   => ['item_name', 'manufacturer', 'description', 'category_hint'],
     ];
 
-    public function __construct(
-        private readonly AiAssistant $ai,
-        private readonly FeatureFlagRepository $flags,
-    ) {
+    public function __construct(private readonly AiAssistant $ai)
+    {
     }
 
     /**
@@ -42,11 +38,6 @@ final class AiVisionStep implements AiVisionStepInterface
      */
     public function run(string $imagePath, ?string $barcodeHint, array $existing): array
     {
-        $flag = $this->flags->findByKey(new FeatureKey('ai.auto_judge'));
-        if ($flag === null || !$flag->enabled) {
-            return [];
-        }
-
         if (!is_readable($imagePath)) {
             return [];
         }

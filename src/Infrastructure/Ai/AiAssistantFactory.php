@@ -13,14 +13,14 @@ final class AiAssistantFactory
 {
     public static function forVision(SystemSettingService $settings): AiAssistant
     {
-        $provider = self::resolveProvider('ai.provider_vision', $settings);
+        $provider = self::resolveProvider('ai.provider.vision', $settings);
 
         return self::buildForProvider($provider, $settings);
     }
 
     public static function forChat(SystemSettingService $settings): AiAssistant
     {
-        $provider = self::resolveProvider('ai.provider_chat', $settings);
+        $provider = self::resolveProvider('ai.provider.chat', $settings);
 
         return self::buildForProvider($provider, $settings);
     }
@@ -49,11 +49,7 @@ final class AiAssistantFactory
 
     private static function buildOpenAi(SystemSettingService $settings): AiAssistant
     {
-        $keys = self::resolveKeys('ai.openai_api_keys', 'OPENAI_API_KEY', $settings);
-
-        if ($keys === []) {
-            return new NullAssistant();
-        }
+        $keys = self::resolveKeys('ai.openai.api_keys', 'OPENAI_API_KEY', $settings);
 
         if (count($keys) === 1) {
             return new OpenAiAssistant(OpenAI::client($keys[0]));
@@ -69,11 +65,7 @@ final class AiAssistantFactory
 
     private static function buildGemini(SystemSettingService $settings): AiAssistant
     {
-        $keys = self::resolveKeys('ai.gemini_api_keys', 'GEMINI_API_KEY', $settings);
-
-        if ($keys === []) {
-            return new NullAssistant();
-        }
+        $keys = self::resolveKeys('ai.gemini.api_keys', 'GEMINI_API_KEY', $settings);
 
         if (count($keys) === 1) {
             return new GeminiAssistant($keys[0]);
@@ -89,11 +81,7 @@ final class AiAssistantFactory
 
     private static function buildClaude(SystemSettingService $settings): AiAssistant
     {
-        $keys = self::resolveKeys('ai.anthropic_api_keys', 'ANTHROPIC_API_KEY', $settings);
-
-        if ($keys === []) {
-            return new NullAssistant();
-        }
+        $keys = self::resolveKeys('ai.anthropic.api_keys', 'ANTHROPIC_API_KEY', $settings);
 
         if (count($keys) === 1) {
             return new ClaudeAssistant($keys[0]);
@@ -115,14 +103,6 @@ final class AiAssistantFactory
         $envValue = getenv($envVar);
         if ($envValue !== false && $envValue !== '') {
             return [$envValue];
-        }
-
-        // Fallback to LOCAL_* variant for development environments
-        if ($envVar === 'GEMINI_API_KEY') {
-            $localValue = getenv('LOCAL_GEMINI_KEY');
-            if ($localValue !== false && $localValue !== '') {
-                return [$localValue];
-            }
         }
 
         $value = $settings->get(new SettingKey($settingKey));

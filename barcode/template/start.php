@@ -4,6 +4,14 @@
   <label for="barcodeInput" class="mb-2.5 block font-medium text-black dark:text-white">
     <?php echo __('ui.search.barcode_input', [], null, '商品バーコード入力'); ?>
   </label>
+  <div class="mb-3">
+    <?php
+    $inputId     = 'barcodeInput';
+    $buttonLabel = __('ui.scanner.open', [], null, 'Scan Barcode / QR');
+    $uniqueId    = 'search_barcode';
+    include __DIR__ . '/../../root/template/_components/barcodeScanner.php';
+    ?>
+  </div>
   <div class="relative flex gap-3">
     <div class="relative flex-1">
       <span class="absolute left-4.5 top-1/2 -translate-y-1/2 text-gray-400">

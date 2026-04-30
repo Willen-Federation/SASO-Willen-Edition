@@ -16,7 +16,7 @@ final class StartDIContainer implements DIContainer
 {
     public function isTopLevel(): bool
     {
-        return false;
+        return true;
     }
 
     public function di(\Closure $inside, array $query, array $post, array $config, \DateTime $now): void

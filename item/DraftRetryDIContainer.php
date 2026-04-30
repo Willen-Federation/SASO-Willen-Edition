@@ -4,13 +4,8 @@ namespace saso\item;
 use saso\framework\DIContainer;
 use saso\framework\View;
 use saso\repository\DBConnection;
-use Saso\Application\Messaging\ProcessItemDraftDIContainer;
 use Saso\Domain\Messaging\Message\ProcessItemDraft;
-use Saso\Infrastructure\Auth\Crypto\SecretEncryptor;
-use Saso\Infrastructure\FeatureFlag\PdoFeatureFlagRepository;
-use Saso\Infrastructure\ItemDraft\PdoItemDraftRepository;
 use Saso\Infrastructure\Messaging\MessageBusFactory;
-use Saso\Infrastructure\Setting\PdoSystemSettingService;
 
 final class DraftRetryDIContainer implements DIContainer
 {
@@ -30,10 +25,6 @@ final class DraftRetryDIContainer implements DIContainer
 
     public function flow(): View
     {
-        if (empty($this->post)) {
-            return new \saso\common\FailView();
-        }
-
         $pdo = DBConnection::pdo();
 
         $draftId = (int) ($this->query['id'] ?? $this->post['id'] ?? 0);
@@ -60,18 +51,12 @@ final class DraftRetryDIContainer implements DIContainer
 
         // Re-dispatch
         try {
-            $appKeyRaw   = (string) (getenv('APP_KEY') ?: '');
-            $appKeyBytes = $appKeyRaw !== '' ? base64_decode($appKeyRaw, true) : false;
-            if ($appKeyBytes === false || strlen($appKeyBytes) !== 32) {
-                throw new \RuntimeException('APP_KEY not configured or invalid; cannot dispatch draft processing.');
-            }
-            $draftRepository = new PdoItemDraftRepository($pdo);
-            $settingService = new PdoSystemSettingService($pdo, new SecretEncryptor($appKeyBytes));
-            $flagRepository = new PdoFeatureFlagRepository($pdo);
-            $handler = ProcessItemDraftDIContainer::createHandler($draftRepository, $settingService, $flagRepository);
-
             $bus = MessageBusFactory::create([
-                ProcessItemDraft::class => [$handler],
+                ProcessItemDraft::class => [
+                    static function (ProcessItemDraft $msg): void {
+                        // Async transport will handle real processing
+                    },
+                ],
             ]);
             $bus->dispatch(new ProcessItemDraft($draftId));
         } catch (\Throwable $e) {

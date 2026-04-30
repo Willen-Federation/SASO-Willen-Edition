@@ -7,9 +7,8 @@ use saso\repository\DBConnection;
 use Saso\Domain\Messaging\Message\ProcessItemDraft;
 use Saso\Infrastructure\Messaging\MessageBusFactory;
 
-final class AddFromImageDIContainer implements DIContainer
+final class RegisterFromImageDIContainer implements DIContainer
 {
-    private array $post = [];
     private \DateTime $now;
 
     public function isTopLevel(): bool
@@ -19,18 +18,18 @@ final class AddFromImageDIContainer implements DIContainer
 
     public function di(\Closure $inside, array $query, array $post, array $config, \DateTime $now): void
     {
-        $this->post = $post;
-        $this->now  = $now;
+        $this->now = $now;
     }
 
     public function flow(): View
     {
-        // GET — show upload form
-        if (empty($this->post) && empty($_FILES['image'])) {
+        $now = $this->now;
+
+        // GET requests — show the upload form
+        if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'GET') {
             return new AddFromImageView();
         }
 
-        // POST — process upload
         $pdo = DBConnection::pdo();
 
         // Validate uploaded file
@@ -40,7 +39,7 @@ final class AddFromImageDIContainer implements DIContainer
             || !is_uploaded_file($_FILES['image']['tmp_name'])
         ) {
             $errorMsg = isset($_FILES['image'])
-                ? 'Image upload error (code ' . $_FILES['image']['error'] . ').'
+                ? 'Image upload error: ' . $_FILES['image']['error']
                 : 'No image file uploaded.';
 
             if ($this->isAjax()) {
@@ -54,7 +53,7 @@ final class AddFromImageDIContainer implements DIContainer
             return $view;
         }
 
-        // Determine upload directory relative to document root
+        // Determine upload directory
         $docRoot = rtrim((string) ($_SERVER['DOCUMENT_ROOT'] ?? '/var/www/html'), '/');
         $uploadDir = $docRoot . '/uploads/item_drafts/';
         if (!is_dir($uploadDir)) {
@@ -62,7 +61,8 @@ final class AddFromImageDIContainer implements DIContainer
         }
 
         // Generate unique filename
-        $ext = strtolower(pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION) ?: 'jpg');
+        $ext = pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION);
+        $ext = strtolower($ext ?: 'jpg');
         $filename = uniqid('draft_', true) . '.' . $ext;
         $destPath = $uploadDir . $filename;
 
@@ -75,36 +75,35 @@ final class AddFromImageDIContainer implements DIContainer
                 exit;
             }
             $_SESSION['flash_error'] = $errorMsg;
-            return new AddFromImageView();
+            $view = new AddFromImageView();
+            return $view;
         }
 
         $imagePath = 'uploads/item_drafts/' . $filename;
 
         // Build userData from non-empty POST fields
         $userData = [];
-        foreach (['item_name', 'jan_code', 'isbn', 'price', 'barcode_hint'] as $field) {
-            if (!empty($this->post[$field])) {
-                $userData[$field] = (string) $this->post[$field];
+        $userFields = ['item_name', 'jan_code', 'isbn', 'price', 'barcode_hint'];
+        foreach ($userFields as $field) {
+            if (!empty($_POST[$field])) {
+                $userData[$field] = (string) $_POST[$field];
             }
         }
 
-        $barcodeHint  = $userData['barcode_hint'] ?? null;
+        $barcodeHint = isset($userData['barcode_hint']) ? $userData['barcode_hint'] : null;
         $userDataJson = empty($userData) ? null : json_encode($userData, JSON_UNESCAPED_UNICODE);
-        $nowStr       = $this->now->format('Y-m-d H:i:s');
-        $createdBy    = isset($_SESSION['id']) ? (int) $_SESSION['id'] : null;
+        $nowStr = $now->format('Y-m-d H:i:s');
 
+        // INSERT item_draft row
         $stmt = $pdo->prepare(
-            'INSERT INTO item_draft
-                (image_path, barcode_hint, user_data, status, created_by, created_at, updated_at)
-             VALUES
-                (:image_path, :barcode_hint, :user_data, :status, :created_by, :created_at, :updated_at)'
+            'INSERT INTO item_draft (image_path, barcode_hint, user_data, status, created_at, updated_at)
+             VALUES (:image_path, :barcode_hint, :user_data, :status, :created_at, :updated_at)'
         );
         $stmt->execute([
             'image_path'   => $imagePath,
             'barcode_hint' => $barcodeHint,
             'user_data'    => $userDataJson,
             'status'       => 'queued',
-            'created_by'   => $createdBy,
             'created_at'   => $nowStr,
             'updated_at'   => $nowStr,
         ]);
@@ -114,13 +113,15 @@ final class AddFromImageDIContainer implements DIContainer
         try {
             $bus = MessageBusFactory::create([
                 ProcessItemDraft::class => [
+                    // Placeholder no-op handler — real handler wired in async task
                     static function (ProcessItemDraft $msg): void {
-                        // Async transport will handle real processing in the next milestone
+                        // async transport will handle this in the next milestone
                     },
                 ],
             ]);
             $bus->dispatch(new ProcessItemDraft($draftId));
         } catch (\Throwable $e) {
+            // Log but do not fail — draft is already queued
             error_log('[saso-draft] dispatch failed: ' . $e->getMessage());
         }
 
@@ -133,7 +134,7 @@ final class AddFromImageDIContainer implements DIContainer
 
         $_SESSION['flash_success'] = 'Draft created. We\'ll analyse the image and let you know when it\'s ready.';
         \saso\util\Redirect::redirect('item/drafts/');
-        exit;
+        exit; // @phpstan-ignore-line — redirect always exits
     }
 
     private function isAjax(): bool
@@ -141,6 +142,7 @@ final class AddFromImageDIContainer implements DIContainer
         if (isset($_GET['_ajax']) && $_GET['_ajax'] === '1') {
             return true;
         }
-        return str_contains($_SERVER['HTTP_ACCEPT'] ?? '', 'application/json');
+        $accept = $_SERVER['HTTP_ACCEPT'] ?? '';
+        return str_contains($accept, 'application/json');
     }
 }

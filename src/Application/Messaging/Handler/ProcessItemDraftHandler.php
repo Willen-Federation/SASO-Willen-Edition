@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Saso\Application\Messaging\Handler;
 
 use Psr\Log\LoggerInterface;
-use Saso\Application\Ai\AiJudgeAutoSync;
 use Saso\Application\Enrichment\DraftData;
 use Saso\Application\Enrichment\EnrichmentPipeline;
 use Saso\Domain\ItemDraft\ItemDraftStatus;
@@ -17,15 +16,12 @@ final class ProcessItemDraftHandler
     public function __construct(
         private readonly ItemDraftRepository $drafts,
         private readonly EnrichmentPipeline $pipeline,
-        private readonly AiJudgeAutoSync $autoSync,
         private readonly LoggerInterface $logger,
     ) {
     }
 
     public function __invoke(ProcessItemDraft $message): void
     {
-        $this->autoSync->sync();
-
         $draft = $this->drafts->findById($message->draftId);
 
         if ($draft === null) {

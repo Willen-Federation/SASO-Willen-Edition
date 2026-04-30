@@ -145,7 +145,7 @@ final class Auth0Provider implements AuthProvider
         try {
             $sdk->exchange(redirectUri: $this->callbackUrl);
         } catch (Throwable $e) {
-            throw AuthFailedException::callbackInvalid('Auth0 exchange failed: ' . $e->getMessage());
+            throw AuthFailedException::callbackInvalid('Auth0 exchange failed: '.$e->getMessage());
         }
 
         $user = $sdk->getUser();
@@ -226,7 +226,7 @@ final class Auth0Provider implements AuthProvider
                 return $decoded;
             }
         }
-        return hash('sha256', 'saso:auth0:' . (string) $this->record->clientId . ':' . $this->record->id->value);
+        return hash('sha256', 'saso:auth0:'.(string) $this->record->clientId.':'.$this->record->id->value);
     }
 
     /** @return list<string> */

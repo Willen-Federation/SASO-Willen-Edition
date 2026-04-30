@@ -18,28 +18,32 @@ use Auth0\SDK\Contract\StoreInterface;
  */
 final class PhpSessionStore implements StoreInterface
 {
-    public function __construct(private readonly string $prefix = 'auth0_sdk') {}
+    public function __construct(private readonly string $prefix = 'auth0_sdk')
+    {
+    }
 
-    public function defer(bool $deferring): void {}
+    public function defer(bool $deferring): void
+    {
+    }
 
     public function get(string $key, mixed $default = null): mixed
     {
-        return $_SESSION[$this->prefix . '_' . $key] ?? $default;
+        return $_SESSION[$this->prefix.'_'.$key] ?? $default;
     }
 
     public function set(string $key, mixed $value): void
     {
-        $_SESSION[$this->prefix . '_' . $key] = $value;
+        $_SESSION[$this->prefix.'_'.$key] = $value;
     }
 
     public function delete(string $key): void
     {
-        unset($_SESSION[$this->prefix . '_' . $key]);
+        unset($_SESSION[$this->prefix.'_'.$key]);
     }
 
     public function purge(): void
     {
-        $pfx = $this->prefix . '_';
+        $pfx = $this->prefix.'_';
         foreach (array_keys($_SESSION ?? []) as $k) {
             if (str_starts_with((string) $k, $pfx)) {
                 unset($_SESSION[$k]);

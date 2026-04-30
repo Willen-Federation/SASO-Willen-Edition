@@ -47,7 +47,26 @@
       },
       'body'    => function () use ($v, $isEdit, $lang, $cfg, $claimOverridesJson, $provType) {
   ?>
-    <form method="POST" action="" x-data="{ providerType: '<?php echo ui_attr($provType); ?>' }">
+    <form method="POST" action="" x-data="{
+        providerType: '<?php echo ui_attr($provType); ?>',
+        flavor: '<?php echo ui_attr($cfg['flavor'] ?? 'oidc'); ?>',
+        auth0Domain: '<?php echo ui_attr($cfg['domain'] ?? ''); ?>',
+        get auth0IssuerUrl() {
+            return this.auth0Domain ? 'https://' + this.auth0Domain + '/.well-known/openid-configuration' : '';
+        },
+        onFlavorChange() {
+            if (this.flavor === 'auth0') {
+                var s = document.getElementById('scopes');
+                if (s && s.value.trim() === '') s.value = 'openid profile email offline_access';
+            }
+            if (this.flavor === 'auth0' && this.auth0Domain) this.syncIssuer();
+        },
+        syncIssuer() {
+            if (this.flavor !== 'auth0' || !this.auth0Domain) return;
+            var f = document.getElementById('issuer_or_metadata_url');
+            if (f) f.value = this.auth0IssuerUrl;
+        }
+    }">
       <input type="hidden" name="csrftoken" value="<?php echo htmlspecialchars(\saso\util\CSRFtoken::current()); ?>">
 
       <?php if (!empty($v->message)): ?>
@@ -97,19 +116,64 @@
         </div>
 
         <?php
-        ui('formField', [
-          'name'        => 'flavor',
-          'label'       => $lang === 'ja' ? 'フレーバー' : 'Flavor',
-          'type'        => 'select',
-          'value'       => $cfg['flavor'] ?? 'oidc',
-          'options'     => [
-            'oidc'     => 'Generic OIDC',
-            'auth0'    => 'Auth0',
-            'cognito'  => 'AWS Cognito',
-            'firebase' => 'Firebase / Google',
-          ],
-          'help'        => $lang === 'ja' ? 'プロバイダ固有の動作を設定します' : 'Selects provider-specific behavior',
-        ]);
+        ?>
+        <div class="mb-4">
+          <label for="flavor" class="mb-2.5 block font-medium text-black dark:text-white">
+            <?php echo $lang === 'ja' ? 'フレーバー' : 'Flavor'; ?>
+          </label>
+          <select id="flavor" name="flavor"
+                  x-model="flavor"
+                  @change="onFlavorChange()"
+                  class="w-full rounded border border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary text-black dark:text-white">
+            <option value="oidc">Generic OIDC</option>
+            <option value="auth0">Auth0</option>
+            <option value="cognito">AWS Cognito</option>
+            <option value="firebase">Firebase / Google</option>
+          </select>
+          <p class="mt-1 text-sm text-bodydark2">
+            <?php echo $lang === 'ja' ? 'プロバイダ固有の動作を設定します' : 'Selects provider-specific behavior'; ?>
+          </p>
+        </div>
+
+        <!-- ── Auth0-specific fields ── -->
+        <div x-show="flavor === 'auth0'" x-cloak>
+          <div class="mb-4 rounded border border-stroke bg-whiter p-4 dark:border-form-strokedark dark:bg-form-input">
+            <h5 class="mb-3 text-xs font-semibold uppercase tracking-wider text-bodydark2">Auth0</h5>
+
+            <div class="mb-4">
+              <label for="auth0_domain" class="mb-2.5 block font-medium text-black dark:text-white">
+                <?php echo $lang === 'ja' ? 'Auth0 ドメイン' : 'Auth0 Domain'; ?> <span class="text-meta-1">*</span>
+              </label>
+              <input type="text" id="auth0_domain" name="auth0_domain"
+                     x-model="auth0Domain"
+                     @input="syncIssuer()"
+                     value="<?php echo ui_attr($cfg['domain'] ?? ''); ?>"
+                     placeholder="acme.auth0.com"
+                     class="w-full rounded border border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary text-black dark:text-white">
+              <p class="mt-1 text-sm text-bodydark2">
+                <?php echo $lang === 'ja'
+                  ? 'Auth0 テナントドメイン（例: acme.auth0.com）。入力すると Issuer URL が自動補完されます。'
+                  : 'Your Auth0 tenant domain (e.g. acme.auth0.com). Fills the Issuer URL automatically.'; ?>
+              </p>
+            </div>
+
+            <div class="mb-2">
+              <label for="auth0_audience" class="mb-2.5 block font-medium text-black dark:text-white">
+                <?php echo $lang === 'ja' ? 'API Audience（任意）' : 'API Audience (optional)'; ?>
+              </label>
+              <input type="text" id="auth0_audience" name="auth0_audience"
+                     value="<?php echo ui_attr($cfg['audience'] ?? ''); ?>"
+                     placeholder="https://api.example.com"
+                     class="w-full rounded border border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary text-black dark:text-white">
+              <p class="mt-1 text-sm text-bodydark2">
+                <?php echo $lang === 'ja'
+                  ? 'API アクセストークンが必要な場合のみ設定してください。'
+                  : 'Set only when you need access tokens for an API. Leave blank for ID-token-only flows.'; ?>
+              </p>
+            </div>
+          </div>
+        </div>
+        <?php
 
         ui('formField', [
           'name'        => 'client_id',
@@ -136,13 +200,25 @@
         </div>
 
         <?php
-        ui('formField', [
-          'name'        => 'scopes',
-          'label'       => $lang === 'ja' ? 'スコープ' : 'Scopes',
-          'value'       => $v->provider['scopes'] ?? '',
-          'placeholder' => 'openid profile email',
-          'help'        => $lang === 'ja' ? '空白区切り。空の場合は openid profile email がデフォルトです' : 'Space-separated. Defaults to "openid profile email" if empty',
-        ]);
+        ?>
+        <div class="mb-4">
+          <label for="scopes" class="mb-2.5 block font-medium text-black dark:text-white">
+            <?php echo $lang === 'ja' ? 'スコープ' : 'Scopes'; ?>
+          </label>
+          <input type="text" id="scopes" name="scopes"
+                 value="<?php echo ui_attr($v->provider['scopes'] ?? ''); ?>"
+                 placeholder="openid profile email"
+                 class="w-full rounded border border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary text-black dark:text-white">
+          <p class="mt-1 text-sm text-bodydark2" x-show="flavor !== 'auth0'">
+            <?php echo $lang === 'ja' ? '空白区切り。空の場合は openid profile email がデフォルトです' : 'Space-separated. Defaults to "openid profile email" if empty.'; ?>
+          </p>
+          <p class="mt-1 text-sm text-bodydark2" x-show="flavor === 'auth0'" x-cloak>
+            <?php echo $lang === 'ja'
+              ? '空の場合は openid profile email offline_access がデフォルトです（Auth0 推奨）。'
+              : 'Defaults to "openid profile email offline_access" for Auth0 (enables refresh tokens).'; ?>
+          </p>
+        </div>
+        <?php
         ?>
 
         <?php if ($isEdit && $v->callbackUrl !== ''): ?>

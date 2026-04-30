@@ -8,6 +8,7 @@ use OpenFeature\interfaces\flags\EvaluationContext;
 use OpenFeature\interfaces\provider\Metadata;
 use OpenFeature\interfaces\provider\Provider;
 use OpenFeature\interfaces\provider\ResolutionDetails;
+use OpenFeature\interfaces\provider\ResolutionError;
 use Saso\Domain\Feature\FeatureKey;
 use Saso\Domain\Feature\Repository\FeatureFlagRepository;
 
@@ -48,11 +49,11 @@ final class DbProvider implements Provider
         $flag = $this->getFlag($flagKey);
 
         if ($flag === null) {
-            return $this->buildResolution($defaultValue, 'FLAG_NOT_FOUND', 'Flag not found in database');
+            return $this->buildResolution($defaultValue, 'FLAG_NOT_FOUND');
         }
 
         if (!$flag->enabled) {
-            return $this->buildResolution(false, 'DISABLED', 'Flag is disabled');
+            return $this->buildResolution(false, 'DISABLED');
         }
 
         // Simplistic rollout check based on targetting or percentages could go here.
@@ -60,35 +61,35 @@ final class DbProvider implements Provider
             // For now, if not 100%, we default to false unless user hashes into it.
             // Simplified for demonstration.
             if ($flag->rolloutPercent === 0) {
-                return $this->buildResolution(false, 'DISABLED', 'Rollout is 0%');
+                return $this->buildResolution(false, 'DISABLED');
             }
             $hash = crc32($flagKey . ($context?->getTargetingKey() ?? '')) % 100;
             if ($hash >= $flag->rolloutPercent) {
-                return $this->buildResolution(false, 'DISABLED', 'Excluded by rollout percentage');
+                return $this->buildResolution(false, 'DISABLED');
             }
         }
 
-        return $this->buildResolution(true, 'TARGETING_MATCH', 'Flag enabled');
+        return $this->buildResolution(true, 'TARGETING_MATCH');
     }
 
     public function resolveStringValue(string $flagKey, string $defaultValue, ?EvaluationContext $context = null): ResolutionDetails
     {
-        return $this->buildResolution($defaultValue, 'TYPE_MISMATCH', 'DB Provider only supports booleans');
+        return $this->buildResolution($defaultValue, 'TYPE_MISMATCH');
     }
 
     public function resolveIntegerValue(string $flagKey, int $defaultValue, ?EvaluationContext $context = null): ResolutionDetails
     {
-        return $this->buildResolution($defaultValue, 'TYPE_MISMATCH', 'DB Provider only supports booleans');
+        return $this->buildResolution($defaultValue, 'TYPE_MISMATCH');
     }
 
     public function resolveFloatValue(string $flagKey, float $defaultValue, ?EvaluationContext $context = null): ResolutionDetails
     {
-        return $this->buildResolution($defaultValue, 'TYPE_MISMATCH', 'DB Provider only supports booleans');
+        return $this->buildResolution($defaultValue, 'TYPE_MISMATCH');
     }
 
     public function resolveObjectValue(string $flagKey, array $defaultValue, ?EvaluationContext $context = null): ResolutionDetails
     {
-        return $this->buildResolution($defaultValue, 'TYPE_MISMATCH', 'DB Provider only supports booleans');
+        return $this->buildResolution($defaultValue, 'TYPE_MISMATCH');
     }
 
     private function getFlag(string $key): ?\Saso\Domain\Feature\FeatureFlag
@@ -106,21 +107,19 @@ final class DbProvider implements Provider
         }
     }
 
-    private function buildResolution(mixed $value, string $reason, string $errorMessage = ''): ResolutionDetails
+    private function buildResolution(mixed $value, string $reason): ResolutionDetails
     {
         // Depending on OpenFeature SDK version, ResolutionDetails might be instantiated directly
         // or through a factory. Assuming a concrete class or an anonymous class.
-        return new class($value, $reason, $errorMessage) implements ResolutionDetails {
+        return new class($value, $reason) implements ResolutionDetails {
             public function __construct(
-                private mixed $value,
-                private string $reason,
-                private string $errorMessage
+                private readonly mixed $value,
+                private readonly string $reason,
             ) {}
-            public function getValue(): mixed { return $this->value; }
-            public function getErrorCode(): ?string { return null; }
+            public function getValue(): bool|string|int|float|\DateTime|array|null { return $this->value; }  // @phpstan-ignore-line
+            public function getError(): ?ResolutionError { return null; }
             public function getReason(): ?string { return $this->reason; }
             public function getVariant(): ?string { return null; }
-            public function getFlagMetadata(): array { return []; }
         };
     }
 }

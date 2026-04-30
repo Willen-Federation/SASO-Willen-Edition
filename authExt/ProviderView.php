@@ -81,6 +81,14 @@ final class ProviderView implements View
             // Build claim_mapping from structured fields
             $claim_mapping = $this->buildClaimMapping($type);
 
+            // Auth0: auto-derive issuer URL from domain when the field was left blank.
+            if ($type === 'oidc' && ($this->post['flavor'] ?? '') === 'auth0' && $issuer === '') {
+                $domain = trim((string)($this->post['auth0_domain'] ?? ''));
+                if ($domain !== '') {
+                    $issuer = 'https://' . $domain . '/.well-known/openid-configuration';
+                }
+            }
+
             if ($name === '') {
                 $this->message = 'Name is required.';
             } else {
@@ -142,6 +150,17 @@ final class ProviderView implements View
         if ($type === 'oidc') {
             $flavor = (string)($this->post['flavor'] ?? 'oidc');
             $config['flavor'] = $flavor;
+
+            if ($flavor === 'auth0') {
+                $domain = trim((string)($this->post['auth0_domain'] ?? ''));
+                if ($domain !== '') {
+                    $config['domain'] = $domain;
+                }
+                $audience = trim((string)($this->post['auth0_audience'] ?? ''));
+                if ($audience !== '') {
+                    $config['audience'] = $audience;
+                }
+            }
         } elseif ($type === 'saml') {
             $config['flavor'] = 'saml';
             $entityId = (string)($this->post['entity_id'] ?? '');

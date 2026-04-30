@@ -34,6 +34,10 @@ final class PdoStorageLocationRepositoryTest extends TestCase
                 capacity           INTEGER,
                 notes              TEXT,
                 operational_status TEXT NOT NULL DEFAULT \'available\',
+                area_code          TEXT,
+                map_image_id       INTEGER,
+                map_x_ratio        REAL,
+                map_y_ratio        REAL,
                 created_at         TEXT NOT NULL,
                 updated_at         TEXT NOT NULL
             )',

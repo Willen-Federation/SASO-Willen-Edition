@@ -43,8 +43,8 @@ final readonly class StorageLocation
         public ?float $mapXRatio = null,
         public ?float $mapYRatio = null,
     ) {
-        if ($id < 0) {
-            throw new InvalidArgumentException('StorageLocation.id must be a non-negative integer.');
+        if ($id < 1) {
+            throw new InvalidArgumentException('StorageLocation.id must be a positive integer.');
         }
         if ($parentId !== null && $parentId < 1) {
             throw new InvalidArgumentException('StorageLocation.parentId must be a positive integer or null.');

@@ -73,16 +73,20 @@ final class ProviderView implements View
             $type = (string)($this->post['type'] ?? 'oidc');
             $enabled = isset($this->post['enabled']) ? 1 : 0;
             $is_default = isset($this->post['is_default']) ? 1 : 0;
-            $issuer = (string)($this->post['issuer_or_metadata_url'] ?? '');
             $client_id = (string)($this->post['client_id'] ?? '');
             $scopes = (string)($this->post['scopes'] ?? '');
             $client_secret_raw = (string)($this->post['client_secret'] ?? '');
+
+            // Resolve issuer URL based on type/flavor
+            $issuer = $this->resolveIssuerUrl($type);
 
             // Build claim_mapping from structured fields
             $claim_mapping = $this->buildClaimMapping($type);
 
             if ($name === '') {
-                $this->message = 'Name is required.';
+                $this->message = $GLOBALS['lang'] ?? ($_SESSION['lang'] ?? 'ja') === 'ja'
+                    ? 'プロバイダ名は必須です。'
+                    : 'Name is required.';
             } else {
                 if ($is_default) {
                     $pdo->exec('UPDATE auth_provider SET is_default = 0');
@@ -132,8 +136,50 @@ final class ProviderView implements View
     }
 
     /**
+     * Resolve the issuer/metadata URL from POST fields, accounting for
+     * flavor-specific sources (Cognito auto-builds from region+pool_id,
+     * Firebase uses the firebase_issuer_url field).
+     */
+    private function resolveIssuerUrl(string $type): string
+    {
+        if ($type !== 'oidc') {
+            return (string)($this->post['issuer_or_metadata_url'] ?? '');
+        }
+
+        $flavor = (string)($this->post['flavor'] ?? 'oidc');
+
+        if ($flavor === 'cognito') {
+            $region     = trim((string)($this->post['cognito_region'] ?? ''));
+            $userPoolId = trim((string)($this->post['cognito_user_pool_id'] ?? ''));
+            if ($region !== '' && $userPoolId !== '') {
+                return sprintf(
+                    'https://cognito-idp.%s.amazonaws.com/%s/.well-known/openid-configuration',
+                    $region,
+                    $userPoolId,
+                );
+            }
+            return (string)($this->post['issuer_or_metadata_url'] ?? '');
+        }
+
+        if ($flavor === 'firebase') {
+            $fbIssuer = trim((string)($this->post['firebase_issuer_url'] ?? ''));
+            return $fbIssuer !== '' ? $fbIssuer : 'https://accounts.google.com/.well-known/openid-configuration';
+        }
+
+        if ($flavor === 'auth0') {
+            $domain = trim((string)($this->post['auth0_domain'] ?? ''));
+            if ($domain !== '') {
+                return 'https://' . $domain . '/.well-known/openid-configuration';
+            }
+        }
+
+        return (string)($this->post['issuer_or_metadata_url'] ?? '');
+    }
+
+    /**
      * Build the claim_mapping JSON from structured POST fields.
-     * Merges _config extras (flavor, SAML certs, etc.) with user claim overrides.
+     * Merges _config extras (flavor, SAML certs, provider specifics)
+     * with user claim overrides.
      */
     private function buildClaimMapping(string $type): string
     {
@@ -142,6 +188,28 @@ final class ProviderView implements View
         if ($type === 'oidc') {
             $flavor = (string)($this->post['flavor'] ?? 'oidc');
             $config['flavor'] = $flavor;
+
+            if ($flavor === 'auth0') {
+                $domain   = trim((string)($this->post['auth0_domain'] ?? ''));
+                $audience = trim((string)($this->post['auth0_audience'] ?? ''));
+                if ($domain !== '')   $config['domain']   = $domain;
+                if ($audience !== '') $config['audience'] = $audience;
+
+            } elseif ($flavor === 'cognito') {
+                $region         = trim((string)($this->post['cognito_region'] ?? ''));
+                $userPoolId     = trim((string)($this->post['cognito_user_pool_id'] ?? ''));
+                $hostedUiDomain = trim((string)($this->post['cognito_hosted_ui_domain'] ?? ''));
+                if ($region !== '')         $config['region']           = $region;
+                if ($userPoolId !== '')     $config['user_pool_id']     = $userPoolId;
+                if ($hostedUiDomain !== '') $config['hosted_ui_domain'] = $hostedUiDomain;
+
+            } elseif ($flavor === 'firebase') {
+                $projectId = trim((string)($this->post['firebase_project_id'] ?? ''));
+                $hd        = trim((string)($this->post['firebase_hd'] ?? ''));
+                if ($projectId !== '') $config['project_id'] = $projectId;
+                if ($hd !== '')        $config['hd']         = $hd;
+            }
+
         } elseif ($type === 'saml') {
             $config['flavor'] = 'saml';
             $entityId = (string)($this->post['entity_id'] ?? '');

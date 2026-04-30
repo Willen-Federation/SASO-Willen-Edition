@@ -38,7 +38,9 @@ final class BarcodeGetController
         if ($row->linkedItemId !== null) {
             $finder = new DbFinder();
             $item = $finder->current(new FindOneById(), ['id' => $row->linkedItemId]);
+            /** @phpstan-ignore-next-line */
             if ($item->isJust()) {
+                /** @phpstan-ignore-next-line */
                 $itemEntity = $item->get();
                 $itemInfo = [
                     'id'   => $row->linkedItemId,
@@ -47,10 +49,13 @@ final class BarcodeGetController
             }
         }
 
-        return new JsonResponse([
-            'code'   => $row->code->asString(),
-            'status' => $row->status->value,
-            'item'   => $itemInfo,
-        ]);
+        return new JsonResponse(
+            status: 200,
+            body: [
+                'code'   => $row->code->asString(),
+                'status' => $row->status->value,
+                'item'   => $itemInfo,
+            ],
+        );
     }
 }

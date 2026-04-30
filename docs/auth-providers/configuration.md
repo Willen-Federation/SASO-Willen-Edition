@@ -117,7 +117,32 @@ When an IdP login lands on a member that does not yet exist locally, `LoginOrche
 2. falls back to a local lookup by email,
 3. otherwise creates a fresh `Member` row with a random Argon2id password (the user can never sign in via the local flow with this stub password — only via the IdP).
 
+## Admin UI flow
+
+Providers are created at `/auth/provider/new` and edited at `/auth/provider/{id}/edit`. The form uses Alpine.js flavor cards so only the fields relevant to the chosen provider type are shown:
+
+| Flavor card | Required fields | Auto-built Discovery URL |
+|-------------|-----------------|--------------------------|
+| Generic OIDC | `issuer_or_metadata_url`, `client_id`, `client_secret` | — (paste the URL directly) |
+| Auth0 | `auth0_domain`, `client_id`, `client_secret` | `https://{domain}/.well-known/openid-configuration` |
+| AWS Cognito | `cognito_region`, `cognito_user_pool_id`, `client_id`, `client_secret` | `https://cognito-idp.{region}.amazonaws.com/{user_pool_id}/.well-known/openid-configuration` |
+| Firebase | `firebase_project_id`, `client_id`, `client_secret` | `https://accounts.google.com/.well-known/openid-configuration` |
+| SAML | `issuer_or_metadata_url`, `entity_id`, `idp_x509_cert` | — |
+
+After saving, use the **Test connection** button to probe the discovery URL without leaving the page. The test calls `POST /api/v1/auth/providers/{id}/test` and displays the resolved OIDC endpoints on success.
+
+## REST API
+
+| Method | Path | What it does |
+|--------|------|--------------|
+| `GET` | `/api/v1/auth/providers` | List all providers; secrets omitted, `hasSecret` bool returned |
+| `GET` | `/api/v1/auth/providers/{id}` | Fetch a single provider |
+| `POST` | `/api/v1/auth/providers/{id}/test` | Probe discovery URL, return parsed endpoint set |
+
+Full request / response shapes are in [`docs/api.md`](../api.md#auth-providers).
+
 ## See also
 
 * ADR 0003 — pluggable IdP contract
 * ADR 0017 — TailAdmin migration
+* [API Reference — Auth Providers](../api.md#auth-providers)

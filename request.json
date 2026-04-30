@@ -4,6 +4,10 @@
            "matter": "auth",
            "action": "start"
         },
+        "providerNew": {
+           "matter": "auth",
+           "action": "providerNew"
+        },
         "providers": {
            "matter": "authExt",
            "action": "providers"

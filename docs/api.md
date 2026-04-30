@@ -4,13 +4,83 @@ The REST API lives at `/api/v1/*`. The contract is defined by an OpenAPI 3.1 spe
 
 ## Status
 
-As of M3-D the API is bootstrapped with three meta endpoints. Domain endpoints (items, categories, labels, shelves, auth) land across M3-E and M4.
+| Endpoint | Method | Operation ID | What it does |
+|---|---|---|---|
+| `/api/v1/health` | `GET` | `getHealth` | Liveness probe — returns `{status, version, time}`. Does not check downstream dependencies. |
+| `/api/v1/openapi.yaml` | `GET` | `getOpenApiSpec` | Returns this OpenAPI specification verbatim, ready for SDK generators. |
+| `/api/v1/docs` | `GET` | `getSwaggerUi` | Embedded Swagger UI loaded against the spec above. |
+| `/api/v1/auth/providers` | `GET` | `listAuthProviders` | List all registered auth providers (secrets never returned). |
+| `/api/v1/auth/providers/{id}` | `GET` | `getAuthProvider` | Fetch a single provider by ID. Returns 404 if not found. |
+| `/api/v1/auth/providers/{id}/test` | `POST` | `testAuthProvider` | Probe the provider's discovery URL; returns parsed endpoints or 422/502 on failure. |
+| `/api/v1/feature-flags` | `GET` | `listFeatureFlags` | List all feature flags. |
+| `/api/v1/feature-flags` | `POST` | `createFeatureFlag` | Create a new feature flag. |
+| `/api/v1/feature-flags/{key}` | `GET` | `getFeatureFlag` | Get a single feature flag. |
+| `/api/v1/feature-flags/{key}` | `PUT` | `updateFeatureFlag` | Update a feature flag. |
+| `/api/v1/feature-flags/{key}` | `DELETE` | `deleteFeatureFlag` | Delete a feature flag. |
 
-| Endpoint | Method | What it does |
-|---|---|---|
-| `/api/v1/health` | `GET` | Liveness probe — returns `{status, version, time}`. Does not check downstream dependencies. |
-| `/api/v1/openapi.yaml` | `GET` | Returns this OpenAPI specification verbatim, ready for SDK generators. |
-| `/api/v1/docs` | `GET` | Embedded Swagger UI loaded against the spec above. |
+## Auth Providers
+
+The `/api/v1/auth/providers` surface lets management tooling and future SPAs read the IdP registry without touching the legacy admin PHP pages.
+
+### `GET /api/v1/auth/providers`
+
+Returns all registered providers. Client secrets are **never** returned; `hasSecret: true/false` indicates whether one is stored.
+
+**Response** `200 application/json`:
+
+```json
+{
+  "total": 2,
+  "data": [
+    {
+      "id": 1,
+      "name": "Auth0 Staff",
+      "type": "oidc",
+      "issuerOrMetadataUrl": "https://acme.us.auth0.com/.well-known/openid-configuration",
+      "clientId": "abc123",
+      "hasSecret": true,
+      "scopes": "openid email profile",
+      "claimMapping": { "_config": { "flavor": "auth0", "domain": "acme.us.auth0.com" } },
+      "enabled": true,
+      "isDefault": false,
+      "createdAt": "2026-04-26T12:00:00+00:00",
+      "updatedAt": "2026-04-26T12:00:00+00:00"
+    }
+  ]
+}
+```
+
+### `GET /api/v1/auth/providers/{id}`
+
+Fetch a single provider by integer ID.
+
+**Path params**: `id` — provider ID (must be ≥ 1; 422 on invalid, 404 if not found).
+
+**Response** `200` — same shape as one item from the list above.
+
+### `POST /api/v1/auth/providers/{id}/test`
+
+Probes the provider's discovery/metadata URL and returns the parsed endpoint set. No credentials are sent to the IdP — only a GET to the well-known document.
+
+**Response** `200 application/json`:
+
+```json
+{
+  "ok": true,
+  "issuer": "https://acme.us.auth0.com/",
+  "authorizationEndpoint": "https://acme.us.auth0.com/authorize",
+  "tokenEndpoint": "https://acme.us.auth0.com/oauth/token",
+  "userinfoEndpoint": "https://acme.us.auth0.com/userinfo",
+  "jwksUri": "https://acme.us.auth0.com/.well-known/jwks.json"
+}
+```
+
+**Error responses**:
+
+| Status | When |
+|---|---|
+| `422` | Provider has no discovery URL configured. |
+| `502` | Discovery URL unreachable or did not return valid JSON. |
 
 ## Authentication
 

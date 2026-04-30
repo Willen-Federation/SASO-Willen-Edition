@@ -218,6 +218,58 @@ ui:
     help:
       title: About this screen
       body: 'Provider management is read-only in this release. Use the Phinx migration M4/20260426120002_create_auth_provider.php to seed rows; the create/edit form ships in a follow-up.'
+    form:
+      add_title: Add Auth Provider
+      edit_title: Edit Auth Provider
+      back: Back to list
+      pick_prompt: Choose the provider type to add.
+      change_type: Change provider type
+      register_heading: Register these URLs with your provider
+      url_note: The exact URL (with the assigned ID) will be shown here after saving for the first time.
+      auth0_where: 'Auth0 Dashboard → Applications → Your App → Settings'
+      cognito_where: 'AWS Console → Cognito → User Pool → App Integration → App Client → Callback URLs'
+      advanced: Advanced
+      submit_save: Save
+      submit_update: Update
+      card:
+        auth0_desc: Hosted login, social connections
+        cognito_desc: AWS User Pool
+        saml_desc: Enterprise / corporate IdP
+        oidc_desc: Any OIDC / OAuth2 provider
+      url:
+        callback: Allowed Callback URL
+        logout: Allowed Logout URL
+        acs: ACS URL (Assertion Consumer Service)
+        sls: SLS URL (Single Logout Service)
+      field:
+        name: Provider Name
+        name_ph: 'e.g. My Auth0 App'
+        auth0_domain: Auth0 Domain
+        auth0_domain_help: 'Found in Auth0 Dashboard → Applications → Domain. Example: yourapp.auth0.com'
+        cognito_region: Region
+        cognito_pool: User Pool ID
+        issuer_computed: 'Issuer URL:'
+        discovery_url: Discovery URL
+        discovery_url_help: The OIDC discovery endpoint (/.well-known/openid-configuration)
+        metadata_url: IdP Metadata URL
+        metadata_url_help: URL to the IdP XML metadata, or the IdP SSO URL
+        entity_id: SP Entity ID
+        entity_id_help: Leave blank to use the ACS URL as SP Entity ID
+        nameid_format: NameID Format
+        idp_cert: IdP Certificate (X.509 PEM)
+        idp_cert_help: Paste the X.509 certificate from your IdP metadata
+        sp_cert: SP Certificate (X.509 PEM, optional)
+        sp_key: SP Private Key (PEM, optional)
+        client_id_ph: your-client-id
+        secret_keep: leave blank to keep current
+        secret_ph: Enter client secret
+        secret_set: A secret is already set. Enter a value only to replace it.
+        scopes: Scopes
+        scopes_help: 'Space-separated. Defaults to "openid profile email" if empty.'
+        claim_mapping: Claim Mapping Overrides (JSON)
+        claim_mapping_help: Custom IdP claim name overrides. _config is built automatically.
+        enabled: Enabled
+        is_default: Set as default
 
   password:
     title: Change password

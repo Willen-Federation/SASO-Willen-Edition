@@ -67,7 +67,7 @@ final class RootView implements View
         $t = static fn (string $k, string $fallback): string => __($k, [], null, $fallback);
         $svg = static function (string $name): string {
             ob_start();
-            ui('iconHeroicon', ['name' => $name, 'class' => 'menu-item-icon']);
+            ui('iconHeroicon', ['name' => $name, 'class' => 'menu-item-icon h-5 w-5']);
             return (string) ob_get_clean();
         };
 

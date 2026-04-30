@@ -7,6 +7,13 @@
         "provider": {
            "matter": "auth",
            "action": "providerNew"
+        "providers": {
+           "matter": "authExt",
+           "action": "providers"
+        },
+        "provider": {
+           "matter": "authExt",
+           "action": "provider"
         }
     },
     "js": {
@@ -71,6 +78,30 @@
         "password": {
            "matter": "auth",
            "action": "password"
+        }
+    },
+    "member": {
+        "start": {
+           "matter": "member",
+           "action": "start"
+        },
+        "add": {
+           "matter": "member",
+           "action": "add"
+        },
+        "edit": {
+           "matter": "member",
+           "action": "edit"
+        },
+        "delete": {
+           "matter": "member",
+           "action": "delete"
+        }
+    },
+    "search": {
+        "start": {
+            "matter": "search",
+            "action": "start"
         }
     },
     "image": {
@@ -179,9 +210,49 @@
         "history": {
            "matter": "feature",
            "action": "history"
+        },
+        "fromBarcode": {
+            "matter": "item",
+            "action": "fromBarcode"
+        },
+        "frombarcode": {
+            "matter": "item",
+            "action": "fromBarcode"
+        },
+        "registerFromBarcode": {
+            "matter": "item",
+            "action": "registerFromBarcode"
+        },
+        "drafts": {
+            "matter": "item",
+            "action": "draftList"
+        },
+        "draftConfirm": {
+            "matter": "item",
+            "action": "draftConfirm"
+        },
+        "draftSave": {
+            "matter": "item",
+            "action": "draftSave"
+        },
+        "draftDiscard": {
+            "matter": "item",
+            "action": "draftDiscard"
+        },
+        "addFromImage": {
+            "matter": "item",
+            "action": "registerFromImage"
+        },
+        "draftRetry": {
+            "matter": "item",
+            "action": "draftRetry"
         }
     },
     "label": {
+        "wizard": {
+           "matter": "label",
+           "action": "wizard"
+        },
         "start": {
            "matter": "label",
            "action": "edit"
@@ -223,6 +294,32 @@
             "action": "pdf"
         }
     },
+    "verify": {
+        "start": {
+           "matter": "verify",
+           "action": "start"
+        }
+    },
+    "scan": {
+        "stock": {
+            "matter": "scanStock",
+            "action": "start"
+        }
+    },
+    "admin": {
+        "feature-flags": {
+           "matter": "featureAdmin",
+           "action": "list"
+        },
+        "settings": {
+           "matter": "settingAdmin",
+           "action": "start"
+        },
+        "ai-settings": {
+           "matter": "admin",
+           "action": "aiSettings"
+        }
+    },
     "shelf": {
         "put": {
             "matter": "feature",
@@ -231,6 +328,22 @@
         "start": {
             "matter": "shelf",
             "action": "menu"
+        },
+        "simple": {
+            "matter": "shelf",
+            "action": "simple"
+        },
+        "label": {
+            "matter": "shelf",
+            "action": "menu"
+        },
+        "map": {
+            "matter": "shelf",
+            "action": "map"
+        },
+        "simpleSave": {
+            "matter": "shelf",
+            "action": "simpleSave"
         },
         "multi": {
             "matter": "shelf",
@@ -243,6 +356,20 @@
         "outputPdf": {
             "matter": "shelf",
             "action": "pdf"
+        }
+    },
+    "barcode": {
+        "start": {
+            "matter": "barcode",
+            "action": "start"
+        },
+        "sheet": {
+            "matter": "barcode",
+            "action": "sheet"
+        },
+        "printSheet": {
+            "matter": "barcode",
+            "action": "printSheet"
         }
     }
 }

@@ -23,6 +23,16 @@ final class CreateStorageLocation extends AbstractMigration
 {
     public function up(): void
     {
+        if ($this->hasTable('storage_location')) {
+            // Table was partially created in a previous failed run; add missing FK.
+            if (!$this->getAdapter()->hasForeignKey('storage_location', ['parent_id'])) {
+                $this->table('storage_location')
+                    ->addForeignKey('parent_id', 'storage_location', 'id',
+                        ['delete' => 'SET_NULL', 'update' => 'NO_ACTION'])
+                    ->update();
+            }
+            return;
+        }
         $this->table('storage_location', [
             'id'        => 'id',
             'engine'    => 'InnoDB',

@@ -50,6 +50,8 @@
             <li><a class="dropdown-item" href="./label/start/">ラベル寸法管理</a></li>
             <li><a class="dropdown-item" href="./category/start/">分類管理</a></li>
             <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item" href="./auth/provider/new/">認証プロバイダーの追加</a></li>
+            <li><hr class="dropdown-divider"></li>
             <li><a class="dropdown-item" href="./start/password/">パスワード変更</a></li>
           </ul>
         </li>

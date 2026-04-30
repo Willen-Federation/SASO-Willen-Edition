@@ -3,6 +3,10 @@
         "start": {
            "matter": "auth",
            "action": "start"
+        },
+        "provider": {
+           "matter": "auth",
+           "action": "providerNew"
         }
     },
     "js": {

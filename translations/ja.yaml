@@ -107,6 +107,8 @@ ui:
     label_print: 印刷
     label_size: サイズ管理
     category: 分類管理
+    search: 検索
+    users: ユーザー管理
     flags: フィーチャーフラグ
     auth_providers: 認証プロバイダ
     password: パスワード
@@ -291,3 +293,19 @@ ui:
     help:
       title: 更新方法
       body: 'REST API /api/v1/feature-flags もしくは MCP ツール list_feature_flags / update_feature_flag で切替できます。インライン編集画面は次リリースで提供します。'
+  member:
+    title: ユーザー管理
+    list_title: ユーザー一覧
+    add_button: ユーザーを登録
+    col_id: ユーザーID
+    col_name: 名前
+    col_role: 権限
+    col_actions: 操作
+    empty: ユーザーが登録されていません。
+    edit: 編集
+    delete: 削除
+    confirm_delete: このユーザーを削除しますか？
+  settings:
+    title: システム設定
+    forbidden_title: 管理者権限が必要です
+    forbidden_body: 設定を管理するには role=admin のユーザーでサインインしてください。

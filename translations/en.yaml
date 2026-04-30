@@ -124,6 +124,8 @@ ui:
     label_print: Print
     label_size: Sizes
     category: Categories
+    search: Search
+    users: Users
     flags: Feature flags
     auth_providers: Auth providers
     password: Password
@@ -308,3 +310,19 @@ ui:
     help:
       title: How to update
       body: 'Toggle flags via the REST API at /api/v1/feature-flags or the MCP tools list_feature_flags / update_feature_flag. The full inline edit screen ships in a follow-up.'
+  member:
+    title: Users Management
+    list_title: User List
+    add_button: Register New User
+    col_id: User ID
+    col_name: Name
+    col_role: Role
+    col_actions: Actions
+    empty: No users registered.
+    edit: Edit
+    delete: Delete
+    confirm_delete: Delete this user?
+  settings:
+    title: System Settings
+    forbidden_title: Admin access required
+    forbidden_body: Sign in as a user with role=admin to manage settings.

@@ -189,6 +189,166 @@ if (preg_match('#^/auth/(?:start|callback|saml/acs|saml/sls)/(\d+)/?$#', $reques
     }
 }
 
+// --- Mobile setup endpoints (M6-K) ------------------------------------------
+// /m/setup            → start the mobile pairing flow. Requires
+//                       ?redirect_uri=<custom-scheme>&state=<csrf>. Validates
+//                       redirect_uri against an allowlist, stashes both in the
+//                       session, then redirects to /auth/start/{providerId}
+//                       so the user authenticates with the configured IdP.
+//                       Provider selection rules:
+//                         - ?provider_id={id}   override (must be enabled)
+//                         - exactly one default → that one
+//                         - otherwise → simple chooser HTML
+// /m/issue-pairing    → after /auth/callback succeeds (session established),
+//                       generate a fresh PairingCode and 303-redirect to
+//                       redirect_uri#token=<raw>&state=<state>&server=<base>.
+//                       The Flutter app then exchanges via /api/v1/mobile/connect.
+if ($requestPath === '/m/setup' || $requestPath === '/m/issue-pairing') {
+    try {
+        $appKey = (string) (getenv('APP_KEY') ?: '');
+        if ($appKey === '') {
+            throw new \RuntimeException('APP_KEY not configured');
+        }
+        $rawKey = base64_decode($appKey, true);
+        if ($rawKey === false || strlen($rawKey) !== 32) {
+            throw new \RuntimeException('APP_KEY must be base64 32 bytes');
+        }
+        $pdo       = \saso\repository\DBConnection::getPdo();
+        $encryptor = new \Saso\Infrastructure\Auth\Crypto\SecretEncryptor($rawKey);
+        $providers = new \Saso\Infrastructure\Auth\Repository\PdoAuthProviderRepository($pdo, $encryptor);
+        $allowlist = \Saso\Application\Mobile\RedirectUriAllowlist::fromConfig($config);
+
+        if ($requestPath === '/m/setup') {
+            $redirectUri = trim((string) ($_GET['redirect_uri'] ?? ''));
+            $stateParam  = trim((string) ($_GET['state'] ?? ''));
+            $providerId  = trim((string) ($_GET['provider_id'] ?? ''));
+
+            if ($redirectUri === '' || !$allowlist->isAllowed($redirectUri)) {
+                http_response_code(400);
+                header('Content-Type: text/plain; charset=utf-8');
+                echo 'Bad Request: invalid or missing redirect_uri';
+                exit;
+            }
+            if ($stateParam === '' || !preg_match('/^[A-Za-z0-9_\-]{16,128}$/', $stateParam)) {
+                http_response_code(400);
+                header('Content-Type: text/plain; charset=utf-8');
+                echo 'Bad Request: invalid state (16-128 url-safe chars)';
+                exit;
+            }
+
+            $_SESSION['mobile.setup.redirect_uri'] = $redirectUri;
+            $_SESSION['mobile.setup.state']        = $stateParam;
+            $_SESSION['mobile.setup.expires']      = time() + 600;
+
+            $records  = $providers->listEnabled();
+            $chosenId = null;
+            if ($providerId !== '' && ctype_digit($providerId)) {
+                foreach ($records as $rec) {
+                    if ((string) $rec->id->value() === $providerId && $rec->enabled) {
+                        $chosenId = $rec->id->value();
+                        break;
+                    }
+                }
+            }
+            if ($chosenId === null) {
+                $defaults = array_values(array_filter($records, fn ($r) => $r->isDefault));
+                if (count($defaults) === 1) {
+                    $chosenId = $defaults[0]->id->value();
+                }
+            }
+            if ($chosenId !== null) {
+                header('Location: /auth/start/' . $chosenId . '?return=' . urlencode('/m/issue-pairing'), true, 303);
+                exit;
+            }
+
+            // No default — render chooser
+            header('Content-Type: text/html; charset=utf-8');
+            echo "<!doctype html><html lang=\"ja\"><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width,initial-scale=1\"><title>SASO モバイル接続</title>"
+                . '<style>body{font-family:system-ui,-apple-system,sans-serif;margin:0;padding:24px;background:#f5f5f7}'
+                . 'h1{font-size:18px;margin:0 0 16px}.provider{display:block;background:#fff;border:1px solid #d2d2d7;border-radius:12px;padding:16px;margin-bottom:8px;text-decoration:none;color:#000}'
+                . '.provider:hover{background:#fafafa}.type{font-size:11px;color:#666;text-transform:uppercase}</style></head><body>';
+            echo '<h1>認証方法を選択してください</h1>';
+            foreach ($records as $rec) {
+                if (!$rec->enabled) continue;
+                $href = '/auth/start/' . $rec->id->value() . '?return=' . urlencode('/m/issue-pairing');
+                echo '<a class="provider" href="' . htmlspecialchars($href, ENT_QUOTES, 'UTF-8') . '">'
+                    . '<div class="type">' . htmlspecialchars($rec->type->value, ENT_QUOTES, 'UTF-8') . '</div>'
+                    . '<div>' . htmlspecialchars($rec->name, ENT_QUOTES, 'UTF-8') . '</div></a>';
+            }
+            if ($records === []) {
+                echo '<p>このサーバーには認証プロバイダーが設定されていません。管理者にお問い合わせください。</p>';
+            }
+            echo '</body></html>';
+            exit;
+        }
+
+        // /m/issue-pairing
+        $authedNow = isset($_SESSION['id']) && isset($_SESSION['time']) && $_SESSION['time'] + 3600 > time();
+        if (!$authedNow) {
+            http_response_code(401);
+            header('Content-Type: text/plain; charset=utf-8');
+            echo 'Unauthorized: session not established';
+            exit;
+        }
+        $redirectUri = (string) ($_SESSION['mobile.setup.redirect_uri'] ?? '');
+        $stateParam  = (string) ($_SESSION['mobile.setup.state'] ?? '');
+        $expires     = (int)    ($_SESSION['mobile.setup.expires'] ?? 0);
+        unset(
+            $_SESSION['mobile.setup.redirect_uri'],
+            $_SESSION['mobile.setup.state'],
+            $_SESSION['mobile.setup.expires'],
+        );
+        if ($redirectUri === '' || $stateParam === '' || $expires < time()) {
+            http_response_code(400);
+            header('Content-Type: text/plain; charset=utf-8');
+            echo 'Bad Request: setup session expired or missing';
+            exit;
+        }
+        if (!$allowlist->isAllowed($redirectUri)) {
+            http_response_code(400);
+            header('Content-Type: text/plain; charset=utf-8');
+            echo 'Bad Request: redirect_uri no longer allowed';
+            exit;
+        }
+
+        $codeRepo = new \Saso\Infrastructure\MobileConnect\PdoPairingCodeRepository($pdo);
+        $now      = new \DateTimeImmutable('now', new \DateTimeZone('UTC'));
+        $expiry   = $now->modify('+5 minutes');
+        $rawTok   = \Saso\Domain\MobileConnect\PairingCode::generateRawToken();
+        $hash     = \Saso\Domain\MobileConnect\PairingCode::hashToken($rawTok);
+        $label    = 'Mobile setup (member ' . (int) $_SESSION['id'] . ')';
+
+        $code = new \Saso\Domain\MobileConnect\PairingCode(
+            id: $codeRepo->nextId(),
+            tokenHash: $hash,
+            label: $label,
+            used: false,
+            expiresAt: $expiry,
+            createdAt: $now,
+        );
+        $codeRepo->save($code);
+
+        $proto   = $onHttps ? 'https' : 'http';
+        $baseUrl = $proto . '://' . ($_SERVER['HTTP_HOST'] ?? 'localhost');
+
+        $fragment = http_build_query([
+            'token'  => $rawTok,
+            'state'  => $stateParam,
+            'server' => $baseUrl,
+        ]);
+        header('Location: ' . $redirectUri . '#' . $fragment, true, 303);
+        exit;
+    } catch (\Throwable $e) {
+        if (function_exists('error_log')) {
+            error_log('[saso-mobile-setup] ' . $e->getMessage());
+        }
+        http_response_code(500);
+        header('Content-Type: text/plain; charset=utf-8');
+        echo 'Internal Server Error during mobile setup';
+        exit;
+    }
+}
+
 // --- Language switcher endpoint (POST /locale/set/{lc}) ---------------------
 // Writes the saso_locale cookie and 303-redirects back. Lives outside the
 // legacy router because it has to short-circuit before any auth gating —

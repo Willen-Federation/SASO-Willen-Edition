@@ -31,6 +31,7 @@ use Saso\Presentation\Api\V1\Controller\HealthController;
 use Saso\Presentation\Api\V1\Controller\Item\DraftCreateController;
 use Saso\Presentation\Api\V1\Controller\Mobile\ConfigBundleController;
 use Saso\Presentation\Api\V1\Controller\Mobile\ConnectController;
+use Saso\Presentation\Api\V1\Controller\Mobile\DiscoveryController;
 use Saso\Presentation\Api\V1\Controller\Mobile\QrController;
 use Saso\Presentation\Api\V1\Controller\Mobile\TokenListController;
 use Saso\Presentation\Api\V1\Controller\Mobile\TokenRefreshController;
@@ -119,6 +120,12 @@ final class Bootstrap
         $providerGet      = new ProviderGetController($authProviderRepo);
         $providerTest     = new ProviderTestController($authProviderRepo);
 
+        $discovery = new DiscoveryController(
+            providers: $authProviderRepo,
+            serverName: (string) (getenv('SASO_SERVER_NAME') ?: 'SASO'),
+            version: (string) (getenv('SASO_VERSION') ?: '1.0.0'),
+        );
+
         return [
             'getHealth'       => [$health, 'handle'],
             'getOpenApiSpec'  => [$openApi, 'yaml'],
@@ -130,12 +137,13 @@ final class Bootstrap
             'updateFeatureFlag' => [$flagUpdate, 'handle'],
             'deleteFeatureFlag' => [$flagDelete, 'handle'],
 
-            'createPairingCode'  => [$qr, 'handle'],
-            'mobileConnect'      => [$connect, 'handle'],
-            'refreshMobileToken' => [$tokenRefresh, 'handle'],
-            'getMobileConfig'    => [$configBundle, 'handle'],
-            'listDeviceTokens'   => [$tokenList, 'handle'],
-            'revokeDeviceToken'  => [$tokenRevoke, 'handle'],
+            'createPairingCode'   => [$qr, 'handle'],
+            'mobileConnect'       => [$connect, 'handle'],
+            'refreshMobileToken'  => [$tokenRefresh, 'handle'],
+            'getMobileConfig'     => [$configBundle, 'handle'],
+            'getMobileDiscovery'  => [$discovery, 'handle'],
+            'listDeviceTokens'    => [$tokenList, 'handle'],
+            'revokeDeviceToken'   => [$tokenRevoke, 'handle'],
 
             'getBarcode'        => [$barcodeGet, 'handle'],
 

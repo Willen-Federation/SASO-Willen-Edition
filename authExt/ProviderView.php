@@ -1,11 +1,12 @@
 <?php
+
 namespace saso\authExt;
 
 use Saso\Application\Auth\AdminGuard;
 use saso\framework\Setter;
 use saso\framework\View;
-use saso\repository\DBConnection;
 use Saso\Infrastructure\Auth\Crypto\SecretEncryptor;
+use saso\repository\DBConnection;
 
 final class ProviderView implements View
 {
@@ -27,14 +28,23 @@ final class ProviderView implements View
     public string $message = '';
     public string $title = '';
     public bool $hasSecret = false;
+    public string $flavor = 'oidc';
 
-    /** Computed callback URLs for display */
+    /** Computed URLs for display */
     public string $callbackUrl = '';
     public string $acsUrl = '';
     public string $slsUrl = '';
+    public string $loginUrl = '';
 
     public function __construct(private array $query, private array $post)
     {
+        // AJAX verify endpoint — must come before everything else
+        if (isset($this->query['action']) && $this->query['action'] === 'verify'
+            && $_SERVER['REQUEST_METHOD'] === 'POST') {
+            $this->verifyHandler();
+            return;
+        }
+
         $pdo = DBConnection::getPdo();
         $this->authorized = (new AdminGuard($pdo))->isAdmin(
             isset($_SESSION['id']) && is_string($_SESSION['id']) ? $_SESSION['id'] : null,
@@ -44,41 +54,43 @@ final class ProviderView implements View
             return;
         }
 
+        // Always compute base URLs (loginUrl is needed even for new mode)
+        $this->computeUrls(0);
+
         // Determine mode: edit or new
         if (isset($this->query['edit']) && is_numeric($this->query['edit'])) {
             $this->mode = 'edit';
             $stmt = $pdo->prepare('SELECT * FROM auth_provider WHERE id = :id');
-            $stmt->bindValue(':id', (int)$this->query['edit']);
+            $stmt->bindValue(':id', (int) $this->query['edit']);
             $stmt->execute();
             $row = $stmt->fetch(\PDO::FETCH_ASSOC);
             if ($row) {
                 $this->provider = $row;
                 $this->hasSecret = !empty($row['client_secret_encrypted']);
             }
-            $this->computeUrls((int)$this->provider['id']);
+            $this->computeUrls((int) $this->provider['id']);
         }
 
-        // Handle Delete Action
+        // Delete action
         if (isset($this->query['delete']) && is_numeric($this->query['delete'])) {
             $stmt = $pdo->prepare('DELETE FROM auth_provider WHERE id = :id');
-            $stmt->bindValue(':id', (int)$this->query['delete']);
+            $stmt->bindValue(':id', (int) $this->query['delete']);
             $stmt->execute();
             header('Location: ./auth/providers/');
             exit;
         }
 
-        // Handle Form Submission
+        // Form submission
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $name = (string)($this->post['name'] ?? '');
-            $type = (string)($this->post['type'] ?? 'oidc');
-            $enabled = isset($this->post['enabled']) ? 1 : 0;
-            $is_default = isset($this->post['is_default']) ? 1 : 0;
-            $issuer = (string)($this->post['issuer_or_metadata_url'] ?? '');
-            $client_id = (string)($this->post['client_id'] ?? '');
-            $scopes = (string)($this->post['scopes'] ?? '');
-            $client_secret_raw = (string)($this->post['client_secret'] ?? '');
+            $name             = (string) ($this->post['name'] ?? '');
+            $type             = (string) ($this->post['type'] ?? 'oidc');
+            $enabled          = isset($this->post['enabled']) ? 1 : 0;
+            $is_default       = isset($this->post['is_default']) ? 1 : 0;
+            $issuer           = (string) ($this->post['issuer_or_metadata_url'] ?? '');
+            $client_id        = (string) ($this->post['client_id'] ?? '');
+            $scopes           = (string) ($this->post['scopes'] ?? '');
+            $client_secret_raw = (string) ($this->post['client_secret'] ?? '');
 
-            // Build claim_mapping from structured fields
             $claim_mapping = $this->buildClaimMapping($type);
 
             if ($name === '') {
@@ -88,7 +100,6 @@ final class ProviderView implements View
                     $pdo->exec('UPDATE auth_provider SET is_default = 0');
                 }
 
-                // Encrypt client secret if provided
                 $secretCipher = null;
                 if ($client_secret_raw !== '') {
                     $encryptor = $this->getEncryptor();
@@ -105,7 +116,7 @@ final class ProviderView implements View
                     }
                     $sql .= ' WHERE id = :id';
                     $stmt = $pdo->prepare($sql);
-                    $stmt->bindValue(':id', (int)$this->provider['id']);
+                    $stmt->bindValue(':id', (int) $this->provider['id']);
                     if ($secretCipher !== null) {
                         $stmt->bindValue(':secret', $secretCipher, \PDO::PARAM_LOB);
                     }
@@ -125,74 +136,204 @@ final class ProviderView implements View
                 $stmt->bindValue(':claim_mapping', $claim_mapping);
                 $stmt->execute();
 
-                header('Location: ./auth/providers/');
+                if ($this->mode === 'edit') {
+                    header('Location: ./auth/providers/');
+                } else {
+                    $newId = (int) $pdo->lastInsertId();
+                    header('Location: ./auth/provider/new?edit='.$newId);
+                }
                 exit;
             }
         }
+
+        // Resolve flavor from saved claim_mapping
+        $claimData = json_decode((string) ($this->provider['claim_mapping'] ?? '{}'), true);
+        $this->flavor = (string) ((is_array($claimData) ? ($claimData['_config']['flavor'] ?? '') : '') ?: 'oidc');
     }
 
-    /**
-     * Build the claim_mapping JSON from structured POST fields.
-     * Merges _config extras (flavor, SAML certs, etc.) with user claim overrides.
-     */
     private function buildClaimMapping(string $type): string
     {
         $config = [];
 
         if ($type === 'oidc') {
-            $flavor = (string)($this->post['flavor'] ?? 'oidc');
+            $flavor = (string) ($this->post['flavor'] ?? 'oidc');
             $config['flavor'] = $flavor;
+
+            if ($flavor === 'auth0') {
+                $d = trim((string) ($this->post['auth0_domain'] ?? ''));
+                if ($d !== '') {
+                    $config['domain'] = $d;
+                }
+                $a = trim((string) ($this->post['auth0_audience'] ?? ''));
+                if ($a !== '') {
+                    $config['audience'] = $a;
+                }
+            } elseif ($flavor === 'cognito') {
+                $r = trim((string) ($this->post['cognito_region'] ?? ''));
+                if ($r !== '') {
+                    $config['region'] = $r;
+                }
+                $p = trim((string) ($this->post['cognito_user_pool_id'] ?? ''));
+                if ($p !== '') {
+                    $config['user_pool_id'] = $p;
+                }
+                $h = trim((string) ($this->post['cognito_hosted_ui_domain'] ?? ''));
+                if ($h !== '') {
+                    $config['hosted_ui_domain'] = $h;
+                }
+            } elseif ($flavor === 'firebase') {
+                $pid = trim((string) ($this->post['firebase_project_id'] ?? ''));
+                if ($pid !== '') {
+                    $config['project_id'] = $pid;
+                }
+                $hd = trim((string) ($this->post['firebase_hd'] ?? ''));
+                if ($hd !== '') {
+                    $config['hd'] = $hd;
+                }
+                $providers = $this->post['firebase_providers'] ?? [];
+                if (is_array($providers) && $providers !== []) {
+                    $config['firebase_providers'] = array_values(
+                        array_filter($providers, fn ($p) => is_string($p) && $p !== '')
+                    );
+                }
+            }
         } elseif ($type === 'saml') {
             $config['flavor'] = 'saml';
-            $entityId = (string)($this->post['entity_id'] ?? '');
+            $entityId = (string) ($this->post['entity_id'] ?? '');
             if ($entityId !== '') {
                 $config['entity_id'] = $entityId;
             }
-            $nameidFormat = (string)($this->post['nameid_format'] ?? '');
+            $nameidFormat = (string) ($this->post['nameid_format'] ?? '');
             if ($nameidFormat !== '') {
                 $config['nameid_format'] = $nameidFormat;
             }
-            $idpCert = (string)($this->post['idp_x509_cert'] ?? '');
+            $idpCert = (string) ($this->post['idp_x509_cert'] ?? '');
             if ($idpCert !== '') {
                 $config['idp_x509_cert'] = $idpCert;
             }
-            $spCert = (string)($this->post['sp_x509_cert'] ?? '');
+            $spCert = (string) ($this->post['sp_x509_cert'] ?? '');
             if ($spCert !== '') {
                 $config['sp_x509_cert'] = $spCert;
             }
-            $spKey = (string)($this->post['sp_private_key'] ?? '');
+            $spKey = (string) ($this->post['sp_private_key'] ?? '');
             if ($spKey !== '') {
                 $config['sp_private_key'] = $spKey;
             }
         }
 
-        // Preserve raw claim overrides from textarea
-        $rawJson = (string)($this->post['claim_mapping_raw'] ?? '{}');
+        $rawJson = (string) ($this->post['claim_mapping_raw'] ?? '{}');
         $decoded = json_decode($rawJson, true);
         if (!is_array($decoded)) {
             $decoded = [];
         }
-        // Remove _config from user input — we build it ourselves
         unset($decoded['_config']);
-
         $decoded['_config'] = $config;
 
         return (string) json_encode($decoded, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
     }
 
+    private function verifyHandler(): void
+    {
+        header('Content-Type: application/json; charset=utf-8');
+
+        $token = (string) ($this->post['csrftoken'] ?? '');
+        if (!\saso\util\CSRFtoken::verify($token)) {
+            echo json_encode(['ok' => false, 'error' => 'CSRF token invalid']);
+            exit;
+        }
+
+        $pdo = DBConnection::getPdo();
+        $authorized = (new AdminGuard($pdo))->isAdmin(
+            isset($_SESSION['id']) && is_string($_SESSION['id']) ? $_SESSION['id'] : null,
+        );
+        if (!$authorized) {
+            http_response_code(403);
+            echo json_encode(['ok' => false, 'error' => 'Forbidden']);
+            exit;
+        }
+
+        $type   = (string) ($this->post['type'] ?? 'oidc');
+        $issuer = trim((string) ($this->post['issuer_or_metadata_url'] ?? ''));
+
+        if ($issuer === '') {
+            echo json_encode(['ok' => false, 'error' => 'No issuer / metadata URL provided']);
+            exit;
+        }
+
+        if ($type === 'oidc') {
+            $this->verifyOidc($issuer);
+        } else {
+            $this->verifySaml($issuer);
+        }
+    }
+
+    private function verifyOidc(string $issuer): void
+    {
+        $discoveryUrl = rtrim($issuer, '/');
+        if (!str_ends_with($discoveryUrl, '/openid-configuration')) {
+            $discoveryUrl .= '/.well-known/openid-configuration';
+        }
+
+        $ctx  = stream_context_create(['http' => ['timeout' => 5, 'ignore_errors' => true]]);
+        $body = @file_get_contents($discoveryUrl, false, $ctx);
+
+        if ($body === false) {
+            echo json_encode(['ok' => false, 'error' => 'Could not reach discovery URL: '.$discoveryUrl]);
+            exit;
+        }
+
+        $json = json_decode($body, true);
+        if (!is_array($json)) {
+            echo json_encode(['ok' => false, 'error' => 'Discovery URL did not return valid JSON']);
+            exit;
+        }
+
+        if (empty($json['authorization_endpoint'])) {
+            echo json_encode(['ok' => false, 'error' => 'Discovery document missing authorization_endpoint']);
+            exit;
+        }
+
+        echo json_encode(['ok' => true, 'detail' => 'authorization_endpoint: '.$json['authorization_endpoint']]);
+        exit;
+    }
+
+    private function verifySaml(string $metadataUrl): void
+    {
+        $ctx  = stream_context_create(['http' => ['timeout' => 5, 'ignore_errors' => true]]);
+        $body = @file_get_contents($metadataUrl, false, $ctx);
+
+        if ($body === false) {
+            echo json_encode(['ok' => false, 'error' => 'Could not reach metadata URL: '.$metadataUrl]);
+            exit;
+        }
+
+        if (!str_contains($body, 'EntityDescriptor')) {
+            echo json_encode(['ok' => false, 'error' => 'Response does not appear to be SAML metadata (no EntityDescriptor element)']);
+            exit;
+        }
+
+        echo json_encode(['ok' => true, 'detail' => 'Metadata URL reachable and appears valid']);
+        exit;
+    }
+
     private function computeUrls(int $id): void
     {
         $proto = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
-        $host = $_SERVER['HTTP_HOST'] ?? 'localhost';
-        $base = rtrim($proto . '://' . $host, '/');
-        $this->callbackUrl = $base . '/auth/callback/' . $id;
-        $this->acsUrl = $base . '/auth/saml/acs/' . $id;
-        $this->slsUrl = $base . '/auth/saml/sls/' . $id;
+        $host  = $_SERVER['HTTP_HOST'] ?? 'localhost';
+        $base  = rtrim($proto.'://'.$host, '/');
+
+        $this->loginUrl = $base.'/auth/login';
+
+        if ($id > 0) {
+            $this->callbackUrl = $base.'/auth/callback/'.$id;
+            $this->acsUrl      = $base.'/auth/saml/acs/'.$id;
+            $this->slsUrl      = $base.'/auth/saml/sls/'.$id;
+        }
     }
 
     private function getEncryptor(): ?SecretEncryptor
     {
-        $appKey = (string)(getenv('APP_KEY') ?: '');
+        $appKey = (string) (getenv('APP_KEY') ?: '');
         if ($appKey === '') {
             return null;
         }
@@ -200,6 +341,7 @@ final class ProviderView implements View
         if ($decoded === false || strlen($decoded) !== 32) {
             return null;
         }
+
         return new SecretEncryptor($decoded);
     }
 

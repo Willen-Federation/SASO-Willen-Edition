@@ -346,6 +346,33 @@ paths:
   # Mobile / QR connection
   # ---------------------------------------------------------------------------
 
+  /mobile/discovery:
+    get:
+      tags: [mobile]
+      security: []  # public — no auth required
+      summary: Mobile setup discovery.
+      description: |
+        Returns the metadata that the SASO Flutter app needs to start the
+        pairing flow when the user enters only a server URL. The app then
+        opens `mobileSetupUrl` in an in-app browser with the query string
+        `?redirect_uri=jp.willen.saso://callback&state=<csrf>`.
+
+        `authStrategy` decides whether the chooser is shown:
+          - `default-only`: server has marked one IdP as default → use it.
+          - `user-choice`: server has multiple enabled IdPs → render chooser.
+          - `local-only`: server has no IdPs → use the built-in login form.
+      operationId: getMobileDiscovery
+      x-handler: 'Saso\Presentation\Api\V1\Controller\Mobile\DiscoveryController::handle'
+      responses:
+        '200':
+          description: Discovery payload.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MobileDiscovery'
+        '500':
+          $ref: '#/components/responses/ProblemInternalError'
+
   /mobile/pairing-codes:
     post:
       tags: [mobile]
@@ -940,6 +967,57 @@ components:
             Override the server URL embedded in the QR code. Useful when the
             server is behind a reverse proxy with a different public hostname.
           example: https://saso.example.com
+
+    MobileDiscovery:
+      type: object
+      required: [serverName, version, mobileSetupUrl, authStrategy, providers]
+      properties:
+        serverName:
+          type: string
+          example: SASO Willen Edition
+        version:
+          type: string
+          example: '1.0.0'
+        mobileSetupUrl:
+          type: string
+          format: uri
+          description: |
+            URL for the in-app browser to open. The app appends
+            `?redirect_uri=jp.willen.saso://callback&state=<csrf>`.
+          example: 'https://saso.example.com/m/setup'
+        authStrategy:
+          type: string
+          enum: [default-only, user-choice, local-only]
+          description: |
+            How the app should pick an auth provider:
+              - `default-only`: server has a default IdP — open setup directly.
+              - `user-choice`: server renders a chooser at `/m/setup`.
+              - `local-only`: no IdPs configured; use server-provided login form.
+          example: default-only
+        providers:
+          type: array
+          description: Enabled providers, secrets always omitted.
+          items:
+            $ref: '#/components/schemas/MobileDiscoveryProvider'
+
+    MobileDiscoveryProvider:
+      type: object
+      required: [id, name, type, isDefault, enabled]
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 1
+        name:
+          type: string
+          example: Auth0
+        type:
+          type: string
+          enum: [local, oidc, saml]
+        isDefault:
+          type: boolean
+        enabled:
+          type: boolean
 
     PairingCodeResponse:
       type: object

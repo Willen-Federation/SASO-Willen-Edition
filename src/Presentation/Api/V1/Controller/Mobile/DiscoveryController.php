@@ -72,7 +72,7 @@ final class DiscoveryController
             body: [
                 'serverName'     => $this->serverName,
                 'version'        => $this->version,
-                'mobileSetupUrl' => $baseUrl.'/m/setup',
+                'mobileSetupUrl' => $baseUrl . '/m/setup',
                 'authStrategy'   => $strategy,
                 'providers'      => $providerList,
             ],
@@ -86,6 +86,6 @@ final class DiscoveryController
         $host  = $request->header('x-forwarded-host')
             ?? ($_SERVER['HTTP_HOST'] ?? 'localhost');
 
-        return $proto.'://'.$host;
+        return $proto . '://' . $host;
     }
 }

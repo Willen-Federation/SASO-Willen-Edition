@@ -88,20 +88,24 @@ ui('card', [
         step:   <?php echo $initStep; ?>,
         verifyStatus: null,
         verifyMsg: '',
+        verifyAuthUrl: null,
         get providerType() { return this.choice === 'saml' ? 'saml' : 'oidc'; },
         pick(c) { this.choice = c; this.step = 2; },
         async verify() {
-          this.verifyStatus = 'loading'; this.verifyMsg = '';
+          this.verifyStatus = 'loading'; this.verifyMsg = ''; this.verifyAuthUrl = null;
           const fd = new FormData();
           fd.append('csrftoken', document.querySelector('[name=csrftoken]').value);
           fd.append('type', this.providerType);
           fd.append('issuer_or_metadata_url',
                     document.querySelector('[name=issuer_or_metadata_url]')?.value ?? '');
+          fd.append('client_id',   document.querySelector('[name=client_id]')?.value ?? '');
+          fd.append('provider_id', '<?php echo (int) ($v->provider['id'] ?? 0); ?>');
           try {
             const r = await fetch('?action=verify', { method: 'POST', body: fd });
             const d = await r.json();
-            this.verifyStatus = d.ok ? 'ok' : 'error';
-            this.verifyMsg    = d.ok ? d.detail : d.error;
+            this.verifyStatus  = d.ok ? 'ok' : 'error';
+            this.verifyMsg     = d.ok ? d.detail : d.error;
+            this.verifyAuthUrl = (d.ok && d.auth_url) ? d.auth_url : null;
           } catch(e) {
             this.verifyStatus = 'error';
             this.verifyMsg = e.message || '<?php echo $lang === 'ja' ? 'ネットワークエラー' : 'Network error'; ?>';
@@ -665,6 +669,15 @@ ui('card', [
           </svg>
           <div class="grow" x-text="verifyMsg"></div>
         </div>
+        <template x-if="verifyStatus === 'ok' && verifyAuthUrl">
+          <a :href="verifyAuthUrl" target="_blank" rel="noopener noreferrer"
+             class="mt-2 inline-flex w-full items-center justify-center gap-2 rounded border border-stroke bg-white px-4 py-2 text-sm font-medium text-black transition hover:border-primary hover:text-primary dark:border-strokedark dark:bg-boxdark dark:text-white dark:hover:border-primary dark:hover:text-primary">
+            <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6m0 0v6m0-6-9 9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <?php echo ui_text($lang === 'ja' ? 'テストサインインを開く →' : 'Open Test Sign-In →'); ?>
+          </a>
+        </template>
       </div>
     </div>
 

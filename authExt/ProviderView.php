@@ -39,7 +39,8 @@ final class ProviderView implements View
     public function __construct(private array $query, private array $post)
     {
         // AJAX verify endpoint — must come before everything else
-        if (isset($this->query['action']) && $this->query['action'] === 'verify'
+        // Note: ?action=verify is a query-string param → $_GET, not the framework $query array
+        if (($_GET['action'] ?? '') === 'verify'
             && $_SERVER['REQUEST_METHOD'] === 'POST') {
             $this->verifyHandler();
             return;
@@ -324,7 +325,25 @@ final class ProviderView implements View
             exit;
         }
 
-        echo json_encode(['ok' => true, 'detail' => 'authorization_endpoint: '.$json['authorization_endpoint']]);
+        $clientId   = trim((string) ($this->post['client_id'] ?? ''));
+        $providerId = (int) ($this->post['provider_id'] ?? 0);
+        $authUrl    = null;
+        if ($clientId !== '' && $providerId > 0) {
+            $proto   = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
+            $base    = rtrim($proto . '://' . ($_SERVER['HTTP_HOST'] ?? 'localhost'), '/');
+            $authUrl = $json['authorization_endpoint'] . '?' . http_build_query([
+                'client_id'     => $clientId,
+                'redirect_uri'  => $base . '/auth/callback/' . $providerId,
+                'response_type' => 'code',
+                'scope'         => 'openid profile email',
+                'state'         => bin2hex(random_bytes(8)),
+            ]);
+        }
+        echo json_encode([
+            'ok'       => true,
+            'detail'   => 'authorization_endpoint: ' . $json['authorization_endpoint'],
+            'auth_url' => $authUrl,
+        ]);
         exit;
     }
 

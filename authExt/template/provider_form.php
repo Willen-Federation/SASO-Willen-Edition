@@ -330,6 +330,8 @@ ui('card', [
                class="w-full rounded border border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary text-black dark:text-white">
         <?php if ($v->hasSecret): ?>
           <p class="mt-1 text-xs text-bodydark2"><?php echo $lang === 'ja' ? '変更する場合のみ入力してください' : 'Leave blank to keep the current secret'; ?></p>
+        <?php else: ?>
+          <p class="mt-1 text-xs text-danger"><?php echo $lang === 'ja' ? '⚠ シークレット未設定。入力して保存するまでログインできません。' : '⚠ No client secret stored. Sign-in will fail until a secret is saved.'; ?></p>
         <?php endif; ?>
       </div>
       <?php
@@ -397,7 +399,7 @@ ui('card', [
                placeholder="<?php echo $v->hasSecret ? '●●●●●●●●' : ($lang === 'ja' ? 'シークレットを入力' : 'Enter secret'); ?>"
                autocomplete="new-password"
                class="w-full rounded border border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary text-black dark:text-white">
-        <?php if ($v->hasSecret): ?><p class="mt-1 text-xs text-bodydark2"><?php echo $lang === 'ja' ? '変更する場合のみ入力してください' : 'Leave blank to keep the current secret'; ?></p><?php endif; ?>
+        <?php if ($v->hasSecret): ?><p class="mt-1 text-xs text-bodydark2"><?php echo $lang === 'ja' ? '変更する場合のみ入力してください' : 'Leave blank to keep the current secret'; ?></p><?php else: ?><p class="mt-1 text-xs text-danger"><?php echo $lang === 'ja' ? '⚠ シークレット未設定。入力して保存するまでログインできません。' : '⚠ No client secret stored. Sign-in will fail until a secret is saved.'; ?></p><?php endif; ?>
       </div>
       <?php
       ui('formField', [
@@ -453,7 +455,7 @@ ui('card', [
                placeholder="<?php echo $v->hasSecret ? '●●●●●●●●' : ($lang === 'ja' ? 'シークレットを入力' : 'Enter secret'); ?>"
                autocomplete="new-password"
                class="w-full rounded border border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary text-black dark:text-white">
-        <?php if ($v->hasSecret): ?><p class="mt-1 text-xs text-bodydark2"><?php echo $lang === 'ja' ? '変更する場合のみ入力してください' : 'Leave blank to keep the current secret'; ?></p><?php endif; ?>
+        <?php if ($v->hasSecret): ?><p class="mt-1 text-xs text-bodydark2"><?php echo $lang === 'ja' ? '変更する場合のみ入力してください' : 'Leave blank to keep the current secret'; ?></p><?php else: ?><p class="mt-1 text-xs text-danger"><?php echo $lang === 'ja' ? '⚠ シークレット未設定。入力して保存するまでログインできません。' : '⚠ No client secret stored. Sign-in will fail until a secret is saved.'; ?></p><?php endif; ?>
       </div>
       <?php
       ui('formField', [
@@ -512,7 +514,7 @@ ui('card', [
                placeholder="<?php echo $v->hasSecret ? '●●●●●●●●' : ($lang === 'ja' ? 'シークレットを入力' : 'Enter secret'); ?>"
                autocomplete="new-password"
                class="w-full rounded border border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary text-black dark:text-white">
-        <?php if ($v->hasSecret): ?><p class="mt-1 text-xs text-bodydark2"><?php echo $lang === 'ja' ? '変更する場合のみ入力してください' : 'Leave blank to keep the current secret'; ?></p><?php endif; ?>
+        <?php if ($v->hasSecret): ?><p class="mt-1 text-xs text-bodydark2"><?php echo $lang === 'ja' ? '変更する場合のみ入力してください' : 'Leave blank to keep the current secret'; ?></p><?php else: ?><p class="mt-1 text-xs text-danger"><?php echo $lang === 'ja' ? '⚠ シークレット未設定。入力して保存するまでログインできません。' : '⚠ No client secret stored. Sign-in will fail until a secret is saved.'; ?></p><?php endif; ?>
       </div>
       <?php
       ui('formField', [

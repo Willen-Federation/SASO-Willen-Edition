@@ -10,7 +10,8 @@
     "auth": {
         "start": "\\saso\\auth\\AuthDIContainer",
         "logout": "\\saso\\auth\\LogoutDIContainer",
-        "password": "\\saso\\auth\\PasswordDIContainer"
+        "password": "\\saso\\auth\\PasswordDIContainer",
+        "providerNew": "\\saso\\auth\\ProviderNewDIContainer"
     },
     "authExt": {
         "providers": "\\saso\\authExt\\ProvidersDIContainer",
@@ -76,7 +77,13 @@
         "addFeature": "\\saso\\item\\AddFeatureDIContainer",
         "archive": "\\saso\\item\\ArchiveDIContainer",
         "reproduction": "\\saso\\item\\ReproductionDIContainer",
-        "registerFromBarcode": "\\saso\\item\\RegisterFromBarcodeDIContainer"
+        "registerFromBarcode": "\\saso\\item\\RegisterFromBarcodeDIContainer",
+        "registerFromImage": "\\saso\\item\\AddFromImageDIContainer",
+        "draftList": "\\saso\\item\\DraftListDIContainer",
+        "draftConfirm": "\\saso\\item\\DraftConfirmDIContainer",
+        "draftSave": "\\saso\\item\\DraftConfirmSaveDIContainer",
+        "draftDiscard": "\\saso\\item\\DraftDiscardDIContainer",
+        "draftRetry": "\\saso\\item\\DraftRetryDIContainer"
     },
     "feature": {
         "inventory": "\\saso\\feature\\AmountDIContainer",
@@ -126,6 +133,7 @@
     },
     "admin": {
         "feature-flags": "\\saso\\admin\\FeatureFlagsDIContainer",
-        "auth-providers": "\\saso\\admin\\AuthProvidersDIContainer"
+        "auth-providers": "\\saso\\admin\\AuthProvidersDIContainer",
+        "aiSettings": "\\saso\\admin\\AiSettingsDIContainer"
     }
 }

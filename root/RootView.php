@@ -104,7 +104,9 @@ final class RootView implements View
                             ['label' => $t('ui.sidebar.shelf_map',    'Map'),    'href' => '/shelf/map/', 'new' => true],
                         ],
                     ],
-                    ['key' => 'verify', 'label' => $t('ui.sidebar.verify', 'Verification'), 'href' => '/verify/start/', 'icon' => $svg('check-square'), 'new' => true],
+                    ['key' => 'verify',     'label' => $t('ui.sidebar.verify',     'Verification'), 'href' => '/verify/start/', 'icon' => $svg('check-square'), 'new' => true],
+                    ['key' => 'drafts',     'label' => $t('ui.sidebar.drafts',     'Draft Items'),  'href' => '/item/drafts/', 'icon' => $svg('clock'), 'new' => true],
+                    ['key' => 'scan_stock', 'label' => $t('ui.sidebar.scan_stock', 'Scan & Stock'), 'href' => '/scan/stock/', 'icon' => $svg('qr-code'), 'new' => true],
                 ],
             ],
             [
@@ -130,7 +132,8 @@ final class RootView implements View
                     ['key' => 'users',    'label' => $t('ui.sidebar.users',           'Users'),         'href' => '/member/start/',        'icon' => $svg('users')],
                     ['key' => 'flags',    'label' => $t('ui.sidebar.flags',           'Feature flags'), 'href' => '/admin/feature-flags/', 'icon' => $svg('toggle'),  'new' => true],
                     ['key' => 'auth',     'label' => $t('ui.sidebar.auth_providers', 'Auth providers'),'href' => '/auth/providers/',     'icon' => $svg('shield'),  'new' => true],
-                    ['key' => 'password', 'label' => $t('ui.sidebar.password',        'Password'),      'href' => '/start/password/',      'icon' => $svg('key')],
+                    ['key' => 'password',    'label' => $t('ui.sidebar.password',     'Password'),     'href' => '/start/password/',      'icon' => $svg('key')],
+                    ['key' => 'ai_settings', 'label' => $t('ui.sidebar.ai_settings', 'AI Settings'),  'href' => '/admin/ai-settings/',   'icon' => $svg('sparkles')],
                 ],
             ],
         ];

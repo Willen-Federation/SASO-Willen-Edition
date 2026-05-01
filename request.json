@@ -4,6 +4,10 @@
            "matter": "auth",
            "action": "start"
         },
+        "providerNew": {
+           "matter": "auth",
+           "action": "providerNew"
+        },
         "providers": {
            "matter": "authExt",
            "action": "providers"
@@ -219,6 +223,30 @@
         "registerFromBarcode": {
             "matter": "item",
             "action": "registerFromBarcode"
+        },
+        "drafts": {
+            "matter": "item",
+            "action": "draftList"
+        },
+        "draftConfirm": {
+            "matter": "item",
+            "action": "draftConfirm"
+        },
+        "draftSave": {
+            "matter": "item",
+            "action": "draftSave"
+        },
+        "draftDiscard": {
+            "matter": "item",
+            "action": "draftDiscard"
+        },
+        "addFromImage": {
+            "matter": "item",
+            "action": "registerFromImage"
+        },
+        "draftRetry": {
+            "matter": "item",
+            "action": "draftRetry"
         }
     },
     "label": {
@@ -273,6 +301,12 @@
            "action": "start"
         }
     },
+    "scan": {
+        "stock": {
+            "matter": "scanStock",
+            "action": "start"
+        }
+    },
     "admin": {
         "feature-flags": {
            "matter": "featureAdmin",
@@ -281,6 +315,10 @@
         "settings": {
            "matter": "settingAdmin",
            "action": "start"
+        },
+        "ai-settings": {
+           "matter": "admin",
+           "action": "aiSettings"
         }
     },
     "shelf": {

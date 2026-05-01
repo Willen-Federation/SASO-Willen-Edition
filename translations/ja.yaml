@@ -114,6 +114,9 @@ ui:
     password: パスワード
     barcode_sheet: バーコードシート
     shelf_simple: 棚番設定
+    drafts: "下書き物品"
+    scan_stock: "スキャン＆在庫"
+    ai_settings: "AI設定"
     group:
       main: メイン
       inventory: 在庫
@@ -198,6 +201,58 @@ ui:
     help:
       title: この画面について
       body: '本リリースでは閲覧専用です。Phinx マイグレーション M4/20260426120002_create_auth_provider.php で行を投入してください。作成/編集フォームは次リリースで提供します。'
+    form:
+      add_title: 認証プロバイダを追加
+      edit_title: 認証プロバイダを編集
+      back: 一覧に戻る
+      pick_prompt: 追加するプロバイダの種類を選択してください。
+      change_type: プロバイダ種別を変更
+      register_heading: プロバイダ側に登録が必要な URL
+      url_note: 正確な URL（割り当てられた ID 付き）は、初回保存後にここに表示されます。
+      auth0_where: 'Auth0 ダッシュボード → Applications → アプリ → Settings'
+      cognito_where: 'AWS コンソール → Cognito → ユーザープール → アプリ統合 → アプリクライアント → コールバック URL'
+      advanced: 詳細設定
+      submit_save: 保存する
+      submit_update: 更新する
+      card:
+        auth0_desc: ホスト型ログイン・ソーシャル連携
+        cognito_desc: AWS ユーザープール
+        saml_desc: 企業 IdP
+        oidc_desc: 汎用 OIDC / OAuth2
+      url:
+        callback: 許可するコールバック URL
+        logout: 許可するログアウト URL
+        acs: ACS URL (Assertion Consumer Service)
+        sls: SLS URL (Single Logout Service)
+      field:
+        name: プロバイダ名
+        name_ph: 例：My Auth0 App
+        auth0_domain: Auth0 ドメイン
+        auth0_domain_help: 'Auth0 ダッシュボード → Applications → Domain に表示されます。例：yourapp.auth0.com'
+        cognito_region: リージョン
+        cognito_pool: ユーザープール ID
+        issuer_computed: 'Issuer URL:'
+        discovery_url: Discovery URL
+        discovery_url_help: OIDC ディスカバリーエンドポイント（/.well-known/openid-configuration）
+        metadata_url: IdP メタデータ URL
+        metadata_url_help: IdP の XML メタデータ URL、または IdP の SSO URL
+        entity_id: SP エンティティ ID
+        entity_id_help: 空の場合は ACS URL が SP エンティティ ID として使用されます
+        nameid_format: NameID フォーマット
+        idp_cert: IdP 証明書（X.509 PEM）
+        idp_cert_help: IdP メタデータから X.509 証明書を貼り付けてください
+        sp_cert: SP 証明書（X.509 PEM、任意）
+        sp_key: SP 秘密鍵（PEM、任意）
+        client_id_ph: クライアント ID
+        secret_keep: 空欄のままにすると現在の値を維持します
+        secret_ph: クライアントシークレットを入力
+        secret_set: シークレットは設定済みです。変更する場合のみ入力してください。
+        scopes: スコープ
+        scopes_help: '半角スペース区切り。空の場合は "openid profile email" がデフォルトです。'
+        claim_mapping: クレームマッピング上書き（JSON）
+        claim_mapping_help: IdP クレーム名のカスタムマッピング。_config は自動生成されます。
+        enabled: 有効
+        is_default: デフォルトに設定
 
   password:
     title: パスワード変更
@@ -220,6 +275,23 @@ ui:
     register:
       title: 商品の新規登録
       submit: 商品を登録
+      image_section_title: "商品写真"
+      image_drop: "写真をドロップまたはタップして選択"
+      take_photo: "写真を撮影"
+      skip_image: "手動で入力"
+      skip_image_confirm: "写真なしで登録しますか？写真のない物品は後で識別しにくくなります。"
+      ai_queued: "確認待ちリストに追加しました。AIが画像を解析中です。"
+      ai_badge: "AI提案"
+      draft_confirm_title: "内容確認・登録"
+    draft:
+      list_title: "確認待ち物品"
+      status_queued: "待機中"
+      status_processing: "処理中…"
+      status_ready: "確認待ち"
+      status_failed: "エラー"
+      confirm_btn: "確認・登録"
+      discard_btn: "破棄"
+      discard_confirm: "この下書きを破棄しますか？元に戻すことはできません。"
     field:
       name: 商品名
       name_help: 50字以内。
@@ -309,3 +381,31 @@ ui:
     title: システム設定
     forbidden_title: 管理者権限が必要です
     forbidden_body: 設定を管理するには role=admin のユーザーでサインインしてください。
+  scanner:
+    open: "バーコード/QRスキャン"
+    scanning: "スキャン中…"
+    camera_denied: "カメラへのアクセスが拒否されました。設定を確認してください。"
+    close: "閉じる"
+  scan_stock:
+    title: "スキャンして在庫登録"
+    mode_stock: "入庫"
+    mode_shipment: "出庫"
+    mode_inventory: "棚卸"
+    submit: "登録"
+  ai_settings:
+    title: "AI設定"
+    provider_section: "AIプロバイダー"
+    vision_provider: "画像認識プロバイダー"
+    chat_provider: "チャットプロバイダー"
+    api_keys_section: "APIキー"
+    prompts_section: "抽出プロンプト"
+    prompt_ja: "日本語プロンプト"
+    prompt_en: "英語プロンプト"
+    batch_section: "バッチ処理"
+    rate_limit: "レート制限（リクエスト/分）"
+    save: "設定を保存"
+    saved: "設定を保存しました。"
+    provider_none: "なし（無効）"
+    provider_openai: "OpenAI（GPT-4o）"
+    provider_gemini: "Google Gemini"
+    provider_claude: "Anthropic Claude"

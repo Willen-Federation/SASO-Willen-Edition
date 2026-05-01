@@ -43,12 +43,125 @@ servers:
 tags:
   - name: meta
     description: Service health, build info, and the API specification itself.
+  - name: auth-providers
+    description: |
+      Manage pluggable authentication providers (Auth0, AWS Cognito, Firebase,
+      Generic OIDC, SAML 2.0). Admin-only. Secrets are never returned in
+      responses — `hasSecret` indicates whether a secret is stored.
   - name: feature-flags
     description: Operator-managed runtime feature flags (cf. ADR 0005).
   - name: mobile
     description: QR-based device pairing and Flutter client configuration.
 
 paths:
+
+  # ---------------------------------------------------------------------------
+  # Auth Providers
+  # ---------------------------------------------------------------------------
+
+  /auth/providers:
+    get:
+      tags: [auth-providers]
+      summary: List all auth providers.
+      description: |
+        Returns every registered authentication provider ordered by
+        `isDefault DESC, name ASC`. Admin access required.
+        Secrets are never included — use `hasSecret` to check presence.
+      operationId: listAuthProviders
+      x-handler: 'Saso\Presentation\Api\V1\Controller\Auth\ProviderListController::handle'
+      responses:
+        '200':
+          description: Provider list.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthProviderList'
+        '500':
+          $ref: '#/components/responses/ProblemInternalError'
+
+  /auth/providers/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        description: Numeric auth provider ID.
+        schema:
+          type: integer
+          minimum: 1
+
+    get:
+      tags: [auth-providers]
+      summary: Get a single auth provider.
+      operationId: getAuthProvider
+      x-handler: 'Saso\Presentation\Api\V1\Controller\Auth\ProviderGetController::handle'
+      responses:
+        '200':
+          description: Provider found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthProviderResource'
+        '404':
+          $ref: '#/components/responses/ProblemNotFound'
+        '500':
+          $ref: '#/components/responses/ProblemInternalError'
+
+  /auth/providers/{id}/test:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        description: Numeric auth provider ID.
+        schema:
+          type: integer
+          minimum: 1
+
+    post:
+      tags: [auth-providers]
+      summary: Test provider connectivity.
+      description: |
+        Probes the provider's discovery/metadata endpoint to verify
+        that it is reachable and returns a well-formed document.
+
+        **OIDC**: HTTP-GETs the `issuerOrMetadataUrl`, validates the
+        presence of `issuer`, `authorization_endpoint`, and
+        `token_endpoint`. Returns the discovered endpoints on success.
+
+        **SAML**: verifies the metadata URL is reachable.
+
+        Secrets are never transmitted. This endpoint is safe to call
+        repeatedly — it makes no changes to the provider record.
+      operationId: testAuthProvider
+      x-handler: 'Saso\Presentation\Api\V1\Controller\Auth\ProviderTestController::handle'
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        '200':
+          description: Connectivity test passed.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProviderTestResult'
+        '404':
+          $ref: '#/components/responses/ProblemNotFound'
+        '422':
+          description: Provider has no discovery URL configured.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        '502':
+          description: Discovery endpoint is unreachable or returned an invalid document.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProviderTestResult'
+        '500':
+          $ref: '#/components/responses/ProblemInternalError'
   /health:
     get:
       tags: [meta]
@@ -416,6 +529,98 @@ paths:
         '500':
           $ref: '#/components/responses/ProblemInternalError'
 
+  # ---------------------------------------------------------------------------
+  # Item Drafts (mobile capture flow)
+  # ---------------------------------------------------------------------------
+
+  /items/drafts:
+    post:
+      tags: [mobile]
+      summary: Create an item draft from a mobile capture.
+      description: |
+        Accepts a multipart/form-data upload from the mobile app. Saves the
+        image to `uploads/item_drafts/`, inserts an `item_draft` row, and
+        dispatches a `ProcessItemDraft` message for background enrichment
+        (ISBN/JAN lookup, AI vision analysis).
+
+        **Auth:** `Authorization: Bearer <JWT>` (issued by POST /api/v1/mobile/connect).
+
+        Form fields:
+          * `image`        — product photo (required; JPEG, PNG, WebP, GIF; ≤ 20 MB)
+          * `item_name`    — initial item name (optional)
+          * `jan_code`     — JAN/EAN barcode string (optional)
+          * `isbn`         — ISBN (optional)
+          * `price`        — price hint (optional)
+          * `barcode_hint` — barcode string to associate with the draft (optional)
+      operationId: createItemDraft
+      x-handler: 'Saso\Presentation\Api\V1\Controller\Item\DraftCreateController::handle'
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [image]
+              properties:
+                image:
+                  type: string
+                  format: binary
+                  description: Product photo (JPEG, PNG, WebP, GIF; ≤ 20 MB).
+                item_name:
+                  type: string
+                  maxLength: 500
+                jan_code:
+                  type: string
+                  maxLength: 64
+                isbn:
+                  type: string
+                  maxLength: 20
+                price:
+                  type: string
+                  maxLength: 64
+                barcode_hint:
+                  type: string
+                  maxLength: 64
+      responses:
+        '201':
+          description: Item draft created and queued for processing.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ItemDraftCreatedResponse'
+        '400':
+          $ref: '#/components/responses/ProblemBadRequest'
+        '401':
+          $ref: '#/components/responses/ProblemUnauthorized'
+        '500':
+          $ref: '#/components/responses/ProblemInternalError'
+
+  # ---------------------------------------------------------------------------
+  # Config / Field definitions
+  # ---------------------------------------------------------------------------
+
+  /config/fields:
+    get:
+      tags: [mobile]
+      summary: Get mobile-visible item attribute field definitions.
+      description: |
+        Returns all `item_attribute_definition` rows with `show_on_mobile = 1`,
+        ordered by `sort_order`. The Flutter app fetches this list on startup
+        to dynamically build the item-capture form.
+      operationId: getConfigFields
+      x-handler: 'Saso\Presentation\Api\V1\Controller\Config\FieldsController::handle'
+      responses:
+        '200':
+          description: List of mobile-visible field definitions.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/FieldDefinition'
+        '500':
+          $ref: '#/components/responses/ProblemInternalError'
+
   /barcode/{code}:
     parameters:
       - name: code
@@ -458,6 +663,122 @@ paths:
 
 components:
   schemas:
+
+    # -------------------------------------------------------------------------
+    # Auth Providers
+    # -------------------------------------------------------------------------
+
+    AuthProviderResource:
+      type: object
+      required: [id, name, type, enabled, isDefault, hasSecret, createdAt, updatedAt]
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          description: Human-readable display name shown on the login screen.
+          example: Corporate Auth0
+        type:
+          type: string
+          enum: [local, oidc, saml]
+          description: Provider protocol type.
+          example: oidc
+        issuerOrMetadataUrl:
+          type: string
+          format: uri
+          nullable: true
+          description: |
+            OIDC: discovery document URL.
+            SAML: IdP metadata URL or Entity ID.
+          example: https://acme.us.auth0.com/.well-known/openid-configuration
+        clientId:
+          type: string
+          nullable: true
+          description: OAuth2 Client ID (OIDC only).
+          example: client-abc123
+        hasSecret:
+          type: boolean
+          description: Whether a client secret is stored (never returned in plain text).
+          example: true
+        scopes:
+          type: string
+          nullable: true
+          description: Space-separated OAuth2 scopes.
+          example: openid profile email
+        claimMapping:
+          type: object
+          nullable: true
+          description: |
+            Claim name overrides plus the `_config` envelope that carries
+            provider-specific settings (flavor, region, etc.).
+          example:
+            display_name: preferred_username
+            _config:
+              flavor: auth0
+              domain: acme.us.auth0.com
+        enabled:
+          type: boolean
+          description: Whether the provider is visible on the login screen.
+          example: true
+        isDefault:
+          type: boolean
+          description: Whether this is the default provider (pre-selected on login screen).
+          example: false
+        createdAt:
+          type: string
+          format: date-time
+          example: '2026-04-26T12:00:00Z'
+        updatedAt:
+          type: string
+          format: date-time
+          example: '2026-04-26T12:00:00Z'
+
+    AuthProviderList:
+      type: object
+      required: [data, total]
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/AuthProviderResource'
+        total:
+          type: integer
+          example: 2
+
+    ProviderTestResult:
+      type: object
+      required: [ok, message]
+      properties:
+        ok:
+          type: boolean
+          description: Whether the probe succeeded.
+          example: true
+        message:
+          type: string
+          description: Human-readable result summary.
+          example: 'OIDC discovery endpoint reachable. Issuer: https://acme.us.auth0.com/'
+        details:
+          type: object
+          nullable: true
+          description: Parsed values from the discovery document (OIDC only).
+          properties:
+            issuer:
+              type: string
+              nullable: true
+            authorization_endpoint:
+              type: string
+              nullable: true
+            token_endpoint:
+              type: string
+              nullable: true
+            userinfo_endpoint:
+              type: string
+              nullable: true
+            end_session_endpoint:
+              type: string
+              nullable: true
+
     HealthStatus:
       type: object
       required: [status, version, time]
@@ -788,6 +1109,60 @@ components:
         total:
           type: integer
           example: 2
+
+    ItemDraftCreatedResponse:
+      type: object
+      required: [draft_id, status]
+      properties:
+        draft_id:
+          type: integer
+          description: ID of the newly created item_draft row.
+          example: 123
+        status:
+          type: string
+          enum: [queued]
+          description: Initial processing status.
+          example: queued
+
+    FieldDefinition:
+      type: object
+      required: [code, labelEn, labelJa, valueType, required, enumValues, showOnMobile, sortOrder]
+      properties:
+        code:
+          type: string
+          description: Unique attribute code (e.g. "weight").
+          example: weight
+        labelEn:
+          type: string
+          description: English display label.
+          example: Weight
+        labelJa:
+          type: string
+          description: Japanese display label.
+          example: 重さ
+        valueType:
+          type: string
+          description: Data type of the attribute value.
+          example: float
+        required:
+          type: boolean
+          description: Whether the field is mandatory on mobile capture.
+          example: false
+        enumValues:
+          type: array
+          nullable: true
+          items:
+            type: string
+          description: Allowed values when valueType is "enum", otherwise null.
+          example: null
+        showOnMobile:
+          type: boolean
+          description: Always true for results from this endpoint.
+          example: true
+        sortOrder:
+          type: integer
+          description: Display order on mobile (ascending).
+          example: 10
 
     ProblemDetails:
       type: object

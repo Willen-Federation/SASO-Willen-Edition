@@ -88,20 +88,24 @@ ui('card', [
         step:   <?php echo $initStep; ?>,
         verifyStatus: null,
         verifyMsg: '',
+        verifyAuthUrl: null,
         get providerType() { return this.choice === 'saml' ? 'saml' : 'oidc'; },
         pick(c) { this.choice = c; this.step = 2; },
         async verify() {
-          this.verifyStatus = 'loading'; this.verifyMsg = '';
+          this.verifyStatus = 'loading'; this.verifyMsg = ''; this.verifyAuthUrl = null;
           const fd = new FormData();
           fd.append('csrftoken', document.querySelector('[name=csrftoken]').value);
           fd.append('type', this.providerType);
           fd.append('issuer_or_metadata_url',
                     document.querySelector('[name=issuer_or_metadata_url]')?.value ?? '');
+          fd.append('client_id',   document.querySelector('[name=client_id]')?.value ?? '');
+          fd.append('provider_id', '<?php echo (int) ($v->provider['id'] ?? 0); ?>');
           try {
             const r = await fetch('?action=verify', { method: 'POST', body: fd });
             const d = await r.json();
-            this.verifyStatus = d.ok ? 'ok' : 'error';
-            this.verifyMsg    = d.ok ? d.detail : d.error;
+            this.verifyStatus  = d.ok ? 'ok' : 'error';
+            this.verifyMsg     = d.ok ? d.detail : d.error;
+            this.verifyAuthUrl = (d.ok && d.auth_url) ? d.auth_url : null;
           } catch(e) {
             this.verifyStatus = 'error';
             this.verifyMsg = e.message || '<?php echo $lang === 'ja' ? 'ネットワークエラー' : 'Network error'; ?>';
@@ -307,7 +311,7 @@ ui('card', [
     <!-- ═══════════════════════════════════════════
          Auth0
     ════════════════════════════════════════════ -->
-    <div x-show="choice === 'auth0'" x-cloak>
+    <fieldset x-show="choice === 'auth0'" x-cloak :disabled="choice !== 'auth0'" class="m-0 min-w-0 border-0 p-0">
       <div class="mb-4 border-t border-stroke pt-4 dark:border-strokedark">
         <h4 class="mb-1 font-semibold text-black dark:text-white">Auth0</h4>
         <p class="text-xs text-bodydark2"><?php echo $lang === 'ja' ? 'Auth0 テナントの OIDC 設定' : 'Auth0 tenant OIDC configuration'; ?></p>
@@ -330,6 +334,8 @@ ui('card', [
                class="w-full rounded border border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary text-black dark:text-white">
         <?php if ($v->hasSecret): ?>
           <p class="mt-1 text-xs text-bodydark2"><?php echo $lang === 'ja' ? '変更する場合のみ入力してください' : 'Leave blank to keep the current secret'; ?></p>
+        <?php else: ?>
+          <p class="mt-1 text-xs text-danger"><?php echo $lang === 'ja' ? '⚠ シークレット未設定。入力して保存するまでログインできません。' : '⚠ No client secret stored. Sign-in will fail until a secret is saved.'; ?></p>
         <?php endif; ?>
       </div>
       <?php
@@ -355,12 +361,12 @@ ui('card', [
         'help'        => $lang === 'ja' ? '空白区切り。空欄時は openid profile email' : 'Space-separated. Defaults to "openid profile email" if empty',
       ]);
       ?>
-    </div>
+    </fieldset>
 
     <!-- ═══════════════════════════════════════════
          AWS Cognito
     ════════════════════════════════════════════ -->
-    <div x-show="choice === 'cognito'" x-cloak>
+    <fieldset x-show="choice === 'cognito'" x-cloak :disabled="choice !== 'cognito'" class="m-0 min-w-0 border-0 p-0">
       <div class="mb-4 border-t border-stroke pt-4 dark:border-strokedark">
         <h4 class="mb-1 font-semibold text-black dark:text-white">AWS Cognito</h4>
         <p class="text-xs text-bodydark2"><?php echo $lang === 'ja' ? 'Cognito ユーザープール設定' : 'Cognito User Pool configuration'; ?></p>
@@ -397,7 +403,7 @@ ui('card', [
                placeholder="<?php echo $v->hasSecret ? '●●●●●●●●' : ($lang === 'ja' ? 'シークレットを入力' : 'Enter secret'); ?>"
                autocomplete="new-password"
                class="w-full rounded border border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary text-black dark:text-white">
-        <?php if ($v->hasSecret): ?><p class="mt-1 text-xs text-bodydark2"><?php echo $lang === 'ja' ? '変更する場合のみ入力してください' : 'Leave blank to keep the current secret'; ?></p><?php endif; ?>
+        <?php if ($v->hasSecret): ?><p class="mt-1 text-xs text-bodydark2"><?php echo $lang === 'ja' ? '変更する場合のみ入力してください' : 'Leave blank to keep the current secret'; ?></p><?php else: ?><p class="mt-1 text-xs text-danger"><?php echo $lang === 'ja' ? '⚠ シークレット未設定。入力して保存するまでログインできません。' : '⚠ No client secret stored. Sign-in will fail until a secret is saved.'; ?></p><?php endif; ?>
       </div>
       <?php
       ui('formField', [
@@ -408,12 +414,12 @@ ui('card', [
         'help'        => $lang === 'ja' ? 'ログアウト URL 構築に使います' : 'Used to build the Cognito logout redirect URL',
       ]);
       ?>
-    </div>
+    </fieldset>
 
     <!-- ═══════════════════════════════════════════
          Firebase Auth
     ════════════════════════════════════════════ -->
-    <div x-show="choice === 'firebase'" x-cloak>
+    <fieldset x-show="choice === 'firebase'" x-cloak :disabled="choice !== 'firebase'" class="m-0 min-w-0 border-0 p-0">
       <div class="mb-4 border-t border-stroke pt-4 dark:border-strokedark">
         <h4 class="mb-1 font-semibold text-black dark:text-white">Firebase Auth</h4>
         <p class="text-xs text-bodydark2">
@@ -453,7 +459,7 @@ ui('card', [
                placeholder="<?php echo $v->hasSecret ? '●●●●●●●●' : ($lang === 'ja' ? 'シークレットを入力' : 'Enter secret'); ?>"
                autocomplete="new-password"
                class="w-full rounded border border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary text-black dark:text-white">
-        <?php if ($v->hasSecret): ?><p class="mt-1 text-xs text-bodydark2"><?php echo $lang === 'ja' ? '変更する場合のみ入力してください' : 'Leave blank to keep the current secret'; ?></p><?php endif; ?>
+        <?php if ($v->hasSecret): ?><p class="mt-1 text-xs text-bodydark2"><?php echo $lang === 'ja' ? '変更する場合のみ入力してください' : 'Leave blank to keep the current secret'; ?></p><?php else: ?><p class="mt-1 text-xs text-danger"><?php echo $lang === 'ja' ? '⚠ シークレット未設定。入力して保存するまでログインできません。' : '⚠ No client secret stored. Sign-in will fail until a secret is saved.'; ?></p><?php endif; ?>
       </div>
       <?php
       ui('formField', [
@@ -486,12 +492,12 @@ ui('card', [
           <?php endforeach; ?>
         </div>
       </div>
-    </div>
+    </fieldset>
 
     <!-- ═══════════════════════════════════════════
          Generic OIDC
     ════════════════════════════════════════════ -->
-    <div x-show="choice === 'oidc'" x-cloak>
+    <fieldset x-show="choice === 'oidc'" x-cloak :disabled="choice !== 'oidc'" class="m-0 min-w-0 border-0 p-0">
       <div class="mb-4 border-t border-stroke pt-4 dark:border-strokedark">
         <h4 class="mb-1 font-semibold text-black dark:text-white">Generic OIDC</h4>
         <p class="text-xs text-bodydark2"><?php echo $lang === 'ja' ? '標準準拠の OpenID Connect プロバイダ' : 'Any standards-compliant OpenID Connect provider'; ?></p>
@@ -512,7 +518,7 @@ ui('card', [
                placeholder="<?php echo $v->hasSecret ? '●●●●●●●●' : ($lang === 'ja' ? 'シークレットを入力' : 'Enter secret'); ?>"
                autocomplete="new-password"
                class="w-full rounded border border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary text-black dark:text-white">
-        <?php if ($v->hasSecret): ?><p class="mt-1 text-xs text-bodydark2"><?php echo $lang === 'ja' ? '変更する場合のみ入力してください' : 'Leave blank to keep the current secret'; ?></p><?php endif; ?>
+        <?php if ($v->hasSecret): ?><p class="mt-1 text-xs text-bodydark2"><?php echo $lang === 'ja' ? '変更する場合のみ入力してください' : 'Leave blank to keep the current secret'; ?></p><?php else: ?><p class="mt-1 text-xs text-danger"><?php echo $lang === 'ja' ? '⚠ シークレット未設定。入力して保存するまでログインできません。' : '⚠ No client secret stored. Sign-in will fail until a secret is saved.'; ?></p><?php endif; ?>
       </div>
       <?php
       ui('formField', [
@@ -523,12 +529,12 @@ ui('card', [
         'help'        => $lang === 'ja' ? '空白区切り。空欄時は openid profile email' : 'Space-separated. Defaults to "openid profile email" if empty',
       ]);
       ?>
-    </div>
+    </fieldset>
 
     <!-- ═══════════════════════════════════════════
          SAML 2.0
     ════════════════════════════════════════════ -->
-    <div x-show="choice === 'saml'" x-cloak>
+    <fieldset x-show="choice === 'saml'" x-cloak :disabled="choice !== 'saml'" class="m-0 min-w-0 border-0 p-0">
       <div class="mb-4 border-t border-stroke pt-4 dark:border-strokedark">
         <h4 class="mb-1 font-semibold text-black dark:text-white">SAML 2.0</h4>
         <p class="text-xs text-bodydark2"><?php echo $lang === 'ja' ? 'エンタープライズ IdP (Okta / ADFS 等)' : 'Enterprise IdP (Okta, ADFS, etc.)'; ?></p>
@@ -588,7 +594,7 @@ ui('card', [
         'help'        => $lang === 'ja' ? 'SP 証明書に対応する秘密鍵（任意）' : 'Matching private key for the SP certificate (optional)',
       ]);
       ?>
-    </div>
+    </fieldset>
 
     <!-- ── Advanced: claim mapping ── -->
     <div class="mb-4 border-t border-stroke pt-4 dark:border-strokedark">
@@ -663,6 +669,15 @@ ui('card', [
           </svg>
           <div class="grow" x-text="verifyMsg"></div>
         </div>
+        <template x-if="verifyStatus === 'ok' && verifyAuthUrl">
+          <a :href="verifyAuthUrl" target="_blank" rel="noopener noreferrer"
+             class="mt-2 inline-flex w-full items-center justify-center gap-2 rounded border border-stroke bg-white px-4 py-2 text-sm font-medium text-black transition hover:border-primary hover:text-primary dark:border-strokedark dark:bg-boxdark dark:text-white dark:hover:border-primary dark:hover:text-primary">
+            <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6m0 0v6m0-6-9 9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <?php echo ui_text($lang === 'ja' ? 'テストサインインを開く →' : 'Open Test Sign-In →'); ?>
+          </a>
+        </template>
       </div>
     </div>
 

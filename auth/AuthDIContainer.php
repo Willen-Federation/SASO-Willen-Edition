@@ -20,6 +20,7 @@ final class AuthDIContainer implements DIContainer
         if(empty($post)) {
             $view = new AuthView();
             $view->idpProviders = $this->loadIdpProviders();
+            $view->providerError = ($query['error'] ?? '') === 'auth_unavailable';
             $this->ctrl = new AuthController($query);
             $this->usecase = new common\EmptyUsecase(
                 new AuthPresenter($view),

@@ -307,7 +307,7 @@ ui('card', [
     <!-- ═══════════════════════════════════════════
          Auth0
     ════════════════════════════════════════════ -->
-    <div x-show="choice === 'auth0'" x-cloak>
+    <fieldset x-show="choice === 'auth0'" x-cloak :disabled="choice !== 'auth0'" class="m-0 min-w-0 border-0 p-0">
       <div class="mb-4 border-t border-stroke pt-4 dark:border-strokedark">
         <h4 class="mb-1 font-semibold text-black dark:text-white">Auth0</h4>
         <p class="text-xs text-bodydark2"><?php echo $lang === 'ja' ? 'Auth0 テナントの OIDC 設定' : 'Auth0 tenant OIDC configuration'; ?></p>
@@ -355,12 +355,12 @@ ui('card', [
         'help'        => $lang === 'ja' ? '空白区切り。空欄時は openid profile email' : 'Space-separated. Defaults to "openid profile email" if empty',
       ]);
       ?>
-    </div>
+    </fieldset>
 
     <!-- ═══════════════════════════════════════════
          AWS Cognito
     ════════════════════════════════════════════ -->
-    <div x-show="choice === 'cognito'" x-cloak>
+    <fieldset x-show="choice === 'cognito'" x-cloak :disabled="choice !== 'cognito'" class="m-0 min-w-0 border-0 p-0">
       <div class="mb-4 border-t border-stroke pt-4 dark:border-strokedark">
         <h4 class="mb-1 font-semibold text-black dark:text-white">AWS Cognito</h4>
         <p class="text-xs text-bodydark2"><?php echo $lang === 'ja' ? 'Cognito ユーザープール設定' : 'Cognito User Pool configuration'; ?></p>
@@ -408,12 +408,12 @@ ui('card', [
         'help'        => $lang === 'ja' ? 'ログアウト URL 構築に使います' : 'Used to build the Cognito logout redirect URL',
       ]);
       ?>
-    </div>
+    </fieldset>
 
     <!-- ═══════════════════════════════════════════
          Firebase Auth
     ════════════════════════════════════════════ -->
-    <div x-show="choice === 'firebase'" x-cloak>
+    <fieldset x-show="choice === 'firebase'" x-cloak :disabled="choice !== 'firebase'" class="m-0 min-w-0 border-0 p-0">
       <div class="mb-4 border-t border-stroke pt-4 dark:border-strokedark">
         <h4 class="mb-1 font-semibold text-black dark:text-white">Firebase Auth</h4>
         <p class="text-xs text-bodydark2">
@@ -486,12 +486,12 @@ ui('card', [
           <?php endforeach; ?>
         </div>
       </div>
-    </div>
+    </fieldset>
 
     <!-- ═══════════════════════════════════════════
          Generic OIDC
     ════════════════════════════════════════════ -->
-    <div x-show="choice === 'oidc'" x-cloak>
+    <fieldset x-show="choice === 'oidc'" x-cloak :disabled="choice !== 'oidc'" class="m-0 min-w-0 border-0 p-0">
       <div class="mb-4 border-t border-stroke pt-4 dark:border-strokedark">
         <h4 class="mb-1 font-semibold text-black dark:text-white">Generic OIDC</h4>
         <p class="text-xs text-bodydark2"><?php echo $lang === 'ja' ? '標準準拠の OpenID Connect プロバイダ' : 'Any standards-compliant OpenID Connect provider'; ?></p>
@@ -523,12 +523,12 @@ ui('card', [
         'help'        => $lang === 'ja' ? '空白区切り。空欄時は openid profile email' : 'Space-separated. Defaults to "openid profile email" if empty',
       ]);
       ?>
-    </div>
+    </fieldset>
 
     <!-- ═══════════════════════════════════════════
          SAML 2.0
     ════════════════════════════════════════════ -->
-    <div x-show="choice === 'saml'" x-cloak>
+    <fieldset x-show="choice === 'saml'" x-cloak :disabled="choice !== 'saml'" class="m-0 min-w-0 border-0 p-0">
       <div class="mb-4 border-t border-stroke pt-4 dark:border-strokedark">
         <h4 class="mb-1 font-semibold text-black dark:text-white">SAML 2.0</h4>
         <p class="text-xs text-bodydark2"><?php echo $lang === 'ja' ? 'エンタープライズ IdP (Okta / ADFS 等)' : 'Enterprise IdP (Okta, ADFS, etc.)'; ?></p>
@@ -588,7 +588,7 @@ ui('card', [
         'help'        => $lang === 'ja' ? 'SP 証明書に対応する秘密鍵（任意）' : 'Matching private key for the SP certificate (optional)',
       ]);
       ?>
-    </div>
+    </fieldset>
 
     <!-- ── Advanced: claim mapping ── -->
     <div class="mb-4 border-t border-stroke pt-4 dark:border-strokedark">

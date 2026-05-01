@@ -267,6 +267,29 @@ final class ProviderView implements View
         }
     }
 
+    private function fetchUrl(string $url): array
+    {
+        $lastError = '';
+        set_error_handler(static function (int $errno, string $errstr) use (&$lastError): bool {
+            $lastError = $errstr;
+
+            return true;
+        });
+
+        $ctx  = stream_context_create([
+            'http' => ['timeout' => 10, 'ignore_errors' => true],
+        ]);
+        $body = file_get_contents($url, false, $ctx);
+        restore_error_handler();
+
+        $httpStatus = '';
+        if (isset($http_response_header) && is_array($http_response_header)) {
+            $httpStatus = $http_response_header[0] ?? '';
+        }
+
+        return [$body, $httpStatus, $lastError];
+    }
+
     private function verifyOidc(string $issuer): void
     {
         $discoveryUrl = rtrim($issuer, '/');
@@ -274,22 +297,30 @@ final class ProviderView implements View
             $discoveryUrl .= '/.well-known/openid-configuration';
         }
 
-        $ctx  = stream_context_create(['http' => ['timeout' => 5, 'ignore_errors' => true]]);
-        $body = @file_get_contents($discoveryUrl, false, $ctx);
+        [$body, $httpStatus, $phpError] = $this->fetchUrl($discoveryUrl);
 
         if ($body === false) {
-            echo json_encode(['ok' => false, 'error' => 'Could not reach discovery URL: '.$discoveryUrl]);
+            $reason = $phpError !== '' ? $phpError : 'connection failed';
+            echo json_encode(['ok' => false, 'error' => 'Could not reach '.$discoveryUrl.' — '.$reason]);
             exit;
         }
 
         $json = json_decode($body, true);
         if (!is_array($json)) {
-            echo json_encode(['ok' => false, 'error' => 'Discovery URL did not return valid JSON']);
+            $preview = substr($body, 0, 300);
+            echo json_encode([
+                'ok'    => false,
+                'error' => 'Discovery URL returned non-JSON ('.$httpStatus.'). Response preview: '.$preview,
+            ]);
             exit;
         }
 
         if (empty($json['authorization_endpoint'])) {
-            echo json_encode(['ok' => false, 'error' => 'Discovery document missing authorization_endpoint']);
+            $keys = implode(', ', array_keys($json));
+            echo json_encode([
+                'ok'    => false,
+                'error' => 'Discovery document missing authorization_endpoint ('.$httpStatus.'). Keys present: '.$keys,
+            ]);
             exit;
         }
 
@@ -299,20 +330,24 @@ final class ProviderView implements View
 
     private function verifySaml(string $metadataUrl): void
     {
-        $ctx  = stream_context_create(['http' => ['timeout' => 5, 'ignore_errors' => true]]);
-        $body = @file_get_contents($metadataUrl, false, $ctx);
+        [$body, $httpStatus, $phpError] = $this->fetchUrl($metadataUrl);
 
         if ($body === false) {
-            echo json_encode(['ok' => false, 'error' => 'Could not reach metadata URL: '.$metadataUrl]);
+            $reason = $phpError !== '' ? $phpError : 'connection failed';
+            echo json_encode(['ok' => false, 'error' => 'Could not reach '.$metadataUrl.' — '.$reason]);
             exit;
         }
 
         if (!str_contains($body, 'EntityDescriptor')) {
-            echo json_encode(['ok' => false, 'error' => 'Response does not appear to be SAML metadata (no EntityDescriptor element)']);
+            $preview = substr($body, 0, 300);
+            echo json_encode([
+                'ok'    => false,
+                'error' => 'Response is not SAML metadata — no EntityDescriptor found ('.$httpStatus.'). Preview: '.$preview,
+            ]);
             exit;
         }
 
-        echo json_encode(['ok' => true, 'detail' => 'Metadata URL reachable and appears valid']);
+        echo json_encode(['ok' => true, 'detail' => 'Metadata reachable and contains EntityDescriptor ('.$httpStatus.')']);
         exit;
     }
 

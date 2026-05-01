@@ -177,6 +177,8 @@ ui('card', [
   <div x-show="step === 2" x-cloak>
 
     <?php if (!$isEdit): ?>
+
+      <!-- ── NEW MODE: explain two-step flow, collect name only ── -->
       <button type="button"
               @click="step = 1; choice = ''"
               class="mb-5 inline-flex items-center gap-1 text-sm text-primary hover:underline">
@@ -185,24 +187,64 @@ ui('card', [
         </svg>
         <?php echo $lang === 'ja' ? 'プロバイダを選び直す' : 'Choose a different provider'; ?>
       </button>
-    <?php endif; ?>
 
-    <!-- ── URL reference box ── -->
-    <div class="mb-6 overflow-hidden rounded-lg border border-stroke dark:border-strokedark">
-      <div class="bg-gray-2 px-4 py-2.5 dark:bg-meta-4">
-        <p class="text-xs font-semibold uppercase tracking-wider text-bodydark2">
-          <?php echo $lang === 'ja' ? 'IdP に登録が必要な URL' : 'URLs to register with your IdP'; ?>
+      <div class="mb-6 rounded-lg border border-primary/30 bg-primary/5 p-4 dark:border-primary/40 dark:bg-primary/10">
+        <p class="mb-2 font-semibold text-black dark:text-white">
+          <?php echo $lang === 'ja' ? '2ステップでプロバイダを追加します' : 'Two steps to add a provider'; ?>
         </p>
+        <ol class="space-y-1 text-sm text-bodydark2">
+          <li><span class="font-semibold text-primary">1.</span>
+            <?php echo $lang === 'ja'
+              ? '名前を入力して「プロバイダを作成」→ コールバック URL が発行されます'
+              : 'Enter a name and click "Create provider" — your callback URL will be issued'; ?>
+          </li>
+          <li><span class="font-semibold text-primary">2.</span>
+            <?php echo $lang === 'ja'
+              ? 'コールバック URL を IdP に登録してから、クライアント情報を入力して保存'
+              : 'Register the callback URL in your IdP, then enter client credentials and save'; ?>
+          </li>
+        </ol>
       </div>
-      <div class="divide-y divide-stroke px-4 dark:divide-strokedark">
 
-        <?php
-        // Helper function for URL row rendering
-        $urlRow = function (string $label, string $value, bool $copyable, string $note = '') use ($lang): void {
-        ?>
-          <div class="flex flex-col gap-1 py-3 sm:flex-row sm:items-center sm:gap-3">
-            <span class="w-28 shrink-0 text-xs font-medium text-bodydark2"><?php echo htmlspecialchars($label); ?></span>
-            <?php if ($copyable): ?>
+      <!-- Provider Name -->
+      <?php
+      ui('formField', [
+        'name'        => 'name',
+        'label'       => $lang === 'ja' ? 'プロバイダ名' : 'Provider Name',
+        'value'       => $v->provider['name'] ?? '',
+        'required'    => true,
+        'placeholder' => $lang === 'ja' ? 'プロバイダ名を入力' : 'Enter provider name',
+      ]);
+      ?>
+
+      <!-- Create button -->
+      <?php
+      ui('button', [
+        'label'      => $lang === 'ja' ? 'プロバイダを作成してコールバック URL を取得' : 'Create provider & get callback URL',
+        'type'       => 'submit',
+        'variant'    => 'primary',
+        'extraClass' => 'w-full justify-center',
+      ]);
+      ?>
+
+    <?php else: ?>
+
+      <!-- ── EDIT MODE: real URLs + all credential fields ── -->
+
+      <!-- URL reference box -->
+      <div class="mb-6 overflow-hidden rounded-lg border border-stroke dark:border-strokedark">
+        <div class="bg-gray-2 px-4 py-2.5 dark:bg-meta-4">
+          <p class="text-xs font-semibold uppercase tracking-wider text-bodydark2">
+            <?php echo $lang === 'ja' ? 'IdP に登録が必要な URL' : 'URLs to register with your IdP'; ?>
+          </p>
+        </div>
+        <div class="divide-y divide-stroke px-4 dark:divide-strokedark">
+
+          <?php
+          $urlRow = function (string $label, string $value, string $note = '') use ($lang): void {
+          ?>
+            <div class="flex flex-col gap-1 py-3 sm:flex-row sm:items-center sm:gap-3">
+              <span class="w-28 shrink-0 text-xs font-medium text-bodydark2"><?php echo htmlspecialchars($label); ?></span>
               <div class="flex grow items-center gap-2">
                 <code class="grow truncate rounded bg-gray-2 px-2 py-1 font-mono text-xs text-black dark:bg-meta-4 dark:text-white">
                   <?php echo htmlspecialchars($value); ?>
@@ -217,61 +259,50 @@ ui('card', [
                   </svg>
                 </button>
               </div>
-            <?php else: ?>
-              <span class="grow font-mono text-xs text-bodydark2 italic"><?php echo htmlspecialchars($value); ?></span>
-            <?php endif; ?>
-            <?php if ($note !== ''): ?>
-              <span class="text-xs text-bodydark2"><?php echo htmlspecialchars($note); ?></span>
-            <?php endif; ?>
+              <?php if ($note !== ''): ?>
+                <span class="shrink-0 text-xs text-bodydark2"><?php echo htmlspecialchars($note); ?></span>
+              <?php endif; ?>
+            </div>
+          <?php
+          };
+          ?>
+
+          <!-- Callback URL — OIDC only -->
+          <div x-show="choice !== 'saml'">
+            <?php $urlRow(
+              'Callback URL',
+              $displayCallback,
+              $lang === 'ja' ? 'IdP の Allowed Callback URLs に登録' : 'Add to IdP Allowed Callback URLs'
+            ); ?>
           </div>
-        <?php
-        };
-        ?>
 
-        <?php
-        $newNote = $lang === 'ja' ? '保存後に確定' : 'assigned on save';
+          <!-- ACS + SLS — SAML only -->
+          <div x-show="choice === 'saml'">
+            <?php $urlRow('ACS URL', $displayAcs); ?>
+          </div>
+          <div x-show="choice === 'saml'">
+            <?php $urlRow('SLS URL', $displaySls); ?>
+          </div>
 
-        // Callback URL — OIDC providers (hide for SAML)
-        ?>
-        <div x-show="choice !== 'saml'">
           <?php $urlRow(
-            'Callback URL',
-            $displayCallback,
-            $urlsAreReal,
-            $urlsAreReal ? ($lang === 'ja' ? 'IdP の Allowed Callback URLs に登録' : 'Register in IdP\'s Allowed Callback URLs') : $newNote
+            'Login URL',
+            $loginUrl,
+            $lang === 'ja' ? 'ユーザーがログインするページ' : 'Page where users sign in'
           ); ?>
-        </div>
 
-        <?php
-        // ACS + SLS — SAML only
-        ?>
-        <div x-show="choice === 'saml'">
-          <?php $urlRow('ACS URL', $displayAcs, $urlsAreReal, $urlsAreReal ? '' : $newNote); ?>
         </div>
-        <div x-show="choice === 'saml'">
-          <?php $urlRow('SLS URL', $displaySls, $urlsAreReal, $urlsAreReal ? '' : $newNote); ?>
-        </div>
-
-        <?php $urlRow(
-          'Login URL',
-          $loginUrl,
-          true,
-          $lang === 'ja' ? 'ユーザーがログインするページ' : 'Page where users sign in'
-        ); ?>
-
       </div>
-    </div>
 
-    <!-- ── Provider Name (common) ── -->
-    <?php
-    ui('formField', [
-      'name'        => 'name',
-      'label'       => $lang === 'ja' ? 'プロバイダ名' : 'Provider Name',
-      'value'       => $v->provider['name'] ?? '',
-      'required'    => true,
-      'placeholder' => $lang === 'ja' ? 'プロバイダ名を入力' : 'Enter provider name',
-    ]);
-    ?>
+      <!-- ── Provider Name (common) ── -->
+      <?php
+      ui('formField', [
+        'name'        => 'name',
+        'label'       => $lang === 'ja' ? 'プロバイダ名' : 'Provider Name',
+        'value'       => $v->provider['name'] ?? '',
+        'required'    => true,
+        'placeholder' => $lang === 'ja' ? 'プロバイダ名を入力' : 'Enter provider name',
+      ]);
+      ?>
 
     <!-- ═══════════════════════════════════════════
          Auth0
@@ -646,6 +677,8 @@ ui('card', [
       'extraClass' => 'w-full justify-center',
     ]);
     ?>
+
+    <?php endif; // end edit mode ?>
 
   </div><!-- /step 2 -->
 

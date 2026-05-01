@@ -22,6 +22,21 @@ $this->title = __('ui.auth.login_title', [], null, 'Sign in');
       ]); ?>
     <?php } ?>
 
+    <?php if ($v->providerError) { ?>
+      <?php ui('alert', [
+        'variant' => 'danger',
+        'title'   => __('error.SASO-AUTH-1006.title', [], null, 'Authentication provider is misconfigured'),
+        'body'    => __('error.SASO-AUTH-1006.detail', [], null, 'This authentication provider is currently unavailable. Please ask an administrator to verify the configuration.'),
+      ]); ?>
+      <script>
+        if (history.replaceState) {
+          const u = new URL(location.href);
+          u.searchParams.delete('error');
+          history.replaceState(null, '', u.toString());
+        }
+      </script>
+    <?php } ?>
+
     <?php $providers = property_exists($v, 'idpProviders') ? $v->idpProviders : []; ?>
 
     <?php if (!empty($providers)) { ?>

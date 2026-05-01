@@ -1,573 +1,661 @@
 <?php $this->content = function ($v) { ?>
 
 <?php
-  $lang    = $_SESSION['lang'] ?? 'ja';
-  $isEdit  = $v->mode === 'edit';
-  $flavor  = $v->flavor;      // 'auth0' | 'cognito' | 'saml' | 'oidc'
-  $cfg     = $v->cfg;         // _config array from claim_mapping
-  $base    = $v->baseUrl;
+  $lang   = $_SESSION['lang'] ?? 'ja';
+  $isEdit = $v->mode === 'edit';
 
-  // Heading per flavor
-  $flavorLabels = [
-    'auth0'   => 'Auth0',
-    'cognito' => 'AWS Cognito',
-    'saml'    => 'SAML 2.0',
-    'oidc'    => 'Generic OIDC',
-  ];
-  $flavorLabel = $flavorLabels[$flavor] ?? strtoupper($flavor);
-
-  $pageTitle = $isEdit
-    ? ($lang === 'ja' ? "{$flavorLabel} プロバイダ編集" : "Edit {$flavorLabel} Provider")
-    : ($lang === 'ja' ? "{$flavorLabel} プロバイダ追加" : "Add {$flavorLabel} Provider");
-
-  // Callback / ACS URLs
-  $callbackUrl = $v->callbackUrl;  // filled in edit mode
-  $acsUrl      = $v->acsUrl;
-  $slsUrl      = $v->slsUrl;
-  // Pattern shown for new providers before ID is assigned
-  $callbackPattern = $base . '/auth/callback/{id}';
-  $acsPattern      = $base . '/auth/saml/acs/{id}';
-  $slsPattern      = $base . '/auth/saml/sls/{id}';
-
-  // Parsed claim-mapping overrides for textarea
+  // Parse claim_mapping
   $claimRaw = $v->provider['claim_mapping'] ?? '{}';
-  if (is_string($claimRaw)) {
-      $claimDecoded = json_decode($claimRaw, true);
-  } else {
-      $claimDecoded = is_array($claimRaw) ? $claimRaw : [];
-  }
+  $claimDecoded = is_string($claimRaw) ? json_decode($claimRaw, true) : (is_array($claimRaw) ? $claimRaw : []);
   if (!is_array($claimDecoded)) $claimDecoded = [];
+  $cfg = is_array($claimDecoded['_config'] ?? null) ? $claimDecoded['_config'] : [];
+
   $claimOverrides = $claimDecoded;
   unset($claimOverrides['_config']);
   $claimOverridesJson = json_encode($claimOverrides, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
   if ($claimOverridesJson === '[]' || $claimOverridesJson === false) $claimOverridesJson = '{}';
+
+  $provType = $v->provider['type'] ?? 'oidc';
+  $flavor   = $v->flavor;
+
+  // URLs for the reference box
+  $proto   = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
+  $baseUrl = $proto.'://'.($_SERVER['HTTP_HOST'] ?? 'localhost');
+  $loginUrl = $baseUrl.'/auth/login';
+
+  if ($isEdit) {
+      $displayCallback = $v->callbackUrl;
+      $displayAcs      = $v->acsUrl;
+      $displaySls      = $v->slsUrl;
+      $urlsAreReal     = true;
+  } else {
+      $displayCallback = $baseUrl.'/auth/callback/...';
+      $displayAcs      = $baseUrl.'/auth/saml/acs/...';
+      $displaySls      = $baseUrl.'/auth/saml/sls/...';
+      $urlsAreReal     = false;
+  }
+
+  // Firebase sub-providers
+  $fbProviderOptions = [
+    'google'    => 'Google',
+    'apple'     => 'Apple',
+    'facebook'  => 'Facebook',
+    'github'    => 'GitHub',
+    'twitter'   => 'Twitter / X',
+    'microsoft' => 'Microsoft',
+    'yahoo'     => 'Yahoo',
+    'phone'     => $lang === 'ja' ? '電話番号' : 'Phone',
+    'email'     => $lang === 'ja' ? 'メール / パスワード' : 'Email / Password',
+  ];
+  $fbProvidersEnabled = is_array($cfg['firebase_providers'] ?? null) ? $cfg['firebase_providers'] : [];
 ?>
 
-<?php if (!$v->authorized) { ?>
+<?php if (!$v->authorized): ?>
   <?php ui('alert', [
     'variant' => 'danger',
-    'title'   => $lang === 'ja' ? '管理者権限が必要です' : 'Admin access required',
-    'body'    => $lang === 'ja' ? '認証プロバイダを管理するには role=admin のユーザーでサインインしてください。' : 'Sign in as a user with role=admin to manage authentication providers.',
+    'title'   => __('ui.auth_providers.forbidden_title', [], null, '管理者権限が必要です'),
+    'body'    => __('ui.auth_providers.forbidden_body', [], null, '認証プロバイダを管理するには role=admin のユーザーでサインインしてください。'),
   ]); ?>
-<?php } else { ?>
+<?php else: ?>
 
 <?php
-  ui('card', [
-    'title'   => $pageTitle,
-    'actions' => function () use ($lang) {
-        ui('button', [
-            'label'   => $lang === 'ja' ? '一覧に戻る' : 'Back to list',
-            'href'    => './auth/providers/',
-            'type'    => 'link',
-            'variant' => 'secondary',
-        ]);
-    },
-    'body' => function () use ($v, $isEdit, $lang, $flavor, $flavorLabel, $cfg, $claimOverridesJson, $base, $callbackUrl, $callbackPattern, $acsUrl, $acsPattern, $slsUrl, $slsPattern) {
+ui('card', [
+  'title'   => $isEdit
+    ? ($lang === 'ja' ? '認証プロバイダ編集' : 'Edit Auth Provider')
+    : ($lang === 'ja' ? '認証プロバイダ追加' : 'Add Auth Provider'),
+  'actions' => function () use ($lang) {
+      ui('button', [
+          'label'   => $lang === 'ja' ? '一覧に戻る' : 'Back to list',
+          'href'    => './auth/providers/',
+          'type'    => 'link',
+          'variant' => 'secondary',
+      ]);
+  },
+  'body' => function () use (
+      $v, $isEdit, $lang, $cfg, $claimOverridesJson, $provType, $flavor,
+      $loginUrl, $displayCallback, $displayAcs, $displaySls, $urlsAreReal,
+      $fbProviderOptions, $fbProvidersEnabled
+  ) {
+    $csrfToken = htmlspecialchars(\saso\util\CSRFtoken::current());
+    // Initial Alpine state
+    $initChoice = $isEdit ? $flavor : '';
+    $initStep   = $isEdit ? 2 : 1;
 ?>
+
+<form method="POST" action=""
+      x-data="{
+        choice: '<?php echo htmlspecialchars($initChoice, ENT_QUOTES); ?>',
+        step:   <?php echo $initStep; ?>,
+        verifyStatus: null,
+        verifyMsg: '',
+        get providerType() { return this.choice === 'saml' ? 'saml' : 'oidc'; },
+        pick(c) { this.choice = c; this.step = 2; },
+        async verify() {
+          this.verifyStatus = 'loading'; this.verifyMsg = '';
+          const fd = new FormData();
+          fd.append('csrftoken', document.querySelector('[name=csrftoken]').value);
+          fd.append('type', this.providerType);
+          fd.append('issuer_or_metadata_url',
+                    document.querySelector('[name=issuer_or_metadata_url]')?.value ?? '');
+          try {
+            const r = await fetch('?action=verify', { method: 'POST', body: fd });
+            const d = await r.json();
+            this.verifyStatus = d.ok ? 'ok' : 'error';
+            this.verifyMsg    = d.ok ? d.detail : d.error;
+          } catch(e) {
+            this.verifyStatus = 'error';
+            this.verifyMsg = e.message || '<?php echo $lang === 'ja' ? 'ネットワークエラー' : 'Network error'; ?>';
+          }
+        }
+      }">
+
+  <input type="hidden" name="csrftoken" value="<?php echo $csrfToken; ?>">
+  <input type="hidden" name="type"   :value="providerType">
+  <input type="hidden" name="flavor" :value="choice">
 
   <?php if (!empty($v->message)): ?>
     <?php ui('alert', ['variant' => 'danger', 'body' => $v->message]); ?>
   <?php endif; ?>
 
-  <!-- ══════════════════════════════════════════════════
-       SETUP GUIDE
-  ══════════════════════════════════════════════════ -->
-  <div class="mb-6 rounded-xl border border-stroke bg-whiter p-5 dark:border-strokedark dark:bg-boxdark-2">
-    <h3 class="mb-4 flex items-center gap-2 text-sm font-semibold uppercase tracking-wider text-bodydark2">
-      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-      </svg>
-      <?php echo $lang === 'ja' ? "{$flavorLabel} セットアップガイド" : "{$flavorLabel} Setup Guide"; ?>
-    </h3>
+  <!-- ═══════════════════════════════════════════════════════
+       STEP 1 — Provider Selection
+  ═══════════════════════════════════════════════════════════ -->
+  <div x-show="step === 1" x-cloak>
 
-    <?php if ($flavor === 'auth0'): ?>
-    <ol class="space-y-3 text-sm text-black dark:text-white">
-      <li class="flex gap-3">
-        <span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary text-xs font-bold text-white">1</span>
-        <span><?php echo $lang === 'ja'
-          ? 'Auth0 ダッシュボード → <strong>Applications → Create Application</strong> → <em>Regular Web Application</em> を作成する'
-          : 'Auth0 Dashboard → <strong>Applications → Create Application</strong> → choose <em>Regular Web Application</em>'; ?></span>
-      </li>
-      <li class="flex gap-3">
-        <span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary text-xs font-bold text-white">2</span>
-        <span><?php echo $lang === 'ja'
-          ? '<strong>Domain</strong>・<strong>Client ID</strong>・<strong>Client Secret</strong> をメモしてください（下のフォームに入力します）'
-          : 'Note your <strong>Domain</strong>, <strong>Client ID</strong>, and <strong>Client Secret</strong> — enter them in the form below'; ?></span>
-      </li>
-      <li class="flex gap-3">
-        <span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary text-xs font-bold text-white">3</span>
-        <div class="flex-1">
-          <p><?php echo $lang === 'ja'
-            ? 'アプリの <strong>Settings → Allowed Callback URLs</strong> に以下を追加してください：'
-            : 'In the app\'s <strong>Settings → Allowed Callback URLs</strong>, add:'; ?></p>
-          <?php echo renderUrlBox($isEdit ? $callbackUrl : $callbackPattern, $isEdit, $lang); ?>
-        </div>
-      </li>
-      <li class="flex gap-3">
-        <span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary text-xs font-bold text-white">4</span>
-        <div class="flex-1">
-          <p><?php echo $lang === 'ja'
-            ? '<strong>Allowed Logout URLs</strong> に以下を追加してください：'
-            : 'In <strong>Allowed Logout URLs</strong>, add:'; ?></p>
-          <?php echo renderUrlBox($base, true, $lang); ?>
-        </div>
-      </li>
-      <li class="flex gap-3">
-        <span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary text-xs font-bold text-white">5</span>
-        <span><?php echo $lang === 'ja'
-          ? '<strong>Allowed Web Origins</strong> に同じ URL を追加してください（CORS 対策）'
-          : 'Add the same URL to <strong>Allowed Web Origins</strong> (CORS)'; ?></span>
-      </li>
-    </ol>
-    <?php if (!$isEdit): ?>
-    <p class="mt-4 rounded bg-warning bg-opacity-10 p-3 text-xs text-warning">
+    <p class="mb-4 text-sm text-bodydark2">
       <?php echo $lang === 'ja'
-        ? '⚠ Callback URL の末尾 <code>{id}</code> は保存後に確定します。保存後に表示される実際の URL を Auth0 の設定に登録してください。'
-        : '⚠ The <code>{id}</code> at the end of the Callback URL is assigned after saving. Register the actual URL shown after saving.'; ?>
+        ? '設定する認証プロバイダを選択してください。'
+        : 'Select the authentication provider you want to configure.'; ?>
     </p>
-    <?php endif; ?>
 
-    <?php elseif ($flavor === 'cognito'): ?>
-    <ol class="space-y-3 text-sm text-black dark:text-white">
-      <li class="flex gap-3">
-        <span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary text-xs font-bold text-white">1</span>
-        <span><?php echo $lang === 'ja'
-          ? 'AWS Console → Cognito → <strong>User Pools → Create user pool</strong>（または既存を選択）'
-          : 'AWS Console → Cognito → <strong>User Pools → Create user pool</strong> (or select existing)'; ?></span>
-      </li>
-      <li class="flex gap-3">
-        <span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary text-xs font-bold text-white">2</span>
-        <span><?php echo $lang === 'ja'
-          ? '<strong>App clients</strong> でアプリを追加し、<em>Generate a client secret</em> を有効にしてください'
-          : '<strong>App clients</strong> → add a client, enable <em>Generate a client secret</em>'; ?></span>
-      </li>
-      <li class="flex gap-3">
-        <span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary text-xs font-bold text-white">3</span>
-        <span><?php echo $lang === 'ja'
-          ? '<strong>App integration → Hosted UI</strong> の <em>Callback URL(s)</em> に以下を追加してください：'
-          : 'In <strong>App integration → Hosted UI</strong>, add to <em>Callback URL(s)</em>:'; ?></span>
-      </li>
-      <?php echo '<li class="pl-9">' . renderUrlBox($isEdit ? $callbackUrl : $callbackPattern, $isEdit, $lang) . '</li>'; ?>
-      <li class="flex gap-3">
-        <span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary text-xs font-bold text-white">4</span>
-        <span><?php echo $lang === 'ja'
-          ? '<strong>Sign out URL(s)</strong> にアプリのベース URL を追加してください：'
-          : 'Add your app base URL to <strong>Sign out URL(s)</strong>:'; ?></span>
-      </li>
-      <?php echo '<li class="pl-9">' . renderUrlBox($base, true, $lang) . '</li>'; ?>
-      <li class="flex gap-3">
-        <span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary text-xs font-bold text-white">5</span>
-        <span><?php echo $lang === 'ja'
-          ? '<strong>Region</strong>・<strong>User Pool ID</strong>・<strong>App client ID</strong>・<strong>Client secret</strong> をメモしてください'
-          : 'Note your <strong>Region</strong>, <strong>User Pool ID</strong>, <strong>App client ID</strong>, and <strong>Client secret</strong>'; ?></span>
-      </li>
-    </ol>
-    <?php if (!$isEdit): ?>
-    <p class="mt-4 rounded bg-warning bg-opacity-10 p-3 text-xs text-warning">
-      <?php echo $lang === 'ja'
-        ? '⚠ Callback URL の末尾 <code>{id}</code> は保存後に確定します。保存後に表示される実際の URL を Cognito の設定に登録してください。'
-        : '⚠ The <code>{id}</code> is assigned after saving. Register the actual URL shown after saving.'; ?>
+    <!-- Automatic providers -->
+    <p class="mb-2 text-xs font-semibold uppercase tracking-wider text-bodydark2">
+      <?php echo $lang === 'ja' ? '自動設定プロバイダ（推奨）' : 'Automatic Providers (recommended)'; ?>
     </p>
-    <?php endif; ?>
-
-    <?php elseif ($flavor === 'saml'): ?>
-    <div class="text-sm text-black dark:text-white">
-      <p class="mb-3 font-medium"><?php echo $lang === 'ja' ? '以下の SP 情報を IdP に登録してください：' : 'Register these SP details with your IdP:'; ?></p>
-      <div class="space-y-3">
-        <div>
-          <p class="mb-1 text-xs font-semibold uppercase text-bodydark2"><?php echo $lang === 'ja' ? 'ACS URL（Assertion Consumer Service URL）' : 'ACS URL (Assertion Consumer Service URL)'; ?></p>
-          <?php echo renderUrlBox($isEdit ? $acsUrl : $acsPattern, $isEdit, $lang); ?>
-        </div>
-        <div>
-          <p class="mb-1 text-xs font-semibold uppercase text-bodydark2">SP Entity ID</p>
-          <?php echo renderUrlBox($isEdit ? $acsUrl : $acsPattern, $isEdit, $lang); // SP Entity ID defaults to ACS URL ?>
-        </div>
-        <div>
-          <p class="mb-1 text-xs font-semibold uppercase text-bodydark2"><?php echo $lang === 'ja' ? 'SLS URL（Single Logout Service URL）' : 'SLS URL (Single Logout Service URL)'; ?></p>
-          <?php echo renderUrlBox($isEdit ? $slsUrl : $slsPattern, $isEdit, $lang); ?>
-        </div>
-      </div>
-      <?php if (!$isEdit): ?>
-      <p class="mt-4 rounded bg-warning bg-opacity-10 p-3 text-xs text-warning">
-        <?php echo $lang === 'ja'
-          ? '⚠ URL の末尾 <code>{id}</code> は保存後に確定します。保存後に表示される実際の URL を IdP の SP 設定に登録してください。'
-          : '⚠ The <code>{id}</code> is assigned after saving. Register the actual URLs shown after saving in your IdP\'s SP configuration.'; ?>
-      </p>
-      <?php endif; ?>
-      <p class="mt-3 text-xs text-bodydark2">
-        <?php echo $lang === 'ja'
-          ? '次に、IdP から <strong>メタデータ URL</strong> または <strong>Entity ID・SSO URL・X.509 証明書</strong> を取得して下のフォームに入力してください。'
-          : 'Then, obtain the <strong>Metadata URL</strong> or <strong>Entity ID, SSO URL, and X.509 certificate</strong> from your IdP and enter them below.'; ?>
-      </p>
+    <div class="mb-4 grid grid-cols-1 gap-3 sm:grid-cols-3">
+      <?php
+      $autoCards = [
+        'auth0'    => ['title' => 'Auth0',          'desc' => $lang === 'ja' ? 'Auth0 テナント・OIDC' : 'Auth0 tenant — OIDC'],
+        'cognito'  => ['title' => 'AWS Cognito',     'desc' => $lang === 'ja' ? 'ユーザープール + Hosted UI' : 'User Pool + Hosted UI'],
+        'firebase' => ['title' => 'Firebase Auth',   'desc' => $lang === 'ja' ? 'Google / Apple / Facebook 等' : 'Google / Apple / Facebook etc.'],
+      ];
+      foreach ($autoCards as $val => $info): ?>
+        <button type="button"
+                @click="pick('<?php echo $val; ?>')"
+                class="flex flex-col gap-1 rounded-lg border-2 border-stroke p-4 text-left transition-colors hover:border-primary hover:bg-primary/5 dark:border-strokedark dark:hover:border-primary dark:hover:bg-primary/10">
+          <span class="font-semibold text-black dark:text-white"><?php echo htmlspecialchars($info['title']); ?></span>
+          <span class="text-xs text-bodydark2"><?php echo htmlspecialchars($info['desc']); ?></span>
+        </button>
+      <?php endforeach; ?>
     </div>
 
-    <?php else: // Generic OIDC ?>
-    <ol class="space-y-3 text-sm text-black dark:text-white">
-      <li class="flex gap-3">
-        <span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary text-xs font-bold text-white">1</span>
-        <span><?php echo $lang === 'ja'
-          ? 'IdP のコンソールでアプリケーション（クライアント）を作成してください'
-          : 'Create an application / client in your IdP\'s admin console'; ?></span>
-      </li>
-      <li class="flex gap-3">
-        <span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary text-xs font-bold text-white">2</span>
-        <div class="flex-1">
-          <p><?php echo $lang === 'ja'
-            ? 'Redirect URI（コールバック URL）として以下を登録してください：'
-            : 'Register the following as a Redirect URI (callback URL):'; ?></p>
-          <?php echo renderUrlBox($isEdit ? $callbackUrl : $callbackPattern, $isEdit, $lang); ?>
-        </div>
-      </li>
-      <li class="flex gap-3">
-        <span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary text-xs font-bold text-white">3</span>
-        <span><?php echo $lang === 'ja'
-          ? '<strong>Discovery URL</strong>（<code>/.well-known/openid-configuration</code>）・<strong>Client ID</strong>・<strong>Client Secret</strong> をメモしてください'
-          : 'Note the <strong>Discovery URL</strong> (<code>/.well-known/openid-configuration</code>), <strong>Client ID</strong>, and <strong>Client Secret</strong>'; ?></span>
-      </li>
-    </ol>
-    <?php if (!$isEdit): ?>
-    <p class="mt-4 rounded bg-warning bg-opacity-10 p-3 text-xs text-warning">
-      <?php echo $lang === 'ja'
-        ? '⚠ Callback URL の末尾 <code>{id}</code> は保存後に確定します。保存後に実際の URL を IdP に登録してください。'
-        : '⚠ The <code>{id}</code> is assigned after saving. Register the actual URL with your IdP after saving.'; ?>
+    <!-- Manual providers -->
+    <p class="mb-2 text-xs font-semibold uppercase tracking-wider text-bodydark2">
+      <?php echo $lang === 'ja' ? '手動設定プロバイダ' : 'Manual Providers'; ?>
     </p>
-    <?php endif; ?>
-    <?php endif; ?>
-  </div>
+    <div class="mb-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
+      <?php
+      $manualCards = [
+        'oidc' => ['title' => 'Generic OIDC', 'desc' => $lang === 'ja' ? '標準準拠の OIDC プロバイダ' : 'Any OIDC-compliant provider'],
+        'saml' => ['title' => 'SAML 2.0',    'desc' => $lang === 'ja' ? 'Okta / ADFS 等のエンタープライズ IdP' : 'Okta, ADFS, or other enterprise IdP'],
+      ];
+      foreach ($manualCards as $val => $info): ?>
+        <button type="button"
+                @click="pick('<?php echo $val; ?>')"
+                class="flex flex-col gap-1 rounded-lg border-2 border-stroke p-4 text-left transition-colors hover:border-primary hover:bg-primary/5 dark:border-strokedark dark:hover:border-primary dark:hover:bg-primary/10">
+          <span class="font-semibold text-black dark:text-white"><?php echo htmlspecialchars($info['title']); ?></span>
+          <span class="text-xs text-bodydark2"><?php echo htmlspecialchars($info['desc']); ?></span>
+        </button>
+      <?php endforeach; ?>
+    </div>
 
-  <!-- ══════════════════════════════════════════════════
-       FORM
-  ══════════════════════════════════════════════════ -->
-  <form method="POST" action="" x-data="{
-    auth0Domain: '<?php echo ui_attr($cfg['domain'] ?? ''); ?>',
-    region: '<?php echo ui_attr($cfg['region'] ?? ''); ?>',
-    poolId: '<?php echo ui_attr($cfg['user_pool_id'] ?? ''); ?>',
-    syncAuth0Issuer() {
-      if (!this.auth0Domain) return;
-      var f = document.getElementById('issuer_or_metadata_url');
-      if (f && f.value.trim() === '') f.value = 'https://' + this.auth0Domain + '/.well-known/openid-configuration';
-    },
-    syncCognitoIssuer() {
-      if (!this.region || !this.poolId) return;
-      var f = document.getElementById('issuer_or_metadata_url');
-      if (f && f.value.trim() === '') f.value = 'https://cognito-idp.' + this.region + '.amazonaws.com/' + this.poolId + '/.well-known/openid-configuration';
-    }
-  }">
-    <input type="hidden" name="csrftoken" value="<?php echo htmlspecialchars(\saso\util\CSRFtoken::current()); ?>">
+  </div><!-- /step 1 -->
 
-    <!-- Provider Name (common) -->
+  <!-- ═══════════════════════════════════════════════════════
+       STEP 2 — Configure
+  ═══════════════════════════════════════════════════════════ -->
+  <div x-show="step === 2" x-cloak>
+
+    <?php if (!$isEdit): ?>
+      <button type="button"
+              @click="step = 1; choice = ''"
+              class="mb-5 inline-flex items-center gap-1 text-sm text-primary hover:underline">
+        <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M19 12H5m0 0 7 7m-7-7 7-7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <?php echo $lang === 'ja' ? 'プロバイダを選び直す' : 'Choose a different provider'; ?>
+      </button>
+    <?php endif; ?>
+
+    <!-- ── URL reference box ── -->
+    <div class="mb-6 overflow-hidden rounded-lg border border-stroke dark:border-strokedark">
+      <div class="bg-gray-2 px-4 py-2.5 dark:bg-meta-4">
+        <p class="text-xs font-semibold uppercase tracking-wider text-bodydark2">
+          <?php echo $lang === 'ja' ? 'IdP に登録が必要な URL' : 'URLs to register with your IdP'; ?>
+        </p>
+      </div>
+      <div class="divide-y divide-stroke px-4 dark:divide-strokedark">
+
+        <?php
+        // Helper function for URL row rendering
+        $urlRow = function (string $label, string $value, bool $copyable, string $note = '') use ($lang): void {
+        ?>
+          <div class="flex flex-col gap-1 py-3 sm:flex-row sm:items-center sm:gap-3">
+            <span class="w-28 shrink-0 text-xs font-medium text-bodydark2"><?php echo htmlspecialchars($label); ?></span>
+            <?php if ($copyable): ?>
+              <div class="flex grow items-center gap-2">
+                <code class="grow truncate rounded bg-gray-2 px-2 py-1 font-mono text-xs text-black dark:bg-meta-4 dark:text-white">
+                  <?php echo htmlspecialchars($value); ?>
+                </code>
+                <button type="button"
+                        onclick="navigator.clipboard.writeText(<?php echo htmlspecialchars(json_encode($value)); ?>)"
+                        title="<?php echo $lang === 'ja' ? 'コピー' : 'Copy'; ?>"
+                        class="shrink-0 rounded border border-stroke p-1.5 text-bodydark2 transition hover:border-primary hover:text-primary dark:border-strokedark">
+                  <svg class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <rect x="9" y="9" width="13" height="13" rx="2" stroke="currentColor" stroke-width="1.5"/>
+                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" stroke="currentColor" stroke-width="1.5"/>
+                  </svg>
+                </button>
+              </div>
+            <?php else: ?>
+              <span class="grow font-mono text-xs text-bodydark2 italic"><?php echo htmlspecialchars($value); ?></span>
+            <?php endif; ?>
+            <?php if ($note !== ''): ?>
+              <span class="text-xs text-bodydark2"><?php echo htmlspecialchars($note); ?></span>
+            <?php endif; ?>
+          </div>
+        <?php
+        };
+        ?>
+
+        <?php
+        $newNote = $lang === 'ja' ? '保存後に確定' : 'assigned on save';
+
+        // Callback URL — OIDC providers (hide for SAML)
+        ?>
+        <div x-show="choice !== 'saml'">
+          <?php $urlRow(
+            'Callback URL',
+            $displayCallback,
+            $urlsAreReal,
+            $urlsAreReal ? ($lang === 'ja' ? 'IdP の Allowed Callback URLs に登録' : 'Register in IdP\'s Allowed Callback URLs') : $newNote
+          ); ?>
+        </div>
+
+        <?php
+        // ACS + SLS — SAML only
+        ?>
+        <div x-show="choice === 'saml'">
+          <?php $urlRow('ACS URL', $displayAcs, $urlsAreReal, $urlsAreReal ? '' : $newNote); ?>
+        </div>
+        <div x-show="choice === 'saml'">
+          <?php $urlRow('SLS URL', $displaySls, $urlsAreReal, $urlsAreReal ? '' : $newNote); ?>
+        </div>
+
+        <?php $urlRow(
+          'Login URL',
+          $loginUrl,
+          true,
+          $lang === 'ja' ? 'ユーザーがログインするページ' : 'Page where users sign in'
+        ); ?>
+
+      </div>
+    </div>
+
+    <!-- ── Provider Name (common) ── -->
     <?php
     ui('formField', [
       'name'        => 'name',
-      'label'       => $lang === 'ja' ? 'プロバイダ名（ログイン画面のボタン表示名）' : 'Provider Name (shown on login button)',
+      'label'       => $lang === 'ja' ? 'プロバイダ名' : 'Provider Name',
       'value'       => $v->provider['name'] ?? '',
       'required'    => true,
-      'placeholder' => $flavor === 'auth0' ? 'Auth0' : ($flavor === 'cognito' ? 'AWS Cognito' : ($flavor === 'saml' ? 'Okta SAML' : 'My OIDC Provider')),
+      'placeholder' => $lang === 'ja' ? 'プロバイダ名を入力' : 'Enter provider name',
     ]);
     ?>
 
-    <!-- ── Auth0 fields ── -->
-    <?php if ($flavor === 'auth0'): ?>
-
-    <div class="mb-4">
-      <label for="auth0_domain" class="mb-2.5 block font-medium text-black dark:text-white">
-        <?php echo $lang === 'ja' ? 'Auth0 ドメイン' : 'Auth0 Domain'; ?> <span class="text-meta-1">*</span>
-      </label>
-      <input type="text" id="auth0_domain" name="auth0_domain"
-             x-model="auth0Domain" @input="syncAuth0Issuer()"
-             value="<?php echo ui_attr($cfg['domain'] ?? ''); ?>"
-             placeholder="your-tenant.auth0.com"
-             class="w-full rounded border border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary text-black dark:text-white">
-      <p class="mt-1 text-sm text-bodydark2"><?php echo $lang === 'ja' ? 'Auth0 ダッシュボードに表示されるドメイン（例: acme.auth0.com）' : 'The domain shown in your Auth0 dashboard (e.g. acme.auth0.com)'; ?></p>
-    </div>
-
-    <?php renderOidcCredentials($v, $lang); ?>
-
-    <div class="mb-4">
-      <label for="auth0_audience" class="mb-2.5 block font-medium text-black dark:text-white">
-        <?php echo $lang === 'ja' ? 'API Audience（任意）' : 'API Audience (optional)'; ?>
-      </label>
-      <input type="text" id="auth0_audience" name="auth0_audience"
-             value="<?php echo ui_attr($cfg['audience'] ?? ''); ?>"
-             placeholder="https://api.example.com"
-             class="w-full rounded border border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary text-black dark:text-white">
-      <p class="mt-1 text-sm text-bodydark2"><?php echo $lang === 'ja' ? 'API アクセストークンが必要な場合のみ設定（省略可）' : 'Only needed for API access tokens. Leave blank for web-only sign-in.'; ?></p>
-    </div>
-
-    <?php renderScopesField($v, $lang, 'openid profile email offline_access', $lang === 'ja' ? '空の場合: openid profile email offline_access（Auth0 推奨）' : 'Defaults to: openid profile email offline_access (Auth0 recommended)'); ?>
-
-    <!-- hidden issuer auto-computed server-side; show as read-only reference -->
-    <?php if ($isEdit && !empty($v->provider['issuer_or_metadata_url'])): ?>
-    <div class="mb-4">
-      <label class="mb-2.5 block font-medium text-black dark:text-white"><?php echo $lang === 'ja' ? 'Issuer URL（自動）' : 'Issuer URL (auto)'; ?></label>
-      <input type="text" readonly id="issuer_or_metadata_url" name="issuer_or_metadata_url"
-             value="<?php echo ui_attr($v->provider['issuer_or_metadata_url'] ?? ''); ?>"
-             class="w-full rounded border border-stroke bg-gray-2 py-3 px-5 font-mono text-sm text-black dark:border-form-strokedark dark:bg-meta-4 dark:text-white">
-    </div>
-    <?php else: ?>
-    <input type="hidden" id="issuer_or_metadata_url" name="issuer_or_metadata_url" value="<?php echo ui_attr($v->provider['issuer_or_metadata_url'] ?? ''); ?>">
-    <?php endif; ?>
-
-    <!-- ── Cognito fields ── -->
-    <?php elseif ($flavor === 'cognito'): ?>
-
-    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+    <!-- ═══════════════════════════════════════════
+         Auth0
+    ════════════════════════════════════════════ -->
+    <div x-show="choice === 'auth0'" x-cloak>
+      <div class="mb-4 border-t border-stroke pt-4 dark:border-strokedark">
+        <h4 class="mb-1 font-semibold text-black dark:text-white">Auth0</h4>
+        <p class="text-xs text-bodydark2"><?php echo $lang === 'ja' ? 'Auth0 テナントの OIDC 設定' : 'Auth0 tenant OIDC configuration'; ?></p>
+      </div>
+      <?php
+      ui('formField', [
+        'name'        => 'issuer_or_metadata_url',
+        'label'       => $lang === 'ja' ? 'Issuer / Discovery URL' : 'Issuer / Discovery URL',
+        'value'       => $v->provider['issuer_or_metadata_url'] ?? '',
+        'placeholder' => 'https://acme.eu.auth0.com/',
+        'help'        => $lang === 'ja' ? 'Auth0 テナントのルート URL。例: https://acme.eu.auth0.com/' : 'Auth0 tenant root URL, e.g. https://acme.eu.auth0.com/',
+      ]);
+      ui('formField', ['name' => 'client_id',  'label' => 'Client ID',     'value' => $v->provider['client_id'] ?? '', 'placeholder' => 'your-client-id']);
+      ?>
       <div class="mb-4">
-        <label for="region" class="mb-2.5 block font-medium text-black dark:text-white">
-          AWS Region <span class="text-meta-1">*</span>
-        </label>
-        <input type="text" id="region" name="region"
-               x-model="region" @input="syncCognitoIssuer()"
-               value="<?php echo ui_attr($cfg['region'] ?? ''); ?>"
-               placeholder="ap-northeast-1"
-               class="w-full rounded border border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary text-black dark:text-white">
-        <p class="mt-1 text-sm text-bodydark2"><?php echo $lang === 'ja' ? 'ユーザープールのリージョン（例: ap-northeast-1）' : 'The region of your User Pool (e.g. ap-northeast-1)'; ?></p>
+        <label for="client_secret" class="mb-2.5 block font-medium text-black dark:text-white">Client Secret</label>
+        <input type="password" id="client_secret" name="client_secret" value=""
+               placeholder="<?php echo $v->hasSecret ? '●●●●●●●● ('.$lang === 'ja' ? '変更時のみ入力' : 'enter only to change'.')' : ($lang === 'ja' ? 'シークレットを入力' : 'Enter secret'); ?>"
+               autocomplete="new-password"
+               class="w-full rounded border border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary text-black dark:text-white">
+        <?php if ($v->hasSecret): ?>
+          <p class="mt-1 text-xs text-bodydark2"><?php echo $lang === 'ja' ? '変更する場合のみ入力してください' : 'Leave blank to keep the current secret'; ?></p>
+        <?php endif; ?>
       </div>
+      <?php
+      ui('formField', [
+        'name'        => 'auth0_domain',
+        'label'       => $lang === 'ja' ? 'Auth0 ドメイン' : 'Auth0 Domain',
+        'value'       => $cfg['domain'] ?? '',
+        'placeholder' => 'acme.eu.auth0.com',
+        'help'        => $lang === 'ja' ? 'ログアウト時の /v2/logout エンドポイント構築に使います' : 'Used to build the /v2/logout endpoint on sign-out',
+      ]);
+      ui('formField', [
+        'name'        => 'auth0_audience',
+        'label'       => $lang === 'ja' ? 'Audience（オプション）' : 'Audience (optional)',
+        'value'       => $cfg['audience'] ?? '',
+        'placeholder' => 'https://api.example.com',
+        'help'        => $lang === 'ja' ? 'Auth0 API の audience。不要な場合は空欄' : 'Auth0 API audience. Leave blank if not needed.',
+      ]);
+      ui('formField', [
+        'name'        => 'scopes',
+        'label'       => $lang === 'ja' ? 'スコープ' : 'Scopes',
+        'value'       => $v->provider['scopes'] ?? '',
+        'placeholder' => 'openid profile email',
+        'help'        => $lang === 'ja' ? '空白区切り。空欄時は openid profile email' : 'Space-separated. Defaults to "openid profile email" if empty',
+      ]);
+      ?>
+    </div>
+
+    <!-- ═══════════════════════════════════════════
+         AWS Cognito
+    ════════════════════════════════════════════ -->
+    <div x-show="choice === 'cognito'" x-cloak>
+      <div class="mb-4 border-t border-stroke pt-4 dark:border-strokedark">
+        <h4 class="mb-1 font-semibold text-black dark:text-white">AWS Cognito</h4>
+        <p class="text-xs text-bodydark2"><?php echo $lang === 'ja' ? 'Cognito ユーザープール設定' : 'Cognito User Pool configuration'; ?></p>
+      </div>
+      <?php
+      ui('formField', [
+        'name'        => 'cognito_region',
+        'label'       => $lang === 'ja' ? 'リージョン' : 'Region',
+        'value'       => $cfg['region'] ?? '',
+        'placeholder' => 'ap-northeast-1',
+        'help'        => $lang === 'ja' ? 'AWS リージョンコード' : 'AWS region code, e.g. ap-northeast-1',
+      ]);
+      ui('formField', [
+        'name'        => 'cognito_user_pool_id',
+        'label'       => $lang === 'ja' ? 'ユーザープール ID' : 'User Pool ID',
+        'value'       => $cfg['user_pool_id'] ?? '',
+        'placeholder' => 'ap-northeast-1_AbCdEfGhI',
+        'help'        => $lang === 'ja' ? 'Cognito コンソールのユーザープール ID' : 'User Pool ID from the Cognito console',
+      ]);
+      ui('formField', [
+        'name'        => 'issuer_or_metadata_url',
+        'label'       => $lang === 'ja' ? 'Issuer / Discovery URL' : 'Issuer / Discovery URL',
+        'value'       => $v->provider['issuer_or_metadata_url'] ?? '',
+        'placeholder' => 'https://cognito-idp.ap-northeast-1.amazonaws.com/ap-northeast-1_xxx',
+        'help'        => $lang === 'ja'
+          ? '形式: https://cognito-idp.{region}.amazonaws.com/{pool_id}'
+          : 'Format: https://cognito-idp.{region}.amazonaws.com/{pool_id}',
+      ]);
+      ui('formField', ['name' => 'client_id', 'label' => 'Client ID', 'value' => $v->provider['client_id'] ?? '', 'placeholder' => 'your-app-client-id']);
+      ?>
       <div class="mb-4">
-        <label for="user_pool_id" class="mb-2.5 block font-medium text-black dark:text-white">
-          User Pool ID <span class="text-meta-1">*</span>
-        </label>
-        <input type="text" id="user_pool_id" name="user_pool_id"
-               x-model="poolId" @input="syncCognitoIssuer()"
-               value="<?php echo ui_attr($cfg['user_pool_id'] ?? ''); ?>"
-               placeholder="ap-northeast-1_AbCd12345"
-               class="w-full rounded border border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary text-black dark:text-white">
-        <p class="mt-1 text-sm text-bodydark2"><?php echo $lang === 'ja' ? 'Cognito コンソールのユーザープール ID' : 'User Pool ID from the Cognito console'; ?></p>
+        <label for="client_secret" class="mb-2.5 block font-medium text-black dark:text-white">Client Secret</label>
+        <input type="password" id="client_secret" name="client_secret" value=""
+               placeholder="<?php echo $v->hasSecret ? '●●●●●●●●' : ($lang === 'ja' ? 'シークレットを入力' : 'Enter secret'); ?>"
+               autocomplete="new-password"
+               class="w-full rounded border border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary text-black dark:text-white">
+        <?php if ($v->hasSecret): ?><p class="mt-1 text-xs text-bodydark2"><?php echo $lang === 'ja' ? '変更する場合のみ入力してください' : 'Leave blank to keep the current secret'; ?></p><?php endif; ?>
+      </div>
+      <?php
+      ui('formField', [
+        'name'        => 'cognito_hosted_ui_domain',
+        'label'       => $lang === 'ja' ? 'Hosted UI ドメイン' : 'Hosted UI Domain',
+        'value'       => $cfg['hosted_ui_domain'] ?? '',
+        'placeholder' => 'acme.auth.ap-northeast-1.amazoncognito.com',
+        'help'        => $lang === 'ja' ? 'ログアウト URL 構築に使います' : 'Used to build the Cognito logout redirect URL',
+      ]);
+      ?>
+    </div>
+
+    <!-- ═══════════════════════════════════════════
+         Firebase Auth
+    ════════════════════════════════════════════ -->
+    <div x-show="choice === 'firebase'" x-cloak>
+      <div class="mb-4 border-t border-stroke pt-4 dark:border-strokedark">
+        <h4 class="mb-1 font-semibold text-black dark:text-white">Firebase Auth</h4>
+        <p class="text-xs text-bodydark2">
+          <?php echo $lang === 'ja'
+            ? 'Firebase Authentication は OIDC 経由で Google / Apple / Facebook 等のプロバイダをまとめて提供します。'
+            : 'Firebase Authentication acts as an OIDC gateway for Google, Apple, Facebook, and other providers.'; ?>
+        </p>
+      </div>
+      <?php
+      ui('formField', [
+        'name'        => 'firebase_project_id',
+        'label'       => $lang === 'ja' ? 'プロジェクト ID' : 'Project ID',
+        'value'       => $cfg['project_id'] ?? '',
+        'placeholder' => 'my-firebase-project',
+        'help'        => $lang === 'ja' ? 'Firebase プロジェクト ID（参照用）' : 'Firebase project ID — for reference',
+      ]);
+      ui('formField', [
+        'name'        => 'issuer_or_metadata_url',
+        'label'       => $lang === 'ja' ? 'Issuer / Discovery URL' : 'Issuer / Discovery URL',
+        'value'       => $v->provider['issuer_or_metadata_url'] ?? '',
+        'placeholder' => 'https://accounts.google.com',
+        'help'        => $lang === 'ja'
+          ? 'GCP OAuth 2.0 クライアントを使う場合は https://accounts.google.com を使用'
+          : 'Use https://accounts.google.com for GCP OAuth 2.0 clients',
+      ]);
+      ui('formField', [
+        'name'        => 'client_id',
+        'label'       => 'Client ID',
+        'value'       => $v->provider['client_id'] ?? '',
+        'placeholder' => 'xxxxx.apps.googleusercontent.com',
+        'help'        => $lang === 'ja' ? 'GCP コンソール → API とサービス → 認証情報 → OAuth 2.0 クライアント ID' : 'GCP Console → APIs & Services → Credentials → OAuth 2.0 Client ID',
+      ]);
+      ?>
+      <div class="mb-4">
+        <label for="client_secret" class="mb-2.5 block font-medium text-black dark:text-white">Client Secret</label>
+        <input type="password" id="client_secret" name="client_secret" value=""
+               placeholder="<?php echo $v->hasSecret ? '●●●●●●●●' : ($lang === 'ja' ? 'シークレットを入力' : 'Enter secret'); ?>"
+               autocomplete="new-password"
+               class="w-full rounded border border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary text-black dark:text-white">
+        <?php if ($v->hasSecret): ?><p class="mt-1 text-xs text-bodydark2"><?php echo $lang === 'ja' ? '変更する場合のみ入力してください' : 'Leave blank to keep the current secret'; ?></p><?php endif; ?>
+      </div>
+      <?php
+      ui('formField', [
+        'name'        => 'firebase_hd',
+        'label'       => $lang === 'ja' ? 'ワークスペースドメイン hd（オプション）' : 'Workspace Domain hd (optional)',
+        'value'       => $cfg['hd'] ?? '',
+        'placeholder' => 'example.com',
+        'help'        => $lang === 'ja' ? 'このドメイン以外のアカウントのログインを拒否します' : 'Logins from accounts outside this domain will be rejected',
+      ]);
+      ?>
+
+      <!-- Firebase identity sub-providers -->
+      <div class="mb-4">
+        <p class="mb-2 block font-medium text-black dark:text-white">
+          <?php echo $lang === 'ja' ? 'Firebase Auth で有効にした ID プロバイダ' : 'Identity Providers enabled in Firebase Auth'; ?>
+        </p>
+        <p class="mb-3 text-xs text-bodydark2">
+          <?php echo $lang === 'ja'
+            ? 'Firebase Authentication コンソールで有効にしているプロバイダにチェックを入れてください（参照用）。'
+            : 'Check the providers you have enabled in your Firebase Authentication console (for reference).'; ?>
+        </p>
+        <div class="grid grid-cols-2 gap-2 sm:grid-cols-3">
+          <?php foreach ($fbProviderOptions as $key => $label): ?>
+            <label class="flex cursor-pointer items-center gap-2 text-sm text-black dark:text-white">
+              <input type="checkbox" name="firebase_providers[]" value="<?php echo htmlspecialchars($key); ?>"
+                     <?php echo in_array($key, $fbProvidersEnabled, true) ? 'checked' : ''; ?>
+                     class="h-4 w-4 rounded border-stroke accent-primary dark:border-strokedark">
+              <?php echo htmlspecialchars($label); ?>
+            </label>
+          <?php endforeach; ?>
+        </div>
       </div>
     </div>
 
-    <?php renderOidcCredentials($v, $lang); ?>
-
-    <div class="mb-4">
-      <label for="hosted_ui_domain" class="mb-2.5 block font-medium text-black dark:text-white">
-        <?php echo $lang === 'ja' ? 'Hosted UI ドメイン（任意）' : 'Hosted UI Domain (optional)'; ?>
-      </label>
-      <input type="text" id="hosted_ui_domain" name="hosted_ui_domain"
-             value="<?php echo ui_attr($cfg['hosted_ui_domain'] ?? ''); ?>"
-             placeholder="my-app.auth.ap-northeast-1.amazoncognito.com"
-             class="w-full rounded border border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary text-black dark:text-white">
-      <p class="mt-1 text-sm text-bodydark2"><?php echo $lang === 'ja' ? 'ログアウト URL の構築に使用。App integration → Domain で確認できます。' : 'Used to build the logout URL. Find it under App integration → Domain.'; ?></p>
-    </div>
-
-    <?php renderScopesField($v, $lang, 'openid profile email', $lang === 'ja' ? '空の場合: openid profile email' : 'Defaults to: openid profile email'); ?>
-
-    <!-- Issuer (auto-computed or editable) -->
-    <div class="mb-4">
-      <label for="issuer_or_metadata_url" class="mb-2.5 block font-medium text-black dark:text-white">
-        <?php echo $lang === 'ja' ? 'Discovery URL（自動生成）' : 'Discovery URL (auto-built)'; ?>
-      </label>
-      <input type="text" id="issuer_or_metadata_url" name="issuer_or_metadata_url"
-             value="<?php echo ui_attr($v->provider['issuer_or_metadata_url'] ?? ''); ?>"
-             placeholder="https://cognito-idp.{region}.amazonaws.com/{pool-id}/.well-known/openid-configuration"
-             class="w-full rounded border border-stroke bg-transparent py-3 px-5 font-mono text-sm outline-none transition focus:border-primary dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary text-black dark:text-white">
-      <p class="mt-1 text-sm text-bodydark2"><?php echo $lang === 'ja' ? 'Region と User Pool ID を入力すると自動補完されます。' : 'Auto-fills when Region and User Pool ID are entered. Override if needed.'; ?></p>
-    </div>
-
-    <!-- ── SAML fields ── -->
-    <?php elseif ($flavor === 'saml'): ?>
-
-    <?php
-    ui('formField', [
-      'name'        => 'issuer_or_metadata_url',
-      'label'       => $lang === 'ja' ? 'IdP メタデータ URL または Entity ID' : 'IdP Metadata URL or Entity ID',
-      'value'       => $v->provider['issuer_or_metadata_url'] ?? '',
-      'placeholder' => 'https://idp.example.com/saml/metadata',
-      'help'        => $lang === 'ja' ? 'IdP のメタデータ URL を入力してください（推奨）。手動設定の場合は IdP Entity ID を入力します。' : 'Preferred: the IdP metadata URL. For manual setup: enter the IdP Entity ID.',
-    ]);
-    ?>
-
-    <div class="mb-4">
-      <label for="idp_x509_cert" class="mb-2.5 block font-medium text-black dark:text-white">
-        <?php echo $lang === 'ja' ? 'IdP 証明書（X.509 PEM）' : 'IdP Certificate (X.509 PEM)'; ?> <span class="text-meta-1">*</span>
-      </label>
-      <textarea id="idp_x509_cert" name="idp_x509_cert" rows="6"
-                placeholder="-----BEGIN CERTIFICATE-----&#10;MIID...&#10;-----END CERTIFICATE-----"
-                class="w-full rounded border border-stroke bg-transparent py-3 px-5 font-mono text-sm outline-none transition focus:border-primary dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary text-black dark:text-white"><?php echo ui_attr($cfg['idp_x509_cert'] ?? ''); ?></textarea>
-      <p class="mt-1 text-sm text-bodydark2"><?php echo $lang === 'ja' ? 'IdP のメタデータから X.509 証明書を貼り付けてください。BEGIN/END ヘッダーを含めてください。' : 'Paste the IdP\'s X.509 signing certificate. Include the BEGIN/END headers.'; ?></p>
-    </div>
-
-    <?php
-    ui('formField', [
-      'name'    => 'nameid_format',
-      'label'   => 'NameID Format',
-      'type'    => 'select',
-      'value'   => $cfg['nameid_format'] ?? 'urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress',
-      'options' => [
-        'urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress' => 'Email Address',
-        'urn:oasis:names:tc:SAML:2.0:nameid-format:persistent'   => 'Persistent',
-        'urn:oasis:names:tc:SAML:2.0:nameid-format:transient'    => 'Transient',
-        'urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified'  => 'Unspecified',
-      ],
-    ]);
-    ?>
-
-    <details class="mb-4">
-      <summary class="cursor-pointer text-sm font-medium text-primary"><?php echo $lang === 'ja' ? '高度な設定（SP 証明書・秘密鍵）' : 'Advanced (SP certificate & key)'; ?></summary>
-      <div class="mt-3 space-y-4 pl-2">
-        <div>
-          <label for="sp_x509_cert" class="mb-2.5 block text-sm font-medium text-black dark:text-white"><?php echo $lang === 'ja' ? 'SP 証明書（X.509 PEM）' : 'SP Certificate (X.509 PEM)'; ?></label>
-          <textarea id="sp_x509_cert" name="sp_x509_cert" rows="4"
-                    placeholder="-----BEGIN CERTIFICATE-----&#10;...&#10;-----END CERTIFICATE-----"
-                    class="w-full rounded border border-stroke bg-transparent py-3 px-5 font-mono text-sm outline-none transition focus:border-primary dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary text-black dark:text-white"><?php echo ui_attr($cfg['sp_x509_cert'] ?? ''); ?></textarea>
-        </div>
-        <div>
-          <label for="sp_private_key" class="mb-2.5 block text-sm font-medium text-black dark:text-white"><?php echo $lang === 'ja' ? 'SP 秘密鍵（PEM）' : 'SP Private Key (PEM)'; ?></label>
-          <textarea id="sp_private_key" name="sp_private_key" rows="4"
-                    placeholder="-----BEGIN PRIVATE KEY-----&#10;...&#10;-----END PRIVATE KEY-----"
-                    class="w-full rounded border border-stroke bg-transparent py-3 px-5 font-mono text-sm outline-none transition focus:border-primary dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary text-black dark:text-white"><?php echo ui_attr($cfg['sp_private_key'] ?? ''); ?></textarea>
-        </div>
-        <?php
-        ui('formField', [
-          'name'        => 'entity_id',
-          'label'       => 'SP Entity ID',
-          'value'       => $cfg['entity_id'] ?? '',
-          'placeholder' => $isEdit ? $acsUrl : $acsPattern,
-          'help'        => $lang === 'ja' ? '省略した場合は ACS URL がデフォルトになります' : 'Defaults to the ACS URL if blank',
-        ]);
-        ?>
+    <!-- ═══════════════════════════════════════════
+         Generic OIDC
+    ════════════════════════════════════════════ -->
+    <div x-show="choice === 'oidc'" x-cloak>
+      <div class="mb-4 border-t border-stroke pt-4 dark:border-strokedark">
+        <h4 class="mb-1 font-semibold text-black dark:text-white">Generic OIDC</h4>
+        <p class="text-xs text-bodydark2"><?php echo $lang === 'ja' ? '標準準拠の OpenID Connect プロバイダ' : 'Any standards-compliant OpenID Connect provider'; ?></p>
       </div>
-    </details>
-
-    <!-- ── Generic OIDC fields ── -->
-    <?php else: ?>
-
-    <?php
-    ui('formField', [
-      'name'        => 'issuer_or_metadata_url',
-      'label'       => $lang === 'ja' ? 'Discovery URL (Issuer)' : 'Discovery URL (Issuer)',
-      'value'       => $v->provider['issuer_or_metadata_url'] ?? '',
-      'placeholder' => 'https://accounts.example.com/.well-known/openid-configuration',
-      'help'        => $lang === 'ja' ? 'OIDC プロバイダの Discovery URL（<code>/.well-known/openid-configuration</code> で終わる URL）' : 'The OIDC provider\'s discovery document URL (ending in /.well-known/openid-configuration)',
-    ]);
-    ?>
-
-    <?php renderOidcCredentials($v, $lang); ?>
-    <?php renderScopesField($v, $lang, 'openid profile email', $lang === 'ja' ? '空の場合: openid profile email' : 'Defaults to: openid profile email'); ?>
-
-    <?php endif; ?>
-
-    <!-- ── Callback URL display (edit mode only, after ID is known) ── -->
-    <?php if ($isEdit): ?>
-    <div class="mb-6 rounded-xl border-2 border-success border-opacity-50 bg-success bg-opacity-5 p-4">
-      <h4 class="mb-3 text-sm font-semibold text-success"><?php echo $flavor === 'saml' ? ($lang === 'ja' ? 'IdP に登録する SP の URL' : 'SP URLs to register with your IdP') : ($lang === 'ja' ? 'IdP に登録するコールバック URL' : 'Callback URL to register with your IdP'); ?></h4>
-      <?php if ($flavor === 'saml'): ?>
-        <?php foreach (['ACS URL' => $acsUrl, 'SLS URL' => $slsUrl] as $label => $url): ?>
-        <div class="mb-2">
-          <p class="mb-1 text-xs text-bodydark2"><?php echo htmlspecialchars($label); ?></p>
-          <?php echo renderUrlBox($url, true, $lang); ?>
-        </div>
-        <?php endforeach; ?>
-      <?php else: ?>
-        <?php echo renderUrlBox($callbackUrl, true, $lang); ?>
-      <?php endif; ?>
+      <?php
+      ui('formField', [
+        'name'        => 'issuer_or_metadata_url',
+        'label'       => $lang === 'ja' ? 'Issuer / Discovery URL' : 'Issuer / Discovery URL',
+        'value'       => $v->provider['issuer_or_metadata_url'] ?? '',
+        'placeholder' => 'https://example.com/.well-known/openid-configuration',
+        'help'        => $lang === 'ja' ? 'OIDC プロバイダの Discovery URL' : 'OIDC provider discovery URL',
+      ]);
+      ui('formField', ['name' => 'client_id', 'label' => 'Client ID', 'value' => $v->provider['client_id'] ?? '', 'placeholder' => 'your-client-id']);
+      ?>
+      <div class="mb-4">
+        <label for="client_secret" class="mb-2.5 block font-medium text-black dark:text-white">Client Secret</label>
+        <input type="password" id="client_secret" name="client_secret" value=""
+               placeholder="<?php echo $v->hasSecret ? '●●●●●●●●' : ($lang === 'ja' ? 'シークレットを入力' : 'Enter secret'); ?>"
+               autocomplete="new-password"
+               class="w-full rounded border border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary text-black dark:text-white">
+        <?php if ($v->hasSecret): ?><p class="mt-1 text-xs text-bodydark2"><?php echo $lang === 'ja' ? '変更する場合のみ入力してください' : 'Leave blank to keep the current secret'; ?></p><?php endif; ?>
+      </div>
+      <?php
+      ui('formField', [
+        'name'        => 'scopes',
+        'label'       => $lang === 'ja' ? 'スコープ' : 'Scopes',
+        'value'       => $v->provider['scopes'] ?? '',
+        'placeholder' => 'openid profile email',
+        'help'        => $lang === 'ja' ? '空白区切り。空欄時は openid profile email' : 'Space-separated. Defaults to "openid profile email" if empty',
+      ]);
+      ?>
     </div>
-    <?php endif; ?>
+
+    <!-- ═══════════════════════════════════════════
+         SAML 2.0
+    ════════════════════════════════════════════ -->
+    <div x-show="choice === 'saml'" x-cloak>
+      <div class="mb-4 border-t border-stroke pt-4 dark:border-strokedark">
+        <h4 class="mb-1 font-semibold text-black dark:text-white">SAML 2.0</h4>
+        <p class="text-xs text-bodydark2"><?php echo $lang === 'ja' ? 'エンタープライズ IdP (Okta / ADFS 等)' : 'Enterprise IdP (Okta, ADFS, etc.)'; ?></p>
+      </div>
+      <?php
+      ui('formField', [
+        'name'        => 'issuer_or_metadata_url',
+        'label'       => $lang === 'ja' ? 'Issuer / メタデータ URL' : 'Issuer / Metadata URL',
+        'value'       => $v->provider['issuer_or_metadata_url'] ?? '',
+        'placeholder' => 'https://idp.example.com/metadata',
+        'help'        => $lang === 'ja' ? 'IdP の Entity ID または SSO URL / メタデータ URL' : 'IdP Entity ID, SSO URL, or metadata URL',
+      ]);
+      ui('formField', [
+        'name'        => 'entity_id',
+        'label'       => 'SP Entity ID',
+        'value'       => $cfg['entity_id'] ?? '',
+        'placeholder' => 'https://your-app.example.com/saml/metadata',
+        'help'        => $lang === 'ja' ? '空の場合は ACS URL がデフォルト' : 'Defaults to the ACS URL if empty',
+      ]);
+      ui('formField', [
+        'name'    => 'nameid_format',
+        'label'   => 'NameID Format',
+        'type'    => 'select',
+        'value'   => $cfg['nameid_format'] ?? 'urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress',
+        'options' => [
+          'urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress'   => 'Email Address',
+          'urn:oasis:names:tc:SAML:2.0:nameid-format:persistent'     => 'Persistent',
+          'urn:oasis:names:tc:SAML:2.0:nameid-format:transient'      => 'Transient',
+          'urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified'    => 'Unspecified',
+        ],
+      ]);
+      ui('formField', [
+        'name'        => 'idp_x509_cert',
+        'label'       => $lang === 'ja' ? 'IdP 証明書 (X.509 PEM)' : 'IdP Certificate (X.509 PEM)',
+        'type'        => 'textarea',
+        'value'       => $cfg['idp_x509_cert'] ?? '',
+        'rows'        => 6,
+        'placeholder' => "-----BEGIN CERTIFICATE-----\nMIID...\n-----END CERTIFICATE-----",
+        'help'        => $lang === 'ja' ? 'IdP のメタデータから取得した X.509 証明書' : 'X.509 certificate from your IdP metadata',
+      ]);
+      ui('formField', [
+        'name'        => 'sp_x509_cert',
+        'label'       => $lang === 'ja' ? 'SP 証明書 (X.509 PEM, オプション)' : 'SP Certificate (X.509 PEM, optional)',
+        'type'        => 'textarea',
+        'value'       => $cfg['sp_x509_cert'] ?? '',
+        'rows'        => 4,
+        'placeholder' => "-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----",
+        'help'        => $lang === 'ja' ? 'SP リクエスト署名用（任意）' : 'For SP request signing (optional)',
+      ]);
+      ui('formField', [
+        'name'        => 'sp_private_key',
+        'label'       => $lang === 'ja' ? 'SP 秘密鍵 (PEM, オプション)' : 'SP Private Key (PEM, optional)',
+        'type'        => 'textarea',
+        'value'       => $cfg['sp_private_key'] ?? '',
+        'rows'        => 4,
+        'placeholder' => "-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----",
+        'help'        => $lang === 'ja' ? 'SP 証明書に対応する秘密鍵（任意）' : 'Matching private key for the SP certificate (optional)',
+      ]);
+      ?>
+    </div>
+
+    <!-- ── Advanced: claim mapping ── -->
+    <div class="mb-4 border-t border-stroke pt-4 dark:border-strokedark">
+      <details>
+        <summary class="cursor-pointer text-xs font-semibold uppercase tracking-wider text-bodydark2">
+          <?php echo $lang === 'ja' ? '詳細設定' : 'Advanced'; ?>
+        </summary>
+        <div class="mt-3">
+          <?php
+          ui('formField', [
+            'name'        => 'claim_mapping_raw',
+            'label'       => $lang === 'ja' ? 'クレームマッピング (JSON)' : 'Claim Mapping Overrides (JSON)',
+            'type'        => 'textarea',
+            'value'       => $claimOverridesJson,
+            'rows'        => 4,
+            'placeholder' => '{"subject": "sub", "email": "email", "display_name": "name"}',
+            'help'        => $lang === 'ja'
+              ? 'IdP クレーム名のカスタムマッピング。_config は上の設定から自動生成されます'
+              : 'Custom claim name overrides. _config is built automatically from the fields above',
+          ]);
+          ?>
+        </div>
+      </details>
+    </div>
 
     <!-- ── Toggles ── -->
-    <div class="mb-5.5 flex flex-wrap items-center gap-6">
+    <div class="mb-5 flex flex-wrap items-center gap-6">
       <label class="flex cursor-pointer select-none items-center gap-2 text-black dark:text-white">
         <input type="checkbox" name="enabled" class="mr-1" <?php echo !empty($v->provider['enabled']) ? 'checked' : ''; ?>>
         <?php echo $lang === 'ja' ? '有効' : 'Enabled'; ?>
       </label>
       <label class="flex cursor-pointer select-none items-center gap-2 text-black dark:text-white">
         <input type="checkbox" name="is_default" class="mr-1" <?php echo !empty($v->provider['is_default']) ? 'checked' : ''; ?>>
-        <?php echo $lang === 'ja' ? 'デフォルトに設定（ログイン画面で最初に表示）' : 'Set as default (shown first on login screen)'; ?>
+        <?php echo $lang === 'ja' ? 'デフォルトに設定' : 'Set as Default'; ?>
       </label>
     </div>
 
-    <!-- ── Advanced: claim mapping overrides ── -->
-    <details class="mb-6">
-      <summary class="cursor-pointer text-sm font-medium text-bodydark2 hover:text-primary"><?php echo $lang === 'ja' ? '詳細設定（クレームマッピング）' : 'Advanced (claim mapping overrides)'; ?></summary>
-      <div class="mt-3">
-        <?php
-        ui('formField', [
-          'name'        => 'claim_mapping_raw',
-          'label'       => $lang === 'ja' ? 'クレームマッピング (JSON)' : 'Claim Mapping Overrides (JSON)',
-          'type'        => 'textarea',
-          'value'       => $claimOverridesJson,
-          'rows'        => 4,
-          'placeholder' => '{"subject": "sub", "email": "email", "display_name": "name"}',
-          'help'        => $lang === 'ja' ? 'IdP クレーム名が標準と異なる場合のみ設定してください' : 'Only needed when IdP claim names differ from the OIDC standard',
-        ]);
-        ?>
-      </div>
-    </details>
+    <!-- ═══════════════════════════════════════════
+         STEP 3 — Verify Connection
+    ════════════════════════════════════════════ -->
+    <div class="mb-5 border-t border-stroke pt-4 dark:border-strokedark">
+      <p class="mb-3 text-sm font-medium text-black dark:text-white">
+        <?php echo $lang === 'ja' ? '接続テスト' : 'Test Connection'; ?>
+      </p>
+      <p class="mb-3 text-xs text-bodydark2">
+        <?php echo $lang === 'ja'
+          ? 'Issuer URL（SAML の場合はメタデータ URL）が到達可能かどうかを確認します。'
+          : 'Checks whether the Issuer URL (or SAML metadata URL) is reachable and returns a valid response.'; ?>
+      </p>
+      <button type="button"
+              @click="verify()"
+              :disabled="verifyStatus === 'loading'"
+              class="inline-flex items-center gap-2 rounded border border-stroke bg-white px-4 py-2 text-sm font-medium text-black transition hover:border-primary hover:text-primary dark:border-strokedark dark:bg-boxdark dark:text-white dark:hover:border-primary dark:hover:text-primary disabled:opacity-50">
+        <svg class="h-4 w-4" x-show="verifyStatus !== 'loading'" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span x-show="verifyStatus !== 'loading'"><?php echo $lang === 'ja' ? '接続を確認する' : 'Verify Connection'; ?></span>
+        <span x-show="verifyStatus === 'loading'" x-cloak><?php echo $lang === 'ja' ? '確認中...' : 'Checking…'; ?></span>
+      </button>
 
+      <div class="mt-3" x-show="verifyStatus !== null" x-cloak>
+        <div x-show="verifyStatus === 'ok'" class="ta-alert ta-alert-success" role="status">
+          <svg class="mt-0.5 h-5 w-5 shrink-0" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="m4 12 5 5L20 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <div class="grow" x-text="verifyMsg"></div>
+        </div>
+        <div x-show="verifyStatus === 'error'" class="ta-alert ta-alert-danger" role="alert">
+          <svg class="mt-0.5 h-5 w-5 shrink-0" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.5"/>
+            <path d="M12 8v4m0 4h.01" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+          <div class="grow" x-text="verifyMsg"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════
+         STEP 4 — Save
+    ════════════════════════════════════════════ -->
     <?php
     ui('button', [
-      'label'      => $isEdit ? ($lang === 'ja' ? '更新する' : 'Update') : ($lang === 'ja' ? '保存する' : 'Save'),
+      'label'      => $lang === 'ja' ? '保存する' : 'Save',
       'type'       => 'submit',
       'variant'    => 'primary',
       'extraClass' => 'w-full justify-center',
     ]);
     ?>
-  </form>
+
+  </div><!-- /step 2 -->
+
+</form>
 
 <?php
-    },
-  ]);
+  }
+]);
 ?>
 
-<?php } ?>
+<?php endif; ?>
 
 <?php }; ?>
-
-<?php
-// ── Shared rendering helpers ──────────────────────────────────────────────────
-
-function renderUrlBox(string $url, bool $withCopy, string $lang): string
-{
-    $esc = htmlspecialchars($url);
-    $id  = 'url_' . substr(md5($url), 0, 6);
-    $box = '<div class="flex items-center gap-2">'
-         . '<input type="text" readonly id="'.$id.'" value="'.$esc.'"'
-         . ' class="w-full rounded border border-stroke bg-gray-2 py-2 px-3 font-mono text-sm text-black dark:border-form-strokedark dark:bg-meta-4 dark:text-white"'
-         . ' onclick="this.select()">'
-         . '</div>';
-    if ($withCopy) {
-        $box = '<div class="flex items-center gap-2">'
-             . '<input type="text" readonly id="'.$id.'" value="'.$esc.'"'
-             . ' class="w-full rounded border border-stroke bg-gray-2 py-2 px-3 font-mono text-sm text-black dark:border-form-strokedark dark:bg-meta-4 dark:text-white"'
-             . ' onclick="this.select()">'
-             . '<button type="button" onclick="navigator.clipboard.writeText(\''.$esc.'\')" class="shrink-0 rounded border border-stroke bg-white px-3 py-2 text-xs font-medium text-bodydark2 hover:border-primary hover:text-primary dark:border-strokedark dark:bg-boxdark" title="Copy">📋</button>'
-             . '</div>';
-    }
-    return $box;
-}
-
-function renderOidcCredentials(object $v, string $lang): void
-{
-    ui('formField', [
-      'name'        => 'client_id',
-      'label'       => 'Client ID',
-      'value'       => $v->provider['client_id'] ?? '',
-      'placeholder' => 'your-client-id',
-    ]);
-    ?>
-    <div class="mb-4">
-      <label for="client_secret" class="mb-2.5 block font-medium text-black dark:text-white">
-        Client Secret
-      </label>
-      <input type="password" id="client_secret" name="client_secret"
-             value=""
-             placeholder="<?php echo $v->hasSecret ? '●●●●●●●● ('.($lang==='ja'?'変更する場合のみ入力':'enter only to replace').')' : ($lang==='ja'?'シークレットを入力':'Enter client secret'); ?>"
-             autocomplete="new-password"
-             class="w-full rounded border border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary text-black dark:text-white">
-      <?php if ($v->hasSecret): ?>
-        <p class="mt-1 text-sm text-bodydark2"><?php echo $lang === 'ja' ? '既にシークレットが設定されています。変更する場合のみ入力してください。' : 'A secret is already set. Enter a new value only to replace it.'; ?></p>
-      <?php endif; ?>
-    </div>
-    <?php
-}
-
-function renderScopesField(object $v, string $lang, string $default, string $help): void
-{
-    ui('formField', [
-      'name'        => 'scopes',
-      'label'       => $lang === 'ja' ? 'スコープ' : 'Scopes',
-      'value'       => $v->provider['scopes'] ?? '',
-      'placeholder' => $default,
-      'help'        => $help,
-    ]);
-}
-?>

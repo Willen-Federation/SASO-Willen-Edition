@@ -41,7 +41,7 @@
           </h6>
           <p class="card-text text-muted small">
             AWS マネージド認証。<strong>リージョン</strong>・<strong>ユーザープール ID</strong>・
-            <strong>クライアント ID</strong>・<strong>クライアントシークレット</strong>で設定完了。
+            <strong>クライアント ID</strong>・<strong>クライアントシークレット</strong>で設定完了.
           </p>
         </div>
       </div>

@@ -5,22 +5,37 @@ declare(strict_types=1);
 namespace Saso\Presentation\Api\V1;
 
 use PDO;
+use Saso\Application\Common\IdempotencyService;
+use Saso\Application\Enrichment\EnrichmentPipeline;
+use Saso\Application\Enrichment\Step\AiVisionStep;
+use Saso\Application\Enrichment\Step\IsbnLookupStep;
+use Saso\Application\Enrichment\Step\JanLookupStep;
+use Saso\Application\Enrichment\Step\MergeStep;
+use Saso\Application\Messaging\Handler\ProcessItemDraftHandler;
+use Saso\Application\Mobile\JwtGuard;
+use Saso\Domain\Messaging\Message\ProcessItemDraft;
 use Saso\Domain\MobileConnect\Jwt\JwtService;
+use Saso\Infrastructure\Ai\AiAssistantFactory;
 use Saso\Infrastructure\Auth\Crypto\SecretEncryptor;
 use Saso\Infrastructure\Auth\Repository\PdoAuthProviderRepository;
 use Saso\Infrastructure\Barcode\PdoBarcodeRepository;
+use Saso\Infrastructure\Category\PdoCategoryRepository;
 use Saso\Infrastructure\FeatureFlag\PdoFeatureFlagRepository;
+use Saso\Infrastructure\ItemDraft\PdoItemDraftRepository;
 use Saso\Infrastructure\Logging\MonologFactory;
 use Saso\Infrastructure\Messaging\MessageBusFactory;
 use Saso\Infrastructure\MobileConnect\PdoDeviceTokenRepository;
 use Saso\Infrastructure\MobileConnect\PdoPairingCodeRepository;
 use Saso\Infrastructure\MobileConnect\QrCodeRenderer;
+use Saso\Infrastructure\Setting\PdoSystemSettingService;
+use Saso\Infrastructure\StorageLocation\PdoStorageLocationRepository;
 use Saso\Infrastructure\Translation\TranslatorFactory;
 use Saso\Infrastructure\Translation\TranslatorRegistry;
 use Saso\Presentation\Api\V1\Controller\Auth\ProviderGetController;
 use Saso\Presentation\Api\V1\Controller\Auth\ProviderListController;
 use Saso\Presentation\Api\V1\Controller\Auth\ProviderTestController;
 use Saso\Presentation\Api\V1\Controller\Barcode\BarcodeGetController;
+use Saso\Presentation\Api\V1\Controller\Category\ListCategoriesController;
 use Saso\Presentation\Api\V1\Controller\Config\FieldsController;
 use Saso\Presentation\Api\V1\Controller\FeatureFlag\FeatureFlagCreateController;
 use Saso\Presentation\Api\V1\Controller\FeatureFlag\FeatureFlagDeleteController;
@@ -28,7 +43,11 @@ use Saso\Presentation\Api\V1\Controller\FeatureFlag\FeatureFlagGetController;
 use Saso\Presentation\Api\V1\Controller\FeatureFlag\FeatureFlagListController;
 use Saso\Presentation\Api\V1\Controller\FeatureFlag\FeatureFlagUpdateController;
 use Saso\Presentation\Api\V1\Controller\HealthController;
+use Saso\Presentation\Api\V1\Controller\Item\CreateItemController;
 use Saso\Presentation\Api\V1\Controller\Item\DraftCreateController;
+use Saso\Presentation\Api\V1\Controller\Item\GetItemController;
+use Saso\Presentation\Api\V1\Controller\Item\ListItemsController;
+use Saso\Presentation\Api\V1\Controller\Item\UpdateItemController;
 use Saso\Presentation\Api\V1\Controller\Mobile\ConfigBundleController;
 use Saso\Presentation\Api\V1\Controller\Mobile\ConnectController;
 use Saso\Presentation\Api\V1\Controller\Mobile\DiscoveryController;
@@ -37,6 +56,9 @@ use Saso\Presentation\Api\V1\Controller\Mobile\TokenListController;
 use Saso\Presentation\Api\V1\Controller\Mobile\TokenRefreshController;
 use Saso\Presentation\Api\V1\Controller\Mobile\TokenRevokeController;
 use Saso\Presentation\Api\V1\Controller\OpenApiController;
+use Saso\Presentation\Api\V1\Controller\StorageLocation\GetStorageLocationController;
+use Saso\Presentation\Api\V1\Controller\StorageLocation\ListStorageLocationsController;
+use Saso\Presentation\Api\V1\Controller\StorageLocation\StorageLocationItemsController;
 use Saso\Presentation\Api\V1\Controller\SwaggerUiController;
 use Saso\Presentation\Http\I18n\LocaleResolver;
 use Saso\Presentation\Http\Problem\ProblemExceptionHandler;
@@ -72,7 +94,7 @@ final class Bootstrap
         );
 
         $spec     = OpenApiSpec::load(self::specPath());
-        $handlers = self::handlerMap($spec);
+        $handlers = self::handlerMap($spec, $logger);
 
         $router = new Router($spec, $handlers, $exceptionHandler);
         $router->dispatch($request, $locale);
@@ -81,7 +103,7 @@ final class Bootstrap
     /**
      * @return array<string, callable(HttpRequest): \Saso\Presentation\Api\V1\Response\HttpResponse>
      */
-    private static function handlerMap(OpenApiSpec $spec): array
+    private static function handlerMap(OpenApiSpec $spec, \Psr\Log\LoggerInterface $logger): array
     {
         $health    = new HealthController();
         $openApi   = new OpenApiController($spec);
@@ -108,28 +130,65 @@ final class Bootstrap
         $tokenRevoke  = new TokenRevokeController($tokenRepo);
         $tokenRefresh = new TokenRefreshController($tokenRepo, $jwt);
 
-        $barcodeRepo = new PdoBarcodeRepository($pdo);
-        $barcodeGet  = new BarcodeGetController($barcodeRepo);
+        // Shared encryption key (APP_KEY → 32 bytes)
+        $encryptor = new SecretEncryptor(self::encryptionKey());
 
-        $bus          = MessageBusFactory::create([]);
-        $draftCreate  = new DraftCreateController($pdo, $bus, $jwt);
-        $configFields = new FieldsController($pdo);
+        // Auth provider controllers
+        $authProviders    = new PdoAuthProviderRepository($pdo, $encryptor);
+        $providerList     = new ProviderListController($authProviders);
+        $providerGet      = new ProviderGetController($authProviders);
+        $providerTest     = new ProviderTestController($authProviders);
 
-        $authProviderRepo = self::createAuthProviderRepository($pdo);
-        $providerList     = new ProviderListController($authProviderRepo);
-        $providerGet      = new ProviderGetController($authProviderRepo);
-        $providerTest     = new ProviderTestController($authProviderRepo);
+        // Discovery
+        $serverName = (string) (getenv('APP_NAME') ?: 'SASO');
+        $version    = (string) (getenv('APP_VERSION') ?: '1.0.0');
+        $discovery  = new DiscoveryController($authProviders, $serverName, $version);
 
-        $discovery = new DiscoveryController(
-            providers: $authProviderRepo,
-            serverName: (string) (getenv('SASO_SERVER_NAME') ?: 'SASO'),
-            version: (string) (getenv('SASO_VERSION') ?: '1.0.0'),
+        // Item draft (createItemDraft) — full enrichment pipeline
+        $settings   = new PdoSystemSettingService($pdo, $encryptor);
+        $ai         = AiAssistantFactory::forVision($settings);
+        $pipeline   = new EnrichmentPipeline(
+            new IsbnLookupStep(),
+            new JanLookupStep(),
+            new AiVisionStep($ai),
+            new MergeStep(),
         );
+        $draftRepo    = new PdoItemDraftRepository($pdo);
+        $draftHandler = new ProcessItemDraftHandler($draftRepo, $pipeline, $logger);
+        $bus          = MessageBusFactory::create([ProcessItemDraft::class => [$draftHandler]]);
+        $draftCreate  = new DraftCreateController($pdo, $bus, $jwt);
+
+        // Config fields + barcode
+        $fields  = new FieldsController($pdo);
+        $barcode = new BarcodeGetController(new PdoBarcodeRepository($pdo));
+
+        // Item / Category / StorageLocation endpoints (JWT required)
+        $guard       = new JwtGuard($jwt);
+        $idempotency = new IdempotencyService($pdo);
+        $categories  = new PdoCategoryRepository($pdo);
+        $locations   = new PdoStorageLocationRepository($pdo);
+
+        $listItems   = new ListItemsController($pdo, $guard);
+        $getItem     = new GetItemController($pdo, $guard);
+        $createItem  = new CreateItemController($pdo, $guard, $idempotency);
+        $updateItem  = new UpdateItemController($pdo, $guard, $idempotency);
+
+        $listCategories = new ListCategoriesController($categories, $guard);
+
+        $listLocations  = new ListStorageLocationsController($locations, $guard);
+        $getLocation    = new GetStorageLocationController($locations, $guard);
+        $locationItems  = new StorageLocationItemsController($pdo, $guard);
 
         return [
             'getHealth'       => [$health, 'handle'],
             'getOpenApiSpec'  => [$openApi, 'yaml'],
             'getSwaggerUi'    => [$swaggerUi, 'page'],
+
+            'listAuthProviders' => [$providerList, 'handle'],
+            'getAuthProvider'   => [$providerGet, 'handle'],
+            'testAuthProvider'  => [$providerTest, 'handle'],
+
+            'getMobileDiscovery' => [$discovery, 'handle'],
 
             'listFeatureFlags'  => [$flagList, 'handle'],
             'createFeatureFlag' => [$flagCreate, 'handle'],
@@ -137,22 +196,28 @@ final class Bootstrap
             'updateFeatureFlag' => [$flagUpdate, 'handle'],
             'deleteFeatureFlag' => [$flagDelete, 'handle'],
 
-            'createPairingCode'   => [$qr, 'handle'],
-            'mobileConnect'       => [$connect, 'handle'],
-            'refreshMobileToken'  => [$tokenRefresh, 'handle'],
-            'getMobileConfig'     => [$configBundle, 'handle'],
-            'getMobileDiscovery'  => [$discovery, 'handle'],
-            'listDeviceTokens'    => [$tokenList, 'handle'],
-            'revokeDeviceToken'   => [$tokenRevoke, 'handle'],
+            'createPairingCode'  => [$qr, 'handle'],
+            'mobileConnect'      => [$connect, 'handle'],
+            'refreshMobileToken' => [$tokenRefresh, 'handle'],
+            'getMobileConfig'    => [$configBundle, 'handle'],
+            'listDeviceTokens'   => [$tokenList, 'handle'],
+            'revokeDeviceToken'  => [$tokenRevoke, 'handle'],
 
-            'getBarcode'        => [$barcodeGet, 'handle'],
+            'createItemDraft' => [$draftCreate, 'handle'],
 
-            'createItemDraft'   => [$draftCreate, 'handle'],
-            'getConfigFields'   => [$configFields, 'handle'],
+            'getConfigFields' => [$fields, 'handle'],
+            'getBarcode'      => [$barcode, 'handle'],
 
-            'listAuthProviders' => [$providerList, 'handle'],
-            'getAuthProvider'   => [$providerGet, 'handle'],
-            'testAuthProvider'  => [$providerTest, 'handle'],
+            'listItems'   => [$listItems, 'handle'],
+            'getItem'     => [$getItem, 'handle'],
+            'createItem'  => [$createItem, 'handle'],
+            'updateItem'  => [$updateItem, 'handle'],
+
+            'listCategories' => [$listCategories, 'handle'],
+
+            'listStorageLocations'     => [$listLocations, 'handle'],
+            'getStorageLocation'       => [$getLocation, 'handle'],
+            'listStorageLocationItems' => [$locationItems, 'handle'],
         ];
     }
 
@@ -181,18 +246,6 @@ final class Bootstrap
         );
     }
 
-    private static function createAuthProviderRepository(PDO $pdo): PdoAuthProviderRepository
-    {
-        $appKey = (string) (getenv('APP_KEY') ?: '');
-        if ($appKey !== '') {
-            $raw = base64_decode($appKey, true);
-            if ($raw !== false && strlen($raw) === 32) {
-                return new PdoAuthProviderRepository($pdo, new SecretEncryptor($raw));
-            }
-        }
-        return new PdoAuthProviderRepository($pdo, new SecretEncryptor(SecretEncryptor::generateKey()));
-    }
-
     /**
      * Resolves the JWT signing secret.
      *
@@ -217,5 +270,22 @@ final class Bootstrap
         $dsn    = (string) ($config['database']['dsn'] ?? 'saso-fallback');
 
         return hash('sha256', 'saso-jwt-'.$dsn, binary: true);
+    }
+
+    /**
+     * Derives a 32-byte AES-256 key from APP_KEY for at-rest encryption.
+     * Uses a domain-separated HMAC so the key is distinct from jwtSecret().
+     */
+    private static function encryptionKey(): string
+    {
+        $appKey = getenv('APP_KEY');
+        if (is_string($appKey) && $appKey !== '') {
+            return hash_hmac('sha256', 'saso-encrypt', $appKey, binary: true);
+        }
+
+        $config = \saso\ConfigLoader::load();
+        $dsn    = (string) ($config['database']['dsn'] ?? 'saso-fallback');
+
+        return hash('sha256', 'saso-encrypt-'.$dsn, binary: true);
     }
 }

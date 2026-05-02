@@ -18,7 +18,14 @@ final class ExtendAttributeDefinition extends AbstractMigration
     {
         $table = $this->table('item_attribute_definition');
 
-        if (!$this->hasColumn('item_attribute_definition', 'show_on_mobile')) {
+        $result = $this->fetchRow(
+            "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS
+             WHERE TABLE_NAME = 'item_attribute_definition'
+             AND COLUMN_NAME = 'show_on_mobile'
+             AND TABLE_SCHEMA = DATABASE()"
+        );
+
+        if (!$result) {
             $table
                 ->addColumn('show_on_mobile', 'boolean', [
                     'null'    => false,
@@ -53,8 +60,15 @@ final class ExtendAttributeDefinition extends AbstractMigration
                 COMMENT 'Drives form widget + storage column on item_attribute_value.'
         ");
 
-        $table = $this->table('item_attribute_definition');
-        if ($this->hasColumn('item_attribute_definition', 'show_on_mobile')) {
+        $result = $this->fetchRow(
+            "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS
+             WHERE TABLE_NAME = 'item_attribute_definition'
+             AND COLUMN_NAME = 'show_on_mobile'
+             AND TABLE_SCHEMA = DATABASE()"
+        );
+
+        if ($result) {
+            $table = $this->table('item_attribute_definition');
             $table
                 ->removeColumn('show_on_mobile')
                 ->removeColumn('show_on_web')

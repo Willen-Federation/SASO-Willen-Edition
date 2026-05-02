@@ -4,8 +4,13 @@ namespace saso\item;
 use saso\framework\DIContainer;
 use saso\framework\View;
 use saso\repository\DBConnection;
+use Saso\Application\Messaging\ProcessItemDraftDIContainer;
 use Saso\Domain\Messaging\Message\ProcessItemDraft;
+use Saso\Infrastructure\Auth\Crypto\SecretEncryptor;
+use Saso\Infrastructure\FeatureFlag\PdoFeatureFlagRepository;
+use Saso\Infrastructure\ItemDraft\PdoItemDraftRepository;
 use Saso\Infrastructure\Messaging\MessageBusFactory;
+use Saso\Infrastructure\Setting\PdoSystemSettingService;
 
 final class DraftRetryDIContainer implements DIContainer
 {
@@ -51,12 +56,13 @@ final class DraftRetryDIContainer implements DIContainer
 
         // Re-dispatch
         try {
+            $draftRepository = new PdoItemDraftRepository($pdo);
+            $settingService = new PdoSystemSettingService($pdo, new SecretEncryptor());
+            $flagRepository = new PdoFeatureFlagRepository($pdo);
+            $handler = ProcessItemDraftDIContainer::createHandler($draftRepository, $settingService, $flagRepository);
+
             $bus = MessageBusFactory::create([
-                ProcessItemDraft::class => [
-                    static function (ProcessItemDraft $msg): void {
-                        // Async transport will handle real processing
-                    },
-                ],
+                ProcessItemDraft::class => [$handler],
             ]);
             $bus->dispatch(new ProcessItemDraft($draftId));
         } catch (\Throwable $e) {

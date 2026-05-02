@@ -25,8 +25,13 @@ final class CreateLabelSheetLayout extends AbstractMigration
     public function up(): void
     {
         $this->table('label_sheet_layout', [
-            'comment' => 'Pre-configured commercial label sheet layouts (KOKUYO / A-One / Hisago / Avery / custom).',
+            'id'           => false,
+            'primary_key'  => 'id',
+            'engine'       => 'InnoDB',
+            'collation'    => 'utf8mb4_unicode_ci',
+            'comment'      => 'Pre-configured commercial label sheet layouts (KOKUYO / A-One / Hisago / Avery / custom).',
         ])
+            ->addColumn('id', 'biginteger', ['signed' => false, 'identity' => true])
             ->addColumn('code', 'string', [
                 'limit'   => 64,
                 'null'    => false,

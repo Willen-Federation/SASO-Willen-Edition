@@ -430,7 +430,7 @@
       var fd = new FormData(form);
       // FormData includes every field on the form. The CSRF token hidden
       // input is already on the form, so it ships automatically.
-      fetch('./auth/provider/?action=test', {
+      fetch('?action=test', {
         method: 'POST',
         body: fd,
         credentials: 'same-origin',

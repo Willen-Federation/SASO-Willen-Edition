@@ -15,8 +15,9 @@ final class AuthController implements Controller
         ?GettableController $anotherCtrl=null
     )
     {
-        $restoredPath = preg_replace('/error\/1\//', '', $query['restoredPath']);
-        $isError = preg_match('/error\/1\//', $query['restoredPath']) === 1;
+        $path = (string) ($query['restoredPath'] ?? '');
+        $restoredPath = preg_replace('/error\/1\//', '', $path);
+        $isError = preg_match('/error\/1\//', $path) === 1;
         $this->data = new AuthInput(
             $restoredPath,
             $isError,

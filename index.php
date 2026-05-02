@@ -78,6 +78,24 @@ if ($requestPath === '/mcp') {
     exit;
 }
 
+// --- Debug endpoints (GET /debug/ai-status, POST /debug/ai-probe) ----------
+// Local-only AI debugging endpoints. Requires APP_DEBUG=true or .ENV file.
+// GET /debug/ai-status — returns AI provider, key config, assistant class.
+// POST /debug/ai-probe — accepts { image_base64, text }, runs AiVisionStep.
+if (str_starts_with($requestPath, '/debug/ai-')) {
+    $now = new \DateTime('now', new \DateTimeZone('UTC'));
+    $debugContainer = new \saso\debug\AiDebugDIContainer();
+    $debugContainer->di(
+        static fn () => null,
+        $_GET ?? [],
+        $_POST ?? [],
+        $config,
+        $now,
+    );
+    $view = $debugContainer->flow();
+    exit;
+}
+
 // --- M1 security hotfix: session cookie hardening ---------------------------
 // HttpOnly blocks document.cookie reads, SameSite=Lax mitigates CSRF on
 // top-level navigations, and Secure is set whenever config.https is true so
@@ -142,7 +160,11 @@ if (preg_match('#^/auth/(?:start|callback|saml/acs|saml/sls)/(\d+)/?$#', $reques
         $providers  = new \Saso\Infrastructure\Auth\Repository\PdoAuthProviderRepository($pdo, $encryptor);
         $extIds     = new \Saso\Infrastructure\Auth\Repository\PdoExternalIdentityRepository($pdo);
         $baseScheme = $onHttps ? 'https://' : 'http://';
-        $baseUrl    = $baseScheme.($_SERVER['HTTP_HOST'] ?? 'localhost').rtrim((string) ($config['programDir'] ?? ''), '/');
+        $programDir = rtrim((string) ($config['programDir'] ?? ''), '/');
+        if ($programDir !== '' && !str_starts_with($programDir, '/')) {
+            $programDir = '/' . $programDir;
+        }
+        $baseUrl    = $baseScheme.($_SERVER['HTTP_HOST'] ?? 'localhost').$programDir;
         $factory    = new \Saso\Infrastructure\Auth\AuthProviderFactory($providers, $pdo, $baseUrl);
         $orch       = new \Saso\Application\Auth\LoginOrchestrator($factory, $extIds, $pdo);
         $providerId = new \Saso\Domain\Auth\AuthProviderId($providerIdInt);
@@ -392,7 +414,7 @@ if(file_exists($installerRoute)) {
 }
 
 $input = new UserCompiler(
-    $_SERVER['REQUEST_URI'],
+    $requestPath,
     json_decode(file_get_contents('php://input'), true)??$_POST,
     $config,
     $authed,

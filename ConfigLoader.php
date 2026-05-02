@@ -31,6 +31,12 @@ final class ConfigLoader
         }
         $config = json_decode(file_get_contents(self::$configFile), true);
         $env = EnvLoader::loadFile($relative.'.env');
+        // Populate PHP's environment variables from .env so getenv() calls work
+        foreach ($env as $key => $value) {
+            if (!getenv($key)) {
+                putenv("$key=$value");
+            }
+        }
         $config = self::overlayEnv($config, $env);
         $config = self::overlayDb($config);
         return self::regularization($config);

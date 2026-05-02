@@ -10,8 +10,7 @@
     "auth": {
         "start": "\\saso\\auth\\AuthDIContainer",
         "logout": "\\saso\\auth\\LogoutDIContainer",
-        "password": "\\saso\\auth\\PasswordDIContainer",
-        "providerNew": "\\saso\\auth\\ProviderNewDIContainer"
+        "password": "\\saso\\auth\\PasswordDIContainer"
     },
     "authExt": {
         "providers": "\\saso\\authExt\\ProvidersDIContainer",
@@ -133,7 +132,6 @@
     },
     "admin": {
         "feature-flags": "\\saso\\admin\\FeatureFlagsDIContainer",
-        "auth-providers": "\\saso\\admin\\AuthProvidersDIContainer",
         "aiSettings": "\\saso\\admin\\AiSettingsDIContainer"
     }
 }

@@ -32,5 +32,10 @@ interface StorageLocationRepository
 
     public function save(StorageLocation $location): StorageLocation;
 
+    /**
+     * @return list<StorageLocation>
+     */
+    public function listPinned(): array;
+
     public function delete(int $id): void;
 }

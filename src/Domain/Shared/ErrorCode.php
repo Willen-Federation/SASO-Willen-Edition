@@ -37,6 +37,10 @@ enum ErrorCode: string
     case MobileTokenExpired          = 'SASO-MOBILE-2006';
     case MobileInvalidRequest        = 'SASO-MOBILE-2007';
 
+    // ── Item catalogue (3xxx) ────────────────────────────────────────────
+    case ItemNotFound          = 'SASO-ITEM-3001';
+    case LocationNotFound      = 'SASO-ITEM-3002';
+
     // ── Configuration (6xxx) ─────────────────────────────────────────────
     case ConfigSettingNotFound = 'SASO-CONFIG-6001';
 
@@ -95,6 +99,9 @@ enum ErrorCode: string
             self::MobileTokenRevoked,
             self::MobileTokenExpired,
             self::MobileInvalidRequest         => 400,
+
+            self::ItemNotFound,
+            self::LocationNotFound             => 404,
 
             self::ConfigSettingNotFound,
             self::FlagNotFound                 => 404,
@@ -162,6 +169,8 @@ enum ErrorCode: string
             self::MobileTokenRevoked           => 'Device token has been revoked',
             self::MobileTokenExpired           => 'Device token has expired',
             self::MobileInvalidRequest         => 'Invalid mobile connect request',
+            self::ItemNotFound                 => 'Item not found',
+            self::LocationNotFound             => 'Storage location not found',
             self::ConfigSettingNotFound        => 'System setting not found',
             self::FlagNotFound                 => 'Feature flag not found',
             self::AiProviderNotConfigured      => 'AI provider is not configured',

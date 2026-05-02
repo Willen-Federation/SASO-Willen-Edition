@@ -83,3 +83,329 @@ error:
   SASO-INFRA-9004:
     title: 許可されていないメソッドです
     detail: このエンドポイントでは要求された HTTP メソッドはサポートされていません。
+
+# =============================================================================
+# UI namespace (M6-J3) — TailAdmin シェルとコンポーネントの日本語訳。
+# キー構成は en.yaml と同一。
+# =============================================================================
+
+ui:
+  app:
+    title: 'SASO {version}'
+  sidebar:
+    home: ホーム
+    label_first: 印刷 → 登録
+    item: 商品
+    item_register: 商品登録
+    item_archive: アーカイブ一覧
+    item_archiveAll: 一括アーカイブ
+    shelf: 棚
+    shelf_create: 棚番作成
+    shelf_map: 棚マップ
+    verify: データ照合
+    label: ラベル
+    label_print: 印刷
+    label_size: サイズ管理
+    category: 分類管理
+    search: 検索
+    users: ユーザー管理
+    flags: フィーチャーフラグ
+    auth_providers: 認証プロバイダ
+    password: パスワード
+    barcode_sheet: バーコードシート
+    shelf_simple: 棚番設定
+    drafts: "下書き物品"
+    scan_stock: "スキャン＆在庫"
+    ai_settings: "AI設定"
+    group:
+      main: メイン
+      inventory: 在庫
+      label: ラベル
+      admin: 管理
+  dashboard:
+    quick_links: クイックリンク
+    item_register_help: 新しい商品をカタログに追加します。
+    barcode_sheet_help: ユニークなバーコードのシートを印刷します。
+    shelf_simple_help: 棚番の範囲を素早く設定します。
+    verify_help: 棚卸や個別照合を実行します。
+    shelf_help: 詳細な棚番管理とシール印刷を行います。
+    label_help: 商品用のバーコードラベルを生成します。
+    archive_help: アーカイブされた商品を閲覧します。
+    archive_all_help: すべてのアクティブな商品を一括でアーカイブします。
+    category_help: 分類ツリーを管理します。
+    label_size_help: A4ラベルシートのレイアウトを構成します。
+    password_help: サインイン用のパスワードを変更します。
+  nav:
+    home: ホーム
+  button:
+    save: 保存
+    cancel: キャンセル
+    delete: 削除
+    submit: 送信
+    back: 戻る
+    close: 閉じる
+    dismiss: 閉じる
+    edit: 編集
+  user_menu:
+    change_password: パスワード変更
+    logout: ログアウト
+  installer:
+    unfinished: 'まだインストールが済んでいないなら、「'
+    link: installer/start
+    unfinished_tail: '」にアクセスしてください。すでにインストール済みなら、フォルダ「installer」を削除してください。'
+  footer:
+    copyright: '© {year} SASO — Willen Edition'
+    version: 'バージョン {version}'
+  pagination:
+    summary: 'ページ {current} / {last}'
+    prev: 前へ
+    next: 次へ
+  table:
+    empty: 'データがありません'
+  a11y:
+    skip_to_main: メインコンテンツへスキップ
+    sidebar: メイン
+    main_nav: メインナビゲーション
+    breadcrumb: パンくずリスト
+    pagination: ページネーション
+    tabs: タブ
+    toggle_sidebar: サイドバーの開閉
+    switch_to_dark: ダークモードに切り替え
+    switch_to_light: ライトモードに切り替え
+    lang_switcher: 言語を切り替え
+  auth:
+    login_title: サインイン
+    login_subtitle: 通常のID/パスワード、または外部IDプロバイダでサインインできます。
+    invalid_credentials: ID またはパスワードが正しくありません。
+    sign_in_with: '{name} でサインイン'
+    or_local: または
+    field:
+      id: ログインID
+      password: パスワード
+    submit: ログイン
+  auth_providers:
+    title: 認証プロバイダ
+    add: プロバイダを追加
+    forbidden_title: 管理者権限が必要です
+    forbidden_body: 認証プロバイダを管理するには role=admin のユーザーでサインインしてください。
+    table_caption: 設定済みの認証プロバイダ
+    empty: プロバイダが未登録です。Auth0 / Cognito / Firebase / 汎用OIDC / SAML を追加してください。
+    col:
+      flavor: 種別
+      name: 名前
+      issuer: Issuer / Metadata
+      status: 状態
+    status:
+      active: 有効
+      disabled: 無効
+    help:
+      title: この画面について
+      body: '本リリースでは閲覧専用です。Phinx マイグレーション M4/20260426120002_create_auth_provider.php で行を投入してください。作成/編集フォームは次リリースで提供します。'
+    form:
+      add_title: 認証プロバイダを追加
+      edit_title: 認証プロバイダを編集
+      back: 一覧に戻る
+      pick_prompt: 追加するプロバイダの種類を選択してください。
+      change_type: プロバイダ種別を変更
+      register_heading: プロバイダ側に登録が必要な URL
+      url_note: 正確な URL（割り当てられた ID 付き）は、初回保存後にここに表示されます。
+      auth0_where: 'Auth0 ダッシュボード → Applications → アプリ → Settings'
+      cognito_where: 'AWS コンソール → Cognito → ユーザープール → アプリ統合 → アプリクライアント → コールバック URL'
+      advanced: 詳細設定
+      submit_save: 保存する
+      submit_update: 更新する
+      card:
+        auth0_desc: ホスト型ログイン・ソーシャル連携
+        cognito_desc: AWS ユーザープール
+        saml_desc: 企業 IdP
+        oidc_desc: 汎用 OIDC / OAuth2
+      url:
+        callback: 許可するコールバック URL
+        logout: 許可するログアウト URL
+        acs: ACS URL (Assertion Consumer Service)
+        sls: SLS URL (Single Logout Service)
+      field:
+        name: プロバイダ名
+        name_ph: 例：My Auth0 App
+        auth0_domain: Auth0 ドメイン
+        auth0_domain_help: 'Auth0 ダッシュボード → Applications → Domain に表示されます。例：yourapp.auth0.com'
+        cognito_region: リージョン
+        cognito_pool: ユーザープール ID
+        issuer_computed: 'Issuer URL:'
+        discovery_url: Discovery URL
+        discovery_url_help: OIDC ディスカバリーエンドポイント（/.well-known/openid-configuration）
+        metadata_url: IdP メタデータ URL
+        metadata_url_help: IdP の XML メタデータ URL、または IdP の SSO URL
+        entity_id: SP エンティティ ID
+        entity_id_help: 空の場合は ACS URL が SP エンティティ ID として使用されます
+        nameid_format: NameID フォーマット
+        idp_cert: IdP 証明書（X.509 PEM）
+        idp_cert_help: IdP メタデータから X.509 証明書を貼り付けてください
+        sp_cert: SP 証明書（X.509 PEM、任意）
+        sp_key: SP 秘密鍵（PEM、任意）
+        client_id_ph: クライアント ID
+        secret_keep: 空欄のままにすると現在の値を維持します
+        secret_ph: クライアントシークレットを入力
+        secret_set: シークレットは設定済みです。変更する場合のみ入力してください。
+        scopes: スコープ
+        scopes_help: '半角スペース区切り。空の場合は "openid profile email" がデフォルトです。'
+        claim_mapping: クレームマッピング上書き（JSON）
+        claim_mapping_help: IdP クレーム名のカスタムマッピング。_config は自動生成されます。
+        enabled: 有効
+        is_default: デフォルトに設定
+
+  password:
+    title: パスワード変更
+    subtitle: パスワードはどこかに書き留めておいてください。忘れると復元できません。
+    changed: パスワードが変更されました。
+    wrong_current: 現在のパスワードが正しくありません。
+    help: '半角英数、8〜20文字。'
+    mismatch: パスワードが一致しません。
+    field:
+      now: 現在のパスワード
+      new: 新しいパスワード
+      confirm: 新しいパスワード確認
+    submit: パスワード変更
+  category:
+    title: 分類ツリー
+    add_root: ルート分類を追加
+    help: '分類の追加・名称変更・並び替えができます。ドラッグは未対応のため、各行のインライン操作をご利用ください。'
+    empty: '読み込み中…'
+  item:
+    register:
+      title: 商品の新規登録
+      submit: 商品を登録
+      image_section_title: "商品写真"
+      image_drop: "写真をドロップまたはタップして選択"
+      take_photo: "写真を撮影"
+      skip_image: "手動で入力"
+      skip_image_confirm: "写真なしで登録しますか？写真のない物品は後で識別しにくくなります。"
+      ai_queued: "確認待ちリストに追加しました。AIが画像を解析中です。"
+      ai_badge: "AI提案"
+      draft_confirm_title: "内容確認・登録"
+    draft:
+      list_title: "確認待ち物品"
+      status_queued: "待機中"
+      status_processing: "処理中…"
+      status_ready: "確認待ち"
+      status_failed: "エラー"
+      confirm_btn: "確認・登録"
+      discard_btn: "破棄"
+      discard_confirm: "この下書きを破棄しますか？元に戻すことはできません。"
+    field:
+      name: 商品名
+      name_help: 50字以内。
+      name_ph: コットンTシャツ
+      category: 分類
+      selected_category: '選択中の分類：'
+      deselect_category: 選択解除
+      price: 価格
+      price_help: '9桁まで、カンマ区切り可。'
+      colors: 色
+      colors_help: 複数入力する場合は半角カンマで区切ります。
+      sizes: サイズ
+      sizes_help: '複数入力する場合は半角カンマで区切ります。色数×サイズ数 ≤ 100。'
+      packaging: 梱包
+      plastic: プラ
+      plastic_note: 付記（任意）
+      paper: 紙
+      paper_note: 付記（任意）
+  not_found:
+    title: ページが見つかりません
+    body: お探しのページは存在しません。
+  label_wizard:
+    title: '印刷→登録（ラベル先行）'
+    step1: ラベルシートの選択
+    step1_help: プリンターにセットするシートを選んでください。選んだシートに合わせてコードを発行します。
+    step2: 発行 & 印刷
+    step2_help: 数量を選んで PDF をダウンロードし、プリンターにセットします。
+    count: ラベル枚数
+    print: '発行して PDF を取得'
+    step3: 商品にひも付け
+    step3_help: 印刷したラベルをスキャンして、商品情報に関連付けます。
+    step3_note: '発行後、サイドバーの「保留中のラベル」から確認できます。'
+    go_to_pending: 保留中のラベルを開く
+    requirements_title: マイグレーションの実行が必要です
+    requirements_body: 'barcode_pool / barcode_batch / label_sheet_layout / location_map テーブルを作成するため、M6 マイグレーション 20260428120000–20260428120004 を実行してください。'
+  verify:
+    title: データ照合
+    start_title: 照合セッションを開始
+    start_help: 'モードと範囲を選択してから、スキャンを開始します。セッションが active のうちは /verify/{id} で再開できます。'
+    mode: モード
+    area: エリアコード
+    area_help: 特定の棚エリアに限定する場合に指定します。空欄の場合は倉庫全体が対象になります。
+    begin: セッション開始
+    recent: 最近のセッション
+    recent_caption: 直近の照合セッション
+    no_recent: まだ照合セッションが記録されていません。
+    mode.stocktake: 棚卸（全数）
+    mode.spot: 個別照合
+    mcp_title: モバイル / MCP
+    mcp_body: 'モバイル端末は MCP ツール start_verification_session / record_verification_scan / complete_verification_session / get_verification_summary でフロー全体を操作できます。'
+    col:
+      mode: モード
+      started: 開始
+      status: 状態
+  feature_flags:
+    title: フィーチャーフラグ
+    refresh: 再読込
+    forbidden_title: 管理者権限が必要です
+    forbidden_body: フィーチャーフラグを管理するには role=admin のユーザーでサインインしてください。
+    table_caption: 登録済みのフィーチャーフラグ
+    empty: フラグが未登録です。M4 の feature_flag マイグレーションを実行し、REST API でシードしてください。
+    col:
+      key: キー
+      description: 説明
+      rollout: ロールアウト
+      status: 状態
+    status:
+      active: 有効
+      disabled: 無効
+      tripped: ブレーカ作動中
+    help:
+      title: 更新方法
+      body: 'REST API /api/v1/feature-flags もしくは MCP ツール list_feature_flags / update_feature_flag で切替できます。インライン編集画面は次リリースで提供します。'
+  member:
+    title: ユーザー管理
+    list_title: ユーザー一覧
+    add_button: ユーザーを登録
+    col_id: ユーザーID
+    col_name: 名前
+    col_role: 権限
+    col_actions: 操作
+    empty: ユーザーが登録されていません。
+    edit: 編集
+    delete: 削除
+    confirm_delete: このユーザーを削除しますか？
+  settings:
+    title: システム設定
+    forbidden_title: 管理者権限が必要です
+    forbidden_body: 設定を管理するには role=admin のユーザーでサインインしてください。
+  scanner:
+    open: "バーコード/QRスキャン"
+    scanning: "スキャン中…"
+    camera_denied: "カメラへのアクセスが拒否されました。設定を確認してください。"
+    close: "閉じる"
+  scan_stock:
+    title: "スキャンして在庫登録"
+    mode_stock: "入庫"
+    mode_shipment: "出庫"
+    mode_inventory: "棚卸"
+    submit: "登録"
+  ai_settings:
+    title: "AI設定"
+    provider_section: "AIプロバイダー"
+    vision_provider: "画像認識プロバイダー"
+    chat_provider: "チャットプロバイダー"
+    api_keys_section: "APIキー"
+    prompts_section: "抽出プロンプト"
+    prompt_ja: "日本語プロンプト"
+    prompt_en: "英語プロンプト"
+    batch_section: "バッチ処理"
+    rate_limit: "レート制限（リクエスト/分）"
+    save: "設定を保存"
+    saved: "設定を保存しました。"
+    provider_none: "なし（無効）"
+    provider_openai: "OpenAI（GPT-4o）"
+    provider_gemini: "Google Gemini"
+    provider_claude: "Anthropic Claude"

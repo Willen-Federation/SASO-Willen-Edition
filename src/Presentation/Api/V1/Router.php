@@ -49,7 +49,17 @@ final class Router
     public function dispatch(HttpRequest $request, ?string $locale = null): void
     {
         try {
-            $info = $this->dispatcher->dispatch($request->method, $request->path);
+            $prefix = $this->spec->document()['servers'][0]['url'] ?? '';
+            $path   = $request->path;
+
+            if ($prefix !== '' && str_starts_with($path, $prefix)) {
+                $path = substr($path, strlen($prefix));
+                if ($path === '') {
+                    $path = '/';
+                }
+            }
+
+            $info = $this->dispatcher->dispatch($request->method, $path);
 
             switch ($info[0]) {
                 case Dispatcher::NOT_FOUND:
@@ -69,7 +79,7 @@ final class Router
 
                     $resolvedRequest = new HttpRequest(
                         method: $request->method,
-                        path: $request->path,
+                        path: $path,
                         headers: $request->headers,
                         query: $request->query,
                         pathParams: $vars,

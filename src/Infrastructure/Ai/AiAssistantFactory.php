@@ -13,14 +13,14 @@ final class AiAssistantFactory
 {
     public static function forVision(SystemSettingService $settings): AiAssistant
     {
-        $provider = self::resolveProvider('ai.provider.vision', $settings);
+        $provider = self::resolveProvider('ai.provider_vision', $settings);
 
         return self::buildForProvider($provider, $settings);
     }
 
     public static function forChat(SystemSettingService $settings): AiAssistant
     {
-        $provider = self::resolveProvider('ai.provider.chat', $settings);
+        $provider = self::resolveProvider('ai.provider_chat', $settings);
 
         return self::buildForProvider($provider, $settings);
     }
@@ -49,7 +49,7 @@ final class AiAssistantFactory
 
     private static function buildOpenAi(SystemSettingService $settings): AiAssistant
     {
-        $keys = self::resolveKeys('ai.openai.api_keys', 'OPENAI_API_KEY', $settings);
+        $keys = self::resolveKeys('ai.openai_api_keys', 'OPENAI_API_KEY', $settings);
 
         if (count($keys) === 1) {
             return new OpenAiAssistant(OpenAI::client($keys[0]));
@@ -65,7 +65,7 @@ final class AiAssistantFactory
 
     private static function buildGemini(SystemSettingService $settings): AiAssistant
     {
-        $keys = self::resolveKeys('ai.gemini.api_keys', 'GEMINI_API_KEY', $settings);
+        $keys = self::resolveKeys('ai.gemini_api_keys', 'GEMINI_API_KEY', $settings);
 
         if (count($keys) === 1) {
             return new GeminiAssistant($keys[0]);
@@ -81,7 +81,7 @@ final class AiAssistantFactory
 
     private static function buildClaude(SystemSettingService $settings): AiAssistant
     {
-        $keys = self::resolveKeys('ai.anthropic.api_keys', 'ANTHROPIC_API_KEY', $settings);
+        $keys = self::resolveKeys('ai.anthropic_api_keys', 'ANTHROPIC_API_KEY', $settings);
 
         if (count($keys) === 1) {
             return new ClaudeAssistant($keys[0]);

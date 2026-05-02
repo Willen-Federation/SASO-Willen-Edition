@@ -62,6 +62,45 @@ final class LocaleResolverTest extends TestCase
         );
     }
 
+    public function testCookieLocaleWinsOverAcceptLanguage(): void
+    {
+        $resolver = new LocaleResolver();
+
+        self::assertSame(
+            'ja',
+            $resolver->resolve(
+                acceptLanguage: 'en-US,en;q=0.9',
+                cookieLocale: 'ja',
+            ),
+        );
+    }
+
+    public function testMemberLocaleWinsOverCookieLocale(): void
+    {
+        $resolver = new LocaleResolver();
+
+        self::assertSame(
+            'en',
+            $resolver->resolve(
+                memberLocale: 'en',
+                cookieLocale: 'ja',
+            ),
+        );
+    }
+
+    public function testCookieLocaleIgnoredIfUnsupported(): void
+    {
+        $resolver = new LocaleResolver();
+
+        self::assertSame(
+            'ja',
+            $resolver->resolve(
+                acceptLanguage: 'ja-JP',
+                cookieLocale: 'fr',
+            ),
+        );
+    }
+
     public function testAcceptLanguageHighestQualitySupportedSubtagWins(): void
     {
         $resolver = new LocaleResolver();
@@ -132,58 +171,6 @@ final class LocaleResolverTest extends TestCase
         self::assertSame(
             'ja',
             $resolver->resolve(acceptLanguage: 'ja'),
-        );
-    }
-
-    public function testCookieWinsOverAcceptLanguage(): void
-    {
-        $resolver = new LocaleResolver();
-
-        self::assertSame(
-            'ja',
-            $resolver->resolve(
-                acceptLanguage: 'en-US,en;q=0.9',
-                cookieLocale: 'ja',
-            ),
-        );
-    }
-
-    public function testCookieLosesToMemberLocale(): void
-    {
-        $resolver = new LocaleResolver();
-
-        self::assertSame(
-            'en',
-            $resolver->resolve(
-                memberLocale: 'en',
-                cookieLocale: 'ja',
-            ),
-        );
-    }
-
-    public function testCookieLosesToQueryLang(): void
-    {
-        $resolver = new LocaleResolver();
-
-        self::assertSame(
-            'en',
-            $resolver->resolve(
-                queryLang: 'en',
-                cookieLocale: 'ja',
-            ),
-        );
-    }
-
-    public function testUnsupportedCookieIsIgnored(): void
-    {
-        $resolver = new LocaleResolver();
-
-        self::assertSame(
-            'en',
-            $resolver->resolve(
-                acceptLanguage: 'en',
-                cookieLocale: 'fr',
-            ),
         );
     }
 }

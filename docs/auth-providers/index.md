@@ -10,9 +10,9 @@ SASO supports three kinds of authentication, plugged in behind a single `AuthPro
 
 Multiple instances of each type can be active simultaneously — operators register them in the admin UI (M4) and the login screen renders one button per enabled provider.
 
-## What is shipped
+## Status (M3-E)
 
-### Domain contract (M3-E)
+This PR ships the **contract**:
 
 - `Saso\Domain\Auth\AuthProvider` — the interface every provider implements.
 - `Saso\Domain\Auth\AuthProviderType` / `AuthProviderId` — discriminator + identity.
@@ -22,20 +22,17 @@ Multiple instances of each type can be active simultaneously — operators regis
 - `Saso\Domain\Auth\Exception\AuthFailedException` / `ProviderMisconfiguredException` — typed exceptions wired to the new `SASO-AUTH-1006/1007/1008` error codes.
 - `Saso\Infrastructure\Auth\Crypto\SecretEncryptor` — AES-256-GCM authenticated encryption for OIDC client secrets and SAML private keys at rest.
 
-### Admin UI & REST API (M4+)
+The Composer dependencies (`jumbojett/openid-connect-php`, `onelogin/php-saml`) are installed and available. Concrete `LocalProvider` / `OidcProvider` / `SamlProvider` implementations land in **M4**, alongside the `auth_provider` DB table and the admin UI.
 
-- `auth_provider` and `member_external_identity` tables (migration `20260426120002`).
-- `LocalProvider` / `OidcProvider` / `SamlProvider` — concrete adapters over `jumbojett/openid-connect-php` and `onelogin/php-saml`.
-- **Admin Web UI** at `/auth/provider/new` and `/auth/provider/{id}/edit`:
-  - Flavor cards (Generic OIDC · Auth0 · AWS Cognito · Firebase) reveal only the fields relevant to the chosen provider.
-  - Auth0: `domain` + optional `audience`; Discovery URL auto-built as `https://{domain}/.well-known/openid-configuration`.
-  - Cognito: `region` + `user_pool_id` + optional `hosted_ui_domain`; Discovery URL shown live.
-  - Firebase: `firebase_project_id` + optional `hd` (Workspace domain restriction); uses Google's discovery document.
-  - **Connection test button** — calls `POST /api/v1/auth/providers/{id}/test` and shows parsed OIDC endpoints or an error badge inline.
-  - Client secrets stored AES-256-GCM-encrypted with `APP_KEY`; the UI shows `●●●` — never plaintext.
-- **REST API** — see [`/docs/api.md`](../api.md#auth-providers) for the full reference.
-- Login screen renders one button per `enabled = 1` provider.
-- First-login auto-provisioning creates a `Member` from the IdP's `email`, `display_name`, and any claims in `claim_mapping`.
+## What lands in M4
+
+- `auth_provider` and `member_external_identity` tables (cf. ADR 0003).
+- `LocalProvider` — bridge to the existing legacy login flow.
+- `OidcProvider` — concrete adapter over `jumbojett/openid-connect-php`. Authorization Code + PKCE only; OIDC Discovery (`.well-known/openid-configuration`) accepted.
+- `SamlProvider` — concrete adapter over `onelogin/php-saml`. Web Browser SSO profile, ACS POST binding.
+- Admin Web UI for adding / editing / disabling providers. Client secrets stored AES-256-GCM-encrypted with `APP_KEY`; the UI shows `●●●` and a "Replace" button — never plaintext.
+- Login screen rendering one button per `enabled = 1` provider.
+- First-login auto-provisioning that creates a `Member` from the IdP's `email`, `display_name`, and any claims named in `claim_mapping`.
 
 ## Lockout safety
 

@@ -55,7 +55,11 @@ final class ProviderSaveUsecase implements Usecase
             clientId: $data->clientId !== '' ? $data->clientId : null,
             clientSecret: $secret,
             scopes: $data->scopes,
-            claimMapping: null,
+            // _config.flavor is what AuthProviderFactory::buildOidc() reads to
+            // pick the concrete provider class (Auth0, Cognito, …). Without it
+            // every wizard-saved row silently falls back to GenericOidcProvider
+            // and login surfaces SASO-AUTH-1006.
+            claimMapping: self::buildClaimMapping($data),
             // Half-configured shells (no secret yet) stay disabled so they
             // do not appear as a clickable button on the login screen.
             enabled: $secret !== null,
@@ -71,6 +75,37 @@ final class ProviderSaveUsecase implements Usecase
     public function output(): \saso\framework\View
     {
         return $this->presenter->complete(Either::of($this->output));
+    }
+
+    /**
+     * Builds the `claim_mapping` JSON blob persisted alongside the row.
+     *
+     * `_config.flavor` is the discriminator AuthProviderFactory::buildOidc()
+     * uses to pick the concrete provider class. Without it the wizard would
+     * silently downgrade Auth0 → GenericOidcProvider and login would surface
+     * SASO-AUTH-1006 even for syntactically-valid Auth0 settings. For Auth0
+     * we also stash `_config.domain` so Auth0Provider can use the bare host
+     * directly (it falls back to parse_url-on-the-issuer otherwise).
+     *
+     * @return array<string, array<string, string>>|null
+     */
+    private static function buildClaimMapping(DTO $data): ?array
+    {
+        $template = (string) $data->template;
+        if ($template === '' || $template === 'oidc' || $template === 'saml') {
+            return null;
+        }
+        $config = ['flavor' => $template];
+        if ($template === 'auth0') {
+            $issuerUrl = (string) $data->issuerUrl;
+            if ($issuerUrl !== '') {
+                $host = parse_url($issuerUrl, PHP_URL_HOST);
+                if (is_string($host) && $host !== '') {
+                    $config['domain'] = $host;
+                }
+            }
+        }
+        return ['_config' => $config];
     }
 
     private function validate(DTO $data): string

@@ -26,8 +26,6 @@ final class RootUsecase implements Usecase
             $data->authed,
             $data->matter,
             $data->action,
-            $data->currentLocale,
-            $data->supportedLocales,
         );
     }
 }

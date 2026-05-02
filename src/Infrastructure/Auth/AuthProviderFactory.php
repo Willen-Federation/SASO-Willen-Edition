@@ -12,7 +12,6 @@ use Saso\Domain\Auth\AuthProviderType;
 use Saso\Domain\Auth\Exception\ProviderMisconfiguredException;
 use Saso\Domain\Auth\Repository\AuthProviderRepository;
 use Saso\Infrastructure\Auth\Provider\Auth0Provider;
-use Saso\Infrastructure\Auth\Provider\BaseOidcProvider;
 use Saso\Infrastructure\Auth\Provider\CognitoProvider;
 use Saso\Infrastructure\Auth\Provider\FirebaseProvider;
 use Saso\Infrastructure\Auth\Provider\GenericOidcProvider;
@@ -84,12 +83,26 @@ final class AuthProviderFactory
         };
     }
 
-    private function buildOidc(AuthProviderRecord $record): BaseOidcProvider
+    private function buildOidc(AuthProviderRecord $record): AuthProvider
     {
         $cfg     = $record->claimMapping['_config'] ?? [];
         $flavor  = is_array($cfg) && isset($cfg['flavor']) && is_string($cfg['flavor'])
             ? strtolower($cfg['flavor'])
             : 'oidc';
+
+        // Rescue heuristic for rows saved by the pre-fix wizard, which
+        // persisted claim_mapping = NULL and therefore lost the flavor
+        // discriminator. Without this any *.auth0.com row would silently
+        // downgrade to GenericOidcProvider and surface SASO-AUTH-1006 at
+        // login time. Only kicks in when no flavor is stored, so explicit
+        // operator choices always win.
+        if ($flavor === 'oidc' && is_string($record->issuerOrMetadataUrl)) {
+            $host = parse_url($record->issuerOrMetadataUrl, PHP_URL_HOST);
+            if (is_string($host) && preg_match('/(^|\.)auth0\.com$/i', $host) === 1) {
+                $flavor = 'auth0';
+            }
+        }
+
         $callback = $this->makeCallbackUrl($record->id);
 
         return match ($flavor) {

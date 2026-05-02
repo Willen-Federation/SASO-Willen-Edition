@@ -23,9 +23,14 @@ services:
       - "8080:80"
     volumes:
       # Bind-mount the project so edits are picked up without rebuilding.
+      # The source lives at /var/www/html/saso/ to match `programDir: /saso/`
+      # in config.json — the app's file-path resolver concatenates
+      # documentRoot + programDir, so the on-disk layout has to match.
+      # Apache's DocumentRoot is also set to /var/www/html/saso so the URL
+      # root still serves index.php (see docker/apache/000-default.conf).
       # `:cached` is a macOS-only hint that improves bind-mount throughput;
       # ignored on Linux hosts.
-      - ./:/var/www/html:cached
+      - ./:/var/www/html/saso:cached
       - composer-cache:/root/.composer/cache
     environment:
       # `.env` overlays still apply — these env vars are visible to PHP via

@@ -26,6 +26,7 @@ final class ProviderView implements View
         'claim_mapping' => '{}',
     ];
     public string $message = '';
+    public string $messageVariant = 'danger';
     public string $title = '';
     public bool $hasSecret = false;
     public string $flavor = 'oidc';
@@ -53,6 +54,13 @@ final class ProviderView implements View
 
         if (!$this->authorized) {
             return;
+        }
+
+        // Pop one-shot flash hint (e.g. "now enter credentials") set by an earlier POST.
+        if (isset($_SESSION['flash.provider_new']) && is_string($_SESSION['flash.provider_new'])) {
+            $this->message = $_SESSION['flash.provider_new'];
+            $this->messageVariant = 'info';
+            unset($_SESSION['flash.provider_new']);
         }
 
         // Always compute base URLs (loginUrl is needed even for new mode)
@@ -85,7 +93,15 @@ final class ProviderView implements View
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $name             = (string) ($this->post['name'] ?? '');
             $type             = (string) ($this->post['type'] ?? 'oidc');
-            $enabled          = isset($this->post['enabled']) ? 1 : 0;
+            // The first-step "Create provider" submit has no credentials yet, so
+            // we *must* leave new rows disabled — otherwise the half-configured
+            // shell shows up on the sign-in page and clicking it throws
+            // ProviderMisconfiguredException. The edit mode form defaults the
+            // checkbox to checked when !hasSecret so the second submit (with
+            // credentials) flips enabled=1 in one click.
+            $enabled          = $this->mode === 'edit'
+                ? (isset($this->post['enabled']) ? 1 : 0)
+                : 0;
             $is_default       = isset($this->post['is_default']) ? 1 : 0;
             $issuer           = (string) ($this->post['issuer_or_metadata_url'] ?? '');
             $client_id        = (string) ($this->post['client_id'] ?? '');
@@ -96,6 +112,16 @@ final class ProviderView implements View
 
             if ($name === '') {
                 $this->message = 'Name is required.';
+                $this->messageVariant = 'danger';
+            } elseif ($this->mode === 'edit'
+                && $type === 'oidc'
+                && !$this->hasSecret
+                && $client_secret_raw === ''
+            ) {
+                // Brand-new shell row that has never had a secret; refuse to save
+                // so the provider cannot be enabled in a misconfigured state.
+                $this->message = 'Client Secret is required.';
+                $this->messageVariant = 'danger';
             } else {
                 if ($is_default) {
                     $pdo->exec('UPDATE auth_provider SET is_default = 0');
@@ -141,7 +167,12 @@ final class ProviderView implements View
                     header('Location: ./auth/providers/');
                 } else {
                     $newId = (int) $pdo->lastInsertId();
-                    header('Location: ./auth/provider/new?edit='.$newId);
+                    $_SESSION['flash.provider_new'] = 'Now enter the client credentials and Save again to activate this provider.';
+                    // Use path-style edit URL — the legacy router parses
+                    // /auth/provider/edit/{id} into $query['edit']={id}, but
+                    // /auth/provider/?edit={id} is NOT recognised (the query
+                    // string is dropped before the action map runs).
+                    header('Location: ./auth/provider/edit/'.$newId);
                 }
                 exit;
             }
@@ -162,6 +193,9 @@ final class ProviderView implements View
 
             if ($flavor === 'auth0') {
                 $d = trim((string) ($this->post['auth0_domain'] ?? ''));
+                if ($d === '') {
+                    $d = self::hostFromUrl((string) ($this->post['issuer_or_metadata_url'] ?? ''));
+                }
                 if ($d !== '') {
                     $config['domain'] = $d;
                 }
@@ -383,6 +417,16 @@ final class ProviderView implements View
             $this->acsUrl      = $base.'/auth/saml/acs/'.$id;
             $this->slsUrl      = $base.'/auth/saml/sls/'.$id;
         }
+    }
+
+    private static function hostFromUrl(string $url): string
+    {
+        $url = trim($url);
+        if ($url === '') {
+            return '';
+        }
+        $host = parse_url($url, PHP_URL_HOST);
+        return is_string($host) ? $host : '';
     }
 
     private function getEncryptor(): ?SecretEncryptor

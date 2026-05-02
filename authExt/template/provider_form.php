@@ -118,7 +118,7 @@ ui('card', [
   <input type="hidden" name="flavor" :value="choice">
 
   <?php if (!empty($v->message)): ?>
-    <?php ui('alert', ['variant' => 'danger', 'body' => $v->message]); ?>
+    <?php ui('alert', ['variant' => $v->messageVariant ?? 'danger', 'body' => $v->message]); ?>
   <?php endif; ?>
 
   <!-- ═══════════════════════════════════════════════════════
@@ -327,10 +327,16 @@ ui('card', [
       ui('formField', ['name' => 'client_id',  'label' => 'Client ID',     'value' => $v->provider['client_id'] ?? '', 'placeholder' => 'your-client-id']);
       ?>
       <div class="mb-4">
-        <label for="client_secret" class="mb-2.5 block font-medium text-black dark:text-white">Client Secret</label>
+        <label for="client_secret" class="mb-2.5 block font-medium text-black dark:text-white">
+          Client Secret
+          <?php if (!$v->hasSecret): ?><span class="text-danger" aria-hidden="true">*</span><?php endif; ?>
+        </label>
         <input type="password" id="client_secret" name="client_secret" value=""
-               placeholder="<?php echo $v->hasSecret ? '●●●●●●●● ('.$lang === 'ja' ? '変更時のみ入力' : 'enter only to change'.')' : ($lang === 'ja' ? 'シークレットを入力' : 'Enter secret'); ?>"
+               placeholder="<?php echo $v->hasSecret
+                   ? ($lang === 'ja' ? '●●●●●●●● （変更時のみ入力）' : '●●●●●●●● (enter only to change)')
+                   : ($lang === 'ja' ? 'シークレットを入力' : 'Enter secret'); ?>"
                autocomplete="new-password"
+               <?php if (!$v->hasSecret): ?>required<?php endif; ?>
                class="w-full rounded border border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary text-black dark:text-white">
         <?php if ($v->hasSecret): ?>
           <p class="mt-1 text-xs text-bodydark2"><?php echo $lang === 'ja' ? '変更する場合のみ入力してください' : 'Leave blank to keep the current secret'; ?></p>
@@ -341,10 +347,12 @@ ui('card', [
       <?php
       ui('formField', [
         'name'        => 'auth0_domain',
-        'label'       => $lang === 'ja' ? 'Auth0 ドメイン' : 'Auth0 Domain',
+        'label'       => $lang === 'ja' ? 'Auth0 ドメイン（オプション）' : 'Auth0 Domain (optional)',
         'value'       => $cfg['domain'] ?? '',
         'placeholder' => 'acme.eu.auth0.com',
-        'help'        => $lang === 'ja' ? 'ログアウト時の /v2/logout エンドポイント構築に使います' : 'Used to build the /v2/logout endpoint on sign-out',
+        'help'        => $lang === 'ja'
+            ? '空欄時は Issuer URL のホストを使います。ログアウト時の /v2/logout エンドポイント構築に使われます。'
+            : 'If blank, the Issuer URL host is used. Drives the /v2/logout endpoint on sign-out.',
       ]);
       ui('formField', [
         'name'        => 'auth0_audience',
@@ -398,10 +406,14 @@ ui('card', [
       ui('formField', ['name' => 'client_id', 'label' => 'Client ID', 'value' => $v->provider['client_id'] ?? '', 'placeholder' => 'your-app-client-id']);
       ?>
       <div class="mb-4">
-        <label for="client_secret" class="mb-2.5 block font-medium text-black dark:text-white">Client Secret</label>
+        <label for="client_secret" class="mb-2.5 block font-medium text-black dark:text-white">
+          Client Secret
+          <?php if (!$v->hasSecret): ?><span class="text-danger" aria-hidden="true">*</span><?php endif; ?>
+        </label>
         <input type="password" id="client_secret" name="client_secret" value=""
                placeholder="<?php echo $v->hasSecret ? '●●●●●●●●' : ($lang === 'ja' ? 'シークレットを入力' : 'Enter secret'); ?>"
                autocomplete="new-password"
+               <?php if (!$v->hasSecret): ?>required<?php endif; ?>
                class="w-full rounded border border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary text-black dark:text-white">
         <?php if ($v->hasSecret): ?><p class="mt-1 text-xs text-bodydark2"><?php echo $lang === 'ja' ? '変更する場合のみ入力してください' : 'Leave blank to keep the current secret'; ?></p><?php else: ?><p class="mt-1 text-xs text-danger"><?php echo $lang === 'ja' ? '⚠ シークレット未設定。入力して保存するまでログインできません。' : '⚠ No client secret stored. Sign-in will fail until a secret is saved.'; ?></p><?php endif; ?>
       </div>
@@ -454,10 +466,14 @@ ui('card', [
       ]);
       ?>
       <div class="mb-4">
-        <label for="client_secret" class="mb-2.5 block font-medium text-black dark:text-white">Client Secret</label>
+        <label for="client_secret" class="mb-2.5 block font-medium text-black dark:text-white">
+          Client Secret
+          <?php if (!$v->hasSecret): ?><span class="text-danger" aria-hidden="true">*</span><?php endif; ?>
+        </label>
         <input type="password" id="client_secret" name="client_secret" value=""
                placeholder="<?php echo $v->hasSecret ? '●●●●●●●●' : ($lang === 'ja' ? 'シークレットを入力' : 'Enter secret'); ?>"
                autocomplete="new-password"
+               <?php if (!$v->hasSecret): ?>required<?php endif; ?>
                class="w-full rounded border border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary text-black dark:text-white">
         <?php if ($v->hasSecret): ?><p class="mt-1 text-xs text-bodydark2"><?php echo $lang === 'ja' ? '変更する場合のみ入力してください' : 'Leave blank to keep the current secret'; ?></p><?php else: ?><p class="mt-1 text-xs text-danger"><?php echo $lang === 'ja' ? '⚠ シークレット未設定。入力して保存するまでログインできません。' : '⚠ No client secret stored. Sign-in will fail until a secret is saved.'; ?></p><?php endif; ?>
       </div>
@@ -513,10 +529,14 @@ ui('card', [
       ui('formField', ['name' => 'client_id', 'label' => 'Client ID', 'value' => $v->provider['client_id'] ?? '', 'placeholder' => 'your-client-id']);
       ?>
       <div class="mb-4">
-        <label for="client_secret" class="mb-2.5 block font-medium text-black dark:text-white">Client Secret</label>
+        <label for="client_secret" class="mb-2.5 block font-medium text-black dark:text-white">
+          Client Secret
+          <?php if (!$v->hasSecret): ?><span class="text-danger" aria-hidden="true">*</span><?php endif; ?>
+        </label>
         <input type="password" id="client_secret" name="client_secret" value=""
                placeholder="<?php echo $v->hasSecret ? '●●●●●●●●' : ($lang === 'ja' ? 'シークレットを入力' : 'Enter secret'); ?>"
                autocomplete="new-password"
+               <?php if (!$v->hasSecret): ?>required<?php endif; ?>
                class="w-full rounded border border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary text-black dark:text-white">
         <?php if ($v->hasSecret): ?><p class="mt-1 text-xs text-bodydark2"><?php echo $lang === 'ja' ? '変更する場合のみ入力してください' : 'Leave blank to keep the current secret'; ?></p><?php else: ?><p class="mt-1 text-xs text-danger"><?php echo $lang === 'ja' ? '⚠ シークレット未設定。入力して保存するまでログインできません。' : '⚠ No client secret stored. Sign-in will fail until a secret is saved.'; ?></p><?php endif; ?>
       </div>
@@ -623,7 +643,13 @@ ui('card', [
     <!-- ── Toggles ── -->
     <div class="mb-5 flex flex-wrap items-center gap-6">
       <label class="flex cursor-pointer select-none items-center gap-2 text-black dark:text-white">
-        <input type="checkbox" name="enabled" class="mr-1" <?php echo !empty($v->provider['enabled']) ? 'checked' : ''; ?>>
+        <?php
+          // Default to checked when this is a brand-new shell row (no secret
+          // stored yet) so the operator's first save-with-credentials flips
+          // enabled=1 in one click. Otherwise mirror the DB state.
+          $enabledDefault = !empty($v->provider['enabled']) || !$v->hasSecret;
+        ?>
+        <input type="checkbox" name="enabled" class="mr-1" <?php echo $enabledDefault ? 'checked' : ''; ?>>
         <?php echo $lang === 'ja' ? '有効' : 'Enabled'; ?>
       </label>
       <label class="flex cursor-pointer select-none items-center gap-2 text-black dark:text-white">

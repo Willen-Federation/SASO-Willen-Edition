@@ -6,9 +6,6 @@ namespace Saso\Tests\Integration\Ai;
 
 use PHPUnit\Framework\TestCase;
 use Saso\Application\Enrichment\Step\AiVisionStep;
-use Saso\Domain\Feature\FeatureFlag;
-use Saso\Domain\Feature\FeatureKey;
-use Saso\Domain\Feature\Repository\FeatureFlagRepository;
 use Saso\Domain\Setting\SystemSettingService;
 use Saso\Infrastructure\Ai\AiAssistantFactory;
 use Saso\Infrastructure\Auth\Crypto\SecretEncryptor;
@@ -42,7 +39,7 @@ final class AiPipelineIntegrationTest extends TestCase
                 $this->markTestSkipped('APP_KEY is not configured');
             }
         } catch (\PDOException $e) {
-            $this->markTestSkipped('Database is not available: '.$e->getMessage());
+            $this->markTestSkipped('Database is not available: ' . $e->getMessage());
         }
     }
 
@@ -51,7 +48,7 @@ final class AiPipelineIntegrationTest extends TestCase
         putenv('AI_PROVIDER=gemini');
 
         $aiAssistant = AiAssistantFactory::forVision($this->settingService);
-        $aiVisionStep = new AiVisionStep($aiAssistant, $this->enabledAiFlagRepo());
+        $aiVisionStep = new AiVisionStep($aiAssistant);
 
         $result = $aiVisionStep->run('', 'What is 2 + 2?', []);
 
@@ -76,7 +73,7 @@ final class AiPipelineIntegrationTest extends TestCase
 
         try {
             $aiAssistant = AiAssistantFactory::forVision($this->settingService);
-            $aiVisionStep = new AiVisionStep($aiAssistant, $this->enabledAiFlagRepo());
+            $aiVisionStep = new AiVisionStep($aiAssistant);
 
             $result = $aiVisionStep->run($tmpFile, 'Describe what you see in this image', []);
 
@@ -103,7 +100,7 @@ final class AiPipelineIntegrationTest extends TestCase
 
         try {
             $aiAssistant = AiAssistantFactory::forVision($this->settingService);
-            $aiVisionStep = new AiVisionStep($aiAssistant, $this->enabledAiFlagRepo());
+            $aiVisionStep = new AiVisionStep($aiAssistant);
 
             // This should either return an error or handle it gracefully
             $result = $aiVisionStep->run($tmpFile, 'Describe this', []);
@@ -126,48 +123,5 @@ final class AiPipelineIntegrationTest extends TestCase
         // Verify we got a real assistant, not NullAssistant
         $this->assertNotNull($aiAssistant);
         $this->assertNotEquals('Saso\Infrastructure\Ai\NullAssistant', get_class($aiAssistant));
-    }
-
-    private function enabledAiFlagRepo(): FeatureFlagRepository
-    {
-        return new class implements FeatureFlagRepository {
-            public function findByKey(FeatureKey $key): ?FeatureFlag
-            {
-                return new FeatureFlag(
-                    id: 1,
-                    key: $key,
-                    description: 'AI auto-judge',
-                    enabled: true,
-                    rolloutPercent: 100,
-                    conditions: null,
-                    errorThreshold: 0,
-                    errorWindowMinutes: 1,
-                    autoDisabledAt: null,
-                    autoDisableReason: null,
-                    createdAt: new \DateTimeImmutable(),
-                    updatedAt: new \DateTimeImmutable(),
-                );
-            }
-
-            public function findById(int $id): ?FeatureFlag
-            {
-                return null;
-            }
-
-            /** @return list<FeatureFlag> */
-            public function listAll(): array
-            {
-                return [];
-            }
-
-            public function save(FeatureFlag $flag): FeatureFlag
-            {
-                return $flag;
-            }
-
-            public function delete(int $id): void
-            {
-            }
-        };
     }
 }

@@ -11,11 +11,11 @@ final class ConfigLoaderTest extends TestCase
 {
     public function testEnvLoaderParsesBasicKeyValue(): void
     {
-        $tempDir = sys_get_temp_dir().'/saso_test_'.uniqid();
+        $tempDir = sys_get_temp_dir() . '/saso_test_' . uniqid();
         mkdir($tempDir);
 
         try {
-            $envPath = $tempDir.'/.env';
+            $envPath = $tempDir . '/.env';
             file_put_contents($envPath, "KEY=value\nFOO=bar\n");
 
             $env = EnvLoader::loadFile($envPath);
@@ -23,18 +23,18 @@ final class ConfigLoaderTest extends TestCase
             $this->assertEquals('value', $env['KEY']);
             $this->assertEquals('bar', $env['FOO']);
         } finally {
-            @unlink($tempDir.'/.env');
+            @unlink($tempDir . '/.env');
             @rmdir($tempDir);
         }
     }
 
     public function testEnvLoaderIgnoresComments(): void
     {
-        $tempDir = sys_get_temp_dir().'/saso_test_'.uniqid();
+        $tempDir = sys_get_temp_dir() . '/saso_test_' . uniqid();
         mkdir($tempDir);
 
         try {
-            $envPath = $tempDir.'/.env';
+            $envPath = $tempDir . '/.env';
             file_put_contents($envPath, "# Comment\nKEY=value\n# Another comment\nFOO=bar\n");
 
             $env = EnvLoader::loadFile($envPath);
@@ -42,18 +42,18 @@ final class ConfigLoaderTest extends TestCase
             $this->assertCount(2, $env);
             $this->assertEquals('value', $env['KEY']);
         } finally {
-            @unlink($tempDir.'/.env');
+            @unlink($tempDir . '/.env');
             @rmdir($tempDir);
         }
     }
 
     public function testEnvLoaderStripsQuotes(): void
     {
-        $tempDir = sys_get_temp_dir().'/saso_test_'.uniqid();
+        $tempDir = sys_get_temp_dir() . '/saso_test_' . uniqid();
         mkdir($tempDir);
 
         try {
-            $envPath = $tempDir.'/.env';
+            $envPath = $tempDir . '/.env';
             file_put_contents($envPath, "KEY=\"double quoted\"\nFOO='single quoted'");
 
             $env = EnvLoader::loadFile($envPath);
@@ -61,7 +61,7 @@ final class ConfigLoaderTest extends TestCase
             $this->assertEquals('double quoted', $env['KEY']);
             $this->assertEquals('single quoted', $env['FOO']);
         } finally {
-            @unlink($tempDir.'/.env');
+            @unlink($tempDir . '/.env');
             @rmdir($tempDir);
         }
     }
@@ -92,7 +92,7 @@ final class ConfigLoaderTest extends TestCase
     public function testEnvFileIsLoaded(): void
     {
         $projectRoot = dirname(dirname(dirname(__DIR__)));
-        $envPath = $projectRoot.'/.env';
+        $envPath = $projectRoot . '/.env';
 
         if (file_exists($envPath)) {
             $env = EnvLoader::loadFile($envPath);

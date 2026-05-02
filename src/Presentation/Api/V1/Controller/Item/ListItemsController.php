@@ -78,14 +78,14 @@ final class ListItemsController
 
         $binds['limit'] = $limit + 1;
         $stmt = $this->pdo->prepare(
-            "SELECT i.id, i.name, i.category_id, c.name_ja AS category_name, ".
-            "i.jan_code, i.stock, i.price, i.status, i.storage_location_id, ".
-            "i.created_at, i.updated_at ".
-            "FROM item i ".
-            "LEFT JOIN category c ON c.id = i.category_id ".
+            'SELECT i.id, i.name, i.category_id, c.name_ja AS category_name, '.
+            'i.jan_code, i.stock, i.price, i.status, i.storage_location_id, '.
+            'i.created_at, i.updated_at '.
+            'FROM item i '.
+            'LEFT JOIN category c ON c.id = i.category_id '.
             "WHERE {$whereClause} ".
-            "ORDER BY i.id ASC ".
-            "LIMIT :limit",
+            'ORDER BY i.id ASC '.
+            'LIMIT :limit',
         );
         $stmt->execute($binds);
         $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);

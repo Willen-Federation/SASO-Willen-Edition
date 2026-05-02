@@ -1,7 +1,7 @@
 {
   "$path_comment": "パス",
   "documentRoot": "/var/www/html/",
-  "programDir": "",
+  "programDir": "/saso/",
 
   "$database_comment": "データベース",
   "$database_secret_note": "Recommended: keep these placeholders and set DB_DSN/DB_USER/DB_PASSWORD in .env instead (see .env.example). Values from .env override the entries below.",

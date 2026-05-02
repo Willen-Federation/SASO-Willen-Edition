@@ -50,12 +50,15 @@ final class ListCategoriesController
 
     /**
      * @param list<Category> $all
+     *
      * @return list<array<string, mixed>>
      */
     private function buildTree(array $all): array
     {
         $roots = array_values(array_filter($all, static fn (Category $c): bool => $c->isRoot()));
-        usort($roots, static fn (Category $a, Category $b): int =>
+        usort(
+            $roots,
+            static fn (Category $a, Category $b): int =>
             $a->sortOrder !== $b->sortOrder ? $a->sortOrder - $b->sortOrder : $a->id - $b->id
         );
 
@@ -64,6 +67,7 @@ final class ListCategoriesController
 
     /**
      * @param list<Category> $all
+     *
      * @return array<string, mixed>
      */
     private function buildNode(Category $cat, array $all): array
@@ -72,7 +76,9 @@ final class ListCategoriesController
             $all,
             static fn (Category $c): bool => $c->parentId === $cat->id,
         ));
-        usort($children, static fn (Category $a, Category $b): int =>
+        usort(
+            $children,
+            static fn (Category $a, Category $b): int =>
             $a->sortOrder !== $b->sortOrder ? $a->sortOrder - $b->sortOrder : $a->id - $b->id
         );
 

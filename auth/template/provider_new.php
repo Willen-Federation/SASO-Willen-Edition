@@ -395,26 +395,19 @@
   }
 
   // ----------------------------------------------------------------------
-  //  Lightweight test-connection probe
+  //  Server-side test-connection probe
   //
-  //  Issues a HEAD request to the OIDC discovery endpoint derived from the
-  //  current form. Surfaces a pass/fail status next to the button. We use
-  //  no-cors mode because the discovery host will not (typically) send
-  //  CORS headers; an opaque response with status 0 still confirms the
-  //  hostname resolves and TLS handshakes successfully, which is the
-  //  realistic failure mode operators hit on first save.
+  //  Posts the relevant form fields to the wizard's `?action=test`
+  //  endpoint, which performs the OIDC discovery (or SAML metadata) fetch
+  //  server-side and validates the document. This replaces an earlier
+  //  client-side `fetch(..., { mode: 'no-cors' })` that returned an opaque
+  //  response with no body and status 0 — operators reported it both as
+  //  spurious failures *and* spurious successes.
   // ----------------------------------------------------------------------
-  function discoveryUrlFor(flavor, form) {
-    if (flavor === 'auth0') {
-      var d = normaliseAuth0Domain((form.querySelector('[name=auth0_domain]') || {}).value || '');
-      return d ? 'https://' + d + '/.well-known/openid-configuration' : null;
-    }
-    if (flavor === 'oidc') {
-      var u = ((form.querySelector('[name=oidc_issuer_url]') || {}).value || '').trim();
-      if (!u) return null;
-      return u.replace(/\/+$/, '') + '/.well-known/openid-configuration';
-    }
-    return null;
+  function escapeHtml(s) {
+    return String(s == null ? '' : s)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
   }
 
   document.querySelectorAll('[data-test-connection]').forEach(function (btn) {
@@ -422,21 +415,40 @@
       var flavor = btn.getAttribute('data-test-connection');
       var form = btn.closest('form');
       var resultEl = form.querySelector('#' + flavor + '-test-result');
-      var url = discoveryUrlFor(flavor, form);
-      if (!url) {
-        if (resultEl) resultEl.innerHTML = '<span class="text-danger">ドメインを入力してください。</span>';
-        return;
+
+      // Run the same client-side normalisation the server uses, so the
+      // value we POST matches the value the user is about to save.
+      var auth0Input = form.querySelector('[name=auth0_domain]');
+      if (auth0Input) {
+        auth0Input.value = normaliseAuth0Domain(auth0Input.value);
       }
+
       if (resultEl) resultEl.innerHTML = '<span class="text-muted">接続を確認中…</span>';
       btn.disabled = true;
       var t0 = Date.now();
-      fetch(url, { method: 'GET', mode: 'no-cors', cache: 'no-store', credentials: 'omit' })
-        .then(function () {
+
+      var fd = new FormData(form);
+      // FormData includes every field on the form. The CSRF token hidden
+      // input is already on the form, so it ships automatically.
+      fetch('./auth/provider/?action=test', {
+        method: 'POST',
+        body: fd,
+        credentials: 'same-origin',
+        cache: 'no-store',
+        headers: { 'Accept': 'application/json' },
+      })
+        .then(function (r) { return r.json().then(function (j) { return { status: r.status, json: j }; }); })
+        .then(function (resp) {
           var ms = Date.now() - t0;
-          if (resultEl) resultEl.innerHTML = '<span class="text-success">✓ 到達確認 (' + ms + 'ms)</span>';
+          var msg = (resp.json && resp.json.message) ? resp.json.message : ('HTTP ' + resp.status);
+          if (resp.json && resp.json.ok) {
+            if (resultEl) resultEl.innerHTML = '<span class="text-success">✓ ' + escapeHtml(msg) + ' (' + ms + 'ms)</span>';
+          } else {
+            if (resultEl) resultEl.innerHTML = '<span class="text-danger">✗ ' + escapeHtml(msg) + '</span>';
+          }
         })
         .catch(function (err) {
-          if (resultEl) resultEl.innerHTML = '<span class="text-danger">接続できません: ' + (err && err.message ? err.message : 'ネットワークエラー') + '</span>';
+          if (resultEl) resultEl.innerHTML = '<span class="text-danger">接続できません: ' + escapeHtml(err && err.message ? err.message : 'ネットワークエラー') + '</span>';
         })
         .finally(function () {
           btn.disabled = false;

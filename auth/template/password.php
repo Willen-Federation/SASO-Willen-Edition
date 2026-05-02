@@ -1,78 +1,28 @@
-<?php $this->title = __('ui.password.title', [], null, 'Change password'); ?>
-<?php $this->content = function ($v) { ?>
+<?php $this->title = 'パスワード変更'; ?>
+<?php $this->content = function($v) { ?>
 
-<div class="mx-auto max-w-md">
-  <?php
-    ui('card', [
-      'body' => function () use ($v) {
-  ?>
+<nav aria-label="breadcrumb">
+<ol class="breadcrumb">
+<li class="breadcrumb-item"><a href="./">ホーム</a></li>
+<li class="breadcrumb-item active">パスワード変更</li>
+</ol>
+</nav>
 
-    <h2 class="mb-1 text-title-sm font-semibold text-gray-800 dark:text-white/90">
-      <?php echo ui_text(__('ui.password.title', [], null, 'Change password')); ?>
-    </h2>
-    <p class="mb-4 text-theme-sm text-gray-500 dark:text-gray-400">
-      <?php echo ui_text(__('ui.password.subtitle', [], null, 'Save the new password somewhere safe — it cannot be recovered if lost.')); ?>
-    </p>
+<?php if($v->changed) { ?>
+<p class="text-success">パスワードが変更されました。</p>
+<?php } ?>
+<?php if($v->errorNow) { ?>
+<p class="text-danger">現在のパスワードが正しくありません。</p>
+<?php } ?>
 
-    <?php if ($v->changed) { ?>
-      <?php ui('alert', [
-        'variant' => 'success',
-        'body'    => __('ui.password.changed', [], null, 'Password updated successfully.'),
-      ]); ?>
-    <?php } ?>
-    <?php if ($v->errorNow) { ?>
-      <?php ui('alert', [
-        'variant' => 'danger',
-        'body'    => __('ui.password.wrong_current', [], null, 'The current password is not correct.'),
-      ]); ?>
-    <?php } ?>
+<p>パスワードはどこかに書き留めておいて下さい。忘れると、復元できません。<p>
+<form method="post" action="./start/password/">
+<p>現在のパスワード：<input id="nowPassword" type="password" name="now" pattern="^[0-9a-zA-Z]{8,20}$" maxlength="20" required><p>
 
-    <form method="post" action="./start/password/" class="mt-4">
-      <?php ui('formField', [
-        'name'         => 'now',
-        'id'           => 'nowPassword',
-        'label'        => __('ui.password.field.now', [], null, 'Current password'),
-        'type'         => 'password',
-        'required'     => true,
-        'autocomplete' => 'current-password',
-      ]); ?>
-      <?php ui('formField', [
-        'name'         => 'new',
-        'id'           => 'newPassword',
-        'label'        => __('ui.password.field.new', [], null, 'New password'),
-        'type'         => 'password',
-        'required'     => true,
-        'autocomplete' => 'new-password',
-        'help'         => __('ui.password.help', [], null, 'Half-width letters and digits, 8–20 chars.'),
-      ]); ?>
-      <?php ui('formField', [
-        'name'         => 'confirm',
-        'id'           => 'confirmPassword',
-        'label'        => __('ui.password.field.confirm', [], null, 'Confirm new password'),
-        'type'         => 'password',
-        'required'     => true,
-        'autocomplete' => 'new-password',
-      ]); ?>
+<p>新しいパスワード：<input id="newPassword" type="password" name="new" pattern="^[0-9a-zA-Z]{8,20}$" maxlength="20" required>（半角英数、8〜20文字）<p>
+<p>新しいパスワード確認：<input id="confirmPassword" type="password" name="confirm" pattern="^[0-9a-zA-Z]{8,20}$" maxlength="20" required><p>
+<p id="confirmPasswordError" class="hidden">パスワードが一致しません。</p>
+<p><input id="changePasswordSubmit" type="submit" value="パスワード変更" disabled><p>
+</form>
 
-      <p id="confirmPasswordError" class="hidden form-error">
-        <?php echo ui_text(__('ui.password.mismatch', [], null, 'Passwords do not match.')); ?>
-      </p>
-
-      <div class="flex justify-end">
-        <?php ui('button', [
-          'id'       => 'changePasswordSubmit',
-          'label'    => __('ui.password.submit', [], null, 'Change password'),
-          'type'     => 'submit',
-          'variant'  => 'primary',
-          'disabled' => true,
-        ]); ?>
-      </div>
-    </form>
-
-  <?php
-      },
-    ]);
-  ?>
-</div>
-
-<?php }; ?>
+<?php } ?>

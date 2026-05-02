@@ -13,10 +13,7 @@ final class RootController implements Controller
         array $config,
         bool $authed,
         string $matter,
-        string $action,
-        string $currentLocale = 'en',
-        /** @var list<string> */
-        array $supportedLocales = ['en', 'ja'],
+        string $action
     )
     {
         $protocol = filter_var($config['https']??'', \FILTER_VALIDATE_BOOL, [
@@ -42,8 +39,6 @@ final class RootController implements Controller
             $authed,
             $matter,
             $action,
-            $currentLocale,
-            $supportedLocales,
         );
     }
 }

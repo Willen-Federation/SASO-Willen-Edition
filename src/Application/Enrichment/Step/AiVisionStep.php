@@ -11,7 +11,7 @@ use Saso\Domain\Ai\Exception\AiRateLimitedException;
 use Saso\Domain\Ai\Exception\AiUpstreamException;
 use Saso\Domain\Ai\StructuredExtractionRequest;
 
-final class AiVisionStep
+final class AiVisionStep implements AiVisionStepInterface
 {
     private const EXTRACTION_SCHEMA = [
         'type'       => 'object',

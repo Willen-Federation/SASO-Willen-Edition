@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Saso\Application\Enrichment\Step;
 
-final class IsbnLookupStep
+final class IsbnLookupStep implements IsbnLookupStepInterface
 {
     /**
      * @return array<string, mixed>

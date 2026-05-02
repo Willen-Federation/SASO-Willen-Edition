@@ -41,7 +41,7 @@
           </h6>
           <p class="card-text text-muted small">
             AWS マネージド認証。<strong>リージョン</strong>・<strong>ユーザープール ID</strong>・
-            <strong>クライアント ID</strong>・<strong>クライアントシークレット</strong>で設定完了。
+            <strong>クライアント ID</strong>・<strong>クライアントシークレット</strong>で設定完了.
           </p>
         </div>
       </div>
@@ -430,7 +430,7 @@
       var fd = new FormData(form);
       // FormData includes every field on the form. The CSRF token hidden
       // input is already on the form, so it ships automatically.
-      fetch('./auth/provider/?action=test', {
+      fetch('?action=test', {
         method: 'POST',
         body: fd,
         credentials: 'same-origin',

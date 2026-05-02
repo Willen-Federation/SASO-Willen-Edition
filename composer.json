@@ -29,6 +29,7 @@
         "ext-pdo_mysql": "*",
         "ext-session": "*",
         "ext-zip": "*",
+        "auth0/auth0-php": "^8.19",
         "guzzlehttp/guzzle": "^7.8",
         "jumbojett/openid-connect-php": "^1.0",
         "monolog/monolog": "^3.7",

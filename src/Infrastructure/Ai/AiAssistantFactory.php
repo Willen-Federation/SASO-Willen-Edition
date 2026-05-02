@@ -51,6 +51,10 @@ final class AiAssistantFactory
     {
         $keys = self::resolveKeys('ai.openai_api_keys', 'OPENAI_API_KEY', $settings);
 
+        if ($keys === []) {
+            return new NullAssistant();
+        }
+
         if (count($keys) === 1) {
             return new OpenAiAssistant(OpenAI::client($keys[0]));
         }
@@ -67,6 +71,10 @@ final class AiAssistantFactory
     {
         $keys = self::resolveKeys('ai.gemini_api_keys', 'GEMINI_API_KEY', $settings);
 
+        if ($keys === []) {
+            return new NullAssistant();
+        }
+
         if (count($keys) === 1) {
             return new GeminiAssistant($keys[0]);
         }
@@ -82,6 +90,10 @@ final class AiAssistantFactory
     private static function buildClaude(SystemSettingService $settings): AiAssistant
     {
         $keys = self::resolveKeys('ai.anthropic_api_keys', 'ANTHROPIC_API_KEY', $settings);
+
+        if ($keys === []) {
+            return new NullAssistant();
+        }
 
         if (count($keys) === 1) {
             return new ClaudeAssistant($keys[0]);
@@ -103,6 +115,14 @@ final class AiAssistantFactory
         $envValue = getenv($envVar);
         if ($envValue !== false && $envValue !== '') {
             return [$envValue];
+        }
+
+        // Fallback to LOCAL_* variant for development environments
+        if ($envVar === 'GEMINI_API_KEY') {
+            $localValue = getenv('LOCAL_GEMINI_KEY');
+            if ($localValue !== false && $localValue !== '') {
+                return [$localValue];
+            }
         }
 
         $value = $settings->get(new SettingKey($settingKey));

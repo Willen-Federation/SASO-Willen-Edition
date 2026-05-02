@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Saso\Application\Enrichment\Step;
 
-final class JanLookupStep
+final class JanLookupStep implements JanLookupStepInterface
 {
     /**
      * @return array<string, mixed>

@@ -38,10 +38,6 @@ final readonly class StorageLocation
         public ?int $capacity = null,
         public ?string $notes = null,
         public StorageOperationalStatus $operationalStatus = StorageOperationalStatus::Available,
-        public ?string $areaCode = null,
-        public ?int $mapImageId = null,
-        public ?float $mapXRatio = null,
-        public ?float $mapYRatio = null,
     ) {
         if ($id < 1) {
             throw new InvalidArgumentException('StorageLocation.id must be a positive integer.');
@@ -67,12 +63,6 @@ final readonly class StorageLocation
         if ($capacity !== null && $capacity < 0) {
             throw new InvalidArgumentException('StorageLocation.capacity must be ≥ 0 or null.');
         }
-        if ($mapXRatio !== null && ($mapXRatio < 0 || $mapXRatio > 1)) {
-            throw new InvalidArgumentException('StorageLocation.mapXRatio must be between 0 and 1.');
-        }
-        if ($mapYRatio !== null && ($mapYRatio < 0 || $mapYRatio > 1)) {
-            throw new InvalidArgumentException('StorageLocation.mapYRatio must be between 0 and 1.');
-        }
     }
 
     public function isRoot(): bool
@@ -96,10 +86,6 @@ final readonly class StorageLocation
             capacity: $this->capacity,
             notes: $this->notes,
             operationalStatus: $this->operationalStatus,
-            areaCode: $this->areaCode,
-            mapImageId: $this->mapImageId,
-            mapXRatio: $this->mapXRatio,
-            mapYRatio: $this->mapYRatio,
         );
     }
 
@@ -119,10 +105,6 @@ final readonly class StorageLocation
             capacity: $this->capacity,
             notes: $this->notes,
             operationalStatus: $this->operationalStatus,
-            areaCode: $this->areaCode,
-            mapImageId: $this->mapImageId,
-            mapXRatio: $this->mapXRatio,
-            mapYRatio: $this->mapYRatio,
         );
     }
 }

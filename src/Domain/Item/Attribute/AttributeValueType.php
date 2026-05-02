@@ -15,14 +15,12 @@ namespace Saso\Domain\Item\Attribute;
  */
 enum AttributeValueType: string
 {
-    case String      = 'string';
-    case Int         = 'int';
-    case Float       = 'float';
-    case Bool        = 'bool';
-    case Enum        = 'enum';
-    case Barcode     = 'barcode';
-    case MultiSelect = 'multi_select';
-    case Tags        = 'tags';
+    case String  = 'string';
+    case Int     = 'int';
+    case Float   = 'float';
+    case Bool    = 'bool';
+    case Enum    = 'enum';
+    case Barcode = 'barcode';
 
     public function isNumeric(): bool
     {
@@ -32,10 +30,5 @@ enum AttributeValueType: string
     public function requiresEnumValues(): bool
     {
         return $this === self::Enum;
-    }
-
-    public function supportsMultipleValues(): bool
-    {
-        return $this === self::MultiSelect || $this === self::Tags;
     }
 }

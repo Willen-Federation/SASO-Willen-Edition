@@ -36,7 +36,7 @@ final class RedirectUriAllowlist
     {
         $cfg = $config['mobile']['redirect_uri_allowlist'] ?? null;
         if (!is_array($cfg)) {
-            $file = dirname(__DIR__, 3) . '/config/mobile.php';
+            $file = dirname(__DIR__, 3).'/config/mobile.php';
             if (is_file($file)) {
                 $loaded = require $file;
                 $cfg    = is_array($loaded['redirect_uri_allowlist'] ?? null)
@@ -86,7 +86,7 @@ final class RedirectUriAllowlist
 
         // Wildcard port form: scheme://host:* matches scheme://host:<digits>
         if (preg_match('#^([a-zA-Z][a-zA-Z0-9+.\-]*://[^/:]+):\*(/.*)?$#', $pattern, $m) === 1) {
-            $prefix    = $m[1] . ':';
+            $prefix    = $m[1].':';
             $suffix    = $m[2] ?? '';
             $remainder = substr($uri, strlen($prefix));
             if ($remainder === false || $remainder === '') {

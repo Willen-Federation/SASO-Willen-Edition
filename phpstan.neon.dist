@@ -31,4 +31,3 @@ parameters:
         minimumNumberOfJobsPerProcess: 2
     treatPhpDocTypesAsCertain: true
     reportUnmatchedIgnoredErrors: true
-    ignoreErrors: []

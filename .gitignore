@@ -10,10 +10,6 @@ config_*.json
 /vendor/
 composer.phar
 
-# --- TailAdmin tooling (binary fetched on demand by `make tailadmin-fetch-cli`) ---
-/tools/tailwindcss
-/tools/tailwindcss-*
-
 # --- Node (mkdocs / tooling) ---
 /node_modules/
 npm-debug.log*

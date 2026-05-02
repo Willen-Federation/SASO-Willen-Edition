@@ -398,6 +398,26 @@ $input = new UserCompiler(
     $authed,
     new \DateTime(),
 );
+
+// --- Installer redirect (M2.4 setup-completion gate) -------------------------
+// While installer/installer.json exists, the DB schema and/or initial admin
+// account have not been provisioned. Authentication, the admin UI, and most
+// legacy screens are guaranteed to fail. Force every non-installer page
+// request to /installer/start/ so first-run operators land where they can act,
+// instead of getting bounced into an inert login form they cannot complete.
+// API (/api/v1/*) and protocol (/mcp) endpoints short-circuit earlier in this
+// file and never reach this gate, which is correct: machine clients should
+// receive structured error responses rather than HTML redirects.
+if (file_exists($installerRoute)) {
+    $first = $input->request()[0] ?? '';
+    if ($first !== 'installer' && $first !== 'js' && $first !== 'css') {
+        $programDir = trim((string) ($config['programDir'] ?? ''), '/');
+        $base = '/' . ($programDir !== '' ? $programDir . '/' : '');
+        header('Location: ' . $base . 'installer/start/', true, 302);
+        exit;
+    }
+}
+
 $router = new Router(
     array_merge($route, $installer),
 );

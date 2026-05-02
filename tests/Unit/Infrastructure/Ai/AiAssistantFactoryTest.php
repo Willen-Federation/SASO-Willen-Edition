@@ -168,6 +168,9 @@ final class AiAssistantFactoryTest extends TestCase
     public function testHandlesEmptyKeyArrays(): void
     {
         putenv('AI_PROVIDER=gemini');
+        // Clear environment keys so database keys take precedence
+        putenv('GEMINI_API_KEY=');
+        putenv('LOCAL_GEMINI_KEY=');
 
         $dbSetting = SettingValue::json(['', '']);
 

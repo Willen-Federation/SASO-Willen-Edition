@@ -69,8 +69,9 @@ final class AiDebugDIContainer implements DIContainer
 
     private function statusAction(PdoSystemSettingService $settingService): View
     {
+        $envProvider = getenv('AI_PROVIDER');
         $providerVisionValue = $settingService->get(new SettingKey('ai.provider_vision'));
-        $providerVision = $providerVisionValue?->asString() ?? 'null';
+        $providerVision = $envProvider ?: ($providerVisionValue?->asString() ?? 'null');
         $providerChatValue = $settingService->get(new SettingKey('ai.provider_chat'));
         $providerChat = $providerChatValue?->asString() ?? 'null';
 
@@ -78,17 +79,7 @@ final class AiDebugDIContainer implements DIContainer
         $keysConfigured = false;
 
         if ($isConfigured && is_string($providerVision)) {
-            $keysKey = match ($providerVision) {
-                'openai' => 'ai.openai_api_keys',
-                'gemini' => 'ai.gemini_api_keys',
-                'anthropic' => 'ai.anthropic_api_keys',
-                default => null,
-            };
-
-            if ($keysKey !== null) {
-                $keysValue = $settingService->get(new SettingKey($keysKey));
-                $keysConfigured = $keysValue !== null;
-            }
+            $keysConfigured = $this->checkKeysConfigured($providerVision, $settingService);
         }
 
         header(self::JSON_HEADER);
@@ -97,9 +88,50 @@ final class AiDebugDIContainer implements DIContainer
             'provider_chat' => $providerChat,
             'keys_configured' => $keysConfigured,
             'assistant_class' => $isConfigured && $keysConfigured ? ucfirst($providerVision) . 'Assistant' : 'NullAssistant',
-            'env_override' => getenv('AI_PROVIDER') ?: null,
+            'env_override' => $envProvider ?: null,
         ]);
         exit;
+    }
+
+    private function checkKeysConfigured(string $provider, PdoSystemSettingService $settingService): bool
+    {
+        // Check environment variables first (matches AiAssistantFactory logic)
+        $envVar = match ($provider) {
+            'openai' => 'OPENAI_API_KEY',
+            'gemini' => 'GEMINI_API_KEY',
+            'anthropic' => 'ANTHROPIC_API_KEY',
+            default => null,
+        };
+
+        if ($envVar !== null) {
+            $envValue = getenv($envVar);
+            if ($envValue !== false && $envValue !== '') {
+                return true;
+            }
+
+            // Check for LOCAL_* fallback for development
+            if ($provider === 'gemini') {
+                $localValue = getenv('LOCAL_GEMINI_KEY');
+                if ($localValue !== false && $localValue !== '') {
+                    return true;
+                }
+            }
+        }
+
+        // Fallback to database configuration
+        $keysKey = match ($provider) {
+            'openai' => 'ai.openai_api_keys',
+            'gemini' => 'ai.gemini_api_keys',
+            'anthropic' => 'ai.anthropic_api_keys',
+            default => null,
+        };
+
+        if ($keysKey !== null) {
+            $keysValue = $settingService->get(new SettingKey($keysKey));
+            return $keysValue !== null;
+        }
+
+        return false;
     }
 
     private function probeAction(PdoSystemSettingService $settingService): View

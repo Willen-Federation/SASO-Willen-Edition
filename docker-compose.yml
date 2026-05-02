@@ -40,6 +40,8 @@ services:
       DB_USER: "saso_user"
       DB_PASSWORD: "saso_dev_password"
       APP_HTTPS: "false"
+      APP_KEY: "Rk8Yi5ZCup+zgP3K0gWPfaAOGZA5TG9sUv9KIMqJzvM="
+      AI_PROVIDER: "gemini"
     depends_on:
       db:
         condition: service_healthy

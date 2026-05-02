@@ -18,8 +18,15 @@ final class CreateBarcodeBatch extends AbstractMigration
     public function up(): void
     {
         $this->table('barcode_batch', [
-            'comment' => 'Pending-barcode mint batches; printed first, attached to items later.',
+            'id'           => false,
+            'primary_key'  => 'id',
+            'comment'      => 'Pending-barcode mint batches; printed first, attached to items later.',
         ])
+            ->addColumn('id', 'biginteger', [
+                'signed'   => false,
+                'null'     => false,
+                'identity' => true,
+            ])
             ->addColumn('code', 'string', [
                 'limit'   => 40,
                 'null'    => false,

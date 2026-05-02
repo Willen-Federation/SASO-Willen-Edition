@@ -11,11 +11,11 @@ use Saso\Infrastructure\Migration\Migration;
  * The server stores the response body for 24 h so that retries of the
  * same operation return the original result without re-executing it.
  */
-final class Migration20260502000000 extends Migration
+final class CreateIdempotencyKey extends Migration
 {
     public function up(): void
     {
-        $this->exec(
+        $this->execute(
             <<<'SQL'
             CREATE TABLE IF NOT EXISTS idempotency_key (
               `key`          VARCHAR(255) NOT NULL,
@@ -29,6 +29,6 @@ final class Migration20260502000000 extends Migration
 
     public function down(): void
     {
-        $this->exec('DROP TABLE IF EXISTS idempotency_key');
+        $this->execute('DROP TABLE IF EXISTS idempotency_key');
     }
 }

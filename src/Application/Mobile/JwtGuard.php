@@ -26,7 +26,6 @@ final class JwtGuard
      * Extract and verify the Bearer token from the Authorization header.
      *
      * @return int verified device token ID (`sub` claim)
-     *
      * @throws RuntimeException when auth fails (→ 401 via ProblemExceptionHandler)
      */
     public function authenticate(HttpRequest $request): int

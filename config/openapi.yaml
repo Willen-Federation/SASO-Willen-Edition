@@ -43,12 +43,125 @@ servers:
 tags:
   - name: meta
     description: Service health, build info, and the API specification itself.
+  - name: auth-providers
+    description: |
+      Manage pluggable authentication providers (Auth0, AWS Cognito, Firebase,
+      Generic OIDC, SAML 2.0). Admin-only. Secrets are never returned in
+      responses — `hasSecret` indicates whether a secret is stored.
   - name: feature-flags
     description: Operator-managed runtime feature flags (cf. ADR 0005).
   - name: mobile
     description: QR-based device pairing and Flutter client configuration.
 
 paths:
+
+  # ---------------------------------------------------------------------------
+  # Auth Providers
+  # ---------------------------------------------------------------------------
+
+  /auth/providers:
+    get:
+      tags: [auth-providers]
+      summary: List all auth providers.
+      description: |
+        Returns every registered authentication provider ordered by
+        `isDefault DESC, name ASC`. Admin access required.
+        Secrets are never included — use `hasSecret` to check presence.
+      operationId: listAuthProviders
+      x-handler: 'Saso\Presentation\Api\V1\Controller\Auth\ProviderListController::handle'
+      responses:
+        '200':
+          description: Provider list.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthProviderList'
+        '500':
+          $ref: '#/components/responses/ProblemInternalError'
+
+  /auth/providers/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        description: Numeric auth provider ID.
+        schema:
+          type: integer
+          minimum: 1
+
+    get:
+      tags: [auth-providers]
+      summary: Get a single auth provider.
+      operationId: getAuthProvider
+      x-handler: 'Saso\Presentation\Api\V1\Controller\Auth\ProviderGetController::handle'
+      responses:
+        '200':
+          description: Provider found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthProviderResource'
+        '404':
+          $ref: '#/components/responses/ProblemNotFound'
+        '500':
+          $ref: '#/components/responses/ProblemInternalError'
+
+  /auth/providers/{id}/test:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        description: Numeric auth provider ID.
+        schema:
+          type: integer
+          minimum: 1
+
+    post:
+      tags: [auth-providers]
+      summary: Test provider connectivity.
+      description: |
+        Probes the provider's discovery/metadata endpoint to verify
+        that it is reachable and returns a well-formed document.
+
+        **OIDC**: HTTP-GETs the `issuerOrMetadataUrl`, validates the
+        presence of `issuer`, `authorization_endpoint`, and
+        `token_endpoint`. Returns the discovered endpoints on success.
+
+        **SAML**: verifies the metadata URL is reachable.
+
+        Secrets are never transmitted. This endpoint is safe to call
+        repeatedly — it makes no changes to the provider record.
+      operationId: testAuthProvider
+      x-handler: 'Saso\Presentation\Api\V1\Controller\Auth\ProviderTestController::handle'
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        '200':
+          description: Connectivity test passed.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProviderTestResult'
+        '404':
+          $ref: '#/components/responses/ProblemNotFound'
+        '422':
+          description: Provider has no discovery URL configured.
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        '502':
+          description: Discovery endpoint is unreachable or returned an invalid document.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProviderTestResult'
+        '500':
+          $ref: '#/components/responses/ProblemInternalError'
   /health:
     get:
       tags: [meta]
@@ -233,6 +346,33 @@ paths:
   # Mobile / QR connection
   # ---------------------------------------------------------------------------
 
+  /mobile/discovery:
+    get:
+      tags: [mobile]
+      security: []  # public — no auth required
+      summary: Mobile setup discovery.
+      description: |
+        Returns the metadata that the SASO Flutter app needs to start the
+        pairing flow when the user enters only a server URL. The app then
+        opens `mobileSetupUrl` in an in-app browser with the query string
+        `?redirect_uri=jp.willen.saso://callback&state=<csrf>`.
+
+        `authStrategy` decides whether the chooser is shown:
+          - `default-only`: server has marked one IdP as default → use it.
+          - `user-choice`: server has multiple enabled IdPs → render chooser.
+          - `local-only`: server has no IdPs → use the built-in login form.
+      operationId: getMobileDiscovery
+      x-handler: 'Saso\Presentation\Api\V1\Controller\Mobile\DiscoveryController::handle'
+      responses:
+        '200':
+          description: Discovery payload.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MobileDiscovery'
+        '500':
+          $ref: '#/components/responses/ProblemInternalError'
+
   /mobile/pairing-codes:
     post:
       tags: [mobile]
@@ -416,8 +556,500 @@ paths:
         '500':
           $ref: '#/components/responses/ProblemInternalError'
 
+  # ---------------------------------------------------------------------------
+  # Item Drafts (mobile capture flow)
+  # ---------------------------------------------------------------------------
+
+  /items/drafts:
+    post:
+      tags: [mobile]
+      summary: Create an item draft from a mobile capture.
+      description: |
+        Accepts a multipart/form-data upload from the mobile app. Saves the
+        image to `uploads/item_drafts/`, inserts an `item_draft` row, and
+        dispatches a `ProcessItemDraft` message for background enrichment
+        (ISBN/JAN lookup, AI vision analysis).
+
+        **Auth:** `Authorization: Bearer <JWT>` (issued by POST /api/v1/mobile/connect).
+
+        Form fields:
+          * `image`        — product photo (required; JPEG, PNG, WebP, GIF; ≤ 20 MB)
+          * `item_name`    — initial item name (optional)
+          * `jan_code`     — JAN/EAN barcode string (optional)
+          * `isbn`         — ISBN (optional)
+          * `price`        — price hint (optional)
+          * `barcode_hint` — barcode string to associate with the draft (optional)
+      operationId: createItemDraft
+      x-handler: 'Saso\Presentation\Api\V1\Controller\Item\DraftCreateController::handle'
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [image]
+              properties:
+                image:
+                  type: string
+                  format: binary
+                  description: Product photo (JPEG, PNG, WebP, GIF; ≤ 20 MB).
+                item_name:
+                  type: string
+                  maxLength: 500
+                jan_code:
+                  type: string
+                  maxLength: 64
+                isbn:
+                  type: string
+                  maxLength: 20
+                price:
+                  type: string
+                  maxLength: 64
+                barcode_hint:
+                  type: string
+                  maxLength: 64
+      responses:
+        '201':
+          description: Item draft created and queued for processing.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ItemDraftCreatedResponse'
+        '400':
+          $ref: '#/components/responses/ProblemBadRequest'
+        '401':
+          $ref: '#/components/responses/ProblemUnauthorized'
+        '500':
+          $ref: '#/components/responses/ProblemInternalError'
+
+  # ---------------------------------------------------------------------------
+  # Config / Field definitions
+  # ---------------------------------------------------------------------------
+
+  /config/fields:
+    get:
+      tags: [mobile]
+      summary: Get mobile-visible item attribute field definitions.
+      description: |
+        Returns all `item_attribute_definition` rows with `show_on_mobile = 1`,
+        ordered by `sort_order`. The Flutter app fetches this list on startup
+        to dynamically build the item-capture form.
+      operationId: getConfigFields
+      x-handler: 'Saso\Presentation\Api\V1\Controller\Config\FieldsController::handle'
+      responses:
+        '200':
+          description: List of mobile-visible field definitions.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/FieldDefinition'
+        '500':
+          $ref: '#/components/responses/ProblemInternalError'
+
+  /barcode/{code}:
+    parameters:
+      - name: code
+        in: path
+        required: true
+        description: The barcode string (e.g. BC000000001).
+        schema:
+          type: string
+          minLength: 1
+          maxLength: 64
+
+    get:
+      tags: [barcode]
+      summary: Resolve a barcode to its current state.
+      description: |
+        Returns details about a barcode from the `barcode_pool`. If the barcode
+        is already linked to an item, returns the item info as well.
+      operationId: getBarcode
+      x-handler: 'Saso\Presentation\Api\V1\Controller\Barcode\BarcodeGetController::handle'
+      responses:
+        '200':
+          description: Barcode found.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code: { type: string }
+                  status: { type: string, enum: [pending, linked, voided] }
+                  item:
+                    type: object
+                    nullable: true
+                    properties:
+                      id: { type: string }
+                      name: { type: string }
+        '404':
+          $ref: '#/components/responses/ProblemNotFound'
+        '500':
+          $ref: '#/components/responses/ProblemInternalError'
+
+  # ---------------------------------------------------------------------------
+  # Items
+  # ---------------------------------------------------------------------------
+
+  /api/v1/items:
+    get:
+      operationId: listItems
+      summary: Search / list items
+      tags: [Items]
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: q
+          in: query
+          schema: { type: string }
+          description: Full-text search term (matches name / description)
+        - name: category_id
+          in: query
+          schema: { type: integer }
+        - name: barcode
+          in: query
+          schema: { type: string }
+        - name: limit
+          in: query
+          schema: { type: integer, minimum: 1, maximum: 200, default: 20 }
+        - name: cursor
+          in: query
+          schema: { type: string }
+          description: Opaque pagination cursor from a previous response
+      responses:
+        '200':
+          description: Paginated item list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ItemPage'
+        '401':
+          $ref: '#/components/responses/ProblemUnauthorized'
+        '500':
+          $ref: '#/components/responses/ProblemInternalError'
+    post:
+      operationId: createItem
+      summary: Create a new item directly (no AI enrichment)
+      tags: [Items]
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: Idempotency-Key
+          in: header
+          schema: { type: string, maxLength: 255 }
+          description: Client-generated key for safe retries
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateItemRequest'
+      responses:
+        '201':
+          description: Item created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ItemDetail'
+        '400':
+          $ref: '#/components/responses/ProblemBadRequest'
+        '401':
+          $ref: '#/components/responses/ProblemUnauthorized'
+        '500':
+          $ref: '#/components/responses/ProblemInternalError'
+
+  /api/v1/items/{id}:
+    get:
+      operationId: getItem
+      summary: Get item by ID (includes attributes)
+      tags: [Items]
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Item detail
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ItemDetail'
+        '401':
+          $ref: '#/components/responses/ProblemUnauthorized'
+        '404':
+          $ref: '#/components/responses/ProblemNotFound'
+        '500':
+          $ref: '#/components/responses/ProblemInternalError'
+    patch:
+      operationId: updateItem
+      summary: Partially update an item
+      tags: [Items]
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+        - name: Idempotency-Key
+          in: header
+          schema: { type: string, maxLength: 255 }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateItemRequest'
+      responses:
+        '200':
+          description: Updated item
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ItemDetail'
+        '400':
+          $ref: '#/components/responses/ProblemBadRequest'
+        '401':
+          $ref: '#/components/responses/ProblemUnauthorized'
+        '404':
+          $ref: '#/components/responses/ProblemNotFound'
+        '500':
+          $ref: '#/components/responses/ProblemInternalError'
+
+  # ---------------------------------------------------------------------------
+  # Categories
+  # ---------------------------------------------------------------------------
+
+  /api/v1/categories:
+    get:
+      operationId: listCategories
+      summary: List all categories (flat or tree)
+      tags: [Categories]
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: format
+          in: query
+          schema:
+            type: string
+            enum: [flat, tree]
+            default: flat
+      responses:
+        '200':
+          description: Category list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CategoryPage'
+        '401':
+          $ref: '#/components/responses/ProblemUnauthorized'
+        '500':
+          $ref: '#/components/responses/ProblemInternalError'
+
+  # ---------------------------------------------------------------------------
+  # Storage Locations
+  # ---------------------------------------------------------------------------
+
+  /api/v1/storage-locations:
+    get:
+      operationId: listStorageLocations
+      summary: List storage locations (optionally filtered by parent)
+      tags: [StorageLocations]
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: parent_id
+          in: query
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Storage location list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StorageLocationPage'
+        '401':
+          $ref: '#/components/responses/ProblemUnauthorized'
+        '500':
+          $ref: '#/components/responses/ProblemInternalError'
+
+  /api/v1/storage-locations/{id}:
+    get:
+      operationId: getStorageLocation
+      summary: Get storage location by ID
+      tags: [StorageLocations]
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Storage location detail
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StorageLocationDetail'
+        '401':
+          $ref: '#/components/responses/ProblemUnauthorized'
+        '404':
+          $ref: '#/components/responses/ProblemNotFound'
+        '500':
+          $ref: '#/components/responses/ProblemInternalError'
+
+  /api/v1/storage-locations/{id}/items:
+    get:
+      operationId: listStorageLocationItems
+      summary: List items assigned to a storage location
+      tags: [StorageLocations]
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+        - name: limit
+          in: query
+          schema: { type: integer, minimum: 1, maximum: 200, default: 50 }
+      responses:
+        '200':
+          description: Items in this location
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ItemPage'
+        '401':
+          $ref: '#/components/responses/ProblemUnauthorized'
+        '404':
+          $ref: '#/components/responses/ProblemNotFound'
+        '500':
+          $ref: '#/components/responses/ProblemInternalError'
+
 components:
   schemas:
+
+    # -------------------------------------------------------------------------
+    # Auth Providers
+    # -------------------------------------------------------------------------
+
+    AuthProviderResource:
+      type: object
+      required: [id, name, type, enabled, isDefault, hasSecret, createdAt, updatedAt]
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          description: Human-readable display name shown on the login screen.
+          example: Corporate Auth0
+        type:
+          type: string
+          enum: [local, oidc, saml]
+          description: Provider protocol type.
+          example: oidc
+        issuerOrMetadataUrl:
+          type: string
+          format: uri
+          nullable: true
+          description: |
+            OIDC: discovery document URL.
+            SAML: IdP metadata URL or Entity ID.
+          example: https://acme.us.auth0.com/.well-known/openid-configuration
+        clientId:
+          type: string
+          nullable: true
+          description: OAuth2 Client ID (OIDC only).
+          example: client-abc123
+        hasSecret:
+          type: boolean
+          description: Whether a client secret is stored (never returned in plain text).
+          example: true
+        scopes:
+          type: string
+          nullable: true
+          description: Space-separated OAuth2 scopes.
+          example: openid profile email
+        claimMapping:
+          type: object
+          nullable: true
+          description: |
+            Claim name overrides plus the `_config` envelope that carries
+            provider-specific settings (flavor, region, etc.).
+          example:
+            display_name: preferred_username
+            _config:
+              flavor: auth0
+              domain: acme.us.auth0.com
+        enabled:
+          type: boolean
+          description: Whether the provider is visible on the login screen.
+          example: true
+        isDefault:
+          type: boolean
+          description: Whether this is the default provider (pre-selected on login screen).
+          example: false
+        createdAt:
+          type: string
+          format: date-time
+          example: '2026-04-26T12:00:00Z'
+        updatedAt:
+          type: string
+          format: date-time
+          example: '2026-04-26T12:00:00Z'
+
+    AuthProviderList:
+      type: object
+      required: [data, total]
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/AuthProviderResource'
+        total:
+          type: integer
+          example: 2
+
+    ProviderTestResult:
+      type: object
+      required: [ok, message]
+      properties:
+        ok:
+          type: boolean
+          description: Whether the probe succeeded.
+          example: true
+        message:
+          type: string
+          description: Human-readable result summary.
+          example: 'OIDC discovery endpoint reachable. Issuer: https://acme.us.auth0.com/'
+        details:
+          type: object
+          nullable: true
+          description: Parsed values from the discovery document (OIDC only).
+          properties:
+            issuer:
+              type: string
+              nullable: true
+            authorization_endpoint:
+              type: string
+              nullable: true
+            token_endpoint:
+              type: string
+              nullable: true
+            userinfo_endpoint:
+              type: string
+              nullable: true
+            end_session_endpoint:
+              type: string
+              nullable: true
+
     HealthStatus:
       type: object
       required: [status, version, time]
@@ -579,6 +1211,57 @@ components:
             Override the server URL embedded in the QR code. Useful when the
             server is behind a reverse proxy with a different public hostname.
           example: https://saso.example.com
+
+    MobileDiscovery:
+      type: object
+      required: [serverName, version, mobileSetupUrl, authStrategy, providers]
+      properties:
+        serverName:
+          type: string
+          example: SASO Willen Edition
+        version:
+          type: string
+          example: '1.0.0'
+        mobileSetupUrl:
+          type: string
+          format: uri
+          description: |
+            URL for the in-app browser to open. The app appends
+            `?redirect_uri=jp.willen.saso://callback&state=<csrf>`.
+          example: 'https://saso.example.com/m/setup'
+        authStrategy:
+          type: string
+          enum: [default-only, user-choice, local-only]
+          description: |
+            How the app should pick an auth provider:
+              - `default-only`: server has a default IdP — open setup directly.
+              - `user-choice`: server renders a chooser at `/m/setup`.
+              - `local-only`: no IdPs configured; use server-provided login form.
+          example: default-only
+        providers:
+          type: array
+          description: Enabled providers, secrets always omitted.
+          items:
+            $ref: '#/components/schemas/MobileDiscoveryProvider'
+
+    MobileDiscoveryProvider:
+      type: object
+      required: [id, name, type, isDefault, enabled]
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 1
+        name:
+          type: string
+          example: Auth0
+        type:
+          type: string
+          enum: [local, oidc, saml]
+        isDefault:
+          type: boolean
+        enabled:
+          type: boolean
 
     PairingCodeResponse:
       type: object
@@ -749,6 +1432,60 @@ components:
           type: integer
           example: 2
 
+    ItemDraftCreatedResponse:
+      type: object
+      required: [draft_id, status]
+      properties:
+        draft_id:
+          type: integer
+          description: ID of the newly created item_draft row.
+          example: 123
+        status:
+          type: string
+          enum: [queued]
+          description: Initial processing status.
+          example: queued
+
+    FieldDefinition:
+      type: object
+      required: [code, labelEn, labelJa, valueType, required, enumValues, showOnMobile, sortOrder]
+      properties:
+        code:
+          type: string
+          description: Unique attribute code (e.g. "weight").
+          example: weight
+        labelEn:
+          type: string
+          description: English display label.
+          example: Weight
+        labelJa:
+          type: string
+          description: Japanese display label.
+          example: 重さ
+        valueType:
+          type: string
+          description: Data type of the attribute value.
+          example: float
+        required:
+          type: boolean
+          description: Whether the field is mandatory on mobile capture.
+          example: false
+        enumValues:
+          type: array
+          nullable: true
+          items:
+            type: string
+          description: Allowed values when valueType is "enum", otherwise null.
+          example: null
+        showOnMobile:
+          type: boolean
+          description: Always true for results from this endpoint.
+          example: true
+        sortOrder:
+          type: integer
+          description: Display order on mobile (ascending).
+          example: 10
+
     ProblemDetails:
       type: object
       description: |
@@ -788,6 +1525,260 @@ components:
           format: uuid
           description: UUIDv4 unique per request, present in the server log.
           example: 1f9b3c8a-9e15-4d6a-8c2c-3d8f4f1f7a12
+
+    # -------------------------------------------------------------------------
+    # Item schemas (PR-2)
+    # -------------------------------------------------------------------------
+
+    FeatureSummary:
+      type: object
+      required: [key, value]
+      properties:
+        key:
+          type: string
+        value:
+          type: string
+
+    ItemSummary:
+      type: object
+      required: [id, name, registeredAt, updatedAt]
+      properties:
+        id:
+          type: string
+          description: Item primary key as string
+        name:
+          type: string
+        description:
+          type: string
+          nullable: true
+        categoryId:
+          type: string
+          nullable: true
+        categoryName:
+          type: string
+          nullable: true
+        janCode:
+          type: string
+          nullable: true
+        price:
+          type: integer
+          nullable: true
+        stock:
+          type: integer
+          nullable: true
+        status:
+          type: string
+          nullable: true
+        storageLocationId:
+          type: string
+          nullable: true
+        features:
+          type: array
+          items:
+            $ref: '#/components/schemas/FeatureSummary'
+        registeredAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    ItemDetail:
+      allOf:
+        - $ref: '#/components/schemas/ItemSummary'
+        - type: object
+          properties:
+            attributes:
+              type: array
+              description: Dynamic attribute key/value pairs
+              items:
+                $ref: '#/components/schemas/FeatureSummary'
+
+    ItemPage:
+      type: object
+      required: [data, total]
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/ItemSummary'
+        total:
+          type: integer
+        nextCursor:
+          type: string
+          nullable: true
+
+    CreateItemRequest:
+      type: object
+      required: [name, categoryId]
+      properties:
+        name:
+          type: string
+          maxLength: 255
+        description:
+          type: string
+          nullable: true
+        categoryId:
+          type: integer
+        janCode:
+          type: string
+          nullable: true
+          maxLength: 64
+        price:
+          type: integer
+          nullable: true
+          minimum: 0
+        stock:
+          type: integer
+          nullable: true
+          minimum: 0
+        storageLocationId:
+          type: integer
+          nullable: true
+
+    UpdateItemRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          maxLength: 255
+        description:
+          type: string
+          nullable: true
+        categoryId:
+          type: integer
+          nullable: true
+        janCode:
+          type: string
+          nullable: true
+          maxLength: 64
+        price:
+          type: integer
+          nullable: true
+          minimum: 0
+        stock:
+          type: integer
+          nullable: true
+          minimum: 0
+        storageLocationId:
+          type: integer
+          nullable: true
+
+    # -------------------------------------------------------------------------
+    # Category schemas (PR-2)
+    # -------------------------------------------------------------------------
+
+    CategoryItem:
+      type: object
+      required: [id, name, depth]
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        nameEn:
+          type: string
+          nullable: true
+        nameJa:
+          type: string
+          nullable: true
+        parentId:
+          type: string
+          nullable: true
+        depth:
+          type: integer
+        sortOrder:
+          type: integer
+          nullable: true
+        code:
+          type: string
+          nullable: true
+        children:
+          type: array
+          items:
+            $ref: '#/components/schemas/CategoryItem'
+
+    CategoryPage:
+      type: object
+      required: [data, total]
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/CategoryItem'
+        total:
+          type: integer
+
+    # -------------------------------------------------------------------------
+    # Storage Location schemas (PR-2)
+    # -------------------------------------------------------------------------
+
+    StorageLocationSummary:
+      type: object
+      required: [id, name, label, location]
+      properties:
+        id:
+          type: string
+        parentId:
+          type: string
+          nullable: true
+        code:
+          type: string
+          nullable: true
+        name:
+          type: string
+        label:
+          type: string
+          description: Alias for name, for Flutter ShelfModel compatibility
+        location:
+          type: string
+          description: Human-readable location hint (code or path)
+        locationType:
+          type: string
+          nullable: true
+        depth:
+          type: integer
+          nullable: true
+        operationalStatus:
+          type: string
+          nullable: true
+        canReceive:
+          type: boolean
+          nullable: true
+        canShip:
+          type: boolean
+          nullable: true
+
+    StorageLocationDetail:
+      allOf:
+        - $ref: '#/components/schemas/StorageLocationSummary'
+        - type: object
+          properties:
+            position:
+              type: string
+              nullable: true
+            capacity:
+              type: integer
+              nullable: true
+            description:
+              type: string
+              nullable: true
+            itemIds:
+              type: array
+              description: IDs of items currently assigned to this location
+              items:
+                type: string
+
+    StorageLocationPage:
+      type: object
+      required: [data, total]
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/StorageLocationSummary'
+        total:
+          type: integer
 
   responses:
     ProblemUnauthorized:
@@ -831,3 +1822,15 @@ components:
         application/problem+json:
           schema:
             $ref: '#/components/schemas/ProblemDetails'
+
+  # ---------------------------------------------------------------------------
+  # Security schemes
+  # ---------------------------------------------------------------------------
+
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Mobile device JWT issued by POST /api/v1/mobile/connect
+

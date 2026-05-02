@@ -78,15 +78,16 @@ final class PdoStorageLocationRepository implements StorageLocationRepository
     public function save(StorageLocation $location): StorageLocation
     {
         $now      = (new DateTimeImmutable('now', $this->timezone))->format('Y-m-d H:i:s');
-        $existing = $this->findById($location->id);
+        $existing = $location->id > 0 ? $this->findById($location->id) : null;
 
         if ($existing === null) {
             $stmt = $this->pdo->prepare(
-                'INSERT INTO storage_location (id, parent_id, code, name, position, depth, '.
-                'location_type, description, capacity, notes, operational_status, created_at, updated_at) '.
-                'VALUES (:id, :parent, :code, :name, :pos, :depth, :ltype, :desc, :cap, :notes, :ostatus, :ca, :ua)',
+                'INSERT INTO storage_location (parent_id, code, name, position, depth, '.
+                'location_type, description, capacity, notes, operational_status, '.
+                'area_code, map_image_id, map_x_ratio, map_y_ratio, created_at, updated_at) '.
+                'VALUES (:parent, :code, :name, :pos, :depth, :ltype, :desc, :cap, :notes, :ostatus, '.
+                ':area, :mapid, :x, :y, :ca, :ua)',
             );
-            $stmt->bindValue('id', $location->id, PDO::PARAM_INT);
             $stmt->bindValue('parent', $location->parentId, $location->parentId === null ? PDO::PARAM_NULL : PDO::PARAM_INT);
             $stmt->bindValue('code', $location->code->toString());
             $stmt->bindValue('name', $location->name);
@@ -97,14 +98,21 @@ final class PdoStorageLocationRepository implements StorageLocationRepository
             $stmt->bindValue('cap', $location->capacity, $location->capacity === null ? PDO::PARAM_NULL : PDO::PARAM_INT);
             $stmt->bindValue('notes', $location->notes);
             $stmt->bindValue('ostatus', $location->operationalStatus->value);
+            $stmt->bindValue('area', $location->areaCode);
+            $stmt->bindValue('mapid', $location->mapImageId, $location->mapImageId === null ? PDO::PARAM_NULL : PDO::PARAM_INT);
+            $stmt->bindValue('x', $location->mapXRatio);
+            $stmt->bindValue('y', $location->mapYRatio);
             $stmt->bindValue('ca', $location->createdAt->setTimezone($this->timezone)->format('Y-m-d H:i:s'));
             $stmt->bindValue('ua', $now);
             $stmt->execute();
+            $newId = (int) $this->pdo->lastInsertId();
         } else {
             $stmt = $this->pdo->prepare(
                 'UPDATE storage_location SET parent_id = :parent, code = :code, name = :name, '.
                 'position = :pos, depth = :depth, location_type = :ltype, description = :desc, '.
-                'capacity = :cap, notes = :notes, operational_status = :ostatus, updated_at = :ua WHERE id = :id',
+                'capacity = :cap, notes = :notes, operational_status = :ostatus, '.
+                'area_code = :area, map_image_id = :mapid, map_x_ratio = :x, map_y_ratio = :y, '.
+                'updated_at = :ua WHERE id = :id',
             );
             $stmt->bindValue('id', $location->id, PDO::PARAM_INT);
             $stmt->bindValue('parent', $location->parentId, $location->parentId === null ? PDO::PARAM_NULL : PDO::PARAM_INT);
@@ -117,15 +125,20 @@ final class PdoStorageLocationRepository implements StorageLocationRepository
             $stmt->bindValue('cap', $location->capacity, $location->capacity === null ? PDO::PARAM_NULL : PDO::PARAM_INT);
             $stmt->bindValue('notes', $location->notes);
             $stmt->bindValue('ostatus', $location->operationalStatus->value);
+            $stmt->bindValue('area', $location->areaCode);
+            $stmt->bindValue('mapid', $location->mapImageId, $location->mapImageId === null ? PDO::PARAM_NULL : PDO::PARAM_INT);
+            $stmt->bindValue('x', $location->mapXRatio);
+            $stmt->bindValue('y', $location->mapYRatio);
             $stmt->bindValue('ua', $now);
             $stmt->execute();
+            $newId = $location->id;
         }
 
-        $reread = $this->findById($location->id);
+        $reread = $this->findById($newId);
         if ($reread === null) {
             throw new \RuntimeException(sprintf(
                 'PdoStorageLocationRepository::save lost row %d after write.',
-                $location->id,
+                $newId,
             ));
         }
 
@@ -136,6 +149,24 @@ final class PdoStorageLocationRepository implements StorageLocationRepository
     {
         $stmt = $this->pdo->prepare('DELETE FROM storage_location WHERE id = :id');
         $stmt->execute(['id' => $id]);
+    }
+
+    /**
+     * @return list<StorageLocation>
+     */
+    public function listPinned(): array
+    {
+        $stmt = $this->pdo->query(
+            'SELECT * FROM storage_location WHERE map_x_ratio IS NOT NULL AND map_y_ratio IS NOT NULL ORDER BY id ASC',
+        );
+        if ($stmt === false) {
+            return [];
+        }
+
+        return array_map(
+            fn (array $row): StorageLocation => $this->hydrate($row),
+            $stmt->fetchAll(PDO::FETCH_ASSOC),
+        );
     }
 
     /**
@@ -171,6 +202,10 @@ final class PdoStorageLocationRepository implements StorageLocationRepository
             capacity: $capacity,
             notes: isset($row['notes']) && is_string($row['notes']) ? $row['notes'] : null,
             operationalStatus: $operationalStatus,
+            areaCode: isset($row['area_code']) && is_string($row['area_code']) ? $row['area_code'] : null,
+            mapImageId: isset($row['map_image_id']) && $row['map_image_id'] !== null ? (int) $row['map_image_id'] : null,
+            mapXRatio: isset($row['map_x_ratio']) && $row['map_x_ratio'] !== null ? (float) $row['map_x_ratio'] : null,
+            mapYRatio: isset($row['map_y_ratio']) && $row['map_y_ratio'] !== null ? (float) $row['map_y_ratio'] : null,
         );
     }
 }

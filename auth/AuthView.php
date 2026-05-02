@@ -11,6 +11,9 @@ final class AuthView implements View
     private \Closure $content;
     private string $restoredPath;
     private bool $isError;
+    /** @var list<array{id:string,name:string,flavor:string,type:string}> */
+    public array $idpProviders = [];
+    public bool $providerError = false;
     public function display(): void
     {
         require_once 'auth/template/auth.php';

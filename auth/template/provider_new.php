@@ -117,7 +117,7 @@
   <!-- Auth0 フォーム -->
   <div id="form-auth0" class="provider-form d-none">
     <h5 class="mb-3"><i class="bi bi-shield-lock-fill text-primary me-2"></i>Auth0 の設定</h5>
-    <form method="post">
+    <form method="post" novalidate>
       <input type="hidden" name="csrftoken" value="<?php echo htmlspecialchars($csrf, ENT_QUOTES, 'UTF-8'); ?>">
       <input type="hidden" name="provider_template" value="auth0">
       <div class="row g-3">
@@ -130,8 +130,11 @@
         <div class="col-md-6">
           <label for="auth0-domain" class="form-label">Auth0 ドメイン <span class="text-danger">*</span></label>
           <input type="text" class="form-control" id="auth0-domain" name="auth0_domain"
-                 placeholder="例: example.auth0.com" required>
-          <div class="form-text">テナントのドメイン（<code>https://</code> は不要）。</div>
+                 placeholder="例: example.auth0.com" required
+                 autocomplete="off" inputmode="url"
+                 pattern="(?:https?://)?[A-Za-z0-9.\-]+(?:\.[A-Za-z]{2,})+/?.*">
+          <div class="form-text"><code>https://</code> は省略可。貼り付けた場合は自動で除去されます。</div>
+          <div id="auth0-domain-feedback" class="small text-muted mt-1"></div>
         </div>
         <div class="col-md-6">
           <label for="auth0-client-id" class="form-label">クライアント ID <span class="text-danger">*</span></label>
@@ -143,9 +146,11 @@
           <input type="password" class="form-control" id="auth0-client-secret" name="client_secret"
                  placeholder="Auth0 アプリのクライアントシークレット" required>
         </div>
-        <div class="col-12">
+        <div class="col-12 d-flex flex-wrap gap-2">
           <button type="submit" class="btn btn-primary">保存</button>
-          <button type="button" class="btn btn-outline-secondary ms-2" onclick="clearSelection()">キャンセル</button>
+          <button type="button" class="btn btn-outline-primary" data-test-connection="auth0">接続をテスト</button>
+          <button type="button" class="btn btn-outline-secondary" onclick="clearSelection()">キャンセル</button>
+          <span id="auth0-test-result" class="align-self-center small"></span>
         </div>
       </div>
     </form>
@@ -343,6 +348,99 @@
         e.preventDefault();
         selectProvider(card.dataset.provider);
       }
+    });
+  });
+
+  // ----------------------------------------------------------------------
+  //  Auth0 domain normalisation
+  //
+  //  Operators routinely paste "https://example.auth0.com" into the Domain
+  //  field even though the placeholder shows it without a scheme. The
+  //  server strips the scheme defensively (cf. ProviderSaveController), but
+  //  doing it on the client too gives instant feedback and stops Safari
+  //  from rejecting the submit with "The string did not match the expected
+  //  pattern" — the symptom the user reported as "unexpected syntax".
+  // ----------------------------------------------------------------------
+  function normaliseAuth0Domain(value) {
+    if (typeof value !== 'string') return '';
+    var v = value.trim();
+    v = v.replace(/^[a-zA-Z][a-zA-Z0-9+.\-]*:\/\//, '');
+    v = v.replace(/^\/+|\s+$/g, '').replace(/\/+$/g, '');
+    return v;
+  }
+
+  var auth0Domain = document.getElementById('auth0-domain');
+  var auth0Feedback = document.getElementById('auth0-domain-feedback');
+  if (auth0Domain) {
+    auth0Domain.addEventListener('blur', function () {
+      var cleaned = normaliseAuth0Domain(auth0Domain.value);
+      if (cleaned !== auth0Domain.value) {
+        auth0Domain.value = cleaned;
+      }
+      if (auth0Feedback) {
+        auth0Feedback.textContent = cleaned ? '保存される発行者: https://' + cleaned : '';
+      }
+    });
+    auth0Domain.addEventListener('paste', function (e) {
+      var pasted = (e.clipboardData || window.clipboardData).getData('text');
+      var cleaned = normaliseAuth0Domain(pasted);
+      if (cleaned && cleaned !== pasted) {
+        e.preventDefault();
+        auth0Domain.value = cleaned;
+        if (auth0Feedback) {
+          auth0Feedback.textContent = '貼り付け値から https:// を除去しました: https://' + cleaned;
+        }
+      }
+    });
+  }
+
+  // ----------------------------------------------------------------------
+  //  Lightweight test-connection probe
+  //
+  //  Issues a HEAD request to the OIDC discovery endpoint derived from the
+  //  current form. Surfaces a pass/fail status next to the button. We use
+  //  no-cors mode because the discovery host will not (typically) send
+  //  CORS headers; an opaque response with status 0 still confirms the
+  //  hostname resolves and TLS handshakes successfully, which is the
+  //  realistic failure mode operators hit on first save.
+  // ----------------------------------------------------------------------
+  function discoveryUrlFor(flavor, form) {
+    if (flavor === 'auth0') {
+      var d = normaliseAuth0Domain((form.querySelector('[name=auth0_domain]') || {}).value || '');
+      return d ? 'https://' + d + '/.well-known/openid-configuration' : null;
+    }
+    if (flavor === 'oidc') {
+      var u = ((form.querySelector('[name=oidc_issuer_url]') || {}).value || '').trim();
+      if (!u) return null;
+      return u.replace(/\/+$/, '') + '/.well-known/openid-configuration';
+    }
+    return null;
+  }
+
+  document.querySelectorAll('[data-test-connection]').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var flavor = btn.getAttribute('data-test-connection');
+      var form = btn.closest('form');
+      var resultEl = form.querySelector('#' + flavor + '-test-result');
+      var url = discoveryUrlFor(flavor, form);
+      if (!url) {
+        if (resultEl) resultEl.innerHTML = '<span class="text-danger">ドメインを入力してください。</span>';
+        return;
+      }
+      if (resultEl) resultEl.innerHTML = '<span class="text-muted">接続を確認中…</span>';
+      btn.disabled = true;
+      var t0 = Date.now();
+      fetch(url, { method: 'GET', mode: 'no-cors', cache: 'no-store', credentials: 'omit' })
+        .then(function () {
+          var ms = Date.now() - t0;
+          if (resultEl) resultEl.innerHTML = '<span class="text-success">✓ 到達確認 (' + ms + 'ms)</span>';
+        })
+        .catch(function (err) {
+          if (resultEl) resultEl.innerHTML = '<span class="text-danger">接続できません: ' + (err && err.message ? err.message : 'ネットワークエラー') + '</span>';
+        })
+        .finally(function () {
+          btn.disabled = false;
+        });
     });
   });
 }());

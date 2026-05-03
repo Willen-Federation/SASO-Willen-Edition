@@ -48,9 +48,11 @@ final class LoginOrchestrator
         $state = bin2hex(random_bytes(16));
         $nonce = bin2hex(random_bytes(16));
 
-        // Persist the return URL in the session so handleCallback() can
-        // retrieve it after the IdP redirect. This survives the OAuth
-        // round-trip and allows the post-login redirect to work.
+        // Persist the provider ID and return URL in the session so handleCallback()
+        // can retrieve them after the IdP redirect. This survives the OAuth
+        // round-trip, avoids exposing the provider ID in the callback URL (security),
+        // and allows the post-login redirect to work.
+        $_SESSION['auth.provider_id'] = $providerId->value;
         $_SESSION['auth.return_to'] = $returnTo;
 
         return $provider->beginLogin(new LoginContext(
@@ -93,6 +95,7 @@ final class LoginOrchestrator
             $_SESSION['auth.state'],
             $_SESSION['auth.nonce'],
             $_SESSION['auth.return_to'],
+            $_SESSION['auth.provider_id'],
         );
         return $returnTo === '' ? './' : $returnTo;
     }

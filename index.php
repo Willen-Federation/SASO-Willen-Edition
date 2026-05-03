@@ -136,18 +136,35 @@ if (class_exists(\Saso\Infrastructure\Translation\TranslatorFactory::class)) {
 
 // --- M4-D2 external auth endpoints ------------------------------------------
 // /auth/start/{providerId}    → redirect to IdP authorize endpoint
-// /auth/{providerId}/callback  → handle IdP callback, set session, return to home
-// /auth/{providerId}/saml/acs  → SAML AssertionConsumerService POST
-// /auth/{providerId}/saml/sls  → SAML SingleLogoutService
+// /auth/callback               → handle IdP callback (provider ID from session)
+// /auth/saml/acs               → SAML AssertionConsumerService POST (provider ID from session)
+// /auth/saml/sls               → SAML SingleLogoutService (provider ID from session)
 // All of these are wired via the LoginOrchestrator. They short-circuit the
 // legacy router so the path tail (provider id) does not have to be encoded
 // into request.json. Schema mismatches (M4 not migrated, no APP_KEY, etc.)
 // fall through to the login screen with `?error=auth_unavailable`.
-if (preg_match('#^/auth/(?:start/(\d+)|(\d+)/(?:callback|saml/acs|saml/sls))/?$#', $requestPath, $authMatch) === 1) {
+// NOTE: Provider ID is NOT exposed in callback URLs (security). For callback/acs/sls,
+// the provider ID is retrieved from $_SESSION['auth.provider_id'] which was set
+// during beginLogin().
+if (preg_match('#^/auth/(?:start/(\d+)|callback|saml/acs|saml/sls)/?$#', $requestPath, $authMatch) === 1) {
     $authAction    = preg_match('#^/auth/start/#', $requestPath) === 1 ? 'start'
         : (preg_match('#/callback/?$#', $requestPath) === 1 ? 'callback'
         : (preg_match('#/saml/acs/?$#', $requestPath) === 1 ? 'acs' : 'sls'));
-    $providerIdInt = (int) ($authMatch[1] ?: $authMatch[2]);
+
+    // For 'start' action, extract provider ID from URL.
+    // For callback/acs/sls actions, retrieve provider ID from session (set during beginLogin).
+    if ($authAction === 'start') {
+        $providerIdInt = (int) ($authMatch[1] ?? 0);
+        if ($providerIdInt < 1) {
+            throw new \RuntimeException('Provider ID missing from /auth/start/{id} URL.');
+        }
+    } else {
+        // callback / acs / sls
+        $providerIdInt = (int) ($_SESSION['auth.provider_id'] ?? 0);
+        if ($providerIdInt < 1) {
+            throw new \RuntimeException('Provider ID not found in session. Login must be initiated via /auth/start/{id}.');
+        }
+    }
 
     try {
         $appKey = (string) (getenv('APP_KEY') ?: '');

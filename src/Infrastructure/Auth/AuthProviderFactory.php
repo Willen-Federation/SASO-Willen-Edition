@@ -115,16 +115,16 @@ final class AuthProviderFactory
 
     private function makeCallbackUrl(AuthProviderId $id): string
     {
-        return rtrim($this->baseUrl, '/').'/auth/'.$id->asString().'/callback';
+        return rtrim($this->baseUrl, '/').'/auth/callback';
     }
 
     private function makeAcsUrl(AuthProviderId $id): string
     {
-        return rtrim($this->baseUrl, '/').'/auth/'.$id->asString().'/saml/acs';
+        return rtrim($this->baseUrl, '/').'/auth/saml/acs';
     }
 
     private function makeSlsUrl(AuthProviderId $id): string
     {
-        return rtrim($this->baseUrl, '/').'/auth/'.$id->asString().'/saml/sls';
+        return rtrim($this->baseUrl, '/').'/auth/saml/sls';
     }
 }

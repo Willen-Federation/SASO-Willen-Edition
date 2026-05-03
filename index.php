@@ -100,13 +100,17 @@ if (str_starts_with($requestPath, '/debug/ai-')) {
 // HttpOnly blocks document.cookie reads, SameSite=Lax mitigates CSRF on
 // top-level navigations, and Secure is set whenever config.https is true so
 // the session id never leaves a TLS channel.
+// Note: SameSite is omitted for non-HTTPS (dev) because cross-site OAuth
+// redirects (e.g., from Auth0) won't send the session cookie with SameSite=Lax.
+// On production (HTTPS), SameSite=None (with Secure) or Lax is safer. For dev
+// (HTTP), we rely on HttpOnly + CSRF tokens instead.
 session_set_cookie_params([
     'lifetime' => 0,
     'path'     => '/',
     'domain'   => '',
     'secure'   => !empty($config['https']),
     'httponly' => true,
-    'samesite' => 'Lax',
+    'samesite' => !empty($config['https']) ? 'Lax' : '',
 ]);
 session_start();
 

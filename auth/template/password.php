@@ -12,7 +12,7 @@
 <p class="text-success">パスワードが変更されました。</p>
 <?php } ?>
 <?php if($v->errorNow) { ?>
-<p class="text-danger">現在のパスワードが正しくありません。</p>
+<p class="text-error-500">現在のパスワードが正しくありません。</p>
 <?php } ?>
 
 <p>パスワードはどこかに書き留めておいて下さい。忘れると、復元できません。<p>

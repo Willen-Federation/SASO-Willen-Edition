@@ -28,13 +28,13 @@
       <?php endif; ?>
 
       <?php if ($v->envOverrides['APP_HTTPS']): ?>
-        <div class="mb-4 rounded border border-warning bg-warning bg-opacity-10 py-3 px-4 text-warning">
+        <div class="mb-4 rounded border border-amber-200 bg-amber-50 py-3 px-4 text-amber-600 dark:border-amber-900/30 dark:bg-amber-900/10 dark:text-amber-400">
           This setting is currently overridden by <code>.env</code> (APP_HTTPS). UI edits will not take effect until the <code>.env</code> entry is removed.
         </div>
       <?php endif; ?>
 
-      <div class="mb-4 border-t border-stroke pt-4 dark:border-strokedark">
-        <h4 class="mb-3 text-sm font-semibold uppercase tracking-wider text-bodydark2">
+      <div class="mb-4 border-t border-gray-200 pt-4 dark:border-gray-800">
+        <h4 class="mb-3 text-sm font-semibold uppercase tracking-wider text-gray-600 dark:text-gray-400">
           <?php echo $lang === 'ja' ? '一般設定' : 'General Settings'; ?>
         </h4>
       </div>
@@ -53,8 +53,8 @@
       ]);
       ?>
 
-      <div class="mb-4 border-t border-stroke pt-4 dark:border-strokedark">
-        <h4 class="mb-3 text-sm font-semibold uppercase tracking-wider text-bodydark2">
+      <div class="mb-4 border-t border-gray-200 pt-4 dark:border-gray-800">
+        <h4 class="mb-3 text-sm font-semibold uppercase tracking-wider text-gray-600 dark:text-gray-400">
           <?php echo $lang === 'ja' ? 'メール送信設定' : 'Mail Settings'; ?>
         </h4>
       </div>
@@ -75,8 +75,8 @@
       ]);
       ?>
 
-      <div class="mb-4 border-t border-stroke pt-4 dark:border-strokedark">
-        <h4 class="mb-3 text-sm font-semibold uppercase tracking-wider text-bodydark2">
+      <div class="mb-4 border-t border-gray-200 pt-4 dark:border-gray-800">
+        <h4 class="mb-3 text-sm font-semibold uppercase tracking-wider text-gray-600 dark:text-gray-400">
           <?php echo $lang === 'ja' ? 'ラベル印刷設定' : 'Label Printing'; ?>
         </h4>
       </div>
@@ -97,8 +97,8 @@
       ]);
       ?>
 
-      <div class="mb-4 border-t border-stroke pt-4 dark:border-strokedark">
-        <h4 class="mb-3 text-sm font-semibold uppercase tracking-wider text-bodydark2">
+      <div class="mb-4 border-t border-gray-200 pt-4 dark:border-gray-800">
+        <h4 class="mb-3 text-sm font-semibold uppercase tracking-wider text-gray-600 dark:text-gray-400">
           <?php echo $lang === 'ja' ? '認証設定' : 'Authentication'; ?>
         </h4>
       </div>

@@ -166,7 +166,7 @@ $this->content = function ($v) {
               </span>
             </button>
           </div>
-          <p x-show="itemError" x-text="itemError" class="mt-2 text-sm text-danger" role="alert"></p>
+          <p x-show="itemError" x-text="itemError" class="mt-2 text-sm text-error-500" role="alert"></p>
         </div>
       </div>
     </div>
@@ -180,7 +180,7 @@ $this->content = function ($v) {
       <div class="mb-4 flex items-start gap-4">
         <div class="flex-1">
           <p class="font-semibold text-black dark:text-white" x-text="item && item.name"></p>
-          <p class="mt-1 text-sm text-body dark:text-bodydark">
+          <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
             ID: <span x-text="item && item.id"></span>
           </p>
         </div>

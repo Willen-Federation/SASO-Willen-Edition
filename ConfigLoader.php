@@ -27,21 +27,14 @@ final class ConfigLoader
     public static function load(string $relative=''): array
     {
         if(empty(self::$configFile)) {
-            $base = empty($relative) ? __DIR__.'/' : $relative;
-            self::$configFile = ENV===null?$base.'config.json':$base.'config_'.ENV.'.json';
+            self::$configFile = ENV===null?$relative.'config.json':$relative.'config_'.ENV.'.json';
         }
         $config = json_decode(file_get_contents(self::$configFile), true);
         $env = EnvLoader::loadFile($relative.'.env');
         // Populate PHP's environment variables from .env so getenv() calls work
-        error_log('[ConfigLoader] .env loaded with keys: '.implode(', ', array_keys($env)));
         foreach ($env as $key => $value) {
-            $existing = getenv($key);
-            error_log("[ConfigLoader] Processing $key: existing=".var_export($existing, true).", value=".var_export($value, true));
             if (!getenv($key)) {
-                $result = putenv("$key=$value");
-                error_log("[ConfigLoader] putenv($key=$value) = ".var_export($result, true).", getenv($key) after = ".var_export(getenv($key), true));
-            } else {
-                error_log("[ConfigLoader] Skipping $key (already in getenv)");
+                putenv("$key=$value");
             }
         }
         $config = self::overlayEnv($config, $env);

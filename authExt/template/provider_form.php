@@ -29,9 +29,9 @@
       $displaySls      = $v->slsUrl;
       $urlsAreReal     = true;
   } else {
-      $displayCallback = $baseUrl.'/auth/callback/...';
-      $displayAcs      = $baseUrl.'/auth/saml/acs/...';
-      $displaySls      = $baseUrl.'/auth/saml/sls/...';
+      $displayCallback = $baseUrl.'/auth/.../callback';
+      $displayAcs      = $baseUrl.'/auth/.../saml/acs';
+      $displaySls      = $baseUrl.'/auth/.../saml/sls';
       $urlsAreReal     = false;
   }
 

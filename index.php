@@ -160,11 +160,10 @@ if (preg_match('#^/auth/(?:start|callback|saml/acs|saml/sls)/(\d+)/?$#', $reques
         $providers  = new \Saso\Infrastructure\Auth\Repository\PdoAuthProviderRepository($pdo, $encryptor);
         $extIds     = new \Saso\Infrastructure\Auth\Repository\PdoExternalIdentityRepository($pdo);
         $baseScheme = $onHttps ? 'https://' : 'http://';
-        $programDir = rtrim((string) ($config['programDir'] ?? ''), '/');
-        if ($programDir !== '' && !str_starts_with($programDir, '/')) {
-            $programDir = '/' . $programDir;
-        }
-        $baseUrl    = $baseScheme.($_SERVER['HTTP_HOST'] ?? 'localhost').$programDir;
+        // Note: baseUrl for OAuth callbacks should NOT include programDir.
+        // programDir is for file paths (documentRoot + programDir), not URL routing.
+        // Apache's DocumentRoot is already /var/www/html/saso, so the app is served at /.
+        $baseUrl    = $baseScheme.($_SERVER['HTTP_HOST'] ?? 'localhost');
         $factory    = new \Saso\Infrastructure\Auth\AuthProviderFactory($providers, $pdo, $baseUrl);
         $orch       = new \Saso\Application\Auth\LoginOrchestrator($factory, $extIds, $pdo);
         $providerId = new \Saso\Domain\Auth\AuthProviderId($providerIdInt);

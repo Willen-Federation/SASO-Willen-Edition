@@ -367,7 +367,7 @@ final class ProviderView implements View
             $base    = rtrim($proto . '://' . ($_SERVER['HTTP_HOST'] ?? 'localhost'), '/');
             $authUrl = $json['authorization_endpoint'] . '?' . http_build_query([
                 'client_id'     => $clientId,
-                'redirect_uri'  => $base . '/auth/callback/' . $providerId,
+                'redirect_uri'  => $base . '/auth/' . $providerId . '/callback',
                 'response_type' => 'code',
                 'scope'         => 'openid profile email',
                 'state'         => bin2hex(random_bytes(8)),
@@ -413,9 +413,9 @@ final class ProviderView implements View
         $this->loginUrl = $base.'/auth/login';
 
         if ($id > 0) {
-            $this->callbackUrl = $base.'/auth/callback/'.$id;
-            $this->acsUrl      = $base.'/auth/saml/acs/'.$id;
-            $this->slsUrl      = $base.'/auth/saml/sls/'.$id;
+            $this->callbackUrl = $base.'/auth/'.$id.'/callback';
+            $this->acsUrl      = $base.'/auth/'.$id.'/saml/acs';
+            $this->slsUrl      = $base.'/auth/'.$id.'/saml/sls';
         }
     }
 

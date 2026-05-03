@@ -135,19 +135,19 @@ if (class_exists(\Saso\Infrastructure\Translation\TranslatorFactory::class)) {
 }
 
 // --- M4-D2 external auth endpoints ------------------------------------------
-// /auth/start/{providerId}   → redirect to IdP authorize endpoint
-// /auth/callback/{providerId} → handle IdP callback, set session, return to home
-// /auth/saml/acs/{providerId} → SAML AssertionConsumerService POST
-// /auth/saml/sls/{providerId} → SAML SingleLogoutService
+// /auth/start/{providerId}    → redirect to IdP authorize endpoint
+// /auth/{providerId}/callback  → handle IdP callback, set session, return to home
+// /auth/{providerId}/saml/acs  → SAML AssertionConsumerService POST
+// /auth/{providerId}/saml/sls  → SAML SingleLogoutService
 // All of these are wired via the LoginOrchestrator. They short-circuit the
 // legacy router so the path tail (provider id) does not have to be encoded
 // into request.json. Schema mismatches (M4 not migrated, no APP_KEY, etc.)
 // fall through to the login screen with `?error=auth_unavailable`.
-if (preg_match('#^/auth/(?:start|callback|saml/acs|saml/sls)/(\d+)/?$#', $requestPath, $authMatch) === 1) {
+if (preg_match('#^/auth/(?:start/(\d+)|(\d+)/(?:callback|saml/acs|saml/sls))/?$#', $requestPath, $authMatch) === 1) {
     $authAction    = preg_match('#^/auth/start/#', $requestPath) === 1 ? 'start'
-        : (preg_match('#^/auth/callback/#', $requestPath) === 1 ? 'callback'
-        : (preg_match('#^/auth/saml/acs/#', $requestPath) === 1 ? 'acs' : 'sls'));
-    $providerIdInt = (int) $authMatch[1];
+        : (preg_match('#/callback/?$#', $requestPath) === 1 ? 'callback'
+        : (preg_match('#/saml/acs/?$#', $requestPath) === 1 ? 'acs' : 'sls'));
+    $providerIdInt = (int) ($authMatch[1] ?: $authMatch[2]);
 
     try {
         $appKey = (string) (getenv('APP_KEY') ?: '');

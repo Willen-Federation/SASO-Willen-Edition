@@ -48,6 +48,11 @@ final class LoginOrchestrator
         $state = bin2hex(random_bytes(16));
         $nonce = bin2hex(random_bytes(16));
 
+        // Persist the return URL in the session so handleCallback() can
+        // retrieve it after the IdP redirect. This survives the OAuth
+        // round-trip and allows the post-login redirect to work.
+        $_SESSION['auth.return_to'] = $returnTo;
+
         return $provider->beginLogin(new LoginContext(
             returnTo:        $returnTo,
             csrfStateToken:  $state,

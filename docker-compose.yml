@@ -42,6 +42,9 @@ services:
       APP_HTTPS: "false"
       APP_KEY: "Rk8Yi5ZCup+zgP3K0gWPfaAOGZA5TG9sUv9KIMqJzvM="
       AI_PROVIDER: "gemini"
+      LOCAL_GEMINI_KEY: "AIzaSyBte9Z0_GtUw6Ydsl4tB58RCY8JvNZJe5g"
+      AUTH0_DOMAIN: "saso.jp.auth0.com"
+      AUTH0_CLIENT_ID: "e7qEqMpfb3OdXlzb6t2dG5Y0rF4sA9mK"
     depends_on:
       db:
         condition: service_healthy

@@ -100,13 +100,17 @@ if (str_starts_with($requestPath, '/debug/ai-')) {
 // HttpOnly blocks document.cookie reads, SameSite=Lax mitigates CSRF on
 // top-level navigations, and Secure is set whenever config.https is true so
 // the session id never leaves a TLS channel.
+// Note: SameSite is omitted for non-HTTPS (dev) because cross-site OAuth
+// redirects (e.g., from Auth0) won't send the session cookie with SameSite=Lax.
+// On production (HTTPS), SameSite=None (with Secure) or Lax is safer. For dev
+// (HTTP), we rely on HttpOnly + CSRF tokens instead.
 session_set_cookie_params([
     'lifetime' => 0,
     'path'     => '/',
     'domain'   => '',
     'secure'   => !empty($config['https']),
     'httponly' => true,
-    'samesite' => 'Lax',
+    'samesite' => !empty($config['https']) ? 'Lax' : '',
 ]);
 session_start();
 
@@ -131,19 +135,36 @@ if (class_exists(\Saso\Infrastructure\Translation\TranslatorFactory::class)) {
 }
 
 // --- M4-D2 external auth endpoints ------------------------------------------
-// /auth/start/{providerId}   → redirect to IdP authorize endpoint
-// /auth/callback/{providerId} → handle IdP callback, set session, return to home
-// /auth/saml/acs/{providerId} → SAML AssertionConsumerService POST
-// /auth/saml/sls/{providerId} → SAML SingleLogoutService
+// /auth/start/{providerId}    → redirect to IdP authorize endpoint
+// /auth/callback               → handle IdP callback (provider ID from session)
+// /auth/saml/acs               → SAML AssertionConsumerService POST (provider ID from session)
+// /auth/saml/sls               → SAML SingleLogoutService (provider ID from session)
 // All of these are wired via the LoginOrchestrator. They short-circuit the
 // legacy router so the path tail (provider id) does not have to be encoded
 // into request.json. Schema mismatches (M4 not migrated, no APP_KEY, etc.)
 // fall through to the login screen with `?error=auth_unavailable`.
-if (preg_match('#^/auth/(?:start|callback|saml/acs|saml/sls)/(\d+)/?$#', $requestPath, $authMatch) === 1) {
+// NOTE: Provider ID is NOT exposed in callback URLs (security). For callback/acs/sls,
+// the provider ID is retrieved from $_SESSION['auth.provider_id'] which was set
+// during beginLogin().
+if (preg_match('#^/auth/(?:start/(\d+)|callback|saml/acs|saml/sls)/?$#', $requestPath, $authMatch) === 1) {
     $authAction    = preg_match('#^/auth/start/#', $requestPath) === 1 ? 'start'
-        : (preg_match('#^/auth/callback/#', $requestPath) === 1 ? 'callback'
-        : (preg_match('#^/auth/saml/acs/#', $requestPath) === 1 ? 'acs' : 'sls'));
-    $providerIdInt = (int) $authMatch[1];
+        : (preg_match('#/callback/?$#', $requestPath) === 1 ? 'callback'
+        : (preg_match('#/saml/acs/?$#', $requestPath) === 1 ? 'acs' : 'sls'));
+
+    // For 'start' action, extract provider ID from URL.
+    // For callback/acs/sls actions, retrieve provider ID from session (set during beginLogin).
+    if ($authAction === 'start') {
+        $providerIdInt = (int) ($authMatch[1] ?? 0);
+        if ($providerIdInt < 1) {
+            throw new \RuntimeException('Provider ID missing from /auth/start/{id} URL.');
+        }
+    } else {
+        // callback / acs / sls
+        $providerIdInt = (int) ($_SESSION['auth.provider_id'] ?? 0);
+        if ($providerIdInt < 1) {
+            throw new \RuntimeException('Provider ID not found in session. Login must be initiated via /auth/start/{id}.');
+        }
+    }
 
     try {
         $appKey = (string) (getenv('APP_KEY') ?: '');
@@ -160,11 +181,10 @@ if (preg_match('#^/auth/(?:start|callback|saml/acs|saml/sls)/(\d+)/?$#', $reques
         $providers  = new \Saso\Infrastructure\Auth\Repository\PdoAuthProviderRepository($pdo, $encryptor);
         $extIds     = new \Saso\Infrastructure\Auth\Repository\PdoExternalIdentityRepository($pdo);
         $baseScheme = $onHttps ? 'https://' : 'http://';
-        $programDir = rtrim((string) ($config['programDir'] ?? ''), '/');
-        if ($programDir !== '' && !str_starts_with($programDir, '/')) {
-            $programDir = '/' . $programDir;
-        }
-        $baseUrl    = $baseScheme.($_SERVER['HTTP_HOST'] ?? 'localhost').$programDir;
+        // Note: baseUrl for OAuth callbacks should NOT include programDir.
+        // programDir is for file paths (documentRoot + programDir), not URL routing.
+        // Apache's DocumentRoot is already /var/www/html/saso, so the app is served at /.
+        $baseUrl    = $baseScheme.($_SERVER['HTTP_HOST'] ?? 'localhost');
         $factory    = new \Saso\Infrastructure\Auth\AuthProviderFactory($providers, $pdo, $baseUrl);
         $orch       = new \Saso\Application\Auth\LoginOrchestrator($factory, $extIds, $pdo);
         $providerId = new \Saso\Domain\Auth\AuthProviderId($providerIdInt);

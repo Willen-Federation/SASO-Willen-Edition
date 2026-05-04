@@ -137,6 +137,9 @@
     "featureAdmin": {
         "list": "\\saso\\featureAdmin\\ListDIContainer"
     },
+    "scanStock": {
+        "start": "\\saso\\scanStock\\StartDIContainer"
+    },
     "settingAdmin": {
         "start": "\\saso\\settingAdmin\\StartDIContainer"
     },

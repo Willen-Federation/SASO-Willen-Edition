@@ -11,7 +11,8 @@
 
 <div class="card mb-3">
   <div class="table-responsive">
-    <table class="table table-striped table-vcenter card-table">
+    <table class="table table-striped table-vcenter card-table"
+           aria-label="商品情報">
       <?php ($v->inside)('item', 'head'); ?>
       <?php ($v->inside)('item', 'row', $v->item); ?>
     </table>
@@ -45,25 +46,25 @@
 <?php } ?>
 
 <h2 class="h2 mb-3">数量・棚番管理</h2>
-<table class="table table-striped table-hover table-vcenter">
-<tr>
-<th>商品詳細番号</th>
-<th>色</th>
-<th>サイズ</th>
-<th>数量</th>
+<table class="table table-striped table-hover table-vcenter" aria-label="数量・棚番管理">
+<thead><tr>
+<th scope="col">商品詳細番号</th>
+<th scope="col">色</th>
+<th scope="col">サイズ</th>
+<th scope="col">数量</th>
 <?php if(!$v->archive->archive) { ?>
-<th>入庫</th>
-<th>出庫</th>
-<th>棚卸
+<th scope="col">入庫</th>
+<th scope="col">出庫</th>
+<th scope="col">棚卸
 <div class="form-check form-switch">
     <input type="checkbox" class="form-check-input" id="inventoryButtonDisplayButton">
     <label class="form-check-label" for="inventoryButtonDisplayButton">許可</label>
 </div>
 </th>
 <?php } ?>
-<th>棚番</th>
-<th>ラベル枚数</th>
-</tr>
+<th scope="col">棚番</th>
+<th scope="col">ラベル枚数</th>
+</tr></thead><tbody>
 <?php
 foreach($v->quantityLogsGen as $quantityLogs) {
     $feature = $quantityLogs->feature;
@@ -108,7 +109,6 @@ foreach($v->quantityLogsGen as $quantityLogs) {
     <button type="submit" class="btn btn-outline-primary shipmentButton" id="shipmentButton">出庫</button>
 </div>
 </form>
-</form>
 </td>
 <td>
 <form method="post" action="<?php echo './item/inventory/item/'.$feature->item->id.'/color/'.$feature->color->code.'/size/'.$feature->size->code; ?>">
@@ -150,6 +150,7 @@ foreach($v->quantityLogsGen as $quantityLogs) {
         aria-describedby="putShelfButton" pattern="^[0-9A-Za-z\-]+$" maxlength="15" required
     >
     <button type="submit" class="btn btn-outline-primary" id="putShelfButton">棚置</button>
+</div>
 </form>
 </td>
 <td>
@@ -161,13 +162,14 @@ foreach($v->quantityLogsGen as $quantityLogs) {
         aria-describedby="putShelfButton" min="0" max="100" range="1"
     >
     <button type="submit" class="btn btn-outline-primary" id="">追加</button>
+</div>
 </form>
 </td>
 </tr>
 <?php
 }
 ?>
-</table>
+</tbody></table>
 
 <div id="labelSheetsAmount" class="d-none"><?php echo $v->labelSheetsAmount; ?></div>
 <div id="labelSheetsAmountMax" class="d-none"><?php echo $v->labelSheetsAmountMax; ?></div>

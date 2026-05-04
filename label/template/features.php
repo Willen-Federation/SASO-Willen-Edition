@@ -19,7 +19,8 @@
     </div>
   </div>
   <div class="table-responsive">
-    <table class="table table-striped table-vcenter table-hover card-table">
+    <table class="table table-striped table-vcenter table-hover card-table"
+           aria-label="印刷対象の商品ラベル一覧">
       <thead>
         <tr>
           <th scope="col">商品情報</th>

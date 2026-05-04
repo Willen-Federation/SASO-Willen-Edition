@@ -134,10 +134,8 @@
                 <p>Precision warehouse visualization & spatial inventory management.</p>
             </div>
             <div>
-                <a href="./shelf/simple/" style="background-color: white; color: #4f46e5; font-weight: 700; padding: 0.75rem 1.5rem; border-radius: 0.75rem; display: inline-flex; align-items: center; text-decoration: none; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
-                    <svg style="width: 1.25rem; height: 1.25rem; margin-right: 0.5rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-                    </svg>
+                <a href="./shelf/simple/" class="btn btn-light d-inline-flex align-items-center gap-2">
+                    <i class="ti ti-plus" aria-hidden="true"></i>
                     Configure Shelves
                 </a>
             </div>
@@ -193,9 +191,7 @@
             <!-- Pin Details (Top Priority if selected) -->
             <div x-show="selectedPin" class="map-card" style="position: relative;">
                 <div style="position: absolute; top: 1rem; right: 1rem;">
-                    <button @click="selectedPin = null" style="background-color: #f1f5f9; color: #64748b; border: none; width: 1.5rem; height: 1.5rem; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center;">
-                        &times;
-                    </button>
+                    <button @click="selectedPin = null" class="btn-close" aria-label="Close"></button>
                 </div>
 
                 <div style="margin-bottom: 1.5rem;">
@@ -214,7 +210,7 @@
                     </div>
                     
                     <div style="padding-top: 1rem; display: flex; flex-direction: column; gap: 0.75rem;">
-                        <a :href="`./item/list?location=${selectedPin?.id}`" style="background-color: #1e293b; color: white; font-weight: 700; padding: 1rem; border-radius: 0.75rem; text-align: center; text-decoration: none; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                        <a :href="`./item/list?location=${selectedPin?.id}`" class="btn btn-dark w-100">
                             View Inventory &rarr;
                         </a>
                     </div>

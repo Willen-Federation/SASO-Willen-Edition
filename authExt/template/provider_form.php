@@ -140,7 +140,7 @@ ui('card', [
         <div class="col">
           <button type="button"
                   @click="pick('<?php echo $val; ?>')"
-                  class="card h-100 w-100 text-start border p-3 cursor-pointer"
+                  class="card h-100 w-100 text-start border p-3"
                   role="option"
                   :aria-selected="choice === '<?php echo $val; ?>'">
             <div class="d-flex align-items-center gap-2 mb-1">
@@ -166,7 +166,7 @@ ui('card', [
         <div class="col">
           <button type="button"
                   @click="pick('<?php echo $val; ?>')"
-                  class="card h-100 w-100 text-start border p-3 cursor-pointer"
+                  class="card h-100 w-100 text-start border p-3"
                   role="option"
                   :aria-selected="choice === '<?php echo $val; ?>'">
             <div class="d-flex align-items-center gap-2 mb-1">
@@ -582,7 +582,7 @@ ui('card', [
     <!-- Advanced: claim mapping -->
     <div class="border-top pt-3 mb-4">
       <details>
-        <summary class="cursor-pointer text-uppercase small fw-semibold text-muted mb-0">
+        <summary class="text-uppercase small fw-semibold text-muted mb-0" style="cursor:pointer">
           <?php echo $lang === 'ja' ? '詳細設定' : 'Advanced'; ?>
         </summary>
         <div class="mt-3">

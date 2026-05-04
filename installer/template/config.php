@@ -30,15 +30,14 @@
     </div>
   </li>
   <li>
-    <p><code>database</code> 内の各項目に文字列を入力して下さい。</p>
-    <p>PDO でデータベースに接続するための DSN、データベースのユーザ名、パスワードをそれぞれ該当箇所に入力してください。</p>
+    <p>データベース接続情報は <code>.env</code> ファイル（SASO フォルダ直下、無ければ <code>.env.example</code> をコピーして作成）に設定してください。</p>
+    <p>PDO でデータベースに接続するための DSN、ユーザ名、パスワードを <code>DB_DSN</code> / <code>DB_USER</code> / <code>DB_PASSWORD</code> として記述します。</p>
     <div class="tab">
-      <pre class="tabbed">  "database": {
-    "dsn": "mysql:host=localhost;dbname=saso_db;charset=utf8",
-    "user": "saso_user",
-    "password": "saso_sql"
-  },</pre>
+      <pre class="tabbed">DB_DSN=mysql:host=localhost;dbname=saso_db;charset=utf8mb4
+DB_USER=saso_user
+DB_PASSWORD=&lt;your password&gt;</pre>
     </div>
+    <p><code>config.json</code> の <code>database</code> セクションは空のままで構いません。<code>.env</code> の値が優先されます。</p>
   </li>
 </ol>
 

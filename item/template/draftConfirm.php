@@ -44,10 +44,10 @@
           <?php if ($imagePath): ?>
             <img src="./<?php echo htmlspecialchars($imagePath, ENT_QUOTES, 'UTF-8'); ?>"
                  alt="<?php echo $lang === 'ja' ? '商品画像' : 'Product image'; ?>"
-                 class="w-full max-w-sm rounded-lg border border-stroke object-contain dark:border-strokedark"
+                 class="w-full max-w-sm rounded-lg border border-gray-200 object-contain dark:border-gray-800"
                  style="max-height:400px;">
           <?php else: ?>
-            <div class="flex h-64 w-full max-w-sm items-center justify-center rounded-lg border border-stroke bg-gray-2 dark:border-strokedark dark:bg-meta-4">
+            <div class="flex h-64 w-full max-w-sm items-center justify-center rounded-lg border border-gray-200 bg-gray-100 dark:border-gray-800 dark:bg-gray-700">
               <svg class="h-16 w-16 text-gray-300" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
               </svg>
@@ -89,12 +89,12 @@
           ) use ($lang, $aiBadge) {
               $label = $lang === 'ja' ? $labelJa : $labelEn;
               $badge = $field['fromAi'] ? $aiBadge : '';
-              $inputClass = 'w-full rounded border border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary text-black dark:text-white';
+              $inputClass = 'w-full rounded border border-gray-200 bg-transparent py-3 px-5 font-medium outline-none transition focus:border-brand-500 active:border-brand-500 dark:border-gray-800 dark:bg-form-input dark:focus:border-brand-500 text-black dark:text-white';
               echo '<div class="mb-4">';
               echo '<label for="' . htmlspecialchars($name, ENT_QUOTES, 'UTF-8') . '" class="mb-2.5 block font-medium text-black dark:text-white">';
               echo htmlspecialchars($label, ENT_QUOTES, 'UTF-8');
               if ($required) {
-                  echo '<span class="text-danger ml-1" aria-hidden="true">*</span>';
+                  echo '<span class="text-error-500 ml-1" aria-hidden="true">*</span>';
               }
               echo $badge;
               echo '</label>';
@@ -133,7 +133,7 @@
                   <?php echo $lang === 'ja' ? 'AI提案' : 'AI Suggestion'; ?>
                 </span>
               </p>
-              <p class="rounded border border-stroke bg-gray-2 px-5 py-3 text-sm text-body dark:border-strokedark dark:bg-meta-4 dark:text-bodydark">
+              <p class="rounded border border-gray-200 bg-gray-100 px-5 py-3 text-sm text-gray-600 dark:border-gray-800 dark:bg-gray-700 dark:text-gray-400">
                 <?php echo htmlspecialchars($categoryHint, ENT_QUOTES, 'UTF-8'); ?>
               </p>
             </div>

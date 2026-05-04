@@ -1,3 +1,6 @@
+includes:
+    - phpstan-baseline.neon
+
 parameters:
     level: 6
     # Scope: only files this fork has rewritten or owns. Legacy directories
@@ -24,6 +27,10 @@ parameters:
         analyseAndScan:
             - vendor/*
             - extention/*
+            # DbProvider implements OpenFeature interfaces from a library that
+            # is not installed in this fork. Excluded until the OpenFeature SDK
+            # is properly added as a composer dependency.
+            - src/Infrastructure/FeatureFlag/DbProvider.php
     bootstrapFiles:
         - tests/bootstrap.php
     parallel:

@@ -1,5 +1,5 @@
 <?php $this->title = 'パスワード変更'; ?>
-<?php $this->content = function($v) { ?>
+<?php $this->content = function ($v) { ?>
 
 <nav aria-label="breadcrumb">
 <ol class="breadcrumb">
@@ -8,11 +8,11 @@
 </ol>
 </nav>
 
-<?php if($v->changed) { ?>
+<?php if ($v->changed) { ?>
 <p class="text-success">パスワードが変更されました。</p>
 <?php } ?>
-<?php if($v->errorNow) { ?>
-<p class="text-danger">現在のパスワードが正しくありません。</p>
+<?php if ($v->errorNow) { ?>
+<p class="text-error-500">現在のパスワードが正しくありません。</p>
 <?php } ?>
 
 <p>パスワードはどこかに書き留めておいて下さい。忘れると、復元できません。<p>

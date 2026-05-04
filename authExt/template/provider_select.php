@@ -24,7 +24,7 @@
     'body' => function () use ($lang) {
 ?>
 
-  <p class="mb-6 text-sm text-bodydark2">
+  <p class="mb-6 text-sm text-gray-600 dark:text-gray-400">
     <?php echo $lang === 'ja'
       ? '連携する外部 IdP の種類を選んでください。次のステップで接続情報とセットアップ手順を案内します。'
       : 'Select the type of identity provider you want to connect. The next step shows setup instructions and the fields to fill in.'; ?>
@@ -69,16 +69,16 @@
     ];
 
     foreach ($providers as $key => $p) {
-        echo '<a href="./auth/provider/new/' . $key . '" class="group flex flex-col gap-3 rounded-xl border-2 border-stroke p-6 transition-all hover:border-primary hover:shadow-theme-md dark:border-strokedark dark:hover:border-primary">';
+        echo '<a href="./auth/provider/new/' . $key . '" class="group flex flex-col gap-3 rounded-xl border-2 border-gray-200 p-6 transition-all hover:border-brand-500 hover:shadow-theme-md dark:border-gray-800 dark:hover:border-brand-500">';
         echo '<div class="flex items-start justify-between">';
-        echo '<span class="text-primary dark:text-brand-400">' . $p['icon'] . '</span>';
-        echo '<span class="rounded-full bg-gray-2 px-2.5 py-0.5 text-xs font-medium text-bodydark2 dark:bg-meta-4 dark:text-white">' . htmlspecialchars($p['tag']) . '</span>';
+        echo '<span class="text-brand-500 dark:text-brand-400">' . $p['icon'] . '</span>';
+        echo '<span class="ta-badge ta-badge-gray text-xs">' . htmlspecialchars($p['tag']) . '</span>';
         echo '</div>';
         echo '<div>';
-        echo '<h3 class="text-lg font-semibold text-black group-hover:text-primary dark:text-white">' . htmlspecialchars($p['label']) . '</h3>';
-        echo '<p class="mt-1 text-sm text-bodydark2">' . htmlspecialchars($p['desc']) . '</p>';
+        echo '<h3 class="text-lg font-semibold text-gray-800 group-hover:text-brand-600 dark:text-white/90">' . htmlspecialchars($p['label']) . '</h3>';
+        echo '<p class="mt-1 text-sm text-gray-600 dark:text-gray-400">' . htmlspecialchars($p['desc']) . '</p>';
         echo '</div>';
-        echo '<div class="flex items-center gap-1 text-sm font-medium text-primary">';
+        echo '<div class="flex items-center gap-1 text-sm font-medium text-brand-500">';
         echo '<span>' . ($lang === 'ja' ? 'セットアップ →' : 'Set up →') . '</span>';
         echo '</div>';
         echo '</a>';

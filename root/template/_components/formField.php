@@ -36,21 +36,18 @@ $rows         = $rows ?? 4;
 $ariaDescribedBy = [];
 if ($help)  $ariaDescribedBy[] = $id . '-help';
 if ($error) $ariaDescribedBy[] = $id . '-error';
-
-$inputClass = "w-full rounded border border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary text-black dark:text-white";
-if ($error) $inputClass .= " border-danger";
 ?>
 <div class="mb-4">
-  <label for="<?php echo ui_attr($id); ?>" class="mb-2.5 block font-medium text-black dark:text-white">
+  <label for="<?php echo ui_attr($id); ?>" class="form-label">
     <?php echo ui_text($label); ?>
-    <?php if ($required): ?><span class="text-danger" aria-hidden="true">*</span><?php endif; ?>
+    <?php if ($required): ?><span class="text-error-500" aria-hidden="true">*</span><?php endif; ?>
   </label>
 
   <?php if ($type === 'textarea'): ?>
     <textarea id="<?php echo ui_attr($id); ?>"
               name="<?php echo ui_attr($name); ?>"
               rows="<?php echo (int) $rows; ?>"
-              class="<?php echo ui_attr($inputClass); ?>"
+              class="form-textarea"
               <?php if ($placeholder): ?>placeholder="<?php echo ui_attr($placeholder); ?>"<?php endif; ?>
               <?php if ($required): ?>required<?php endif; ?>
               <?php if ($error):    ?>aria-invalid="true"<?php endif; ?>
@@ -59,7 +56,7 @@ if ($error) $inputClass .= " border-danger";
   <?php elseif ($type === 'select'): ?>
     <select id="<?php echo ui_attr($id); ?>"
             name="<?php echo ui_attr($name); ?>"
-            class="<?php echo ui_attr($inputClass); ?>"
+            class="form-select"
             <?php if ($required): ?>required<?php endif; ?>
             <?php if ($error):    ?>aria-invalid="true"<?php endif; ?>
             <?php if ($ariaDescribedBy): ?>aria-describedby="<?php echo ui_attr(implode(' ', $ariaDescribedBy)); ?>"<?php endif; ?>>
@@ -75,7 +72,7 @@ if ($error) $inputClass .= " border-danger";
            id="<?php echo ui_attr($id); ?>"
            name="<?php echo ui_attr($name); ?>"
            value="<?php echo ui_attr((string) $value); ?>"
-           class="<?php echo ui_attr($inputClass); ?>"
+           class="form-input"
            <?php if ($placeholder):  ?>placeholder="<?php echo ui_attr($placeholder); ?>"<?php endif; ?>
            <?php if ($autocomplete): ?>autocomplete="<?php echo ui_attr($autocomplete); ?>"<?php endif; ?>
            <?php if ($required):     ?>required<?php endif; ?>

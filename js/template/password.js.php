@@ -7,7 +7,7 @@ export default class Password {
             let equals = document.getElementById(another+'Password').value === e.target.value;
             document.getElementById('changePasswordSubmit').disabled = !equals;
             if(!equals) {
-                document.getElementById('confirmPasswordError').setAttribute('class', 'text-danger');
+                document.getElementById('confirmPasswordError').setAttribute('class', 'text-error-500');
             } else {
                 document.getElementById('confirmPasswordError').setAttribute('class', 'hidden');
             }

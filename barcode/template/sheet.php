@@ -106,8 +106,8 @@
               @click="selectLayout(l)"
               class="flex items-start gap-3 rounded border p-3 text-left transition"
               :class="selectedLayout && selectedLayout.id === l.id
-                ? 'border-primary bg-primary bg-opacity-5 dark:bg-meta-4'
-                : 'border-stroke hover:border-primary dark:border-strokedark'"
+                ? 'border-brand-500 bg-brand-500 bg-opacity-5 dark:bg-gray-700'
+                : 'border-gray-200 hover:border-brand-500 dark:border-gray-800'"
               :aria-pressed="selectedLayout && selectedLayout.id === l.id ? 'true' : 'false'"
             >
               <!-- Grid preview -->
@@ -125,12 +125,12 @@
               </div>
               <div>
                 <p class="text-sm font-semibold text-black dark:text-white" x-text="l.name"></p>
-                <p class="text-xs text-body dark:text-bodydark" x-text="l.desc"></p>
-                <p class="text-xs text-body dark:text-bodydark mt-0.5" x-text="l.w_mm + 'mm × ' + l.h_mm + 'mm'"></p>
+                <p class="text-xs text-gray-600 dark:text-gray-400" x-text="l.desc"></p>
+                <p class="text-xs text-gray-600 dark:text-gray-400 mt-0.5" x-text="l.w_mm + 'mm × ' + l.h_mm + 'mm'"></p>
               </div>
             </button>
           </template>
-          <div x-show="filtered.length === 0" class="col-span-2 py-8 text-center text-sm text-body">
+          <div x-show="filtered.length === 0" class="col-span-2 py-8 text-center text-sm text-gray-600">
             <?php echo $lang === 'ja' ? '一致するシートが見つかりません' : 'No matching sheets found'; ?>
           </div>
         </div>
@@ -155,7 +155,7 @@
           </div>
         </div>
 
-        <div x-show="!selectedLayout" class="mt-4 text-sm text-body dark:text-bodydark">
+        <div x-show="!selectedLayout" class="mt-4 text-sm text-gray-600 dark:text-gray-400">
           <?php echo $lang === 'ja' ? '↑ 上のリストからシートレイアウトを選択してください' : '↑ Select a sheet layout from the list above'; ?>
         </div>
       </div>
@@ -170,7 +170,7 @@
         <div>
           <label class="form-label text-sm"><?php echo $lang === 'ja' ? 'バーコードプレフィックス' : 'Barcode Prefix'; ?></label>
           <input x-model="prefix" type="text" maxlength="5" class="form-input py-2 text-sm" placeholder="BC" aria-label="<?php echo $lang === 'ja' ? 'プレフィックス' : 'Prefix'; ?>">
-          <p class="mt-1 text-xs text-body"><?php echo $lang === 'ja' ? '例: BC → BC00001, BC00002...' : 'e.g. BC → BC00001, BC00002...'; ?></p>
+          <p class="mt-1 text-xs text-gray-600"><?php echo $lang === 'ja' ? '例: BC → BC00001, BC00002...' : 'e.g. BC → BC00001, BC00002...'; ?></p>
         </div>
         <div>
           <label class="form-label text-sm"><?php echo $lang === 'ja' ? '開始番号' : 'Start Number'; ?></label>
@@ -179,7 +179,7 @@
         <div>
           <label class="form-label text-sm"><?php echo $lang === 'ja' ? '枚数' : 'Count'; ?></label>
           <input x-model.number="count" type="number" min="1" max="999" class="form-input py-2 text-sm" :max="labelsPerSheet * 10" aria-label="枚数">
-          <p class="mt-1 text-xs text-body">
+          <p class="mt-1 text-xs text-gray-600">
             <?php echo $lang === 'ja' ? '1シートあたり ' : 'Per sheet: '; ?>
             <span x-text="labelsPerSheet" class="font-semibold"></span>
             <?php echo $lang === 'ja' ? ' 面' : ' labels'; ?>
@@ -189,7 +189,7 @@
         </div>
 
         <!-- Selected layout summary -->
-        <div x-show="selectedLayout" class="rounded border border-stroke dark:border-strokedark p-3 text-xs text-body dark:text-bodydark">
+        <div x-show="selectedLayout" class="rounded border border-gray-200 dark:border-gray-800 p-3 text-xs text-gray-600 dark:text-gray-400">
           <p class="font-semibold text-black dark:text-white mb-1" x-text="selectedLayout && selectedLayout.name ? selectedLayout.name : ''"></p>
           <p x-text="selectedLayout && selectedLayout.desc ? selectedLayout.desc : ''"></p>
           <p x-text="(selectedLayout && selectedLayout.id === 'custom' ? customW : (selectedLayout ? selectedLayout.w_mm : 0)) + 'mm × ' + (selectedLayout && selectedLayout.id === 'custom' ? customH : (selectedLayout ? selectedLayout.h_mm : 0)) + 'mm'"></p>

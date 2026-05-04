@@ -14,7 +14,7 @@
     'title' => $lang === 'ja' ? '画像から商品登録' : 'Register Product via Image',
     'body'  => function () use ($lang) { ?>
 
-      <p class="mb-6 text-sm text-body dark:text-bodydark">
+      <p class="mb-6 text-sm text-gray-600 dark:text-gray-400">
         <?php echo $lang === 'ja'
           ? '商品の画像をアップロードすると、AIがバーコードや商品情報を解析して自動入力します。解析完了後にドラフト一覧で内容を確認・修正して登録できます。'
           : 'Upload a product image and AI will analyse the barcode and product details for you. Review and edit the draft before confirming registration.'; ?>
@@ -29,7 +29,7 @@
 
         <!-- Image drop zone -->
         <div
-          class="relative flex flex-col items-center justify-center rounded-lg border-2 border-dashed border-stroke p-8 transition hover:border-brand-400 dark:border-strokedark dark:hover:border-brand-500"
+          class="relative flex flex-col items-center justify-center rounded-lg border-2 border-dashed border-gray-200 p-8 transition hover:border-brand-400 dark:border-gray-800 dark:hover:border-brand-500"
           :class="{ 'border-brand-400 bg-brand-50 dark:bg-brand-900/20': dragging }"
           @dragover.prevent="dragging = true"
           @dragleave.prevent="dragging = false"
@@ -52,7 +52,7 @@
                 <label for="image-upload" class="cursor-pointer font-semibold text-brand-600 hover:underline dark:text-brand-400">
                   <?php echo $lang === 'ja' ? 'ファイルを選択' : 'Choose a file'; ?>
                 </label>
-                <span class="text-body dark:text-bodydark">
+                <span class="text-gray-600 dark:text-gray-400">
                   <?php echo $lang === 'ja' ? 'またはここにドラッグ＆ドロップ' : ' or drag and drop here'; ?>
                 </span>
               </div>
@@ -63,9 +63,9 @@
           <template x-if="previewUrl">
             <div class="flex flex-col items-center gap-3">
               <img :src="previewUrl" alt="Preview" class="max-h-48 rounded object-contain">
-              <p class="text-sm text-body dark:text-bodydark" x-text="fileName"></p>
+              <p class="text-sm text-gray-600 dark:text-gray-400" x-text="fileName"></p>
               <button type="button"
-                      class="text-xs text-danger hover:underline"
+                      class="text-xs text-error-500 hover:underline"
                       @click="previewUrl = null; fileName = ''; $refs.fileInput.value = ''">
                 <?php echo $lang === 'ja' ? '削除' : 'Remove'; ?>
               </button>
@@ -91,7 +91,7 @@
         </div>
 
         <!-- Optional hints -->
-        <details class="rounded-lg border border-stroke p-4 dark:border-strokedark">
+        <details class="rounded-lg border border-gray-200 p-4 dark:border-gray-800">
           <summary class="cursor-pointer text-sm font-medium text-black dark:text-white">
             <?php echo $lang === 'ja' ? '追加情報（任意）' : 'Additional hints (optional)'; ?>
           </summary>

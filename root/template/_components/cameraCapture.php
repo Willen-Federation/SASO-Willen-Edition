@@ -183,7 +183,7 @@ $videoId   = 'saso-camera-preview-' . $uniqueId;
           role="tab"
           :aria-selected="mode === 'camera'"
           @click="switchTab('camera')"
-          :class="mode === 'camera' ? 'bg-primary text-white' : 'bg-transparent text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/5'"
+          :class="mode === 'camera' ? 'bg-brand-500 text-white' : 'bg-transparent text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/5'"
           class="flex-1 px-4 py-2 text-sm font-medium transition"
         >
           <?php echo ui_text(__('ui.item.register.take_photo', [], null, 'Camera')); ?>
@@ -193,7 +193,7 @@ $videoId   = 'saso-camera-preview-' . $uniqueId;
           role="tab"
           :aria-selected="mode === 'file'"
           @click="switchTab('file')"
-          :class="mode === 'file' ? 'bg-primary text-white' : 'bg-transparent text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/5'"
+          :class="mode === 'file' ? 'bg-brand-500 text-white' : 'bg-transparent text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/5'"
           class="flex-1 px-4 py-2 text-sm font-medium transition"
         >
           <?php echo ui_text(__('ui.item.register.image_drop', [], null, 'File')); ?>
@@ -232,7 +232,7 @@ $videoId   = 'saso-camera-preview-' . $uniqueId;
       {{-- File tab --}}
       <div x-show="mode === 'file'">
         <div x-show="!capturedDataUrl">
-          <label class="flex cursor-pointer flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed border-gray-300 p-8 text-gray-500 hover:border-primary dark:border-gray-600 dark:text-gray-400">
+          <label class="flex cursor-pointer flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed border-gray-300 p-8 text-gray-500 hover:border-brand-500 dark:border-gray-600 dark:text-gray-400">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
                 d="M4 16l4-4 4 4 4-8 4 4M4 20h16"/>

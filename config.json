@@ -1,7 +1,7 @@
 {
   "$path_comment": "パス",
-  "documentRoot": "/var/www/html/",
-  "programDir": "/saso/",
+  "documentRoot": "/home/schicksal/domains/saso.sksl.jp/public_html",
+  "programDir": "",
 
   "$database_comment": "データベース",
   "$database_secret_note": "Set DB_DSN/DB_USER/DB_PASSWORD in .env (see .env.example). The empty values here are intentional — the app fails loudly if .env is missing, which is the safe default. Values from .env override the entries below.",

@@ -172,7 +172,7 @@ $videoId   = 'saso-camera-preview-' . $uniqueId;
           :aria-selected="mode === 'camera'"
           @click="switchTab('camera')"
           :class="mode === 'camera' ? 'btn-primary' : 'btn-outline-secondary'"
-          class="btn btn-sm flex-1"
+          class="btn btn-sm flex-grow-1"
         >
           <?php echo ui_text(__('ui.item.register.take_photo', [], null, 'Camera')); ?>
         </button>
@@ -182,7 +182,7 @@ $videoId   = 'saso-camera-preview-' . $uniqueId;
           :aria-selected="mode === 'file'"
           @click="switchTab('file')"
           :class="mode === 'file' ? 'btn-primary' : 'btn-outline-secondary'"
-          class="btn btn-sm flex-1"
+          class="btn btn-sm flex-grow-1"
         >
           <?php echo ui_text(__('ui.item.register.image_drop', [], null, 'File')); ?>
         </button>

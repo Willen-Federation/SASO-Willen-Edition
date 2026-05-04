@@ -124,7 +124,7 @@
         'label'      => $lang === 'ja' ? '保存する' : 'Save Settings',
         'type'       => 'submit',
         'variant'    => 'primary',
-        'extraClass' => 'w-full justify-center mt-6',
+        'extraClass' => 'w-100 mt-4',
       ]);
       ?>
     </form>

@@ -141,7 +141,7 @@ $wrapperId = 'saso-scanner-wrapper-' . $uniqueId;
         </template>
       </div>
 
-      <button type="button" @click="closeScanner()" class="btn btn-secondary mt-4 w-full">
+      <button type="button" @click="closeScanner()" class="btn btn-secondary mt-4 w-100">
         <?php echo ui_text(__('ui.scanner.close', [], null, 'Close')); ?>
       </button>
     </div>

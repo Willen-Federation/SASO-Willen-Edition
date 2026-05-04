@@ -10,6 +10,34 @@
 <?php endif; ?>
 
 <?php
+  // Check if AI vision provider is configured
+  $aiProviderConfigured = false;
+  try {
+    $pdo = \saso\repository\DBConnection::getPdo();
+    $stmt = $pdo->query("SELECT value FROM system_setting WHERE key_name = 'ai.provider_vision' LIMIT 1");
+    if ($stmt) {
+      $row = $stmt->fetch(\PDO::FETCH_ASSOC);
+      $aiProviderConfigured = $row && !empty($row['value']) && $row['value'] !== '""';
+    }
+  } catch (\Throwable) {}
+?>
+
+<?php if (!$aiProviderConfigured): ?>
+  <div class="alert alert-warning d-flex align-items-center gap-2 mb-3" role="alert">
+    <i class="ti ti-alert-triangle fs-4 flex-shrink-0" aria-hidden="true"></i>
+    <div>
+      <?php if ($lang === 'ja'): ?>
+        <strong>AIプロバイダーが設定されていません。</strong>
+        <a href="./admin/aiSettings/" class="alert-link">管理 › AI設定</a> でAPIキーとプロバイダーを設定すると、画像から自動入力できます。
+      <?php else: ?>
+        <strong>No AI provider configured.</strong>
+        Set an API key and provider in <a href="./admin/aiSettings/" class="alert-link">Admin › AI Settings</a> to enable auto-fill from images.
+      <?php endif; ?>
+    </div>
+  </div>
+<?php endif; ?>
+
+<?php
   ui('card', [
     'title' => $lang === 'ja' ? '画像から商品登録' : 'Register Product via Image',
     'body'  => function () use ($lang) { ?>

@@ -2,6 +2,10 @@
 <?php $this->content = function ($v) {
   $lang = $_SESSION['lang'] ?? 'ja';
 
+  // A4 physical dimensions (mm)
+  $A4_W = 210.0;
+  $A4_H = 297.0;
+
   $presetLayouts = [
     ['id' => 'a-one-28332',    'brand' => 'A-ONE',  'code' => '28332',    'name' => 'A-ONE 28332',    'desc' => 'A4 / 24面 (3×8)',  'cols' => 3, 'rows' => 8,  'w_mm' => 70,   'h_mm' => 37],
     ['id' => 'a-one-28383',    'brand' => 'A-ONE',  'code' => '28383',    'name' => 'A-ONE 28383',    'desc' => 'A4 / 12面 (3×4)',  'cols' => 3, 'rows' => 4,  'w_mm' => 70,   'h_mm' => 67.7],
@@ -13,6 +17,25 @@
     ['id' => 'sanwa-jp-ind77', 'brand' => 'SANWA',  'code' => 'JP-IND77', 'name' => 'SANWA JP-IND77', 'desc' => 'A4 / 21面 (3×7)',  'cols' => 3, 'rows' => 7,  'w_mm' => 70,   'h_mm' => 42.3],
     ['id' => 'custom',         'brand' => '?',      'code' => 'CUSTOM',   'name' => 'カスタム',       'desc' => 'カスタム設定',     'cols' => 3, 'rows' => 8,  'w_mm' => 70,   'h_mm' => 37],
   ];
+
+  // Compute centred margins & safe label_code for each named preset.
+  // SizeController validates with floor($v*10)/10 precision.
+  foreach ($presetLayouts as &$p) {
+    if ($p['id'] !== 'custom') {
+      $rawML = max(0.0, ($A4_W - $p['cols'] * $p['w_mm']) / 2);
+      $rawMT = max(0.0, ($A4_H - $p['rows'] * $p['h_mm']) / 2);
+      $p['margin_left'] = floor($rawML * 10) / 10;
+      $p['margin_top']  = floor($rawMT * 10) / 10;
+      // label_code must match /^[0-9A-Za-z_-]{1,50}$/
+      $code = preg_replace('/[^0-9A-Za-z_-]+/', '-', $p['name']) ?? $p['code'];
+      $p['label_code'] = trim($code, '-');
+    } else {
+      $p['margin_left'] = 0;
+      $p['margin_top']  = 0;
+      $p['label_code']  = 'CUSTOM';
+    }
+  }
+  unset($p);
 ?>
 
 <div class="alert alert-success d-flex align-items-start gap-2 mb-4">
@@ -48,6 +71,7 @@
         return bOk && sOk;
       });
     },
+    saveLabelName: "",
     selectLayout(l) {
       this.selectedLayout = l;
       if (l.id !== "custom") {
@@ -56,6 +80,7 @@
         this.customW = l.w_mm;
         this.customH = l.h_mm;
         this.count = l.cols * l.rows;
+        this.saveLabelName = l.label_code;
       }
     },
     get labelsPerSheet() {
@@ -226,6 +251,40 @@
             <i class="ti ti-barcode me-2" aria-hidden="true"></i>
             <?php echo $lang === 'ja' ? 'バーコードから商品登録 →' : 'Register from Barcode →'; ?>
           </a>
+
+          <!-- ── Save layout to label database ───────────────────────── -->
+          <div x-show="selectedLayout && selectedLayout.id !== 'custom'" x-transition>
+            <hr class="my-2">
+            <p class="small text-muted mb-2">
+              <i class="ti ti-device-floppy me-1" aria-hidden="true"></i>
+              <?php echo $lang === 'ja' ? 'このレイアウトをラベル寸法に登録' : 'Save layout as label size'; ?>
+            </p>
+            <form method="post" action="./label/add/">
+              <div class="mb-2">
+                <input
+                  type="text"
+                  name="labelName"
+                  x-model="saveLabelName"
+                  class="form-control form-control-sm"
+                  maxlength="50"
+                  pattern="^[0-9A-Za-z_-]{1,50}$"
+                  placeholder="<?php echo $lang === 'ja' ? 'ラベル名（半角英数・ハイフン）' : 'Label name (alphanumeric/-)'; ?>"
+                  required
+                >
+              </div>
+              <input type="hidden" name="width"          :value="selectedLayout ? selectedLayout.w_mm : 0">
+              <input type="hidden" name="height"         :value="selectedLayout ? selectedLayout.h_mm : 0">
+              <input type="hidden" name="marginLeft"     :value="selectedLayout ? selectedLayout.margin_left : 0">
+              <input type="hidden" name="marginTop"      :value="selectedLayout ? selectedLayout.margin_top : 0">
+              <input type="hidden" name="intervalColumn" value="0">
+              <input type="hidden" name="intervalRow"    value="0">
+              <button type="submit" class="btn btn-outline-success btn-sm w-100"
+                      :disabled="!selectedLayout || !saveLabelName">
+                <i class="ti ti-plus me-1" aria-hidden="true"></i>
+                <?php echo $lang === 'ja' ? 'ラベル寸法として保存' : 'Save as label size'; ?>
+              </button>
+            </form>
+          </div>
 
         </div>
       </div>

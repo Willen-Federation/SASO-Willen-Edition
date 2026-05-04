@@ -71,7 +71,12 @@ spl_autoload_register(ClassLoader::load($config));
 // in config/openapi.yaml (cf. ADR 0002). Legacy screens, the installer, and
 // every existing PHP page continue to fall through to the request.json
 // router below.
-$requestPath = (string) (parse_url((string) ($_SERVER['REQUEST_URI'] ?? '/'), PHP_URL_PATH) ?? '/');
+$rawUri      = (string) ($_SERVER['REQUEST_URI'] ?? '/');
+// Normalize consecutive slashes (e.g. //auth/providers/ → /auth/providers/).
+// parse_url('//foo/bar', PHP_URL_PATH) treats 'foo' as hostname and returns
+// '/bar', causing mis-routing. Collapse them before parsing.
+$rawUri      = preg_replace('#/{2,}#', '/', $rawUri) ?? $rawUri;
+$requestPath = (string) (parse_url($rawUri, PHP_URL_PATH) ?? '/');
 
 // Automatic fallback redirect for users accessing the old /saso/ path
 if (str_starts_with($requestPath, '/saso/')) {

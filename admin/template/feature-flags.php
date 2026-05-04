@@ -33,7 +33,8 @@
           <div class="btn-group" role="group">
             <?php foreach ([['all','すべて','All'],['enabled','有効','Enabled'],['disabled','無効','Disabled']] as $ff): ?>
               <button type="button" @click="filterEnabled = '<?php echo $ff[0]; ?>'"
-                      :class="filterEnabled === '<?php echo $ff[0]; ?>' ? 'btn btn-primary' : 'btn btn-outline-secondary'"
+                      class="btn"
+                      :class="filterEnabled === '<?php echo $ff[0]; ?>' ? 'btn-primary' : 'btn-outline-secondary'"
                       :aria-pressed="(filterEnabled === '<?php echo $ff[0]; ?>').toString()">
                 <?php echo $lang === 'ja' ? $ff[1] : $ff[2]; ?>
               </button>

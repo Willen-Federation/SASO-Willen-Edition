@@ -157,7 +157,7 @@
                 </div>
                 <h3 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 0.5rem; color: inherit;">Visual Map Pending</h3>
                 <p style="font-size: 0.875rem; color: #64748b; margin-bottom: 1.5rem; line-height: 1.4;">Your warehouse layout isn't loaded yet. Upload a blueprint to start pinning locations.</p>
-                <a href="./shelf/simple/" style="color: #4f46e5; font-weight: 700; text-decoration: underline; font-size: 0.875rem;">
+                <a href="./shelf/simple/" class="fw-bold small link-primary">
                     Open Shelf Setup &rarr;
                 </a>
             </div>

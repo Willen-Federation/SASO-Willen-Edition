@@ -39,7 +39,7 @@
           ui('button', [
               'label'   => __('ui.auth_providers.add', [], null, 'Add provider'),
               'type'    => 'link',
-              'href'    => './auth/provider/new',
+              'href'    => './auth/providerNew/',
               'variant' => 'primary',
           ]);
       },

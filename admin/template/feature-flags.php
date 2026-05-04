@@ -2,6 +2,7 @@
 <?php $this->content = function($v) {
   $lang = $_SESSION['lang'] ?? 'ja';
   $flags = $v->flags ?? [];
+  $csrf = \saso\util\CSRFtoken::current();
 ?>
 
 <ol class="breadcrumb mb-3" aria-label="breadcrumbs">
@@ -75,8 +76,8 @@
               <td><code class="font-monospace"><?php echo htmlspecialchars($flag->getKey()->getValue()); ?></code></td>
               <td class="text-secondary"><?php echo htmlspecialchars($flag->getDescription() ?? '—'); ?></td>
               <td class="text-center">
-                <form method="post" action="./api/v1/feature-flags/<?php echo htmlspecialchars($flag->getKey()->getValue()); ?>" class="d-inline m-0">
-                  <input type="hidden" name="_method" value="PATCH">
+                <form method="post" action="./admin/feature-flags/toggle/<?php echo htmlspecialchars($flag->getKey()->getValue()); ?>/" class="d-inline m-0">
+                  <input type="hidden" name="csrftoken" value="<?php echo htmlspecialchars($csrf, ENT_QUOTES, 'UTF-8'); ?>">
                   <label class="form-check form-switch m-0 d-inline-block" aria-label="<?php echo $lang === 'ja' ? 'フラグを切り替え' : 'Toggle flag'; ?>">
                     <input type="checkbox" class="form-check-input" name="enabled" value="1"
                            <?php echo $flag->isEnabled() ? 'checked' : ''; ?>
@@ -92,6 +93,7 @@
                 <form method="post" action="./admin/feature-flags/delete/<?php echo htmlspecialchars($flag->getKey()->getValue()); ?>/"
                       class="d-inline m-0"
                       onsubmit="return confirm('<?php echo $lang === 'ja' ? '削除してよろしいですか？' : 'Are you sure?'; ?>')">
+                  <input type="hidden" name="csrftoken" value="<?php echo htmlspecialchars($csrf, ENT_QUOTES, 'UTF-8'); ?>">
                   <button type="submit" class="btn btn-sm btn-outline-danger"><i class="ti ti-trash me-1"></i><?php echo $lang === 'ja' ? '削除' : 'Delete'; ?></button>
                 </form>
               </td>
@@ -109,7 +111,8 @@
           <h5 class="modal-title"><?php echo $lang === 'ja' ? '新規フィーチャーフラグ' : 'New Feature Flag'; ?></h5>
           <button type="button" class="btn-close" @click="showAdd = false" aria-label="Close"></button>
         </div>
-        <form method="post" action="./api/v1/feature-flags">
+        <form method="post" action="./admin/feature-flags/">
+          <input type="hidden" name="csrftoken" value="<?php echo htmlspecialchars($csrf, ENT_QUOTES, 'UTF-8'); ?>">
           <div class="modal-body">
             <div class="mb-3">
               <label for="ff-key" class="form-label"><?php echo $lang === 'ja' ? 'キー' : 'Key'; ?> <span class="text-danger">*</span></label>

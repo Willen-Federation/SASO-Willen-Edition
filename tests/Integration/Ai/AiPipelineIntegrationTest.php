@@ -39,7 +39,7 @@ final class AiPipelineIntegrationTest extends TestCase
                 $this->markTestSkipped('APP_KEY is not configured');
             }
         } catch (\PDOException $e) {
-            $this->markTestSkipped('Database is not available: ' . $e->getMessage());
+            $this->markTestSkipped('Database is not available: '.$e->getMessage());
         }
     }
 

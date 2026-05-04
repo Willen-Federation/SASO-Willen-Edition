@@ -6,7 +6,6 @@ namespace Saso\Tests\Unit\Infrastructure\Ai;
 
 use PHPUnit\Framework\TestCase;
 use Saso\Domain\Setting\SettingKey;
-use Saso\Domain\Setting\SettingType;
 use Saso\Domain\Setting\SettingValue;
 use Saso\Domain\Setting\SystemSettingService;
 use Saso\Infrastructure\Ai\AiAssistantFactory;

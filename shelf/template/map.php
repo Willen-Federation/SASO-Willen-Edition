@@ -123,7 +123,7 @@
     
     <!-- Header Section -->
     <div class="map-header">
-        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-4">
             <div>
                 <h1>
                     <svg style="width: 2.5rem; height: 2.5rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24">

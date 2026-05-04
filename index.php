@@ -7,7 +7,36 @@ use saso\framework\UserCompiler;
 mb_internal_encoding('UTF-8');
 const ENV = null;
 require_once 'ConfigLoader.php';
+require_once 'util/EnvLoader.php';
+require_once 'util/EnvWriter.php';
 $config = ConfigLoader::load();
+
+// --- First-run secret bootstrap ---------------------------------------------
+// While the installer marker file is present (i.e. setup hasn't completed),
+// auto-generate a secure APP_KEY into `.env` if it's missing or blank. This
+// matches what `make up` / docker/entrypoint.sh do for the Docker stack, and
+// gives the standard PHP install path the same zero-touch experience: the
+// user uploads the project, hits /installer/start, and gets a working
+// SecretEncryptor without ever editing `.env` by hand.
+//
+// Only runs when `.env` is writable AND `installer/installer.json` exists,
+// so production deployments (where setup is already complete) never see
+// runtime mutations to their environment file.
+if (file_exists(__DIR__.'/installer/installer.json')) {
+    $envPath = __DIR__.'/.env';
+    if (!is_file($envPath) && is_file(__DIR__.'/.env.example') && is_writable(__DIR__)) {
+        @copy(__DIR__.'/.env.example', $envPath);
+    }
+    if (is_file($envPath) && is_writable($envPath)) {
+        $bag = util\EnvLoader::loadFile($envPath);
+        if (empty($bag['APP_KEY']) && empty(getenv('APP_KEY'))) {
+            $generated = base64_encode(random_bytes(32));
+            if (util\EnvWriter::set($envPath, 'APP_KEY', $generated)) {
+                putenv('APP_KEY='.$generated);
+            }
+        }
+    }
+}
 
 // --- M1 security hotfix: HTTPS enforcement -----------------------------------
 // When config.https is true, redirect plain-HTTP requests to https:// and emit

@@ -27,7 +27,7 @@ make migrate                                 # migrations/*.sql を適用
 open http://localhost:8080/installer/start
 ```
 
-Adminer は `http://localhost:8081`（server: `db` / user: `saso_user` / password: `saso_dev_password`）。
+Adminer は `http://localhost:8081`（server: `db` / user: `saso_user` / password: 自動生成された `.env` 内の `DB_PASSWORD` を参照）。
 
 OIDC / SAML テスト用 IdP を追加する場合：
 

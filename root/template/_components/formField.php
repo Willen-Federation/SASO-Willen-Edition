@@ -36,18 +36,20 @@ $rows         = $rows ?? 4;
 $ariaDescribedBy = [];
 if ($help)  $ariaDescribedBy[] = $id . '-help';
 if ($error) $ariaDescribedBy[] = $id . '-error';
+$inputClass = 'form-control' . ($error ? ' is-invalid' : '');
+$selectClass = 'form-select' . ($error ? ' is-invalid' : '');
 ?>
-<div class="mb-4">
+<div class="mb-3">
   <label for="<?php echo ui_attr($id); ?>" class="form-label">
     <?php echo ui_text($label); ?>
-    <?php if ($required): ?><span class="text-error-500" aria-hidden="true">*</span><?php endif; ?>
+    <?php if ($required): ?><span class="text-danger" aria-hidden="true">*</span><?php endif; ?>
   </label>
 
   <?php if ($type === 'textarea'): ?>
     <textarea id="<?php echo ui_attr($id); ?>"
               name="<?php echo ui_attr($name); ?>"
               rows="<?php echo (int) $rows; ?>"
-              class="form-textarea"
+              class="<?php echo ui_attr($inputClass); ?>"
               <?php if ($placeholder): ?>placeholder="<?php echo ui_attr($placeholder); ?>"<?php endif; ?>
               <?php if ($required): ?>required<?php endif; ?>
               <?php if ($error):    ?>aria-invalid="true"<?php endif; ?>
@@ -56,7 +58,7 @@ if ($error) $ariaDescribedBy[] = $id . '-error';
   <?php elseif ($type === 'select'): ?>
     <select id="<?php echo ui_attr($id); ?>"
             name="<?php echo ui_attr($name); ?>"
-            class="form-select"
+            class="<?php echo ui_attr($selectClass); ?>"
             <?php if ($required): ?>required<?php endif; ?>
             <?php if ($error):    ?>aria-invalid="true"<?php endif; ?>
             <?php if ($ariaDescribedBy): ?>aria-describedby="<?php echo ui_attr(implode(' ', $ariaDescribedBy)); ?>"<?php endif; ?>>
@@ -72,7 +74,7 @@ if ($error) $ariaDescribedBy[] = $id . '-error';
            id="<?php echo ui_attr($id); ?>"
            name="<?php echo ui_attr($name); ?>"
            value="<?php echo ui_attr((string) $value); ?>"
-           class="form-input"
+           class="<?php echo ui_attr($inputClass); ?>"
            <?php if ($placeholder):  ?>placeholder="<?php echo ui_attr($placeholder); ?>"<?php endif; ?>
            <?php if ($autocomplete): ?>autocomplete="<?php echo ui_attr($autocomplete); ?>"<?php endif; ?>
            <?php if ($required):     ?>required<?php endif; ?>
@@ -81,9 +83,9 @@ if ($error) $ariaDescribedBy[] = $id . '-error';
   <?php endif; ?>
 
   <?php if ($help): ?>
-    <p id="<?php echo ui_attr($id); ?>-help" class="form-help"><?php echo ui_text($help); ?></p>
+    <div id="<?php echo ui_attr($id); ?>-help" class="form-text"><?php echo ui_text($help); ?></div>
   <?php endif; ?>
   <?php if ($error): ?>
-    <p id="<?php echo ui_attr($id); ?>-error" class="form-error" role="alert"><?php echo ui_text($error); ?></p>
+    <div id="<?php echo ui_attr($id); ?>-error" class="invalid-feedback d-block" role="alert"><?php echo ui_text($error); ?></div>
   <?php endif; ?>
 </div>

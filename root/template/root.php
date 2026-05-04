@@ -14,7 +14,7 @@
 </head>
 <body>
 <div class="page">
-  <header class="navbar navbar-expand-md navbar-dark d-print-none" style="background-color: #066fd1;">
+  <header class="navbar navbar-expand-md navbar-dark d-print-none bg-azure">
     <div class="container-xl">
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar-menu" aria-controls="navbar-menu" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>

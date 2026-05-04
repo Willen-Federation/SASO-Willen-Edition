@@ -90,14 +90,14 @@ final class LoginOrchestrator
 
         $this->externalIdentities->recordLogin($providerId, $identity->externalSubject);
 
-        $returnTo = (string) ($_SESSION['auth.return_to'] ?? './');
+        $returnTo = (string) ($_SESSION['auth.return_to'] ?? '/');
         unset(
             $_SESSION['auth.state'],
             $_SESSION['auth.nonce'],
             $_SESSION['auth.return_to'],
             $_SESSION['auth.provider_id'],
         );
-        return $returnTo === '' ? './' : $returnTo;
+        return $returnTo === '' ? '/' : $returnTo;
     }
 
     /**

@@ -85,7 +85,7 @@ final class ProviderView implements View
             $stmt = $pdo->prepare('DELETE FROM auth_provider WHERE id = :id');
             $stmt->bindValue(':id', (int) $this->query['delete']);
             $stmt->execute();
-            header('Location: ./auth/providers/');
+            \saso\util\Redirect::redirect('auth/providers/?deleted=1');
             exit;
         }
 
@@ -164,7 +164,7 @@ final class ProviderView implements View
                 $stmt->execute();
 
                 if ($this->mode === 'edit') {
-                    header('Location: ./auth/providers/');
+                    \saso\util\Redirect::redirect('auth/providers/?saved=1');
                 } else {
                     $newId = (int) $pdo->lastInsertId();
                     $_SESSION['flash.provider_new'] = 'Now enter the client credentials and Save again to activate this provider.';

@@ -52,6 +52,7 @@
             "Saso\\": "src/"
         },
         "files": [
+            "framework/ui/helpers.php",
             "src/Infrastructure/Translation/functions.php"
         ]
     },

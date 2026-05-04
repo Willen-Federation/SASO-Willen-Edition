@@ -4,7 +4,6 @@
   $lang   = $_SESSION['lang'] ?? 'ja';
   $isEdit = $v->mode === 'edit';
 
-  // Parse claim_mapping
   $claimRaw = $v->provider['claim_mapping'] ?? '{}';
   $claimDecoded = is_string($claimRaw) ? json_decode($claimRaw, true) : (is_array($claimRaw) ? $claimRaw : []);
   if (!is_array($claimDecoded)) $claimDecoded = [];
@@ -18,7 +17,6 @@
   $provType = $v->provider['type'] ?? 'oidc';
   $flavor   = $v->flavor;
 
-  // URLs for the reference box
   $proto   = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
   $baseUrl = $proto.'://'.($_SERVER['HTTP_HOST'] ?? 'localhost');
   $loginUrl = $baseUrl.'/auth/login';
@@ -27,15 +25,12 @@
       $displayCallback = $v->callbackUrl;
       $displayAcs      = $v->acsUrl;
       $displaySls      = $v->slsUrl;
-      $urlsAreReal     = true;
   } else {
       $displayCallback = $baseUrl.'/auth/callback';
       $displayAcs      = $baseUrl.'/auth/saml/acs';
       $displaySls      = $baseUrl.'/auth/saml/sls';
-      $urlsAreReal     = true;
   }
 
-  // Firebase sub-providers
   $fbProviderOptions = [
     'google'    => 'Google',
     'apple'     => 'Apple',
@@ -73,11 +68,10 @@ ui('card', [
   },
   'body' => function () use (
       $v, $isEdit, $lang, $cfg, $claimOverridesJson, $provType, $flavor,
-      $loginUrl, $displayCallback, $displayAcs, $displaySls, $urlsAreReal,
+      $loginUrl, $displayCallback, $displayAcs, $displaySls,
       $fbProviderOptions, $fbProvidersEnabled
   ) {
     $csrfToken = htmlspecialchars(\saso\util\CSRFtoken::current());
-    // Initial Alpine state
     $initChoice = $isEdit ? $flavor : '';
     $initStep   = $isEdit ? 2 : 1;
 ?>
@@ -126,50 +120,62 @@ ui('card', [
   ═══════════════════════════════════════════════════════════ -->
   <div x-show="step === 1" x-cloak>
 
-    <p class="mb-4 text-sm text-gray-600 dark:text-gray-400">
+    <p class="small text-muted mb-4">
       <?php echo $lang === 'ja'
         ? '設定する認証プロバイダを選択してください。'
         : 'Select the authentication provider you want to configure.'; ?>
     </p>
 
-    <!-- Automatic providers -->
-    <p class="mb-2 text-xs font-semibold uppercase tracking-wider text-gray-600 dark:text-gray-400">
+    <p class="text-uppercase small fw-semibold text-muted mb-2">
       <?php echo $lang === 'ja' ? '自動設定プロバイダ（推奨）' : 'Automatic Providers (recommended)'; ?>
     </p>
-    <div class="mb-4 grid grid-cols-1 gap-3 sm:grid-cols-3">
+    <div class="row row-cols-1 row-cols-sm-3 g-3 mb-4">
       <?php
       $autoCards = [
-        'auth0'    => ['title' => 'Auth0',          'desc' => $lang === 'ja' ? 'Auth0 テナント・OIDC' : 'Auth0 tenant — OIDC'],
-        'cognito'  => ['title' => 'AWS Cognito',     'desc' => $lang === 'ja' ? 'ユーザープール + Hosted UI' : 'User Pool + Hosted UI'],
-        'firebase' => ['title' => 'Firebase Auth',   'desc' => $lang === 'ja' ? 'Google / Apple / Facebook 等' : 'Google / Apple / Facebook etc.'],
+        'auth0'    => ['title' => 'Auth0',        'desc' => $lang === 'ja' ? 'Auth0 テナント・OIDC' : 'Auth0 tenant — OIDC',               'icon' => 'ti-shield-lock', 'tone' => 'primary'],
+        'cognito'  => ['title' => 'AWS Cognito',   'desc' => $lang === 'ja' ? 'ユーザープール + Hosted UI' : 'User Pool + Hosted UI',       'icon' => 'ti-cloud',       'tone' => 'warning'],
+        'firebase' => ['title' => 'Firebase Auth', 'desc' => $lang === 'ja' ? 'Google / Apple / Facebook 等' : 'Google / Apple / Facebook', 'icon' => 'ti-flame',       'tone' => 'danger'],
       ];
       foreach ($autoCards as $val => $info): ?>
-        <button type="button"
-                @click="pick('<?php echo $val; ?>')"
-                class="flex flex-col gap-1 rounded-lg border-2 border-gray-200 p-4 text-left transition-colors hover:border-primary hover:bg-brand-500/5 dark:border-gray-800 dark:hover:border-primary dark:hover:bg-brand-500/10">
-          <span class="font-semibold text-gray-800 dark:text-white"><?php echo htmlspecialchars($info['title']); ?></span>
-          <span class="text-xs text-gray-600 dark:text-gray-400"><?php echo htmlspecialchars($info['desc']); ?></span>
-        </button>
+        <div class="col">
+          <button type="button"
+                  @click="pick('<?php echo $val; ?>')"
+                  class="card h-100 w-100 text-start border p-3 cursor-pointer"
+                  role="option"
+                  :aria-selected="choice === '<?php echo $val; ?>'">
+            <div class="d-flex align-items-center gap-2 mb-1">
+              <i class="ti <?php echo htmlspecialchars($info['icon']); ?> text-<?php echo htmlspecialchars($info['tone']); ?>"></i>
+              <span class="fw-semibold"><?php echo htmlspecialchars($info['title']); ?></span>
+            </div>
+            <span class="small text-muted"><?php echo htmlspecialchars($info['desc']); ?></span>
+          </button>
+        </div>
       <?php endforeach; ?>
     </div>
 
-    <!-- Manual providers -->
-    <p class="mb-2 text-xs font-semibold uppercase tracking-wider text-gray-600 dark:text-gray-400">
+    <p class="text-uppercase small fw-semibold text-muted mb-2">
       <?php echo $lang === 'ja' ? '手動設定プロバイダ' : 'Manual Providers'; ?>
     </p>
-    <div class="mb-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
+    <div class="row row-cols-1 row-cols-sm-2 g-3 mb-4">
       <?php
       $manualCards = [
-        'oidc' => ['title' => 'Generic OIDC', 'desc' => $lang === 'ja' ? '標準準拠の OIDC プロバイダ' : 'Any OIDC-compliant provider'],
-        'saml' => ['title' => 'SAML 2.0',    'desc' => $lang === 'ja' ? 'Okta / ADFS 等のエンタープライズ IdP' : 'Okta, ADFS, or other enterprise IdP'],
+        'oidc' => ['title' => 'Generic OIDC', 'desc' => $lang === 'ja' ? '標準準拠の OIDC プロバイダ' : 'Any OIDC-compliant provider',    'icon' => 'ti-key',       'tone' => 'secondary'],
+        'saml' => ['title' => 'SAML 2.0',    'desc' => $lang === 'ja' ? 'Okta / ADFS 等のエンタープライズ IdP' : 'Okta, ADFS, enterprise', 'icon' => 'ti-building',  'tone' => 'secondary'],
       ];
       foreach ($manualCards as $val => $info): ?>
-        <button type="button"
-                @click="pick('<?php echo $val; ?>')"
-                class="flex flex-col gap-1 rounded-lg border-2 border-gray-200 p-4 text-left transition-colors hover:border-primary hover:bg-brand-500/5 dark:border-gray-800 dark:hover:border-primary dark:hover:bg-brand-500/10">
-          <span class="font-semibold text-gray-800 dark:text-white"><?php echo htmlspecialchars($info['title']); ?></span>
-          <span class="text-xs text-gray-600 dark:text-gray-400"><?php echo htmlspecialchars($info['desc']); ?></span>
-        </button>
+        <div class="col">
+          <button type="button"
+                  @click="pick('<?php echo $val; ?>')"
+                  class="card h-100 w-100 text-start border p-3 cursor-pointer"
+                  role="option"
+                  :aria-selected="choice === '<?php echo $val; ?>'">
+            <div class="d-flex align-items-center gap-2 mb-1">
+              <i class="ti <?php echo htmlspecialchars($info['icon']); ?> text-<?php echo htmlspecialchars($info['tone']); ?>"></i>
+              <span class="fw-semibold"><?php echo htmlspecialchars($info['title']); ?></span>
+            </div>
+            <span class="small text-muted"><?php echo htmlspecialchars($info['desc']); ?></span>
+          </button>
+        </div>
       <?php endforeach; ?>
     </div>
 
@@ -182,27 +188,26 @@ ui('card', [
 
     <?php if (!$isEdit): ?>
 
-      <!-- ── NEW MODE: explain two-step flow, collect name only ── -->
       <button type="button"
               @click="step = 1; choice = ''"
-              class="mb-5 inline-flex items-center gap-1 text-sm text-primary hover:underline">
-        <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-          <path d="M19 12H5m0 0 7 7m-7-7 7-7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
+              class="btn btn-link text-primary p-0 mb-4 d-inline-flex align-items-center gap-1 small text-decoration-none">
+        <i class="ti ti-arrow-left" aria-hidden="true"></i>
         <?php echo $lang === 'ja' ? 'プロバイダを選び直す' : 'Choose a different provider'; ?>
       </button>
 
-      <div class="mb-6 rounded-lg border border-primary/30 bg-brand-500/5 p-4 dark:border-primary/40 dark:bg-brand-500/10">
-        <p class="mb-2 font-semibold text-gray-800 dark:text-white">
+      <div class="alert alert-info mb-4">
+        <p class="fw-semibold mb-2">
           <?php echo $lang === 'ja' ? '2ステップでプロバイダを追加します' : 'Two steps to add a provider'; ?>
         </p>
-        <ol class="space-y-1 text-sm text-gray-600 dark:text-gray-400">
-          <li><span class="font-semibold text-primary">1.</span>
+        <ol class="small mb-0 ps-3">
+          <li class="mb-1">
+            <span class="fw-semibold text-primary">1.</span>
             <?php echo $lang === 'ja'
               ? '名前を入力して「プロバイダを作成」→ コールバック URL が発行されます'
               : 'Enter a name and click "Create provider" — your callback URL will be issued'; ?>
           </li>
-          <li><span class="font-semibold text-primary">2.</span>
+          <li>
+            <span class="fw-semibold text-primary">2.</span>
             <?php echo $lang === 'ja'
               ? 'コールバック URL を IdP に登録してから、クライアント情報を入力して保存'
               : 'Register the callback URL in your IdP, then enter client credentials and save'; ?>
@@ -210,7 +215,6 @@ ui('card', [
         </ol>
       </div>
 
-      <!-- Provider Name -->
       <?php
       ui('formField', [
         'name'        => 'name',
@@ -219,85 +223,62 @@ ui('card', [
         'required'    => true,
         'placeholder' => $lang === 'ja' ? 'プロバイダ名を入力' : 'Enter provider name',
       ]);
-      ?>
-
-      <!-- Create button -->
-      <?php
       ui('button', [
         'label'      => $lang === 'ja' ? 'プロバイダを作成してコールバック URL を取得' : 'Create provider & get callback URL',
         'type'       => 'submit',
         'variant'    => 'primary',
-        'extraClass' => 'w-full justify-center',
+        'extraClass' => 'w-100',
       ]);
       ?>
 
     <?php else: ?>
 
-      <!-- ── EDIT MODE: real URLs + all credential fields ── -->
-
       <!-- URL reference box -->
-      <div class="mb-6 overflow-hidden rounded-lg border border-gray-200 dark:border-gray-800">
-        <div class="bg-gray-50 px-4 py-2.5 dark:bg-white/[0.02]">
-          <p class="text-xs font-semibold uppercase tracking-wider text-gray-600 dark:text-gray-400">
+      <div class="border rounded mb-4 overflow-hidden">
+        <div class="bg-light px-3 py-2 border-bottom">
+          <p class="text-uppercase small fw-semibold text-muted mb-0">
             <?php echo $lang === 'ja' ? 'IdP に登録が必要な URL' : 'URLs to register with your IdP'; ?>
           </p>
         </div>
-        <div class="divide-y divide-gray-200 px-4 dark:divide-gray-800">
-
+        <div class="px-3">
           <?php
           $urlRow = function (string $label, string $value, string $note = '') use ($lang): void {
           ?>
-            <div class="flex flex-col gap-1 py-3 sm:flex-row sm:items-center sm:gap-3">
-              <span class="w-28 shrink-0 text-xs font-medium text-gray-600 dark:text-gray-400"><?php echo htmlspecialchars($label); ?></span>
-              <div class="flex grow items-center gap-2">
-                <code class="grow truncate rounded bg-gray-50 px-2 py-1 font-mono text-xs text-gray-800 dark:bg-white/[0.02] dark:text-white">
+            <div class="d-flex flex-column flex-sm-row align-items-sm-center gap-2 py-2 border-top">
+              <span class="small fw-medium text-muted" style="min-width:7rem;"><?php echo htmlspecialchars($label); ?></span>
+              <div class="d-flex align-items-center gap-2 flex-fill">
+                <code class="form-control form-control-sm font-monospace flex-fill bg-light text-body" style="overflow-x:auto;">
                   <?php echo htmlspecialchars($value); ?>
                 </code>
                 <button type="button"
                         onclick="navigator.clipboard.writeText(<?php echo htmlspecialchars(json_encode($value)); ?>)"
                         title="<?php echo $lang === 'ja' ? 'コピー' : 'Copy'; ?>"
-                        class="shrink-0 rounded border border-gray-200 p-1.5 text-gray-600 transition hover:border-primary hover:text-primary dark:border-gray-800">
-                  <svg class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                    <rect x="9" y="9" width="13" height="13" rx="2" stroke="currentColor" stroke-width="1.5"/>
-                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" stroke="currentColor" stroke-width="1.5"/>
-                  </svg>
+                        class="btn btn-sm btn-outline-secondary flex-shrink-0">
+                  <i class="ti ti-copy" aria-hidden="true"></i>
                 </button>
               </div>
               <?php if ($note !== ''): ?>
-                <span class="shrink-0 text-xs text-gray-600 dark:text-gray-400"><?php echo htmlspecialchars($note); ?></span>
+                <span class="small text-muted"><?php echo htmlspecialchars($note); ?></span>
               <?php endif; ?>
             </div>
           <?php
           };
           ?>
 
-          <!-- Callback URL — OIDC only -->
           <div x-show="choice !== 'saml'">
-            <?php $urlRow(
-              'Callback URL',
-              $displayCallback,
-              $lang === 'ja' ? 'IdP の Allowed Callback URLs に登録' : 'Add to IdP Allowed Callback URLs'
-            ); ?>
+            <?php $urlRow('Callback URL', $displayCallback, $lang === 'ja' ? 'IdP の Allowed Callback URLs に登録' : 'Add to IdP Allowed Callback URLs'); ?>
           </div>
-
-          <!-- ACS + SLS — SAML only -->
           <div x-show="choice === 'saml'">
             <?php $urlRow('ACS URL', $displayAcs); ?>
           </div>
           <div x-show="choice === 'saml'">
             <?php $urlRow('SLS URL', $displaySls); ?>
           </div>
-
-          <?php $urlRow(
-            'Login URL',
-            $loginUrl,
-            $lang === 'ja' ? 'ユーザーがログインするページ' : 'Page where users sign in'
-          ); ?>
-
+          <?php $urlRow('Login URL', $loginUrl, $lang === 'ja' ? 'ユーザーがログインするページ' : 'Page where users sign in'); ?>
         </div>
       </div>
 
-      <!-- ── Provider Name (common) ── -->
+      <!-- Provider Name (common) -->
       <?php
       ui('formField', [
         'name'        => 'name',
@@ -308,40 +289,36 @@ ui('card', [
       ]);
       ?>
 
-    <!-- ═══════════════════════════════════════════
-         Auth0
-    ════════════════════════════════════════════ -->
+    <!-- Auth0 -->
     <fieldset x-show="choice === 'auth0'" x-cloak :disabled="choice !== 'auth0'" class="m-0 min-w-0 border-0 p-0">
-      <div class="mb-4 border-t border-gray-200 pt-4 dark:border-gray-800">
-        <h4 class="mb-1 font-semibold text-gray-800 dark:text-white">Auth0</h4>
-        <p class="text-xs text-gray-600 dark:text-gray-400"><?php echo $lang === 'ja' ? 'Auth0 テナントの OIDC 設定' : 'Auth0 tenant OIDC configuration'; ?></p>
+      <div class="border-top pt-3 mb-3">
+        <h5 class="fw-semibold mb-1"><i class="ti ti-shield-lock text-primary me-2"></i>Auth0</h5>
+        <p class="small text-muted"><?php echo $lang === 'ja' ? 'Auth0 テナントの OIDC 設定' : 'Auth0 tenant OIDC configuration'; ?></p>
       </div>
       <?php
       ui('formField', [
         'name'        => 'issuer_or_metadata_url',
-        'label'       => $lang === 'ja' ? 'Issuer / Discovery URL' : 'Issuer / Discovery URL',
+        'label'       => 'Issuer / Discovery URL',
         'value'       => $v->provider['issuer_or_metadata_url'] ?? '',
         'placeholder' => 'https://acme.eu.auth0.com/',
         'help'        => $lang === 'ja' ? 'Auth0 テナントのルート URL。例: https://acme.eu.auth0.com/' : 'Auth0 tenant root URL, e.g. https://acme.eu.auth0.com/',
       ]);
-      ui('formField', ['name' => 'client_id',  'label' => 'Client ID',     'value' => $v->provider['client_id'] ?? '', 'placeholder' => 'your-client-id']);
+      ui('formField', ['name' => 'client_id', 'label' => 'Client ID', 'value' => $v->provider['client_id'] ?? '', 'placeholder' => 'your-client-id']);
       ?>
-      <div class="mb-4">
-        <label for="client_secret" class="mb-2.5 block font-medium text-gray-800 dark:text-white">
+      <div class="mb-3">
+        <label for="client_secret" class="form-label">
           Client Secret
           <?php if (!$v->hasSecret): ?><span class="text-danger" aria-hidden="true">*</span><?php endif; ?>
         </label>
         <input type="password" id="client_secret" name="client_secret" value=""
-               placeholder="<?php echo $v->hasSecret
-                   ? ($lang === 'ja' ? '●●●●●●●● （変更時のみ入力）' : '●●●●●●●● (enter only to change)')
-                   : ($lang === 'ja' ? 'シークレットを入力' : 'Enter secret'); ?>"
+               placeholder="<?php echo $v->hasSecret ? ($lang === 'ja' ? '●●●●●●●● （変更時のみ入力）' : '●●●●●●●● (enter only to change)') : ($lang === 'ja' ? 'シークレットを入力' : 'Enter secret'); ?>"
                autocomplete="new-password"
                <?php if (!$v->hasSecret): ?>required<?php endif; ?>
-               class="w-full rounded border border-gray-300 bg-white px-3.5 py-2.5 font-medium outline-none transition focus:border-primary focus:ring-2 focus:ring-brand-500/20 dark:border-gray-700 dark:bg-gray-900 dark:focus:border-primary dark:text-white text-gray-800">
+               class="form-control">
         <?php if ($v->hasSecret): ?>
-          <p class="mt-1 text-xs text-gray-600 dark:text-gray-400"><?php echo $lang === 'ja' ? '変更する場合のみ入力してください' : 'Leave blank to keep the current secret'; ?></p>
+          <div class="form-text"><?php echo $lang === 'ja' ? '変更する場合のみ入力してください' : 'Leave blank to keep the current secret'; ?></div>
         <?php else: ?>
-          <p class="mt-1 text-xs text-danger"><?php echo $lang === 'ja' ? '⚠ シークレット未設定。入力して保存するまでログインできません。' : '⚠ No client secret stored. Sign-in will fail until a secret is saved.'; ?></p>
+          <div class="form-text text-danger"><i class="ti ti-alert-triangle me-1"></i><?php echo $lang === 'ja' ? 'シークレット未設定。入力して保存するまでログインできません。' : 'No client secret stored. Sign-in will fail until a secret is saved.'; ?></div>
         <?php endif; ?>
       </div>
       <?php
@@ -350,9 +327,7 @@ ui('card', [
         'label'       => $lang === 'ja' ? 'Auth0 ドメイン（オプション）' : 'Auth0 Domain (optional)',
         'value'       => $cfg['domain'] ?? '',
         'placeholder' => 'acme.eu.auth0.com',
-        'help'        => $lang === 'ja'
-            ? '空欄時は Issuer URL のホストを使います。ログアウト時の /v2/logout エンドポイント構築に使われます。'
-            : 'If blank, the Issuer URL host is used. Drives the /v2/logout endpoint on sign-out.',
+        'help'        => $lang === 'ja' ? '空欄時は Issuer URL のホストを使います。' : 'If blank, the Issuer URL host is used.',
       ]);
       ui('formField', [
         'name'        => 'auth0_audience',
@@ -371,51 +346,38 @@ ui('card', [
       ?>
     </fieldset>
 
-    <!-- ═══════════════════════════════════════════
-         AWS Cognito
-    ════════════════════════════════════════════ -->
+    <!-- AWS Cognito -->
     <fieldset x-show="choice === 'cognito'" x-cloak :disabled="choice !== 'cognito'" class="m-0 min-w-0 border-0 p-0">
-      <div class="mb-4 border-t border-gray-200 pt-4 dark:border-gray-800">
-        <h4 class="mb-1 font-semibold text-gray-800 dark:text-white">AWS Cognito</h4>
-        <p class="text-xs text-gray-600 dark:text-gray-400"><?php echo $lang === 'ja' ? 'Cognito ユーザープール設定' : 'Cognito User Pool configuration'; ?></p>
+      <div class="border-top pt-3 mb-3">
+        <h5 class="fw-semibold mb-1"><i class="ti ti-cloud text-warning me-2"></i>AWS Cognito</h5>
+        <p class="small text-muted"><?php echo $lang === 'ja' ? 'Cognito ユーザープール設定' : 'Cognito User Pool configuration'; ?></p>
       </div>
       <?php
-      ui('formField', [
-        'name'        => 'cognito_region',
-        'label'       => $lang === 'ja' ? 'リージョン' : 'Region',
-        'value'       => $cfg['region'] ?? '',
-        'placeholder' => 'ap-northeast-1',
-        'help'        => $lang === 'ja' ? 'AWS リージョンコード' : 'AWS region code, e.g. ap-northeast-1',
-      ]);
-      ui('formField', [
-        'name'        => 'cognito_user_pool_id',
-        'label'       => $lang === 'ja' ? 'ユーザープール ID' : 'User Pool ID',
-        'value'       => $cfg['user_pool_id'] ?? '',
-        'placeholder' => 'ap-northeast-1_AbCdEfGhI',
-        'help'        => $lang === 'ja' ? 'Cognito コンソールのユーザープール ID' : 'User Pool ID from the Cognito console',
-      ]);
+      ui('formField', ['name' => 'cognito_region',       'label' => $lang === 'ja' ? 'リージョン' : 'Region',           'value' => $cfg['region'] ?? '',        'placeholder' => 'ap-northeast-1']);
+      ui('formField', ['name' => 'cognito_user_pool_id', 'label' => $lang === 'ja' ? 'ユーザープール ID' : 'User Pool ID', 'value' => $cfg['user_pool_id'] ?? '', 'placeholder' => 'ap-northeast-1_AbCdEfGhI']);
       ui('formField', [
         'name'        => 'issuer_or_metadata_url',
-        'label'       => $lang === 'ja' ? 'Issuer / Discovery URL' : 'Issuer / Discovery URL',
+        'label'       => 'Issuer / Discovery URL',
         'value'       => $v->provider['issuer_or_metadata_url'] ?? '',
         'placeholder' => 'https://cognito-idp.ap-northeast-1.amazonaws.com/ap-northeast-1_xxx',
-        'help'        => $lang === 'ja'
-          ? '形式: https://cognito-idp.{region}.amazonaws.com/{pool_id}'
-          : 'Format: https://cognito-idp.{region}.amazonaws.com/{pool_id}',
+        'help'        => $lang === 'ja' ? '形式: https://cognito-idp.{region}.amazonaws.com/{pool_id}' : 'Format: https://cognito-idp.{region}.amazonaws.com/{pool_id}',
       ]);
       ui('formField', ['name' => 'client_id', 'label' => 'Client ID', 'value' => $v->provider['client_id'] ?? '', 'placeholder' => 'your-app-client-id']);
       ?>
-      <div class="mb-4">
-        <label for="client_secret" class="mb-2.5 block font-medium text-gray-800 dark:text-white">
-          Client Secret
-          <?php if (!$v->hasSecret): ?><span class="text-danger" aria-hidden="true">*</span><?php endif; ?>
+      <div class="mb-3">
+        <label for="client_secret" class="form-label">
+          Client Secret<?php if (!$v->hasSecret): ?><span class="text-danger ms-1" aria-hidden="true">*</span><?php endif; ?>
         </label>
         <input type="password" id="client_secret" name="client_secret" value=""
                placeholder="<?php echo $v->hasSecret ? '●●●●●●●●' : ($lang === 'ja' ? 'シークレットを入力' : 'Enter secret'); ?>"
                autocomplete="new-password"
                <?php if (!$v->hasSecret): ?>required<?php endif; ?>
-               class="w-full rounded border border-gray-300 bg-white px-3.5 py-2.5 font-medium outline-none transition focus:border-primary focus:ring-2 focus:ring-brand-500/20 dark:border-gray-700 dark:bg-gray-900 dark:focus:border-primary dark:text-white text-gray-800">
-        <?php if ($v->hasSecret): ?><p class="mt-1 text-xs text-gray-600 dark:text-gray-400"><?php echo $lang === 'ja' ? '変更する場合のみ入力してください' : 'Leave blank to keep the current secret'; ?></p><?php else: ?><p class="mt-1 text-xs text-danger"><?php echo $lang === 'ja' ? '⚠ シークレット未設定。入力して保存するまでログインできません。' : '⚠ No client secret stored. Sign-in will fail until a secret is saved.'; ?></p><?php endif; ?>
+               class="form-control">
+        <?php if ($v->hasSecret): ?>
+          <div class="form-text"><?php echo $lang === 'ja' ? '変更する場合のみ入力してください' : 'Leave blank to keep the current secret'; ?></div>
+        <?php else: ?>
+          <div class="form-text text-danger"><i class="ti ti-alert-triangle me-1"></i><?php echo $lang === 'ja' ? 'シークレット未設定。入力して保存するまでログインできません。' : 'No client secret stored. Sign-in will fail until a secret is saved.'; ?></div>
+        <?php endif; ?>
       </div>
       <?php
       ui('formField', [
@@ -428,13 +390,11 @@ ui('card', [
       ?>
     </fieldset>
 
-    <!-- ═══════════════════════════════════════════
-         Firebase Auth
-    ════════════════════════════════════════════ -->
+    <!-- Firebase Auth -->
     <fieldset x-show="choice === 'firebase'" x-cloak :disabled="choice !== 'firebase'" class="m-0 min-w-0 border-0 p-0">
-      <div class="mb-4 border-t border-gray-200 pt-4 dark:border-gray-800">
-        <h4 class="mb-1 font-semibold text-gray-800 dark:text-white">Firebase Auth</h4>
-        <p class="text-xs text-gray-600 dark:text-gray-400">
+      <div class="border-top pt-3 mb-3">
+        <h5 class="fw-semibold mb-1"><i class="ti ti-flame text-danger me-2"></i>Firebase Auth</h5>
+        <p class="small text-muted">
           <?php echo $lang === 'ja'
             ? 'Firebase Authentication は OIDC 経由で Google / Apple / Facebook 等のプロバイダをまとめて提供します。'
             : 'Firebase Authentication acts as an OIDC gateway for Google, Apple, Facebook, and other providers.'; ?>
@@ -450,32 +410,33 @@ ui('card', [
       ]);
       ui('formField', [
         'name'        => 'issuer_or_metadata_url',
-        'label'       => $lang === 'ja' ? 'Issuer / Discovery URL' : 'Issuer / Discovery URL',
+        'label'       => 'Issuer / Discovery URL',
         'value'       => $v->provider['issuer_or_metadata_url'] ?? '',
         'placeholder' => 'https://accounts.google.com',
-        'help'        => $lang === 'ja'
-          ? 'GCP OAuth 2.0 クライアントを使う場合は https://accounts.google.com を使用'
-          : 'Use https://accounts.google.com for GCP OAuth 2.0 clients',
+        'help'        => $lang === 'ja' ? 'GCP OAuth 2.0 クライアントを使う場合は https://accounts.google.com' : 'Use https://accounts.google.com for GCP OAuth 2.0 clients',
       ]);
       ui('formField', [
         'name'        => 'client_id',
         'label'       => 'Client ID',
         'value'       => $v->provider['client_id'] ?? '',
         'placeholder' => 'xxxxx.apps.googleusercontent.com',
-        'help'        => $lang === 'ja' ? 'GCP コンソール → API とサービス → 認証情報 → OAuth 2.0 クライアント ID' : 'GCP Console → APIs & Services → Credentials → OAuth 2.0 Client ID',
+        'help'        => $lang === 'ja' ? 'GCP コンソール → OAuth 2.0 クライアント ID' : 'GCP Console → APIs & Services → Credentials → OAuth 2.0 Client ID',
       ]);
       ?>
-      <div class="mb-4">
-        <label for="client_secret" class="mb-2.5 block font-medium text-gray-800 dark:text-white">
-          Client Secret
-          <?php if (!$v->hasSecret): ?><span class="text-danger" aria-hidden="true">*</span><?php endif; ?>
+      <div class="mb-3">
+        <label for="client_secret" class="form-label">
+          Client Secret<?php if (!$v->hasSecret): ?><span class="text-danger ms-1" aria-hidden="true">*</span><?php endif; ?>
         </label>
         <input type="password" id="client_secret" name="client_secret" value=""
                placeholder="<?php echo $v->hasSecret ? '●●●●●●●●' : ($lang === 'ja' ? 'シークレットを入力' : 'Enter secret'); ?>"
                autocomplete="new-password"
                <?php if (!$v->hasSecret): ?>required<?php endif; ?>
-               class="w-full rounded border border-gray-300 bg-white px-3.5 py-2.5 font-medium outline-none transition focus:border-primary focus:ring-2 focus:ring-brand-500/20 dark:border-gray-700 dark:bg-gray-900 dark:focus:border-primary dark:text-white text-gray-800">
-        <?php if ($v->hasSecret): ?><p class="mt-1 text-xs text-gray-600 dark:text-gray-400"><?php echo $lang === 'ja' ? '変更する場合のみ入力してください' : 'Leave blank to keep the current secret'; ?></p><?php else: ?><p class="mt-1 text-xs text-danger"><?php echo $lang === 'ja' ? '⚠ シークレット未設定。入力して保存するまでログインできません。' : '⚠ No client secret stored. Sign-in will fail until a secret is saved.'; ?></p><?php endif; ?>
+               class="form-control">
+        <?php if ($v->hasSecret): ?>
+          <div class="form-text"><?php echo $lang === 'ja' ? '変更する場合のみ入力してください' : 'Leave blank to keep the current secret'; ?></div>
+        <?php else: ?>
+          <div class="form-text text-danger"><i class="ti ti-alert-triangle me-1"></i><?php echo $lang === 'ja' ? 'シークレット未設定。入力して保存するまでログインできません。' : 'No client secret stored. Sign-in will fail until a secret is saved.'; ?></div>
+        <?php endif; ?>
       </div>
       <?php
       ui('formField', [
@@ -487,58 +448,62 @@ ui('card', [
       ]);
       ?>
 
-      <!-- Firebase identity sub-providers -->
-      <div class="mb-4">
-        <p class="mb-2 block font-medium text-gray-900 dark:text-white">
+      <div class="mb-3">
+        <p class="form-label fw-medium">
           <?php echo $lang === 'ja' ? 'Firebase Auth で有効にした ID プロバイダ' : 'Identity Providers enabled in Firebase Auth'; ?>
         </p>
-        <p class="mb-3 text-xs text-gray-600 dark:text-gray-400">
+        <p class="small text-muted mb-2">
           <?php echo $lang === 'ja'
             ? 'Firebase Authentication コンソールで有効にしているプロバイダにチェックを入れてください（参照用）。'
             : 'Check the providers you have enabled in your Firebase Authentication console (for reference).'; ?>
         </p>
-        <div class="grid grid-cols-2 gap-2 sm:grid-cols-3">
+        <div class="row row-cols-2 row-cols-sm-3 g-2">
           <?php foreach ($fbProviderOptions as $key => $label): ?>
-            <label class="flex cursor-pointer items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
-              <input type="checkbox" name="firebase_providers[]" value="<?php echo htmlspecialchars($key); ?>"
-                     <?php echo in_array($key, $fbProvidersEnabled, true) ? 'checked' : ''; ?>
-                     class="h-4 w-4 rounded border-gray-300 accent-primary dark:border-gray-600">
-              <?php echo htmlspecialchars($label); ?>
-            </label>
+            <div class="col">
+              <div class="form-check">
+                <input type="checkbox" class="form-check-input" id="fbp_<?php echo htmlspecialchars($key); ?>"
+                       name="firebase_providers[]" value="<?php echo htmlspecialchars($key); ?>"
+                       <?php echo in_array($key, $fbProvidersEnabled, true) ? 'checked' : ''; ?>>
+                <label class="form-check-label" for="fbp_<?php echo htmlspecialchars($key); ?>">
+                  <?php echo htmlspecialchars($label); ?>
+                </label>
+              </div>
+            </div>
           <?php endforeach; ?>
         </div>
       </div>
     </fieldset>
 
-    <!-- ═══════════════════════════════════════════
-         Generic OIDC
-    ════════════════════════════════════════════ -->
+    <!-- Generic OIDC -->
     <fieldset x-show="choice === 'oidc'" x-cloak :disabled="choice !== 'oidc'" class="m-0 min-w-0 border-0 p-0">
-      <div class="mb-4 border-t border-gray-200 pt-4 dark:border-gray-800">
-        <h4 class="mb-1 font-semibold text-gray-900 dark:text-white">Generic OIDC</h4>
-        <p class="text-xs text-gray-600 dark:text-gray-400"><?php echo $lang === 'ja' ? '標準準拠の OpenID Connect プロバイダ' : 'Any standards-compliant OpenID Connect provider'; ?></p>
+      <div class="border-top pt-3 mb-3">
+        <h5 class="fw-semibold mb-1"><i class="ti ti-key text-secondary me-2"></i>Generic OIDC</h5>
+        <p class="small text-muted"><?php echo $lang === 'ja' ? '標準準拠の OpenID Connect プロバイダ' : 'Any standards-compliant OpenID Connect provider'; ?></p>
       </div>
       <?php
       ui('formField', [
         'name'        => 'issuer_or_metadata_url',
-        'label'       => $lang === 'ja' ? 'Issuer / Discovery URL' : 'Issuer / Discovery URL',
+        'label'       => 'Issuer / Discovery URL',
         'value'       => $v->provider['issuer_or_metadata_url'] ?? '',
         'placeholder' => 'https://example.com/.well-known/openid-configuration',
         'help'        => $lang === 'ja' ? 'OIDC プロバイダの Discovery URL' : 'OIDC provider discovery URL',
       ]);
       ui('formField', ['name' => 'client_id', 'label' => 'Client ID', 'value' => $v->provider['client_id'] ?? '', 'placeholder' => 'your-client-id']);
       ?>
-      <div class="mb-4">
-        <label for="client_secret" class="mb-2.5 block font-medium text-gray-900 dark:text-white">
-          Client Secret
-          <?php if (!$v->hasSecret): ?><span class="text-danger" aria-hidden="true">*</span><?php endif; ?>
+      <div class="mb-3">
+        <label for="client_secret" class="form-label">
+          Client Secret<?php if (!$v->hasSecret): ?><span class="text-danger ms-1" aria-hidden="true">*</span><?php endif; ?>
         </label>
         <input type="password" id="client_secret" name="client_secret" value=""
                placeholder="<?php echo $v->hasSecret ? '●●●●●●●●' : ($lang === 'ja' ? 'シークレットを入力' : 'Enter secret'); ?>"
                autocomplete="new-password"
                <?php if (!$v->hasSecret): ?>required<?php endif; ?>
-               class="w-full rounded border border-gray-300 bg-white py-3 px-5 font-medium outline-none transition focus:border-primary focus:ring-1 focus:ring-brand-500 dark:border-gray-700 dark:bg-gray-900 dark:focus:border-primary dark:focus:ring-brand-500 text-gray-900 dark:text-white">
-        <?php if ($v->hasSecret): ?><p class="mt-1 text-xs text-gray-600 dark:text-gray-400"><?php echo $lang === 'ja' ? '変更する場合のみ入力してください' : 'Leave blank to keep the current secret'; ?></p><?php else: ?><p class="mt-1 text-xs text-danger"><?php echo $lang === 'ja' ? '⚠ シークレット未設定。入力して保存するまでログインできません。' : '⚠ No client secret stored. Sign-in will fail until a secret is saved.'; ?></p><?php endif; ?>
+               class="form-control">
+        <?php if ($v->hasSecret): ?>
+          <div class="form-text"><?php echo $lang === 'ja' ? '変更する場合のみ入力してください' : 'Leave blank to keep the current secret'; ?></div>
+        <?php else: ?>
+          <div class="form-text text-danger"><i class="ti ti-alert-triangle me-1"></i><?php echo $lang === 'ja' ? 'シークレット未設定。入力して保存するまでログインできません。' : 'No client secret stored. Sign-in will fail until a secret is saved.'; ?></div>
+        <?php endif; ?>
       </div>
       <?php
       ui('formField', [
@@ -551,13 +516,11 @@ ui('card', [
       ?>
     </fieldset>
 
-    <!-- ═══════════════════════════════════════════
-         SAML 2.0
-    ════════════════════════════════════════════ -->
+    <!-- SAML 2.0 -->
     <fieldset x-show="choice === 'saml'" x-cloak :disabled="choice !== 'saml'" class="m-0 min-w-0 border-0 p-0">
-      <div class="mb-4 border-t border-gray-200 pt-4 dark:border-gray-800">
-        <h4 class="mb-1 font-semibold text-gray-900 dark:text-white">SAML 2.0</h4>
-        <p class="text-xs text-gray-600 dark:text-gray-400"><?php echo $lang === 'ja' ? 'エンタープライズ IdP (Okta / ADFS 等)' : 'Enterprise IdP (Okta, ADFS, etc.)'; ?></p>
+      <div class="border-top pt-3 mb-3">
+        <h5 class="fw-semibold mb-1"><i class="ti ti-building text-secondary me-2"></i>SAML 2.0</h5>
+        <p class="small text-muted"><?php echo $lang === 'ja' ? 'エンタープライズ IdP (Okta / ADFS 等)' : 'Enterprise IdP (Okta, ADFS, etc.)'; ?></p>
       </div>
       <?php
       ui('formField', [
@@ -616,10 +579,10 @@ ui('card', [
       ?>
     </fieldset>
 
-    <!-- ── Advanced: claim mapping ── -->
-    <div class="mb-4 border-t border-gray-200 pt-4 dark:border-gray-800">
+    <!-- Advanced: claim mapping -->
+    <div class="border-top pt-3 mb-4">
       <details>
-        <summary class="cursor-pointer text-xs font-semibold uppercase tracking-wider text-gray-600 dark:text-gray-400">
+        <summary class="cursor-pointer text-uppercase small fw-semibold text-muted mb-0">
           <?php echo $lang === 'ja' ? '詳細設定' : 'Advanced'; ?>
         </summary>
         <div class="mt-3">
@@ -640,32 +603,23 @@ ui('card', [
       </details>
     </div>
 
-    <!-- ── Toggles ── -->
-    <div class="mb-5 flex flex-wrap items-center gap-6">
-      <label class="flex cursor-pointer select-none items-center gap-2 text-gray-900 dark:text-white">
-        <?php
-          // Default to checked when this is a brand-new shell row (no secret
-          // stored yet) so the operator's first save-with-credentials flips
-          // enabled=1 in one click. Otherwise mirror the DB state.
-          $enabledDefault = !empty($v->provider['enabled']) || !$v->hasSecret;
-        ?>
-        <input type="checkbox" name="enabled" class="mr-1" <?php echo $enabledDefault ? 'checked' : ''; ?>>
-        <?php echo $lang === 'ja' ? '有効' : 'Enabled'; ?>
-      </label>
-      <label class="flex cursor-pointer select-none items-center gap-2 text-gray-900 dark:text-white">
-        <input type="checkbox" name="is_default" class="mr-1" <?php echo !empty($v->provider['is_default']) ? 'checked' : ''; ?>>
-        <?php echo $lang === 'ja' ? 'デフォルトに設定' : 'Set as Default'; ?>
-      </label>
+    <!-- Toggles -->
+    <?php $enabledDefault = !empty($v->provider['enabled']) || !$v->hasSecret; ?>
+    <div class="d-flex flex-wrap align-items-center gap-4 mb-4">
+      <div class="form-check form-switch">
+        <input type="checkbox" class="form-check-input" id="enabled" name="enabled" <?php echo $enabledDefault ? 'checked' : ''; ?>>
+        <label class="form-check-label" for="enabled"><?php echo $lang === 'ja' ? '有効' : 'Enabled'; ?></label>
+      </div>
+      <div class="form-check form-switch">
+        <input type="checkbox" class="form-check-input" id="is_default" name="is_default" <?php echo !empty($v->provider['is_default']) ? 'checked' : ''; ?>>
+        <label class="form-check-label" for="is_default"><?php echo $lang === 'ja' ? 'デフォルトに設定' : 'Set as Default'; ?></label>
+      </div>
     </div>
 
-    <!-- ═══════════════════════════════════════════
-         STEP 3 — Verify Connection
-    ════════════════════════════════════════════ -->
-    <div class="mb-5 border-t border-gray-200 pt-4 dark:border-gray-800">
-      <p class="mb-3 text-sm font-medium text-gray-900 dark:text-white">
-        <?php echo $lang === 'ja' ? '接続テスト' : 'Test Connection'; ?>
-      </p>
-      <p class="mb-3 text-xs text-gray-600 dark:text-gray-400">
+    <!-- Verify Connection -->
+    <div class="border-top pt-3 mb-4">
+      <p class="fw-medium mb-1"><?php echo $lang === 'ja' ? '接続テスト' : 'Test Connection'; ?></p>
+      <p class="small text-muted mb-3">
         <?php echo $lang === 'ja'
           ? 'Issuer URL（SAML の場合はメタデータ URL）が到達可能かどうかを確認します。'
           : 'Checks whether the Issuer URL (or SAML metadata URL) is reachable and returns a valid response.'; ?>
@@ -673,49 +627,39 @@ ui('card', [
       <button type="button"
               @click="verify()"
               :disabled="verifyStatus === 'loading'"
-              class="inline-flex items-center gap-2 rounded border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-900 transition hover:border-primary hover:text-primary dark:border-gray-700 dark:bg-gray-900 dark:text-white dark:hover:border-primary dark:hover:text-primary disabled:opacity-50">
-        <svg class="h-4 w-4" x-show="verifyStatus !== 'loading'" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-          <path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
+              class="btn btn-outline-secondary d-inline-flex align-items-center gap-2">
+        <i class="ti ti-plug" x-show="verifyStatus !== 'loading'" aria-hidden="true"></i>
+        <span x-show="verifyStatus === 'loading'" class="spinner-border spinner-border-sm" role="status"></span>
         <span x-show="verifyStatus !== 'loading'"><?php echo $lang === 'ja' ? '接続を確認する' : 'Verify Connection'; ?></span>
         <span x-show="verifyStatus === 'loading'" x-cloak><?php echo $lang === 'ja' ? '確認中...' : 'Checking…'; ?></span>
       </button>
 
       <div class="mt-3" x-show="verifyStatus !== null" x-cloak>
-        <div x-show="verifyStatus === 'ok'" class="alert alert-success" role="status">
-          <svg class="mt-0.5 h-5 w-5 shrink-0" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-            <path d="m4 12 5 5L20 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-          <div class="grow" x-text="verifyMsg"></div>
+        <div x-show="verifyStatus === 'ok'" class="alert alert-success d-flex align-items-start gap-2" role="status">
+          <i class="ti ti-circle-check fs-5 flex-shrink-0" aria-hidden="true"></i>
+          <div x-text="verifyMsg"></div>
         </div>
-        <div x-show="verifyStatus === 'error'" class="alert alert-danger" role="alert">
-          <svg class="mt-0.5 h-5 w-5 shrink-0" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-            <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.5"/>
-            <path d="M12 8v4m0 4h.01" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-          </svg>
-          <div class="grow" x-text="verifyMsg"></div>
+        <div x-show="verifyStatus === 'error'" class="alert alert-danger d-flex align-items-start gap-2" role="alert">
+          <i class="ti ti-alert-circle fs-5 flex-shrink-0" aria-hidden="true"></i>
+          <div x-text="verifyMsg"></div>
         </div>
         <template x-if="verifyStatus === 'ok' && verifyAuthUrl">
           <a :href="verifyAuthUrl" target="_blank" rel="noopener noreferrer"
-             class="mt-2 inline-flex w-full items-center justify-center gap-2 rounded border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-900 transition hover:border-primary hover:text-primary dark:border-gray-700 dark:bg-gray-900 dark:text-white dark:hover:border-primary dark:hover:text-primary">
-            <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-              <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6m0 0v6m0-6-9 9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
+             class="btn btn-outline-primary w-100 d-flex align-items-center justify-content-center gap-2 mt-2">
+            <i class="ti ti-external-link" aria-hidden="true"></i>
             <?php echo ui_text($lang === 'ja' ? 'テストサインインを開く →' : 'Open Test Sign-In →'); ?>
           </a>
         </template>
       </div>
     </div>
 
-    <!-- ═══════════════════════════════════════════
-         STEP 4 — Save
-    ════════════════════════════════════════════ -->
+    <!-- Save -->
     <?php
     ui('button', [
       'label'      => $lang === 'ja' ? '保存する' : 'Save',
       'type'       => 'submit',
       'variant'    => 'primary',
-      'extraClass' => 'w-full justify-center',
+      'extraClass' => 'w-100',
     ]);
     ?>
 

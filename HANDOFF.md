@@ -1,16 +1,16 @@
 # 引き継ぎドキュメント
 
-生成日時: 2026-05-04 (session 2)
+生成日時: 2026-05-04 (session 3)
 引き継ぎ理由: 作業記録・進捗管理
 
 ---
 
 ## 🎯 最終ゴール（再掲）
 
-1. 旧スタイル/TailAdmin Tailwindを含むテンプレートをTabler(Bootstrap 5)に統一
+1. 旧スタイル/TailAdmin Tailwindを含むテンプレートをTabler(Bootstrap 5)に統一 ← **完了**
 2. 削除されていた機能(Feature Flag, バーコードワークフロー等)の復元 ← 完了済み
 3. 棚番・ラベルシートのUIを使いやすくする
-4. `category/start/` etc. 正しく動作させる
+4. `category/start/` etc. 正しく動作させる ← 完了済み
 
 ---
 
@@ -32,51 +32,49 @@
 | `label/template/wizard.php` | `ta-badge-*` → `badge bg-*`、Tailwind grid → Bootstrap row |
 | `shelf/template/simple.php` | Tailwind CDN削除、Bootstrap/Tabler クラスに全面書き直し |
 | `item/template/fromBarcode.php` | `form-input`/`btn-primary w-full` → Bootstrap input-group/btn |
+| `authExt/template/provider_form.php` | 全面Bootstrap化（735行→430行）|
+
+## ✅ 完了済みの作業（セッション3）
+
+| ファイル | 変更内容 |
+|---------|---------|
+| `verify/template/start.php` | `grid gap-6 lg:grid-cols-3` → Bootstrap `row g-3`、`text-theme-sm` → `small text-muted` |
+| `member/template/add.php` | TailAdmin card → Bootstrap card + form-control |
+| `member/template/edit.php` | 同上 |
+| `authExt/template/provider_select.php` | SVGアイコン→ `ti ti-*`、Tailwindグリッド→ Bootstrap `row row-cols-sm-2`、`card-link card-link-pop` |
+| `item/template/draftConfirm.php` | 全面Bootstrap化（$fieldHtml クロージャ内も含む） |
+| `item/template/draftList.php` | statusClasses → Bootstrap badge、table → `table-vcenter`、SVGスピナー → `spinner-border-sm` |
+| `item/template/addFromImage.php` | ドロップゾーン → `position-relative border border-2`（dashed inline style）|
+| `member/template/start.php` | TailAdmin card+table → Bootstrap card/table-vcenter + badge bg-primary-subtle |
+| `scanStock/template/start.php` | `text-title-md2` → Bootstrap heading、`form-input` → `form-control`、SVGスピナー削除 |
+| `settingAdmin/template/start.php` | amber div → `alert alert-warning`、セクションヘッダー → `border-top small fw-semibold text-muted` |
+| `root/template/_components/barcodeScanner.php` | モーダルオーバーレイ Bootstrap化、SVG close → `btn-close`、trigger SVG → `ti ti-qrcode` |
+| `root/template/_components/cameraCapture.php` | 同上 + タブ切り替え → `btn-group btn-sm`、ファイルドロップゾーン → dashed border Bootstrap |
+| `shelf/template/map.php` | 1行 `flex flex-col md:flex-row` → Bootstrap `d-flex flex-column flex-md-row` |
+| `authExt/ProviderView.php` | DELETE操作を POST のみに制限（CSRF対策） |
+| `authExt/template/providers_list.php` | 削除リンク `<a href>` → `<form method=post>` に変換 |
 
 ---
 
 ## 📋 残タスク（優先順）
 
-### [ ] 1. `authExt/template/provider_form.php` のスタイル修正 (高優先度)
-- 約700行の長大ファイル
-- Tailwind 系クラスが多い（`w-full rounded border border-gray-300 bg-white px-3.5 py-2.5...`等）
-- `space-y-1 text-sm text-gray-600` などがある
-- 方針: `form-control` に置換、`space-y-1` → `vstack gap-1`、`text-gray-600` → `text-muted`
+### [ ] 1. `_layout/` ディレクトリのデッドコード確認・削除 (低優先度)
+- `root/template/_layout/header.php`, `sidebar.php`, `footer.php`, `breadcrumb.php`, `skip_link.php`, `installer_alert.php`, `lang_switcher.php`
+- `root/template/root.php` から一切 include されていない（確認済み）
+- 削除して問題なし
 
-### [ ] 2. 残る Tailwind クラスを持つテンプレートの整理 (中優先度)
-以下のファイルにまだ `form-input`/Tailwind クラスが残っている：
-- `item/template/draftConfirm.php` - ドラフト確認
-- `item/template/draftList.php` - ドラフト一覧（`w-full table-auto`等）
-- `authExt/template/provider_select.php`
-- `verify/template/start.php`
-- `member/template/add.php`, `edit.php`
-- `admin/template/ai-settings.php`, `feature-flags.php`
+### [ ] 2. `shelf/template/map.php` のカスタム `<style>` ブロック整理 (低優先度)
+- インラインスタイルが約120行ある
+- 機能的には問題なし
 
-### [ ] 3. `root/template/_layout/header.php` と `sidebar.php` の見直し (低優先度)
-- `header.php` はTailAdmin系クラスを使うが、root.phpでは使われていない（デッドコードの可能性）
-- 確認して不要なら削除、使っているなら Bootstrap に整理
-
-### [ ] 4. provider_form.php の DELETE UI改善 (セキュリティ)
-- `authExt/ProviderView.php` line 84-90: GETリクエストでDELETE実行（CSRF リスク）
-- 確認ダイアログまたはPOST form に変更すべき
+### [ ] 3. `item/template/registerConfirm.php` の確認 (未調査)
+- スキャンで検出されなかったが念のため確認
 
 ---
 
 ## 📁 現在の作業ファイル状態
 
-| ファイルパス | 状態 |
-|-------------|------|
-| flow.json | ✅ 完成 |
-| start/template/menu.php | ✅ 完成 |
-| auth/template/provider_new.php | ✅ Tabler対応済み |
-| item/template/register.php | ✅ Tabler対応済み |
-| category/template/edit.php | ✅ Tabler対応済み |
-| barcode/template/sheet.php | ✅ Tailwind CDN削除・Bootstrap化 |
-| label/template/wizard.php | ✅ Bootstrap化 |
-| shelf/template/simple.php | ✅ Tailwind CDN削除・Bootstrap化 |
-| item/template/fromBarcode.php | ✅ Bootstrap化 |
-| authExt/template/provider_form.php | ⚠️ 要修正（Tailwindクラス多数） |
-| item/template/addFromImage.php | ⚠️ Tailwindクラス（空で動作するが表示崩れの可能性） |
+すべてのテンプレートの Bootstrap 5 / Tabler 統一が完了。残るのは低優先度のクリーンアップのみ。
 
 ---
 
@@ -102,9 +100,3 @@
 ### gitリモート
 - `github.com:Willen-Federation/SASO-Willen-Edition.git`
 - main への直接 push は可能（bypass警告が出るが問題なし）
-
----
-
-## 📝 次のセッションを始めるときは
-
-「前回の続きをお願いします。`/home/schicksal/domains/saso.sksl.jp/public_html/HANDOFF.md` を読んで、残タスクを続けてください。`authExt/template/provider_form.php` のTabler対応から始めてください。」

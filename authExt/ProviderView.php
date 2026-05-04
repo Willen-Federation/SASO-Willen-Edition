@@ -80,8 +80,9 @@ final class ProviderView implements View
             $this->computeUrls((int) $this->provider['id']);
         }
 
-        // Delete action
-        if (isset($this->query['delete']) && is_numeric($this->query['delete'])) {
+        // Delete action — requires POST to prevent CSRF via link prefetch
+        if (isset($this->query['delete']) && is_numeric($this->query['delete'])
+            && $_SERVER['REQUEST_METHOD'] === 'POST') {
             $stmt = $pdo->prepare('DELETE FROM auth_provider WHERE id = :id');
             $stmt->bindValue(':id', (int) $this->query['delete']);
             $stmt->execute();

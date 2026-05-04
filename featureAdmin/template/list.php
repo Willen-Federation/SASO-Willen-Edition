@@ -24,11 +24,11 @@
         foreach ($v->flags as $f) {
             $isTripped = $f['autoDisabledAt'] !== null;
             $statusBadge = $isTripped
-                ? '<span class="ta-badge ta-badge-danger">'.ui_text(__('ui.feature_flags.status.tripped', [], null, 'Breaker tripped')).'</span>'
+                ? '<span class="badge bg-danger">'.ui_text(__('ui.feature_flags.status.tripped', [], null, 'Breaker tripped')).'</span>'
                 : ($f['enabled']
-                    ? '<span class="ta-badge ta-badge-success">'.ui_text(__('ui.feature_flags.status.active', [], null, 'Active')).'</span>'
-                    : '<span class="ta-badge ta-badge-gray">'.ui_text(__('ui.feature_flags.status.disabled', [], null, 'Disabled')).'</span>');
-            $rolloutBadge = '<span class="ta-badge ta-badge-primary">'.((int) $f['rolloutPercent']).'%</span>';
+                    ? '<span class="badge bg-success">'.ui_text(__('ui.feature_flags.status.active', [], null, 'Active')).'</span>'
+                    : '<span class="badge bg-secondary">'.ui_text(__('ui.feature_flags.status.disabled', [], null, 'Disabled')).'</span>');
+            $rolloutBadge = '<span class="badge bg-primary">'.((int) $f['rolloutPercent']).'%</span>';
             
             $toggleAction = $f['enabled'] ? 'disable' : 'enable';
             $toggleLabel = $f['enabled'] ? 'Disable' : 'Enable';

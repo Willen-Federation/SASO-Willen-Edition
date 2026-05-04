@@ -13,7 +13,7 @@
           </div>
         <?php } ?>
 
-        <form method="post" action="<?php echo $v->restoredPath; ?>" autocomplete="on">
+        <form method="post" action="<?php echo htmlspecialchars($v->restoredPath, ENT_QUOTES, 'UTF-8'); ?>" autocomplete="on">
           <div class="mb-3">
             <label for="login-id" class="form-label">ログインID</label>
             <input type="text" id="login-id" name="id" class="form-control" autocomplete="username" required>
@@ -33,7 +33,7 @@
           <div class="hr-text mt-4">外部サービスでログイン</div>
           <div class="d-flex flex-column gap-2 mt-3">
             <?php foreach ($v->providers as $p) { ?>
-              <a href="/auth/start/<?php echo $p->id->value; ?>" class="btn btn-outline-secondary">
+              <a href="/auth/start/<?php echo htmlspecialchars($p->id->value, ENT_QUOTES, 'UTF-8'); ?>" class="btn btn-outline-secondary">
                 <i class="ti ti-key me-2"></i>
                 <?php echo htmlspecialchars($p->name, ENT_QUOTES, 'UTF-8'); ?> でログイン
               </a>

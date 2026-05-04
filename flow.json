@@ -11,7 +11,8 @@
         "start": "\\saso\\auth\\AuthDIContainer",
         "logout": "\\saso\\auth\\LogoutDIContainer",
         "password": "\\saso\\auth\\PasswordDIContainer",
-        "providerNew": "\\saso\\auth\\ProviderNewDIContainer"
+        "providerNew": "\\saso\\auth\\ProviderNewDIContainer",
+        "providers": "\\saso\\authExt\\ProvidersDIContainer"
     },
     "image": {
         "start": "\\saso\\image\\StartDIContainer",

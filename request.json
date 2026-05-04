@@ -7,6 +7,10 @@
         "provider": {
            "matter": "auth",
            "action": "providerNew"
+        },
+        "providers": {
+           "matter": "auth",
+           "action": "providers"
         }
     },
     "js": {

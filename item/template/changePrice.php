@@ -9,7 +9,7 @@
         <div class="input-group">
           <input type="text" id="changePrice-price" name="price" class="form-control"
                  pattern="^[0-9,]+$" maxlength="11"
-                 value="<?php echo $v->itemVar->price; ?>">
+                 value="<?php echo htmlspecialchars((string)($v->itemVar->price ?? ''), ENT_QUOTES, 'UTF-8'); ?>">
           <span class="input-group-text">円</span>
         </div>
         <div class="form-hint">9桁までの数</div>

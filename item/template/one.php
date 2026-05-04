@@ -33,7 +33,7 @@
     <div class="card-body">
       <dl class="row mb-3">
         <dt class="col-sm-3">アーカイブ理由</dt>
-        <dd class="col-sm-9"><?php echo $v->archive->archiveNote ?></dd>
+        <dd class="col-sm-9"><?php echo htmlspecialchars($v->archive->archiveNote, ENT_QUOTES, 'UTF-8') ?></dd>
         <dt class="col-sm-3">アーカイブ日時</dt>
         <dd class="col-sm-9"><?php echo $v->archive->archiveAt->format('Y年m月d日 H時i分') ?></dd>
       </dl>
@@ -77,8 +77,8 @@ foreach($v->quantityLogsGen as $quantityLogs) {
 </a>
 <?php }else{ echo $feature->getFullCode(); } ?>
 </td>
-<td><a href="<?php echo './image/start/item/' . $feature->item->id . '/color/' . $feature->color->code; ?>"><?php echo $feature->color->name . '(' . $feature->color->code . ')'; ?></a></td>
-<td><?php echo $feature->size->name; ?></td>
+<td><a href="<?php echo './image/start/item/' . $feature->item->id . '/color/' . htmlspecialchars($feature->color->code, ENT_QUOTES, 'UTF-8'); ?>"><?php echo htmlspecialchars($feature->color->name, ENT_QUOTES, 'UTF-8') . '(' . htmlspecialchars($feature->color->code, ENT_QUOTES, 'UTF-8') . ')'; ?></a></td>
+<td><?php echo htmlspecialchars($feature->size->name, ENT_QUOTES, 'UTF-8'); ?></td>
 <td class="number featureSum" id="sumof<?php echo $feature->getFullCode(); ?>">
 <?php if($quantityLogs->isInventoried()){ echo $quantityLogs->sum() ;} ?>
 </td>
@@ -145,7 +145,7 @@ foreach($v->quantityLogsGen as $quantityLogs) {
 <form method="post" action="<?php echo './shelf/put/item/'.$feature->item->id.'/color/'.$feature->color->code.'/size/'.$feature->size->code; ?>">
 <div class="input-group mb-3">
     <input
-        type="text" name="number" value="<?php echo $feature->shelf?->number; ?>"
+        type="text" name="number" value="<?php echo htmlspecialchars($feature->shelf?->number ?? '', ENT_QUOTES, 'UTF-8'); ?>"
         class="form-control <?php echo ($feature->color->code===$v->color &&$feature->size->code===$v->size &&$v->action==='shelf')?'focused':''; ?>"
         aria-describedby="putShelfButton" pattern="^[0-9A-Za-z\-]+$" maxlength="15" required
     >

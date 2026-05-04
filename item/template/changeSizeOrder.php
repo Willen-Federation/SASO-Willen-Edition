@@ -9,11 +9,11 @@
         <?php foreach($v->sizes as $size){ ?>
           <div class="col-12">
             <div class="input-group">
-              <span class="input-group-text" style="min-width: 8em;"><?php echo $size->name; ?></span>
+              <span class="input-group-text" style="min-width: 8em;"><?php echo htmlspecialchars($size->name, ENT_QUOTES, 'UTF-8'); ?></span>
               <input type="number" class="form-control"
-                     name="size<?php echo $size->code; ?>"
+                     name="size<?php echo htmlspecialchars($size->code, ENT_QUOTES, 'UTF-8'); ?>"
                      min="0" max="99"
-                     value="<?php echo $size->orderNumber; ?>">
+                     value="<?php echo (int)$size->orderNumber; ?>">
             </div>
           </div>
         <?php } ?>

@@ -41,7 +41,7 @@
     <?php } ?>
 
     <p class="font-monospace">
-      <?php foreach($v->shelves as $shelf) { echo $shelf."<br>"; } ?>
+      <?php foreach($v->shelves as $shelf) { echo htmlspecialchars($shelf, ENT_QUOTES, 'UTF-8')."<br>"; } ?>
     </p>
   </div>
 </div>
@@ -54,7 +54,7 @@
         <?php ($v->inside)('label', 'list'); ?>
       </ul>
       <?php foreach($v->shelves as $index=>$shelf) { ?>
-        <input type="hidden" name="shelf<?php echo $index; ?>" value="<?php echo $shelf; ?>">
+        <input type="hidden" name="shelf<?php echo (int)$index; ?>" value="<?php echo htmlspecialchars($shelf, ENT_QUOTES, 'UTF-8'); ?>">
       <?php } ?>
       <input type="hidden" name="amount" value="<?php echo count($v->shelves); ?>">
       <button type="submit" class="btn btn-primary">

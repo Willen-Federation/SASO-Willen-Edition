@@ -132,7 +132,8 @@
         "list": "\\saso\\item\\ArchiveListDIContainer"
     },
     "verify": {
-        "start": "\\saso\\verify\\StartDIContainer"
+        "start":  "\\saso\\verify\\StartDIContainer",
+        "create": "\\saso\\verify\\CreateDIContainer"
     },
     "featureAdmin": {
         "list": "\\saso\\featureAdmin\\ListDIContainer"

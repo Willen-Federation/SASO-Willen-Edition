@@ -10,7 +10,8 @@
             <?php echo ui_text(__('ui.verify.start_help', [], null, 'Pick a mode and a scope, then begin scanning. Sessions can be resumed via /verify/{id} as long as they are still active.')); ?>
           </p>
 
-          <form method="post" action="./api/v1/verifications" class="vstack gap-3">
+          <form method="post" action="./verify/create/" class="vstack gap-3">
+            <input type="hidden" name="csrftoken" value="<?php echo htmlspecialchars(\saso\util\CSRFtoken::current(), ENT_QUOTES, 'UTF-8'); ?>">
             <?php ui('formField', [
               'name'    => 'mode',
               'label'   => __('ui.verify.mode', [], null, 'Mode'),

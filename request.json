@@ -125,7 +125,8 @@
         "auth-providers": { "matter": "admin", "action": "auth-providers" }
     },
     "verify": {
-        "start": { "matter": "verify", "action": "start" }
+        "start":  { "matter": "verify", "action": "start" },
+        "create": { "matter": "verify", "action": "create" }
     },
     "featureAdmin": {
         "list": { "matter": "featureAdmin", "action": "list" }

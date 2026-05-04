@@ -38,16 +38,16 @@
             $keyHtml = htmlspecialchars($f['key']);
             
             $actionForm = <<<HTML
-<form method="POST" action="" class="inline-block">
+<form method="POST" action="" class="d-inline-block m-0">
     <input type="hidden" name="csrftoken" value="{$csrf}">
     <input type="hidden" name="flag_key" value="{$keyHtml}">
     <input type="hidden" name="action" value="{$toggleAction}">
-    <button type="submit" class="ta-btn ta-btn-sm ta-btn-{$toggleVariant}">{$toggleLabel}</button>
+    <button type="submit" class="btn btn-sm btn-{$toggleVariant}">{$toggleLabel}</button>
 </form>
 HTML;
 
             $rows[] = [
-                ['value' => '<code class="text-theme-xs">'.ui_text((string) $f['key']).'</code>', 'html' => true],
+                ['value' => '<code class="small font-monospace">'.ui_text((string) $f['key']).'</code>', 'html' => true],
                 ['value' => ui_text((string) $f['description'])],
                 ['value' => $rolloutBadge,  'html' => true],
                 ['value' => $statusBadge,   'html' => true],

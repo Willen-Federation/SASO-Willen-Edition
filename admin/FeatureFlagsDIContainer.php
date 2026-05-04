@@ -47,7 +47,7 @@ final class FeatureFlagsDIContainer implements DIContainer
         }
 
         if (!empty($post) && !isset($query['delete']) && !isset($query['toggle'])) {
-            $key  = preg_replace('/[^a-z0-9_\-.]/', '', strtolower(trim((string) ($post['key'] ?? ''))));
+            $key  = preg_replace('/[^a-z0-9_.]/', '', strtolower(trim((string) ($post['key'] ?? ''))));
             $desc = trim((string) ($post['description'] ?? '')) ?: '-';
             if ($key !== '') {
                 try {

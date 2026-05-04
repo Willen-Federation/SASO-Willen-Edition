@@ -114,7 +114,7 @@
             <div class="mb-3">
               <label for="ff-key" class="form-label"><?php echo $lang === 'ja' ? 'キー' : 'Key'; ?> <span class="text-danger">*</span></label>
               <input id="ff-key" type="text" name="key" class="form-control" required
-                     pattern="^[a-z0-9_\-\.]+$"
+                     pattern="^[a-z0-9_.]+$"
                      placeholder="<?php echo $lang === 'ja' ? '例: feature.mobile_connect' : 'e.g. feature.mobile_connect'; ?>">
               <div class="form-hint"><?php echo $lang === 'ja' ? '小文字英数字・アンダースコア・ハイフン・ドットのみ' : 'Lowercase letters, numbers, underscores, hyphens, dots only'; ?></div>
             </div>

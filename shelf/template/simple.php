@@ -57,11 +57,11 @@
               <table class="table table-vcenter" aria-label="<?php echo $lang === 'ja' ? '棚番入力表' : 'Shelf entry table'; ?>">
                 <thead>
                   <tr>
-                    <th style="width:2.5rem;">#</th>
-                    <th><?php echo $lang === 'ja' ? '棚番号' : 'Shelf No.'; ?> <span class="text-danger">*</span></th>
-                    <th><?php echo $lang === 'ja' ? 'エリアコード' : 'Area Code'; ?></th>
-                    <th><?php echo $lang === 'ja' ? 'メモ' : 'Note'; ?></th>
-                    <th style="width:2.5rem;"></th>
+                    <th scope="col" style="width:2.5rem;">#</th>
+                    <th scope="col"><?php echo $lang === 'ja' ? '棚番号' : 'Shelf No.'; ?> <span class="text-danger">*</span></th>
+                    <th scope="col"><?php echo $lang === 'ja' ? 'エリアコード' : 'Area Code'; ?></th>
+                    <th scope="col"><?php echo $lang === 'ja' ? 'メモ' : 'Note'; ?></th>
+                    <th scope="col" style="width:2.5rem;"></th>
                   </tr>
                 </thead>
                 <tbody>

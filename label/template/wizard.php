@@ -37,7 +37,7 @@
         <p class="mb-3 small text-muted">
           <?php echo ui_text(__('ui.label_wizard.step2_help', [], null, 'Pick a quantity, then download the PDF and load the printer.')); ?>
         </p>
-        <form method="post" action="./api/v1/barcodes/mint" class="vstack gap-3">
+        <form method="post" action="./label/mint/" class="vstack gap-3">
           <?php
           $sheetOptions = [];
           foreach ($v->sheets as $s) {

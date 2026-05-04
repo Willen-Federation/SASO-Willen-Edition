@@ -22,7 +22,7 @@
            aria-pressed="false" style="cursor:pointer;">
         <div class="card-body">
           <h6 class="card-title d-flex align-items-center gap-2">
-            <i class="bi bi-shield-lock-fill text-primary"></i> Auth0
+            <i class="bi bi-shield-lock-fill text-brand-500"></i> Auth0
           </h6>
           <p class="card-text text-muted small">
             クラウド型 IDaaS。<strong>Auth0 ドメイン</strong>・<strong>クライアント ID</strong>・
@@ -52,7 +52,7 @@
            aria-pressed="false" style="cursor:pointer;">
         <div class="card-body">
           <h6 class="card-title d-flex align-items-center gap-2">
-            <i class="bi bi-fire text-danger"></i> Firebase Authentication
+            <i class="bi bi-fire text-error-500"></i> Firebase Authentication
           </h6>
           <p class="card-text text-muted small">
             Google のモバイルファースト認証。<strong>プロジェクト ID</strong>・
@@ -116,19 +116,19 @@
 
   <!-- Auth0 フォーム -->
   <div id="form-auth0" class="provider-form d-none">
-    <h5 class="mb-3"><i class="bi bi-shield-lock-fill text-primary me-2"></i>Auth0 の設定</h5>
+    <h5 class="mb-3"><i class="bi bi-shield-lock-fill text-brand-500 me-2"></i>Auth0 の設定</h5>
     <form method="post" novalidate>
       <input type="hidden" name="csrftoken" value="<?php echo htmlspecialchars($csrf, ENT_QUOTES, 'UTF-8'); ?>">
       <input type="hidden" name="provider_template" value="auth0">
       <div class="row g-3">
         <div class="col-md-6">
-          <label for="auth0-provider-name" class="form-label">プロバイダー名 <span class="text-danger">*</span></label>
+          <label for="auth0-provider-name" class="form-label">プロバイダー名 <span class="text-error-500">*</span></label>
           <input type="text" class="form-control" id="auth0-provider-name" name="provider_name"
                  placeholder="例: Auth0 本番" required>
           <div class="form-text">ログイン画面に表示される名前です。</div>
         </div>
         <div class="col-md-6">
-          <label for="auth0-domain" class="form-label">Auth0 ドメイン <span class="text-danger">*</span></label>
+          <label for="auth0-domain" class="form-label">Auth0 ドメイン <span class="text-error-500">*</span></label>
           <input type="text" class="form-control" id="auth0-domain" name="auth0_domain"
                  placeholder="例: example.auth0.com" required
                  autocomplete="off" inputmode="url"
@@ -137,12 +137,12 @@
           <div id="auth0-domain-feedback" class="small text-muted mt-1"></div>
         </div>
         <div class="col-md-6">
-          <label for="auth0-client-id" class="form-label">クライアント ID <span class="text-danger">*</span></label>
+          <label for="auth0-client-id" class="form-label">クライアント ID <span class="text-error-500">*</span></label>
           <input type="text" class="form-control" id="auth0-client-id" name="client_id"
                  placeholder="Auth0 アプリのクライアント ID" required>
         </div>
         <div class="col-md-6">
-          <label for="auth0-client-secret" class="form-label">クライアントシークレット <span class="text-danger">*</span></label>
+          <label for="auth0-client-secret" class="form-label">クライアントシークレット <span class="text-error-500">*</span></label>
           <input type="password" class="form-control" id="auth0-client-secret" name="client_secret"
                  placeholder="Auth0 アプリのクライアントシークレット" required>
         </div>
@@ -164,23 +164,23 @@
       <input type="hidden" name="provider_template" value="cognito">
       <div class="row g-3">
         <div class="col-md-6">
-          <label for="cognito-provider-name" class="form-label">プロバイダー名 <span class="text-danger">*</span></label>
+          <label for="cognito-provider-name" class="form-label">プロバイダー名 <span class="text-error-500">*</span></label>
           <input type="text" class="form-control" id="cognito-provider-name" name="provider_name"
                  placeholder="例: Cognito 本番" required>
           <div class="form-text">ログイン画面に表示される名前です。</div>
         </div>
         <div class="col-md-3">
-          <label for="cognito-region" class="form-label">リージョン <span class="text-danger">*</span></label>
+          <label for="cognito-region" class="form-label">リージョン <span class="text-error-500">*</span></label>
           <input type="text" class="form-control" id="cognito-region" name="cognito_region"
                  placeholder="例: ap-northeast-1" required>
         </div>
         <div class="col-md-3">
-          <label for="cognito-user-pool-id" class="form-label">ユーザープール ID <span class="text-danger">*</span></label>
+          <label for="cognito-user-pool-id" class="form-label">ユーザープール ID <span class="text-error-500">*</span></label>
           <input type="text" class="form-control" id="cognito-user-pool-id" name="cognito_user_pool_id"
                  placeholder="例: ap-northeast-1_XXXXXXXXX" required>
         </div>
         <div class="col-md-6">
-          <label for="cognito-client-id" class="form-label">クライアント ID <span class="text-danger">*</span></label>
+          <label for="cognito-client-id" class="form-label">クライアント ID <span class="text-error-500">*</span></label>
           <input type="text" class="form-control" id="cognito-client-id" name="client_id"
                  placeholder="Cognito アプリクライアントのクライアント ID" required>
         </div>
@@ -200,25 +200,25 @@
 
   <!-- Firebase Authentication フォーム -->
   <div id="form-firebase" class="provider-form d-none">
-    <h5 class="mb-3"><i class="bi bi-fire text-danger me-2"></i>Firebase Authentication の設定</h5>
+    <h5 class="mb-3"><i class="bi bi-fire text-error-500 me-2"></i>Firebase Authentication の設定</h5>
     <form method="post">
       <input type="hidden" name="csrftoken" value="<?php echo htmlspecialchars($csrf, ENT_QUOTES, 'UTF-8'); ?>">
       <input type="hidden" name="provider_template" value="firebase">
       <div class="row g-3">
         <div class="col-md-6">
-          <label for="firebase-provider-name" class="form-label">プロバイダー名 <span class="text-danger">*</span></label>
+          <label for="firebase-provider-name" class="form-label">プロバイダー名 <span class="text-error-500">*</span></label>
           <input type="text" class="form-control" id="firebase-provider-name" name="provider_name"
                  placeholder="例: Firebase 本番" required>
           <div class="form-text">ログイン画面に表示される名前です。</div>
         </div>
         <div class="col-md-6">
-          <label for="firebase-project-id" class="form-label">Firebase プロジェクト ID <span class="text-danger">*</span></label>
+          <label for="firebase-project-id" class="form-label">Firebase プロジェクト ID <span class="text-error-500">*</span></label>
           <input type="text" class="form-control" id="firebase-project-id" name="firebase_project_id"
                  placeholder="例: my-project-12345" required>
           <div class="form-text">Firebase コンソールのプロジェクト ID。</div>
         </div>
         <div class="col-md-6">
-          <label for="firebase-client-id" class="form-label">クライアント ID <span class="text-danger">*</span></label>
+          <label for="firebase-client-id" class="form-label">クライアント ID <span class="text-error-500">*</span></label>
           <input type="text" class="form-control" id="firebase-client-id" name="client_id"
                  placeholder="Firebase Web API キー" required>
           <div class="form-text">Firebase コンソールのプロジェクト設定 → Web API キー。</div>
@@ -244,18 +244,18 @@
       <input type="hidden" name="provider_template" value="oidc">
       <div class="row g-3">
         <div class="col-md-6">
-          <label for="oidc-provider-name" class="form-label">プロバイダー名 <span class="text-danger">*</span></label>
+          <label for="oidc-provider-name" class="form-label">プロバイダー名 <span class="text-error-500">*</span></label>
           <input type="text" class="form-control" id="oidc-provider-name" name="provider_name"
                  placeholder="例: Keycloak 本番" required>
         </div>
         <div class="col-md-6">
-          <label for="oidc-issuer-url" class="form-label">発行者 URL (Issuer URL) <span class="text-danger">*</span></label>
+          <label for="oidc-issuer-url" class="form-label">発行者 URL (Issuer URL) <span class="text-error-500">*</span></label>
           <input type="url" class="form-control" id="oidc-issuer-url" name="oidc_issuer_url"
                  placeholder="例: https://sso.example.com/realms/my-realm" required>
           <div class="form-text"><code>/.well-known/openid-configuration</code> の親 URL。</div>
         </div>
         <div class="col-md-6">
-          <label for="oidc-client-id" class="form-label">クライアント ID <span class="text-danger">*</span></label>
+          <label for="oidc-client-id" class="form-label">クライアント ID <span class="text-error-500">*</span></label>
           <input type="text" class="form-control" id="oidc-client-id" name="client_id"
                  placeholder="OIDC クライアント ID" required>
         </div>
@@ -286,12 +286,12 @@
       <input type="hidden" name="provider_template" value="saml">
       <div class="row g-3">
         <div class="col-md-6">
-          <label for="saml-provider-name" class="form-label">プロバイダー名 <span class="text-danger">*</span></label>
+          <label for="saml-provider-name" class="form-label">プロバイダー名 <span class="text-error-500">*</span></label>
           <input type="text" class="form-control" id="saml-provider-name" name="provider_name"
                  placeholder="例: Active Directory" required>
         </div>
         <div class="col-md-6">
-          <label for="saml-metadata-url" class="form-label">メタデータ URL <span class="text-danger">*</span></label>
+          <label for="saml-metadata-url" class="form-label">メタデータ URL <span class="text-error-500">*</span></label>
           <input type="url" class="form-control" id="saml-metadata-url" name="saml_metadata_url"
                  placeholder="例: https://idp.example.com/FederationMetadata/2007-06/FederationMetadata.xml" required>
           <div class="form-text">IdP のフェデレーションメタデータ XML の URL。</div>
@@ -311,7 +311,7 @@
   function selectProvider(name) {
     document.querySelectorAll('.provider-card').forEach(function (card) {
       var isSelected = card.dataset.provider === name;
-      card.classList.toggle('border-primary', isSelected);
+      card.classList.toggle('border-brand-500', isSelected);
       card.classList.toggle('shadow-sm', isSelected);
       card.setAttribute('aria-pressed', isSelected ? 'true' : 'false');
     });
@@ -330,7 +330,7 @@
 
   window.clearSelection = function () {
     document.querySelectorAll('.provider-card').forEach(function (card) {
-      card.classList.remove('border-primary', 'shadow-sm');
+      card.classList.remove('border-brand-500', 'shadow-sm');
       card.setAttribute('aria-pressed', 'false');
     });
     document.querySelectorAll('.provider-form').forEach(function (f) {
@@ -444,11 +444,11 @@
           if (resp.json && resp.json.ok) {
             if (resultEl) resultEl.innerHTML = '<span class="text-success">✓ ' + escapeHtml(msg) + ' (' + ms + 'ms)</span>';
           } else {
-            if (resultEl) resultEl.innerHTML = '<span class="text-danger">✗ ' + escapeHtml(msg) + '</span>';
+            if (resultEl) resultEl.innerHTML = '<span class="text-error-500">✗ ' + escapeHtml(msg) + '</span>';
           }
         })
         .catch(function (err) {
-          if (resultEl) resultEl.innerHTML = '<span class="text-danger">接続できません: ' + escapeHtml(err && err.message ? err.message : 'ネットワークエラー') + '</span>';
+          if (resultEl) resultEl.innerHTML = '<span class="text-error-500">接続できません: ' + escapeHtml(err && err.message ? err.message : 'ネットワークエラー') + '</span>';
         })
         .finally(function () {
           btn.disabled = false;

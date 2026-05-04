@@ -106,7 +106,7 @@ final class PdoAuthProviderRepository implements AuthProviderRepository
 
             if ($record->id->value === 0) {
                 $newId = (int) $this->pdo->lastInsertId();
-                return $this->findById(new AuthProviderId($newId)) 
+                return $this->findById(new AuthProviderId($newId))
                     ?? throw new \RuntimeException('PdoAuthProviderRepository::save lost row after write.');
             }
         } else {

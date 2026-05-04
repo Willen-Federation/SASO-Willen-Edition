@@ -24,14 +24,14 @@
           foreach ($v->providers as $p) {
               $statusBadge = $p['enabled']
                   ? '<span class="badge badge-success">'.ui_text(__('ui.auth_providers.status.active', [], null, 'Active')).'</span>'
-                  : '<span class="badge bg-gray-2 dark:bg-meta-4 text-black dark:text-white">'.ui_text(__('ui.auth_providers.status.disabled', [], null, 'Disabled')).'</span>';
+                  : '<span class="badge bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-white">'.ui_text(__('ui.auth_providers.status.disabled', [], null, 'Disabled')).'</span>';
               $defaultMark = $p['is_default']
                   ? '<span class="ml-1 text-warning" aria-label="default">★</span>'
                   : '';
               $editUrl   = './auth/provider/edit/' . $p['id'];
               $deleteUrl = './auth/provider/delete/' . $p['id'];
-              $editLink = '<a href="'.ui_attr($editUrl).'" class="text-primary hover:underline text-sm">'.ui_text(__('ui.auth_providers.edit', [], null, 'Edit')).'</a>';
-              $deleteLink = '<a href="'.ui_attr($deleteUrl).'" class="text-danger hover:underline text-sm ml-3" onclick="return confirm(\''.ui_attr(__('ui.auth_providers.confirm_delete', [], null, 'Delete this provider?')).'\')">'.ui_text(__('ui.auth_providers.delete', [], null, 'Delete')).'</a>';
+              $editLink = '<a href="'.ui_attr($editUrl).'" class="text-brand-500 hover:underline text-sm">'.ui_text(__('ui.auth_providers.edit', [], null, 'Edit')).'</a>';
+              $deleteLink = '<a href="'.ui_attr($deleteUrl).'" class="text-error-500 hover:underline text-sm ml-3" onclick="return confirm(\''.ui_attr(__('ui.auth_providers.confirm_delete', [], null, 'Delete this provider?')).'\')">'.ui_text(__('ui.auth_providers.delete', [], null, 'Delete')).'</a>';
 
               $rows[] = [
                   ['value' => '<span class="badge badge-primary uppercase">'.ui_text($p['flavor']).'</span>', 'html' => true],

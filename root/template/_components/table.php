@@ -13,16 +13,16 @@ $caption = $caption ?? null;
 $class   = $class   ?? '';
 $empty   = $empty   ?? __('ui.table.empty', [], null, 'No records');
 ?>
-<div class="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark overflow-hidden <?php echo ui_attr($class); ?>">
+<div class="ta-card <?php echo ui_attr($class); ?>">
   <div class="w-full overflow-x-auto">
-    <table class="w-full table-auto text-left text-sm">
+    <table class="ta-table">
       <?php if ($caption): ?>
         <caption class="sr-only"><?php echo ui_text($caption); ?></caption>
       <?php endif; ?>
-      <thead class="bg-gray-2 text-black dark:bg-meta-4 dark:text-white">
-        <tr class="border-b border-stroke dark:border-strokedark">
+      <thead>
+        <tr>
           <?php foreach ($columns as $col): ?>
-            <th scope="<?php echo ui_attr($col['scope'] ?? 'col'); ?>" class="px-4 py-3 font-semibold whitespace-nowrap <?php echo ui_attr($col['class'] ?? ''); ?>">
+            <th scope="<?php echo ui_attr($col['scope'] ?? 'col'); ?>" class="<?php echo ui_attr($col['class'] ?? ''); ?>">
               <?php echo ui_text($col['label']); ?>
             </th>
           <?php endforeach; ?>
@@ -34,7 +34,7 @@ $empty   = $empty   ?? __('ui.table.empty', [], null, 'No records');
         foreach ($rows as $row):
             $rendered++;
         ?>
-          <tr class="border-b border-stroke dark:border-strokedark hover:bg-gray-50 dark:hover:bg-meta-4 transition">
+          <tr>
             <?php foreach ($row as $cell):
                 if (is_array($cell)) {
                     $cellClass = $cell['class'] ?? '';
@@ -46,7 +46,7 @@ $empty   = $empty   ?? __('ui.table.empty', [], null, 'No records');
                     $isHtml = false;
                 }
             ?>
-              <td class="px-4 py-3 text-black dark:text-white <?php echo ui_attr($cellClass); ?>">
+              <td class="<?php echo ui_attr($cellClass); ?>">
                 <?php echo $isHtml ? $cellValue : ui_text((string) $cellValue); ?>
               </td>
             <?php endforeach; ?>

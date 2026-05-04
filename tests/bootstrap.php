@@ -26,7 +26,7 @@ eval('namespace saso { const ENV = null; }');
 // Load .env file for integration tests (EnvLoader is required by ConfigLoader)
 require __DIR__.'/../util/EnvLoader.php';
 $projectRoot = dirname(__DIR__);
-$env = \saso\util\EnvLoader::loadFile($projectRoot . '/.env');
+$env = \saso\util\EnvLoader::loadFile($projectRoot.'/.env');
 foreach ($env as $key => $value) {
     if (!getenv($key)) {
         putenv("$key=$value");

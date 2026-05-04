@@ -32,7 +32,7 @@
   ui('card', [
     'title'   => ($lang === 'ja' ? '画像登録ドラフト' : 'Draft Items (Awaiting Confirmation)'),
     'actions' => function () use ($lang, $count) { ?>
-      <span class="inline-flex items-center justify-center rounded-full bg-brand-100 px-2.5 py-0.5 text-xs font-semibold text-brand-700 dark:bg-brand-900/40 dark:text-brand-300">
+      <span class="inline-flex items-center justify-center rounded-full bg-primary px-2.5 py-0.5 text-xs font-semibold text-primary dark:bg-primary/40 dark:text-primary">
         <?php echo (int) $count; ?>
       </span>
       <?php ui('button', [
@@ -124,7 +124,7 @@
                   <div class="flex items-center gap-2">
                     <?php if ($status === 'ready'): ?>
                       <a href="./item/draftConfirm/id/<?php echo $draftId; ?>/"
-                         class="inline-flex items-center gap-1 text-sm font-medium text-brand-600 hover:underline dark:text-brand-400">
+                         class="inline-flex items-center gap-1 text-sm font-medium text-primary hover:underline dark:text-primary">
                         <?php echo $lang === 'ja' ? '確認する' : 'Review'; ?>
                         <svg class="h-3.5 w-3.5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>

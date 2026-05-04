@@ -29,8 +29,8 @@
 
         <!-- Image drop zone -->
         <div
-          class="relative flex flex-col items-center justify-center rounded-lg border-2 border-dashed border-gray-200 p-8 transition hover:border-brand-400 dark:border-gray-800 dark:hover:border-brand-500"
-          :class="{ 'border-brand-400 bg-brand-50 dark:bg-brand-900/20': dragging }"
+          class="relative flex flex-col items-center justify-center rounded-lg border-2 border-dashed border-gray-200 p-8 transition hover:border-primary dark:border-gray-800 dark:hover:border-primary"
+          :class="{ 'border-primary bg-primary dark:bg-primary/20': dragging }"
           @dragover.prevent="dragging = true"
           @dragleave.prevent="dragging = false"
           @drop.prevent="
@@ -49,7 +49,7 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
               </svg>
               <div>
-                <label for="image-upload" class="cursor-pointer font-semibold text-brand-600 hover:underline dark:text-brand-400">
+                <label for="image-upload" class="cursor-pointer font-semibold text-primary hover:underline dark:text-primary">
                   <?php echo $lang === 'ja' ? 'ファイルを選択' : 'Choose a file'; ?>
                 </label>
                 <span class="text-gray-600 dark:text-gray-400">
@@ -65,7 +65,7 @@
               <img :src="previewUrl" alt="Preview" class="max-h-48 rounded object-contain">
               <p class="text-sm text-gray-600 dark:text-gray-400" x-text="fileName"></p>
               <button type="button"
-                      class="text-xs text-error-500 hover:underline"
+                      class="text-xs text-danger hover:underline"
                       @click="previewUrl = null; fileName = ''; $refs.fileInput.value = ''">
                 <?php echo $lang === 'ja' ? '削除' : 'Remove'; ?>
               </button>

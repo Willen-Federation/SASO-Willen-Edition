@@ -89,12 +89,12 @@
           ) use ($lang, $aiBadge) {
               $label = $lang === 'ja' ? $labelJa : $labelEn;
               $badge = $field['fromAi'] ? $aiBadge : '';
-              $inputClass = 'w-full rounded border border-gray-200 bg-transparent py-3 px-5 font-medium outline-none transition focus:border-brand-500 active:border-brand-500 dark:border-gray-800 dark:bg-form-input dark:focus:border-brand-500 text-black dark:text-white';
+              $inputClass = 'w-full rounded border border-gray-200 bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary dark:border-gray-800 dark:bg-form-input dark:focus:border-primary text-black dark:text-white';
               echo '<div class="mb-4">';
               echo '<label for="' . htmlspecialchars($name, ENT_QUOTES, 'UTF-8') . '" class="mb-2.5 block font-medium text-black dark:text-white">';
               echo htmlspecialchars($label, ENT_QUOTES, 'UTF-8');
               if ($required) {
-                  echo '<span class="text-error-500 ml-1" aria-hidden="true">*</span>';
+                  echo '<span class="text-danger ml-1" aria-hidden="true">*</span>';
               }
               echo $badge;
               echo '</label>';

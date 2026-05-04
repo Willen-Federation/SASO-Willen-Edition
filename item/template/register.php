@@ -16,7 +16,7 @@
 <button id="appendingParent">+</button>
 <div id="categoriesRoot">
 </div>
-<p>選択中の分類：<span class="categoryPath categoryPathChangable"></span><button type="button" class="hidden" id="deselectCategory">選択解除</button></p>
+<p>選択中の分類：<span class="categoryPath categoryPathChangable"></span><button type="button" class="d-none" id="deselectCategory">選択解除</button></p>
 </div>
 <input type="hidden" name="categoryId" id="categoryId" value="">
 <p>価格：<input type="text" name="price" pattern="^[0-9,]+$" maxlength="11" value="">※9桁までの数。<p>

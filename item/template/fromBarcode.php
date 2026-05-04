@@ -37,7 +37,7 @@
     <div class="card">
       <div class="card-header">
         <h2 class="font-semibold text-black dark:text-white">
-          <span class="inline-flex h-6 w-6 items-center justify-center rounded-full bg-brand-500 text-white text-xs mr-2">1</span>
+          <span class="inline-flex h-6 w-6 items-center justify-center rounded-full bg-primary text-white text-xs mr-2">1</span>
           <?php echo $lang === 'ja' ? 'バーコードを入力・スキャン' : 'Enter or Scan Barcode'; ?>
         </h2>
       </div>
@@ -78,7 +78,7 @@
               </span>
             </button>
           </div>
-          <p x-show="lookupError" x-text="lookupError" class="mt-2 text-sm text-error-500" role="alert" aria-live="polite"></p>
+          <p x-show="lookupError" x-text="lookupError" class="mt-2 text-sm text-danger" role="alert" aria-live="polite"></p>
         </div>
 
         <!-- Lookup result: already registered -->
@@ -99,7 +99,7 @@
     <div class="card">
       <div class="card-header">
         <h2 class="font-semibold text-black dark:text-white">
-          <span class="inline-flex h-6 w-6 items-center justify-center rounded-full bg-brand-500 text-white text-xs mr-2">2</span>
+          <span class="inline-flex h-6 w-6 items-center justify-center rounded-full bg-primary text-white text-xs mr-2">2</span>
           <?php echo $lang === 'ja' ? '商品情報を入力' : 'Enter Product Info'; ?>
         </h2>
       </div>
@@ -113,7 +113,7 @@
           </div>
 
           <div class="mb-4">
-            <label for="fb-name" class="form-label"><?php echo $lang === 'ja' ? '商品名' : 'Product Name'; ?> <span class="text-error-500">*</span></label>
+            <label for="fb-name" class="form-label"><?php echo $lang === 'ja' ? '商品名' : 'Product Name'; ?> <span class="text-danger">*</span></label>
             <input id="fb-name" type="text" name="itemName" class="form-input" maxlength="50" required aria-required="true" placeholder="<?php echo $lang === 'ja' ? '商品名を入力' : 'Product name'; ?>">
           </div>
 

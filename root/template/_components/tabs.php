@@ -12,10 +12,11 @@ $tabs   = $tabs ?? [];
     <li class="nav-item" role="presentation">
       <a href="<?php echo ui_attr($tab['href']); ?>"
          class="nav-link <?php echo $tab['key'] === $active ? 'active' : ''; ?>"
+         role="tab"
          aria-selected="<?php echo $tab['key'] === $active ? 'true' : 'false'; ?>">
         <?php echo ui_text($tab['label']); ?>
         <?php if (!empty($tab['badge'])): ?>
-          <span class="badge bg-gray-200 text-gray-700 ms-2"><?php echo ui_text($tab['badge']); ?></span>
+          <span class="badge bg-secondary ms-2"><?php echo ui_text($tab['badge']); ?></span>
         <?php endif; ?>
       </a>
     </li>

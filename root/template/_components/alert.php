@@ -21,8 +21,7 @@ $variantClass = [
 
 $role = $role ?? (in_array($variant, ['danger', 'warning'], true) ? 'alert' : 'status');
 ?>
-<div class="alert <?php echo ui_attr($variantClass); ?>" role="<?php echo ui_attr($role); ?>"
-     <?php if ($dismissible): ?>data-bs-dismiss="alert"<?php endif; ?>>
+<div class="alert <?php echo ui_attr($variantClass); ?><?php if ($dismissible): ?> alert-dismissible<?php endif; ?>" role="<?php echo ui_attr($role); ?>">
   <?php if ($dismissible): ?>
     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="<?php echo ui_attr(__('ui.button.dismiss', [], null, 'Dismiss')); ?>"></button>
   <?php endif; ?>

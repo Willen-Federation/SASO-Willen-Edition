@@ -4,8 +4,8 @@
 <head>
 <base href="<?php echo $v->baseUrl; ?>">
 <meta charset="utf-8">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/core@latest/dist/css/tabler.min.css">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/core@1.0.0/dist/css/tabler.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.31.0/tabler-icons.min.css">
 <link href="./css/style.css" rel="stylesheet">
 <link rel="shortcut icon" href="./favicon.ico" type="image/vnd.microsoft.icon">
 <link rel="icon" href="./favicon.ico" type="image/vnd.microsoft.icon">
@@ -83,7 +83,7 @@
   </div>
 </div>
 <script type="module">import "./js/main.js";</script>
-<script src="https://cdn.jsdelivr.net/npm/@tabler/core@latest/dist/js/tabler.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@tabler/core@1.0.0/dist/js/tabler.min.js"></script>
 </body>
 </html>
 

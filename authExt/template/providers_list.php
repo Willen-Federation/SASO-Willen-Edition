@@ -1,21 +1,5 @@
 <?php $this->content = function ($v) { ?>
 
-<?php if ($v->saved) { ?>
-  <?php ui('alert', [
-    'variant' => 'success',
-    'title'   => __('ui.auth_providers.saved_title', [], null, 'Changes saved'),
-    'body'    => __('ui.auth_providers.saved_body', [], null, 'Your changes to this provider have been saved.'),
-  ]); ?>
-<?php } ?>
-
-<?php if ($v->deleted) { ?>
-  <?php ui('alert', [
-    'variant' => 'success',
-    'title'   => __('ui.auth_providers.deleted_title', [], null, 'Provider deleted'),
-    'body'    => __('ui.auth_providers.deleted_body', [], null, 'The authentication provider has been deleted.'),
-  ]); ?>
-<?php } ?>
-
 <?php if ($v->forbidden) { ?>
   <?php ui('alert', [
     'variant' => 'danger',
@@ -31,6 +15,22 @@
     'body'    => __('ui.auth_providers.forbidden_body', [], null, 'Sign in as a user with role=admin to manage authentication providers.'),
   ]); ?>
 <?php } else { ?>
+
+<?php if ($v->saved) { ?>
+  <?php ui('alert', [
+    'variant' => 'success',
+    'title'   => __('ui.auth_providers.saved_title', [], null, 'Changes saved'),
+    'body'    => __('ui.auth_providers.saved_body', [], null, 'Your changes to this provider have been saved.'),
+  ]); ?>
+<?php } ?>
+
+<?php if ($v->deleted) { ?>
+  <?php ui('alert', [
+    'variant' => 'success',
+    'title'   => __('ui.auth_providers.deleted_title', [], null, 'Provider deleted'),
+    'body'    => __('ui.auth_providers.deleted_body', [], null, 'The authentication provider has been deleted.'),
+  ]); ?>
+<?php } ?>
 
   <?php
     ui('card', [

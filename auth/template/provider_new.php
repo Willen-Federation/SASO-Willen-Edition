@@ -19,7 +19,7 @@
 
     <div class="col-md-4">
       <div class="card h-100 provider-card" data-provider="auth0" role="button" tabindex="0"
-           aria-pressed="false" style="cursor:pointer;">
+           aria-pressed="false">
         <div class="card-body">
           <h6 class="card-title d-flex align-items-center gap-2">
             <i class="ti ti-shield-lock text-primary"></i> Auth0
@@ -34,7 +34,7 @@
 
     <div class="col-md-4">
       <div class="card h-100 provider-card" data-provider="cognito" role="button" tabindex="0"
-           aria-pressed="false" style="cursor:pointer;">
+           aria-pressed="false">
         <div class="card-body">
           <h6 class="card-title d-flex align-items-center gap-2">
             <i class="ti ti-cloud text-warning"></i> Amazon Cognito
@@ -49,7 +49,7 @@
 
     <div class="col-md-4">
       <div class="card h-100 provider-card" data-provider="firebase" role="button" tabindex="0"
-           aria-pressed="false" style="cursor:pointer;">
+           aria-pressed="false">
         <div class="card-body">
           <h6 class="card-title d-flex align-items-center gap-2">
             <i class="ti ti-flame text-danger"></i> Firebase Authentication
@@ -75,7 +75,7 @@
 
     <div class="col-md-6">
       <div class="card h-100 provider-card" data-provider="oidc" role="button" tabindex="0"
-           aria-pressed="false" style="cursor:pointer;">
+           aria-pressed="false">
         <div class="card-body">
           <h6 class="card-title d-flex align-items-center gap-2">
             <i class="ti ti-key text-secondary"></i> 汎用 OIDC
@@ -91,7 +91,7 @@
 
     <div class="col-md-6">
       <div class="card h-100 provider-card" data-provider="saml" role="button" tabindex="0"
-           aria-pressed="false" style="cursor:pointer;">
+           aria-pressed="false">
         <div class="card-body">
           <h6 class="card-title d-flex align-items-center gap-2">
             <i class="ti ti-building text-secondary"></i> SAML 2.0
@@ -311,7 +311,7 @@
   function selectProvider(name) {
     document.querySelectorAll('.provider-card').forEach(function (card) {
       var isSelected = card.dataset.provider === name;
-      card.classList.toggle('border-brand-500', isSelected);
+      card.classList.toggle('border-primary', isSelected);
       card.classList.toggle('shadow-sm', isSelected);
       card.setAttribute('aria-pressed', isSelected ? 'true' : 'false');
     });
@@ -330,7 +330,7 @@
 
   window.clearSelection = function () {
     document.querySelectorAll('.provider-card').forEach(function (card) {
-      card.classList.remove('border-brand-500', 'shadow-sm');
+      card.classList.remove('border-primary', 'shadow-sm');
       card.setAttribute('aria-pressed', 'false');
     });
     document.querySelectorAll('.provider-form').forEach(function (f) {

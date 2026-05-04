@@ -51,7 +51,7 @@
     "category": {
         "edit": "\\saso\\category\\EditDIContainer",
         "list": "\\saso\\category\\ListDIContainer",
-        "start": "\\saso\\category\\ListDIContainer",
+        "start": "\\saso\\category\\EditDIContainer",
         "add": "\\saso\\category\\AddDIContainer",
         "replace": "\\saso\\category\\ReplaceDIContainer",
         "delete": "\\saso\\category\\DeleteDIContainer",

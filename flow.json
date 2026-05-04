@@ -72,7 +72,7 @@
         "archivingAll": "\\saso\\item\\ArchiveAllFrameDIContainer",
         "archivedAll": "\\saso\\item\\ArchivedAllDIContainer",
         "listFrame": "\\saso\\item\\ListFrameDIContainer",
-        "listContents": "saso\\item\\ListContentsDIContainer",
+        "listContents": "\\saso\\item\\ListContentsDIContainer",
         "head": "\\saso\\item\\HeadDIContainer",
         "row": "\\saso\\item\\RowDIContainer",
         "pagination": "\\saso\\item\\PaginationDIContainer",

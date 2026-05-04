@@ -119,7 +119,7 @@
     }
 </style>
 
-<div class="p-6 max-w-7xl mx-auto" x-data="shelfMap()" style="box-sizing: border-box;">
+<div x-data="shelfMap()" style="box-sizing: border-box; padding: 1.5rem; max-width: 80rem; margin-left: auto; margin-right: auto;">
     
     <!-- Header Section -->
     <div class="map-header">
@@ -165,14 +165,13 @@
             </div>
 
             <!-- Interactive Map Area -->
-            <div class="relative w-full h-full cursor-crosshair overflow-hidden" x-show="mapImage" @wheel.prevent="zoom($event)" style="position: relative; width: 100%; height: 100%; min-height: 500px;">
-                <img :src="mapImage" class="w-full h-auto block select-none origin-center transition-transform duration-200" :style="`transform: scale(${zoomLevel});`" @mousedown.prevent style="width: 100%; max-width: 100%;">
+            <div x-show="mapImage" @wheel.prevent="zoom($event)" style="position: relative; width: 100%; height: 100%; min-height: 500px; cursor: crosshair; overflow: hidden;">
+                <img :src="mapImage" :style="`transform: scale(${zoomLevel});`" @mousedown.prevent style="width: 100%; max-width: 100%; height: auto; display: block; user-select: none; transform-origin: center; transition: transform 0.2s;">
                 
                 <!-- Pins -->
                 <template x-for="pin in pins" :key="pin.id">
-                    <div 
-                        class="absolute flex items-center justify-center cursor-pointer transition-all duration-300 hover:scale-125"
-                        style="position: absolute; width: 2.5rem; height: 2.5rem; margin-left: -1.25rem; margin-top: -1.25rem; z-index: 10;"
+                    <div
+                        style="position: absolute; width: 2.5rem; height: 2.5rem; margin-left: -1.25rem; margin-top: -1.25rem; z-index: 10; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: transform 0.3s;"
                         :style="`left: ${pin.x * 100}%; top: ${pin.y * 100}%;`"
                         @click="selectedPin = pin"
                     >

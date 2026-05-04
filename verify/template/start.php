@@ -67,10 +67,10 @@
             $rows = [];
             foreach ($v->recent as $s) {
                 $statusBadge = $s['status'] === 'completed'
-                    ? '<span class="ta-badge ta-badge-success">'.ui_text((string) $s['status']).'</span>'
+                    ? '<span class="badge bg-success">'.ui_text((string) $s['status']).'</span>'
                     : ($s['status'] === 'active'
-                        ? '<span class="ta-badge ta-badge-warning">'.ui_text((string) $s['status']).'</span>'
-                        : '<span class="ta-badge ta-badge-gray">'.ui_text((string) $s['status']).'</span>');
+                        ? '<span class="badge bg-warning">'.ui_text((string) $s['status']).'</span>'
+                        : '<span class="badge bg-secondary">'.ui_text((string) $s['status']).'</span>');
                 $rows[] = [
                     ['value' => '#'.(int) $s['id']],
                     ['value' => ui_text((string) $s['mode']) ],

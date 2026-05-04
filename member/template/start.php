@@ -49,14 +49,14 @@
             <span class="text-sm text-black dark:text-white"><?php echo ui_text($m->name); ?></span>
           </td>
           <td class="py-3 px-4">
-            <span class="inline-block rounded-full bg-brand-500/10 px-3 py-1 text-xs font-medium text-brand-500">
+            <span class="inline-block rounded-full bg-primary/10 px-3 py-1 text-xs font-medium text-primary">
               <?php echo ui_text($m->role ?? 'user'); ?>
             </span>
           </td>
           <td class="py-3 px-4 text-center">
             <div class="inline-flex items-center gap-3">
               <a href="./member/edit/?id=<?php echo urlencode($m->id); ?>"
-                 class="inline-flex items-center gap-1 rounded border border-gray-200 px-3 py-1 text-xs hover:border-brand-500 hover:text-brand-500 dark:border-gray-800"
+                 class="inline-flex items-center gap-1 rounded border border-gray-200 px-3 py-1 text-xs hover:border-primary hover:text-primary dark:border-gray-800"
                  title="<?php echo ui_attr(__('ui.member.edit', [], null, 'Edit')); ?>">
                 <?php ui('iconHeroicon', ['name' => 'pencil', 'class' => 'h-4 w-4']); ?>
                 <?php echo ui_text(__('ui.member.edit', [], null, 'Edit')); ?>
@@ -65,7 +65,7 @@
                     onsubmit="return confirm('<?php echo ui_attr(__('ui.member.confirm_delete', [], null, 'Delete this user?')); ?>');">
                 <input type="hidden" name="id" value="<?php echo ui_attr($m->id); ?>">
                 <button type="submit"
-                        class="inline-flex items-center gap-1 rounded border border-gray-200 px-3 py-1 text-xs hover:border-error-500 hover:text-error-500 dark:border-gray-800"
+                        class="inline-flex items-center gap-1 rounded border border-gray-200 px-3 py-1 text-xs hover:border-error-500 hover:text-danger dark:border-gray-800"
                         title="<?php echo ui_attr(__('ui.member.delete', [], null, 'Delete')); ?>">
                   <?php ui('iconHeroicon', ['name' => 'trash', 'class' => 'h-4 w-4']); ?>
                   <?php echo ui_text(__('ui.member.delete', [], null, 'Delete')); ?>

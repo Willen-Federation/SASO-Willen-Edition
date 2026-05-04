@@ -1,42 +1,51 @@
 <?php $this->title = '商品情報'; ?>
 <?php $this->content = function($v) { ?>
 
-<nav aria-label="breadcrumb">
-<ol class="breadcrumb">
-<li class="breadcrumb-item"><a href="./">ホーム</a></li>
-<?php if($v->archive->archive) { ?>
-<li class="breadcrumb-item"><a href="./archive/list/">アーカイブ一覧</a></li>
-<?php } ?>
-<li class="breadcrumb-item active">商品情報</li>
+<ol class="breadcrumb mb-3" aria-label="breadcrumbs">
+  <li class="breadcrumb-item"><a href="./">ホーム</a></li>
+  <?php if($v->archive->archive) { ?>
+    <li class="breadcrumb-item"><a href="./archive/list/">アーカイブ一覧</a></li>
+  <?php } ?>
+  <li class="breadcrumb-item active" aria-current="page">商品情報</li>
 </ol>
-</nav>
 
-<table class="table table-striped">
-<?php ($v->inside)('item', 'head'); ?>
-<?php ($v->inside)('item', 'row', $v->item); ?>
-</table>
+<div class="card mb-3">
+  <div class="table-responsive">
+    <table class="table table-striped table-vcenter card-table">
+      <?php ($v->inside)('item', 'head'); ?>
+      <?php ($v->inside)('item', 'row', $v->item); ?>
+    </table>
+  </div>
+</div>
 
 <?php if(!$v->archive->archive) { ?>
-<p>
-<a href="./item/edit/item/<?php echo $v->item->id; ?>">商品情報編集</a>
-|
-<a href="./item/addFeature/item/<?php echo $v->item->id; ?>">色・サイズ追加</a>
-</p>
+  <div class="btn-list mb-3">
+    <a href="./item/edit/item/<?php echo $v->item->id; ?>" class="btn btn-outline-primary">
+      <i class="ti ti-edit me-1"></i>商品情報編集
+    </a>
+    <a href="./item/addFeature/item/<?php echo $v->item->id; ?>" class="btn btn-outline-primary">
+      <i class="ti ti-plus me-1"></i>色・サイズ追加
+    </a>
+  </div>
 <?php } else { ?>
-<dl>
-    <dt>アーカイブ理由</dt>
-    <dd><?php echo $v->archive->archiveNote ?></dd>
-    <dt>アーカイブ日時</dt>
-    <dd><?php echo $v->archive->archiveAt->format('Y年m月d日 H時i分') ?></dd>
-</dl>
-<form method="post" action="<?php echo './item/reproduction/item/' . $v->item->id; ?>">
-<input type="hidden" name="isPost" value="true">
-<button>復刻</button>
-</form>
+  <div class="card mb-3">
+    <div class="card-body">
+      <dl class="row mb-3">
+        <dt class="col-sm-3">アーカイブ理由</dt>
+        <dd class="col-sm-9"><?php echo $v->archive->archiveNote ?></dd>
+        <dt class="col-sm-3">アーカイブ日時</dt>
+        <dd class="col-sm-9"><?php echo $v->archive->archiveAt->format('Y年m月d日 H時i分') ?></dd>
+      </dl>
+      <form method="post" action="<?php echo './item/reproduction/item/' . $v->item->id; ?>">
+        <input type="hidden" name="isPost" value="true">
+        <button type="submit" class="btn btn-warning"><i class="ti ti-refresh me-1"></i>復刻</button>
+      </form>
+    </div>
+  </div>
 <?php } ?>
 
-<h2>数量・棚番管理</h2>
-<table class="table table-striped table-hover">
+<h2 class="h2 mb-3">数量・棚番管理</h2>
+<table class="table table-striped table-hover table-vcenter">
 <tr>
 <th>商品詳細番号</th>
 <th>色</th>
@@ -160,7 +169,7 @@ foreach($v->quantityLogsGen as $quantityLogs) {
 ?>
 </table>
 
-<div id="labelSheetsAmount" class="hidden"><?php echo $v->labelSheetsAmount; ?></div>
-<div id="labelSheetsAmountMax" class="hidden"><?php echo $v->labelSheetsAmountMax; ?></div>
+<div id="labelSheetsAmount" class="d-none"><?php echo $v->labelSheetsAmount; ?></div>
+<div id="labelSheetsAmountMax" class="d-none"><?php echo $v->labelSheetsAmountMax; ?></div>
 
 <?php }; ?>

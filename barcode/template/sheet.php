@@ -106,8 +106,8 @@
               @click="selectLayout(l)"
               class="flex items-start gap-3 rounded border p-3 text-left transition"
               :class="selectedLayout && selectedLayout.id === l.id
-                ? 'border-brand-500 bg-brand-500 bg-opacity-5 dark:bg-gray-700'
-                : 'border-gray-200 hover:border-brand-500 dark:border-gray-800'"
+                ? 'border-primary bg-primary bg-opacity-5 dark:bg-gray-700'
+                : 'border-gray-200 hover:border-primary dark:border-gray-800'"
               :aria-pressed="selectedLayout && selectedLayout.id === l.id ? 'true' : 'false'"
             >
               <!-- Grid preview -->

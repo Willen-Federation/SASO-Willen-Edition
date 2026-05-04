@@ -56,7 +56,7 @@
               <thead>
                 <tr>
                   <th class="w-8 pl-4">#</th>
-                  <th><?php echo $lang === 'ja' ? '棚番号' : 'Shelf No.'; ?> <span class="text-error-500">*</span></th>
+                  <th><?php echo $lang === 'ja' ? '棚番号' : 'Shelf No.'; ?> <span class="text-danger">*</span></th>
                   <th><?php echo $lang === 'ja' ? 'エリアコード' : 'Area Code'; ?></th>
                   <th><?php echo $lang === 'ja' ? 'メモ' : 'Note'; ?></th>
                   <th class="w-8"></th>
@@ -64,11 +64,11 @@
               </thead>
               <tbody>
                 <template x-for="(row, i) in rows" :key="i">
-                  <tr :class="selectedRow === i ? 'bg-brand-500/5' : ''">
+                  <tr :class="selectedRow === i ? 'bg-primary/5' : ''">
                     <td class="pl-4">
                       <button type="button" @click="selectedRow = (selectedRow === i ? null : i)"
                         class="h-6 w-6 rounded-full text-xs flex items-center justify-center border"
-                        :class="selectedRow === i ? 'bg-brand-500 text-white border-brand-500' : 'border-gray-200 text-gray-600 dark:border-gray-800 dark:text-gray-400'"
+                        :class="selectedRow === i ? 'bg-primary text-white border-primary' : 'border-gray-200 text-gray-600 dark:border-gray-800 dark:text-gray-400'"
                         :aria-label="'行' + (i+1) + 'を選択'">
                         <span x-text="i+1"></span>
                       </button>
@@ -110,7 +110,7 @@
                     </td>
                     <td>
                       <button type="button" @click="removeRow(i)" x-show="rows.length > 1"
-                        class="text-error-500 hover:text-red-700 dark:hover:text-red-400" :aria-label="'行' + (i+1) + 'を削除'">
+                        class="text-danger hover:text-red-700 dark:hover:text-red-400" :aria-label="'行' + (i+1) + 'を削除'">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" style="width: 1rem; height: 1rem;" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
                       </button>
                     </td>
@@ -165,7 +165,7 @@
             type="file"
             accept="image/*"
             @change="handleMap($event)"
-            class="block w-full text-sm text-gray-600 dark:text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-brand-500 file:text-white hover:file:opacity-90"
+            class="block w-full text-sm text-gray-600 dark:text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-white hover:file:opacity-90"
             aria-label="<?php echo $lang === 'ja' ? 'マップ画像' : 'Map image'; ?>"
           >
         </label>
@@ -185,8 +185,8 @@
               :style="'left:' + pin.x + '%;top:' + pin.y + '%;transform:translate(-50%,-100%)'"
             >
               <div class="flex flex-col items-center">
-                <div class="bg-brand-500 text-white text-xs px-1.5 py-0.5 rounded shadow font-bold" x-text="rows[pin.row]?.shelfNo || (pin.row+1)"></div>
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-brand-500 drop-shadow" style="width: 1.25rem; height: 1.25rem;" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+                <div class="bg-primary text-white text-xs px-1.5 py-0.5 rounded shadow font-bold" x-text="rows[pin.row]?.shelfNo || (pin.row+1)"></div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-primary drop-shadow" style="width: 1.25rem; height: 1.25rem;" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
               </div>
             </div>
           </template>

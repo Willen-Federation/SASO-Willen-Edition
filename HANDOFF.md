@@ -56,19 +56,45 @@
 
 ---
 
+## ✅ 完了済みの作業（セッション4 — デバッグ・バグ修正）
+
+| ファイル | 変更内容 |
+|---------|---------|
+| `scanStock/StartDIContainer.php` | `isTopLevel() true → false`（HTML ページなのにラッパーなしで白画面になっていた） |
+| `barcode/template/sheet.php` | Tailwind `transition-all` → `style="transition: all 0.15s ease-in-out;"` |
+| `authExt/template/provider_form.php` | fieldset 5箇所の `min-w-0`（Tailwind） → `style="min-width:0"` |
+| `admin/template/feature-flags.php` | Toggle/Create POST 先を `./api/v1/...` (404) → `./admin/feature-flags/...` に修正、CSRF 追加、ゲッターを public プロパティアクセスに修正、FeatureKey 正規表現統一、Edit リンク削除 |
+| `admin/FeatureFlagsDIContainer.php` | toggle・create ハンドラーを追加実装 |
+| `label/MintDIContainer.php` | `isTopLevel() false → true`（PDF 二重出力バグ修正） |
+| `label/PdfDIContainer.php` | 同上 |
+| `label/SvgDIContainer.php` | 同上 |
+| `barcode/PrintSheetDIContainer.php` | 同上 |
+
+全修正は本番 `main` ブランチに cherry-pick 済み（コミット `02604c5`）。
+
+---
+
 ## 📋 残タスク（優先順）
 
-### [ ] 1. `_layout/` ディレクトリのデッドコード確認・削除 (低優先度)
+### [ ] 1. Tailwind クラス残存の全体スキャン
+- `grep -rn "min-w-0\|transition-all\|flex-shrink-0\|rounded-lg\|text-sm\|bg-white" --include="*.php" --exclude-dir=vendor` で検索
+- 発見したら Bootstrap/Tabler 相当の inline style かクラスに置き換え
+
+### [ ] 2. `_layout/` ディレクトリのデッドコード確認・削除 (低優先度)
 - `root/template/_layout/header.php`, `sidebar.php`, `footer.php`, `breadcrumb.php`, `skip_link.php`, `installer_alert.php`, `lang_switcher.php`
 - `root/template/root.php` から一切 include されていない（確認済み）
 - 削除して問題なし
 
-### [ ] 2. `shelf/template/map.php` のカスタム `<style>` ブロック整理 (低優先度)
+### [ ] 3. `shelf/template/map.php` のカスタム `<style>` ブロック整理 (低優先度)
 - インラインスタイルが約120行ある
 - 機能的には問題なし
 
-### [ ] 3. `item/template/registerConfirm.php` の確認 (未調査)
+### [ ] 4. `item/template/registerConfirm.php` の確認 (未調査)
 - スキャンで検出されなかったが念のため確認
+
+### [ ] 5. ラベルファーストワークフロー動作検証
+- `barcode/sheet/` → `barcode/printSheet/` → `item/fromBarcode/` のフロー全体確認
+- `PrintSheetDIContainer::isTopLevel() = true` 修正後に PDF が正常出力されるか確認
 
 ---
 

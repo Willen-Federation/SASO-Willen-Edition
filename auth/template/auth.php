@@ -1,7 +1,7 @@
 <?php $this->title = 'ログイン'; ?>
-<?php $this->content = function($v) { ?>
+<?php $this->content = function ($v) { ?>
 
-<?php if($v->isError) { ?>
+<?php if ($v->isError) { ?>
 <p class="text-error">ID、パスワードが違います</p>
 <?php } ?>
 <form method="post" action="<?php echo $v->restoredPath; ?>">

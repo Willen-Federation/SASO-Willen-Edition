@@ -14,7 +14,7 @@
       <div class="col-md-6">
         <label for="search" class="form-label">商品名で検索</label>
         <input type="text" id="search" class="form-control" maxlength="50"
-               placeholder="商品名" value="<?php echo urldecode($v->search); ?>">
+               placeholder="商品名" value="<?php echo htmlspecialchars(urldecode($v->search), ENT_QUOTES, 'UTF-8'); ?>">
       </div>
       <div class="col-md-auto">
         <button id="searchButton" type="button" class="btn btn-outline-primary">

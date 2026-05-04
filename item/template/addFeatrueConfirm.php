@@ -34,18 +34,18 @@
     <?php } ?>
 
     <form method="post" action="./item/addFeature/item/<?php echo $v->item->id; ?>">
-      <input type="hidden" name="colorNameConfirm" value="<?php echo $v->isValidAmount?$v->inputColors:''; ?>">
-      <input type="hidden" name="sizeNameConfirm" value="<?php echo $v->isValidAmount?$v->inputSizes:''; ?>">
+      <input type="hidden" name="colorNameConfirm" value="<?php echo htmlspecialchars($v->isValidAmount?$v->inputColors:'', ENT_QUOTES, 'UTF-8'); ?>">
+      <input type="hidden" name="sizeNameConfirm" value="<?php echo htmlspecialchars($v->isValidAmount?$v->inputSizes:'', ENT_QUOTES, 'UTF-8'); ?>">
 
       <div class="mb-3">
         <label for="addFeatConfirm-color" class="form-label">追加する色</label>
         <input type="text" id="addFeatConfirm-color" name="colorName" class="form-control"
-               value="<?php echo $v->inputColors; ?>">
+               value="<?php echo htmlspecialchars($v->inputColors, ENT_QUOTES, 'UTF-8'); ?>">
       </div>
       <div class="mb-3">
         <label for="addFeatConfirm-size" class="form-label">追加するサイズ</label>
         <input type="text" id="addFeatConfirm-size" name="sizeName" class="form-control"
-               value="<?php echo $v->inputSizes; ?>">
+               value="<?php echo htmlspecialchars($v->inputSizes, ENT_QUOTES, 'UTF-8'); ?>">
         <div class="form-hint">追加するものが複数ある場合は半角カンマ ( , ) で区切って下さい。</div>
       </div>
       <button type="submit" class="btn btn-primary"><i class="ti ti-plus me-1"></i>追加</button>

@@ -27,10 +27,10 @@
 <div class="card">
   <div class="card-body">
     <?php if(!empty($v->inputColors)) { ?>
-      <p class="mb-1">追加する色：<strong><?php echo $v->serializedColors; ?></strong></p>
+      <p class="mb-1">追加する色：<strong><?php echo htmlspecialchars($v->serializedColors, ENT_QUOTES, 'UTF-8'); ?></strong></p>
     <?php } ?>
     <?php if(!empty($v->inputSizes)) { ?>
-      <p class="mb-3">追加するサイズ：<strong><?php echo $v->serializedSizes; ?></strong></p>
+      <p class="mb-3">追加するサイズ：<strong><?php echo htmlspecialchars($v->serializedSizes, ENT_QUOTES, 'UTF-8'); ?></strong></p>
     <?php } ?>
 
     <form method="post" action="./item/addFeature/item/<?php echo $v->item->id; ?>">

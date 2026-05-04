@@ -6,7 +6,7 @@
   <li class="breadcrumb-item active" aria-current="page">一括アーカイブ</li>
 </ol>
 
-<div class="d-none" id="current"><?php echo $v->request; ?></div>
+<div class="d-none" id="current"><?php echo htmlspecialchars($v->request, ENT_QUOTES, 'UTF-8'); ?></div>
 
 <div class="card mb-3">
   <div class="card-body">
@@ -22,7 +22,7 @@
         </button>
       </div>
       <div class="col-md-auto">
-        <a href="./<?php echo $v->request; ?>/" class="btn btn-link">検索解除</a>
+        <a href="./<?php echo htmlspecialchars($v->request, ENT_QUOTES, 'UTF-8'); ?>/" class="btn btn-link">検索解除</a>
       </div>
     </div>
   </div>
@@ -46,29 +46,29 @@
           <tr>
             <th><label class="form-check m-0"><input type="checkbox" class="form-check-input" id="checkAllArchiveAllCheckbox"><span class="form-check-label">アーカイブ</span></label></th>
             <th scope="col">商品番号
-              <a class="text-secondary" href="./<?php echo $v->request; ?>/sortby/concatId/direction/desc/<?php echo $v->searchUrl; ?>">▼</a>
-              <a class="text-secondary" href="./<?php echo $v->request; ?>/sortby/concatId/direction/asc/<?php echo $v->searchUrl; ?>">▲</a>
+              <a class="text-secondary" href="./<?php echo htmlspecialchars($v->request, ENT_QUOTES, 'UTF-8'); ?>/sortby/concatId/direction/desc/<?php echo htmlspecialchars($v->searchUrl, ENT_QUOTES, 'UTF-8'); ?>">▼</a>
+              <a class="text-secondary" href="./<?php echo htmlspecialchars($v->request, ENT_QUOTES, 'UTF-8'); ?>/sortby/concatId/direction/asc/<?php echo htmlspecialchars($v->searchUrl, ENT_QUOTES, 'UTF-8'); ?>">▲</a>
             </th>
             <th scope="col">商品名</th>
             <th scope="col">分類
-              <a class="text-secondary" href="./<?php echo $v->request; ?>/sortby/categoryId/direction/desc/<?php echo $v->searchUrl; ?>">▼</a>
-              <a class="text-secondary" href="./<?php echo $v->request; ?>/sortby/categoryId/direction/asc/<?php echo $v->searchUrl; ?>">▲</a>
+              <a class="text-secondary" href="./<?php echo htmlspecialchars($v->request, ENT_QUOTES, 'UTF-8'); ?>/sortby/categoryId/direction/desc/<?php echo htmlspecialchars($v->searchUrl, ENT_QUOTES, 'UTF-8'); ?>">▼</a>
+              <a class="text-secondary" href="./<?php echo htmlspecialchars($v->request, ENT_QUOTES, 'UTF-8'); ?>/sortby/categoryId/direction/asc/<?php echo htmlspecialchars($v->searchUrl, ENT_QUOTES, 'UTF-8'); ?>">▲</a>
             </th>
             <th scope="col">価格
-              <a class="text-secondary" href="./<?php echo $v->request; ?>/sortby/price/direction/desc/<?php echo $v->searchUrl; ?>">▼</a>
-              <a class="text-secondary" href="./<?php echo $v->request; ?>/sortby/price/direction/asc/<?php echo $v->searchUrl; ?>">▲</a>
+              <a class="text-secondary" href="./<?php echo htmlspecialchars($v->request, ENT_QUOTES, 'UTF-8'); ?>/sortby/price/direction/desc/<?php echo htmlspecialchars($v->searchUrl, ENT_QUOTES, 'UTF-8'); ?>">▼</a>
+              <a class="text-secondary" href="./<?php echo htmlspecialchars($v->request, ENT_QUOTES, 'UTF-8'); ?>/sortby/price/direction/asc/<?php echo htmlspecialchars($v->searchUrl, ENT_QUOTES, 'UTF-8'); ?>">▲</a>
             </th>
             <th scope="col">プラ</th>
             <th scope="col">付記</th>
             <th scope="col">紙</th>
             <th scope="col">付記</th>
             <th scope="col">登録日
-              <a class="text-secondary" href="./<?php echo $v->request; ?>/sortby/createAt/direction/desc/<?php echo $v->searchUrl; ?>">▼</a>
-              <a class="text-secondary" href="./<?php echo $v->request; ?>/sortby/createAt/direction/asc/<?php echo $v->searchUrl; ?>">▲</a>
+              <a class="text-secondary" href="./<?php echo htmlspecialchars($v->request, ENT_QUOTES, 'UTF-8'); ?>/sortby/createAt/direction/desc/<?php echo htmlspecialchars($v->searchUrl, ENT_QUOTES, 'UTF-8'); ?>">▼</a>
+              <a class="text-secondary" href="./<?php echo htmlspecialchars($v->request, ENT_QUOTES, 'UTF-8'); ?>/sortby/createAt/direction/asc/<?php echo htmlspecialchars($v->searchUrl, ENT_QUOTES, 'UTF-8'); ?>">▲</a>
             </th>
             <th scope="col">更新日
-              <a class="text-secondary" href="./<?php echo $v->request; ?>/sortby/updateAt/direction/desc/<?php echo $v->searchUrl; ?>">▼</a>
-              <a class="text-secondary" href="./<?php echo $v->request; ?>/sortby/updateAt/direction/asc/<?php echo $v->searchUrl; ?>">▲</a>
+              <a class="text-secondary" href="./<?php echo htmlspecialchars($v->request, ENT_QUOTES, 'UTF-8'); ?>/sortby/updateAt/direction/desc/<?php echo htmlspecialchars($v->searchUrl, ENT_QUOTES, 'UTF-8'); ?>">▼</a>
+              <a class="text-secondary" href="./<?php echo htmlspecialchars($v->request, ENT_QUOTES, 'UTF-8'); ?>/sortby/updateAt/direction/asc/<?php echo htmlspecialchars($v->searchUrl, ENT_QUOTES, 'UTF-8'); ?>">▲</a>
             </th>
             <th scope="col">色</th>
             <th scope="col">サイズ</th>

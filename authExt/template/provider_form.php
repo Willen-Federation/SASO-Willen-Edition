@@ -146,7 +146,7 @@ ui('card', [
       foreach ($autoCards as $val => $info): ?>
         <button type="button"
                 @click="pick('<?php echo $val; ?>')"
-                class="flex flex-col gap-1 rounded-lg border-2 border-gray-200 p-4 text-left transition-colors hover:border-brand-500 hover:bg-brand-500/5 dark:border-gray-800 dark:hover:border-brand-500 dark:hover:bg-brand-500/10">
+                class="flex flex-col gap-1 rounded-lg border-2 border-gray-200 p-4 text-left transition-colors hover:border-primary hover:bg-brand-500/5 dark:border-gray-800 dark:hover:border-primary dark:hover:bg-brand-500/10">
           <span class="font-semibold text-gray-800 dark:text-white"><?php echo htmlspecialchars($info['title']); ?></span>
           <span class="text-xs text-gray-600 dark:text-gray-400"><?php echo htmlspecialchars($info['desc']); ?></span>
         </button>
@@ -166,7 +166,7 @@ ui('card', [
       foreach ($manualCards as $val => $info): ?>
         <button type="button"
                 @click="pick('<?php echo $val; ?>')"
-                class="flex flex-col gap-1 rounded-lg border-2 border-gray-200 p-4 text-left transition-colors hover:border-brand-500 hover:bg-brand-500/5 dark:border-gray-800 dark:hover:border-brand-500 dark:hover:bg-brand-500/10">
+                class="flex flex-col gap-1 rounded-lg border-2 border-gray-200 p-4 text-left transition-colors hover:border-primary hover:bg-brand-500/5 dark:border-gray-800 dark:hover:border-primary dark:hover:bg-brand-500/10">
           <span class="font-semibold text-gray-800 dark:text-white"><?php echo htmlspecialchars($info['title']); ?></span>
           <span class="text-xs text-gray-600 dark:text-gray-400"><?php echo htmlspecialchars($info['desc']); ?></span>
         </button>
@@ -185,24 +185,24 @@ ui('card', [
       <!-- ── NEW MODE: explain two-step flow, collect name only ── -->
       <button type="button"
               @click="step = 1; choice = ''"
-              class="mb-5 inline-flex items-center gap-1 text-sm text-brand-500 hover:underline">
+              class="mb-5 inline-flex items-center gap-1 text-sm text-primary hover:underline">
         <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" aria-hidden="true">
           <path d="M19 12H5m0 0 7 7m-7-7 7-7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
         <?php echo $lang === 'ja' ? 'プロバイダを選び直す' : 'Choose a different provider'; ?>
       </button>
 
-      <div class="mb-6 rounded-lg border border-brand-500/30 bg-brand-500/5 p-4 dark:border-brand-500/40 dark:bg-brand-500/10">
+      <div class="mb-6 rounded-lg border border-primary/30 bg-brand-500/5 p-4 dark:border-primary/40 dark:bg-brand-500/10">
         <p class="mb-2 font-semibold text-gray-800 dark:text-white">
           <?php echo $lang === 'ja' ? '2ステップでプロバイダを追加します' : 'Two steps to add a provider'; ?>
         </p>
         <ol class="space-y-1 text-sm text-gray-600 dark:text-gray-400">
-          <li><span class="font-semibold text-brand-500">1.</span>
+          <li><span class="font-semibold text-primary">1.</span>
             <?php echo $lang === 'ja'
               ? '名前を入力して「プロバイダを作成」→ コールバック URL が発行されます'
               : 'Enter a name and click "Create provider" — your callback URL will be issued'; ?>
           </li>
-          <li><span class="font-semibold text-brand-500">2.</span>
+          <li><span class="font-semibold text-primary">2.</span>
             <?php echo $lang === 'ja'
               ? 'コールバック URL を IdP に登録してから、クライアント情報を入力して保存'
               : 'Register the callback URL in your IdP, then enter client credentials and save'; ?>
@@ -256,7 +256,7 @@ ui('card', [
                 <button type="button"
                         onclick="navigator.clipboard.writeText(<?php echo htmlspecialchars(json_encode($value)); ?>)"
                         title="<?php echo $lang === 'ja' ? 'コピー' : 'Copy'; ?>"
-                        class="shrink-0 rounded border border-gray-200 p-1.5 text-gray-600 transition hover:border-brand-500 hover:text-brand-500 dark:border-gray-800">
+                        class="shrink-0 rounded border border-gray-200 p-1.5 text-gray-600 transition hover:border-primary hover:text-primary dark:border-gray-800">
                   <svg class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                     <rect x="9" y="9" width="13" height="13" rx="2" stroke="currentColor" stroke-width="1.5"/>
                     <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" stroke="currentColor" stroke-width="1.5"/>
@@ -329,7 +329,7 @@ ui('card', [
       <div class="mb-4">
         <label for="client_secret" class="mb-2.5 block font-medium text-gray-800 dark:text-white">
           Client Secret
-          <?php if (!$v->hasSecret): ?><span class="text-error-500" aria-hidden="true">*</span><?php endif; ?>
+          <?php if (!$v->hasSecret): ?><span class="text-danger" aria-hidden="true">*</span><?php endif; ?>
         </label>
         <input type="password" id="client_secret" name="client_secret" value=""
                placeholder="<?php echo $v->hasSecret
@@ -337,11 +337,11 @@ ui('card', [
                    : ($lang === 'ja' ? 'シークレットを入力' : 'Enter secret'); ?>"
                autocomplete="new-password"
                <?php if (!$v->hasSecret): ?>required<?php endif; ?>
-               class="w-full rounded border border-gray-300 bg-white px-3.5 py-2.5 font-medium outline-none transition focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 dark:border-gray-700 dark:bg-gray-900 dark:focus:border-brand-500 dark:text-white text-gray-800">
+               class="w-full rounded border border-gray-300 bg-white px-3.5 py-2.5 font-medium outline-none transition focus:border-primary focus:ring-2 focus:ring-brand-500/20 dark:border-gray-700 dark:bg-gray-900 dark:focus:border-primary dark:text-white text-gray-800">
         <?php if ($v->hasSecret): ?>
           <p class="mt-1 text-xs text-gray-600 dark:text-gray-400"><?php echo $lang === 'ja' ? '変更する場合のみ入力してください' : 'Leave blank to keep the current secret'; ?></p>
         <?php else: ?>
-          <p class="mt-1 text-xs text-error-500"><?php echo $lang === 'ja' ? '⚠ シークレット未設定。入力して保存するまでログインできません。' : '⚠ No client secret stored. Sign-in will fail until a secret is saved.'; ?></p>
+          <p class="mt-1 text-xs text-danger"><?php echo $lang === 'ja' ? '⚠ シークレット未設定。入力して保存するまでログインできません。' : '⚠ No client secret stored. Sign-in will fail until a secret is saved.'; ?></p>
         <?php endif; ?>
       </div>
       <?php
@@ -408,14 +408,14 @@ ui('card', [
       <div class="mb-4">
         <label for="client_secret" class="mb-2.5 block font-medium text-gray-800 dark:text-white">
           Client Secret
-          <?php if (!$v->hasSecret): ?><span class="text-error-500" aria-hidden="true">*</span><?php endif; ?>
+          <?php if (!$v->hasSecret): ?><span class="text-danger" aria-hidden="true">*</span><?php endif; ?>
         </label>
         <input type="password" id="client_secret" name="client_secret" value=""
                placeholder="<?php echo $v->hasSecret ? '●●●●●●●●' : ($lang === 'ja' ? 'シークレットを入力' : 'Enter secret'); ?>"
                autocomplete="new-password"
                <?php if (!$v->hasSecret): ?>required<?php endif; ?>
-               class="w-full rounded border border-gray-300 bg-white px-3.5 py-2.5 font-medium outline-none transition focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 dark:border-gray-700 dark:bg-gray-900 dark:focus:border-brand-500 dark:text-white text-gray-800">
-        <?php if ($v->hasSecret): ?><p class="mt-1 text-xs text-gray-600 dark:text-gray-400"><?php echo $lang === 'ja' ? '変更する場合のみ入力してください' : 'Leave blank to keep the current secret'; ?></p><?php else: ?><p class="mt-1 text-xs text-error-500"><?php echo $lang === 'ja' ? '⚠ シークレット未設定。入力して保存するまでログインできません。' : '⚠ No client secret stored. Sign-in will fail until a secret is saved.'; ?></p><?php endif; ?>
+               class="w-full rounded border border-gray-300 bg-white px-3.5 py-2.5 font-medium outline-none transition focus:border-primary focus:ring-2 focus:ring-brand-500/20 dark:border-gray-700 dark:bg-gray-900 dark:focus:border-primary dark:text-white text-gray-800">
+        <?php if ($v->hasSecret): ?><p class="mt-1 text-xs text-gray-600 dark:text-gray-400"><?php echo $lang === 'ja' ? '変更する場合のみ入力してください' : 'Leave blank to keep the current secret'; ?></p><?php else: ?><p class="mt-1 text-xs text-danger"><?php echo $lang === 'ja' ? '⚠ シークレット未設定。入力して保存するまでログインできません。' : '⚠ No client secret stored. Sign-in will fail until a secret is saved.'; ?></p><?php endif; ?>
       </div>
       <?php
       ui('formField', [
@@ -468,14 +468,14 @@ ui('card', [
       <div class="mb-4">
         <label for="client_secret" class="mb-2.5 block font-medium text-gray-800 dark:text-white">
           Client Secret
-          <?php if (!$v->hasSecret): ?><span class="text-error-500" aria-hidden="true">*</span><?php endif; ?>
+          <?php if (!$v->hasSecret): ?><span class="text-danger" aria-hidden="true">*</span><?php endif; ?>
         </label>
         <input type="password" id="client_secret" name="client_secret" value=""
                placeholder="<?php echo $v->hasSecret ? '●●●●●●●●' : ($lang === 'ja' ? 'シークレットを入力' : 'Enter secret'); ?>"
                autocomplete="new-password"
                <?php if (!$v->hasSecret): ?>required<?php endif; ?>
-               class="w-full rounded border border-gray-300 bg-white px-3.5 py-2.5 font-medium outline-none transition focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 dark:border-gray-700 dark:bg-gray-900 dark:focus:border-brand-500 dark:text-white text-gray-800">
-        <?php if ($v->hasSecret): ?><p class="mt-1 text-xs text-gray-600 dark:text-gray-400"><?php echo $lang === 'ja' ? '変更する場合のみ入力してください' : 'Leave blank to keep the current secret'; ?></p><?php else: ?><p class="mt-1 text-xs text-error-500"><?php echo $lang === 'ja' ? '⚠ シークレット未設定。入力して保存するまでログインできません。' : '⚠ No client secret stored. Sign-in will fail until a secret is saved.'; ?></p><?php endif; ?>
+               class="w-full rounded border border-gray-300 bg-white px-3.5 py-2.5 font-medium outline-none transition focus:border-primary focus:ring-2 focus:ring-brand-500/20 dark:border-gray-700 dark:bg-gray-900 dark:focus:border-primary dark:text-white text-gray-800">
+        <?php if ($v->hasSecret): ?><p class="mt-1 text-xs text-gray-600 dark:text-gray-400"><?php echo $lang === 'ja' ? '変更する場合のみ入力してください' : 'Leave blank to keep the current secret'; ?></p><?php else: ?><p class="mt-1 text-xs text-danger"><?php echo $lang === 'ja' ? '⚠ シークレット未設定。入力して保存するまでログインできません。' : '⚠ No client secret stored. Sign-in will fail until a secret is saved.'; ?></p><?php endif; ?>
       </div>
       <?php
       ui('formField', [
@@ -502,7 +502,7 @@ ui('card', [
             <label class="flex cursor-pointer items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
               <input type="checkbox" name="firebase_providers[]" value="<?php echo htmlspecialchars($key); ?>"
                      <?php echo in_array($key, $fbProvidersEnabled, true) ? 'checked' : ''; ?>
-                     class="h-4 w-4 rounded border-gray-300 accent-brand-500 dark:border-gray-600">
+                     class="h-4 w-4 rounded border-gray-300 accent-primary dark:border-gray-600">
               <?php echo htmlspecialchars($label); ?>
             </label>
           <?php endforeach; ?>
@@ -531,14 +531,14 @@ ui('card', [
       <div class="mb-4">
         <label for="client_secret" class="mb-2.5 block font-medium text-gray-900 dark:text-white">
           Client Secret
-          <?php if (!$v->hasSecret): ?><span class="text-error-500" aria-hidden="true">*</span><?php endif; ?>
+          <?php if (!$v->hasSecret): ?><span class="text-danger" aria-hidden="true">*</span><?php endif; ?>
         </label>
         <input type="password" id="client_secret" name="client_secret" value=""
                placeholder="<?php echo $v->hasSecret ? '●●●●●●●●' : ($lang === 'ja' ? 'シークレットを入力' : 'Enter secret'); ?>"
                autocomplete="new-password"
                <?php if (!$v->hasSecret): ?>required<?php endif; ?>
-               class="w-full rounded border border-gray-300 bg-white py-3 px-5 font-medium outline-none transition focus:border-brand-500 focus:ring-1 focus:ring-brand-500 dark:border-gray-700 dark:bg-gray-900 dark:focus:border-brand-500 dark:focus:ring-brand-500 text-gray-900 dark:text-white">
-        <?php if ($v->hasSecret): ?><p class="mt-1 text-xs text-gray-600 dark:text-gray-400"><?php echo $lang === 'ja' ? '変更する場合のみ入力してください' : 'Leave blank to keep the current secret'; ?></p><?php else: ?><p class="mt-1 text-xs text-error-500"><?php echo $lang === 'ja' ? '⚠ シークレット未設定。入力して保存するまでログインできません。' : '⚠ No client secret stored. Sign-in will fail until a secret is saved.'; ?></p><?php endif; ?>
+               class="w-full rounded border border-gray-300 bg-white py-3 px-5 font-medium outline-none transition focus:border-primary focus:ring-1 focus:ring-brand-500 dark:border-gray-700 dark:bg-gray-900 dark:focus:border-primary dark:focus:ring-brand-500 text-gray-900 dark:text-white">
+        <?php if ($v->hasSecret): ?><p class="mt-1 text-xs text-gray-600 dark:text-gray-400"><?php echo $lang === 'ja' ? '変更する場合のみ入力してください' : 'Leave blank to keep the current secret'; ?></p><?php else: ?><p class="mt-1 text-xs text-danger"><?php echo $lang === 'ja' ? '⚠ シークレット未設定。入力して保存するまでログインできません。' : '⚠ No client secret stored. Sign-in will fail until a secret is saved.'; ?></p><?php endif; ?>
       </div>
       <?php
       ui('formField', [
@@ -673,7 +673,7 @@ ui('card', [
       <button type="button"
               @click="verify()"
               :disabled="verifyStatus === 'loading'"
-              class="inline-flex items-center gap-2 rounded border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-900 transition hover:border-brand-500 hover:text-brand-500 dark:border-gray-700 dark:bg-gray-900 dark:text-white dark:hover:border-brand-500 dark:hover:text-brand-500 disabled:opacity-50">
+              class="inline-flex items-center gap-2 rounded border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-900 transition hover:border-primary hover:text-primary dark:border-gray-700 dark:bg-gray-900 dark:text-white dark:hover:border-primary dark:hover:text-primary disabled:opacity-50">
         <svg class="h-4 w-4" x-show="verifyStatus !== 'loading'" viewBox="0 0 24 24" fill="none" aria-hidden="true">
           <path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
@@ -682,13 +682,13 @@ ui('card', [
       </button>
 
       <div class="mt-3" x-show="verifyStatus !== null" x-cloak>
-        <div x-show="verifyStatus === 'ok'" class="ta-alert ta-alert-success" role="status">
+        <div x-show="verifyStatus === 'ok'" class="alert alert-success" role="status">
           <svg class="mt-0.5 h-5 w-5 shrink-0" viewBox="0 0 24 24" fill="none" aria-hidden="true">
             <path d="m4 12 5 5L20 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
           <div class="grow" x-text="verifyMsg"></div>
         </div>
-        <div x-show="verifyStatus === 'error'" class="ta-alert ta-alert-danger" role="alert">
+        <div x-show="verifyStatus === 'error'" class="alert alert-danger" role="alert">
           <svg class="mt-0.5 h-5 w-5 shrink-0" viewBox="0 0 24 24" fill="none" aria-hidden="true">
             <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.5"/>
             <path d="M12 8v4m0 4h.01" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
@@ -697,7 +697,7 @@ ui('card', [
         </div>
         <template x-if="verifyStatus === 'ok' && verifyAuthUrl">
           <a :href="verifyAuthUrl" target="_blank" rel="noopener noreferrer"
-             class="mt-2 inline-flex w-full items-center justify-center gap-2 rounded border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-900 transition hover:border-brand-500 hover:text-brand-500 dark:border-gray-700 dark:bg-gray-900 dark:text-white dark:hover:border-brand-500 dark:hover:text-brand-500">
+             class="mt-2 inline-flex w-full items-center justify-center gap-2 rounded border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-900 transition hover:border-primary hover:text-primary dark:border-gray-700 dark:bg-gray-900 dark:text-white dark:hover:border-primary dark:hover:text-primary">
             <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" aria-hidden="true">
               <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6m0 0v6m0-6-9 9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>

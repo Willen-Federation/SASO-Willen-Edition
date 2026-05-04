@@ -105,7 +105,7 @@
                 <button
                   type="button"
                   @click="selectLayout(l)"
-                  class="d-flex align-items-start gap-3 rounded border p-3 text-start w-100 h-100 transition-all"
+                  class="d-flex align-items-start gap-3 rounded border p-3 text-start w-100 h-100" style="transition: all 0.15s ease-in-out;"
                   :class="selectedLayout && selectedLayout.id === l.id
                     ? 'border-primary bg-primary-subtle'
                     : 'border-secondary-subtle'"

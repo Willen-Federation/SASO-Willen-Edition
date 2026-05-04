@@ -290,7 +290,7 @@ ui('card', [
       ?>
 
     <!-- Auth0 -->
-    <fieldset x-show="choice === 'auth0'" x-cloak :disabled="choice !== 'auth0'" class="m-0 min-w-0 border-0 p-0">
+    <fieldset x-show="choice === 'auth0'" x-cloak :disabled="choice !== 'auth0'" class="m-0 border-0 p-0" style="min-width:0">
       <div class="border-top pt-3 mb-3">
         <h5 class="fw-semibold mb-1"><i class="ti ti-shield-lock text-primary me-2"></i>Auth0</h5>
         <p class="small text-muted"><?php echo $lang === 'ja' ? 'Auth0 テナントの OIDC 設定' : 'Auth0 tenant OIDC configuration'; ?></p>
@@ -347,7 +347,7 @@ ui('card', [
     </fieldset>
 
     <!-- AWS Cognito -->
-    <fieldset x-show="choice === 'cognito'" x-cloak :disabled="choice !== 'cognito'" class="m-0 min-w-0 border-0 p-0">
+    <fieldset x-show="choice === 'cognito'" x-cloak :disabled="choice !== 'cognito'" class="m-0 border-0 p-0" style="min-width:0">
       <div class="border-top pt-3 mb-3">
         <h5 class="fw-semibold mb-1"><i class="ti ti-cloud text-warning me-2"></i>AWS Cognito</h5>
         <p class="small text-muted"><?php echo $lang === 'ja' ? 'Cognito ユーザープール設定' : 'Cognito User Pool configuration'; ?></p>
@@ -391,7 +391,7 @@ ui('card', [
     </fieldset>
 
     <!-- Firebase Auth -->
-    <fieldset x-show="choice === 'firebase'" x-cloak :disabled="choice !== 'firebase'" class="m-0 min-w-0 border-0 p-0">
+    <fieldset x-show="choice === 'firebase'" x-cloak :disabled="choice !== 'firebase'" class="m-0 border-0 p-0" style="min-width:0">
       <div class="border-top pt-3 mb-3">
         <h5 class="fw-semibold mb-1"><i class="ti ti-flame text-danger me-2"></i>Firebase Auth</h5>
         <p class="small text-muted">
@@ -475,7 +475,7 @@ ui('card', [
     </fieldset>
 
     <!-- Generic OIDC -->
-    <fieldset x-show="choice === 'oidc'" x-cloak :disabled="choice !== 'oidc'" class="m-0 min-w-0 border-0 p-0">
+    <fieldset x-show="choice === 'oidc'" x-cloak :disabled="choice !== 'oidc'" class="m-0 border-0 p-0" style="min-width:0">
       <div class="border-top pt-3 mb-3">
         <h5 class="fw-semibold mb-1"><i class="ti ti-key text-secondary me-2"></i>Generic OIDC</h5>
         <p class="small text-muted"><?php echo $lang === 'ja' ? '標準準拠の OpenID Connect プロバイダ' : 'Any standards-compliant OpenID Connect provider'; ?></p>
@@ -517,7 +517,7 @@ ui('card', [
     </fieldset>
 
     <!-- SAML 2.0 -->
-    <fieldset x-show="choice === 'saml'" x-cloak :disabled="choice !== 'saml'" class="m-0 min-w-0 border-0 p-0">
+    <fieldset x-show="choice === 'saml'" x-cloak :disabled="choice !== 'saml'" class="m-0 border-0 p-0" style="min-width:0">
       <div class="border-top pt-3 mb-3">
         <h5 class="fw-semibold mb-1"><i class="ti ti-building text-secondary me-2"></i>SAML 2.0</h5>
         <p class="small text-muted"><?php echo $lang === 'ja' ? 'エンタープライズ IdP (Okta / ADFS 等)' : 'Enterprise IdP (Okta, ADFS, etc.)'; ?></p>

@@ -173,7 +173,7 @@ final class ProviderView implements View
                     // /auth/provider/edit/{id} into $query['edit']={id}, but
                     // /auth/provider/?edit={id} is NOT recognised (the query
                     // string is dropped before the action map runs).
-                    header('Location: ./auth/provider/edit/'.$newId);
+                    \saso\util\Redirect::redirect('auth/provider/edit/'.$newId);
                 }
                 exit;
             }

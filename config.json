@@ -15,7 +15,7 @@
   "outputRow": 10,
 
   "$https_comment": "セキュリティー 「https://」ならtrue, 「http://」ならfalse",
-  "https": false,
+  "https": true,
 
   "$sheetAmount_comment": "印刷可能最大ラベル数(1=<9999)",
   "sheetAmount": 100,

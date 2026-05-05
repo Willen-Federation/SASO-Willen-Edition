@@ -5,7 +5,7 @@
 <h2 class="mb-4">認証プロバイダーの追加</h2>
 
 <?php if ($v->errorMessage !== '') { ?>
-<div class="alert alert-danger"><?php echo htmlspecialchars($v->errorMessage, ENT_QUOTES, 'UTF-8'); ?></div>
+<div class="alert alert-danger" role="alert"><?php echo htmlspecialchars($v->errorMessage, ENT_QUOTES, 'UTF-8'); ?></div>
 <?php } ?>
 
 <!-- ======================================================

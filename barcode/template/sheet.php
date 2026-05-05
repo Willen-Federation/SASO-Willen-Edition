@@ -15,7 +15,7 @@
   ];
 ?>
 
-<div class="alert alert-success d-flex align-items-start gap-2 mb-4">
+<div class="alert alert-success d-flex align-items-start gap-2 mb-4" role="note">
   <i class="ti ti-shield-check fs-4 flex-shrink-0" aria-hidden="true"></i>
   <div>
     <strong><?php echo $lang === 'ja' ? 'バーコードファースト方式' : 'Barcode-First Workflow'; ?></strong><br>

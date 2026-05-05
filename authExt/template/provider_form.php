@@ -195,7 +195,7 @@ ui('card', [
         <?php echo $lang === 'ja' ? 'プロバイダを選び直す' : 'Choose a different provider'; ?>
       </button>
 
-      <div class="alert alert-info mb-4">
+      <div class="alert alert-info mb-4" role="note">
         <p class="fw-semibold mb-2">
           <?php echo $lang === 'ja' ? '2ステップでプロバイダを追加します' : 'Two steps to add a provider'; ?>
         </p>

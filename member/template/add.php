@@ -15,7 +15,7 @@ $this->content = function ($v) {
   <div class="card-body">
     <form action="./member/add/" method="POST">
       <?php if (!empty($v->error)): ?>
-        <div class="alert alert-danger mb-3"><?php echo htmlspecialchars($v->error); ?></div>
+        <div class="alert alert-danger mb-3" role="alert"><?php echo htmlspecialchars($v->error); ?></div>
       <?php endif; ?>
 
       <div class="mb-3">

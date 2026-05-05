@@ -81,7 +81,7 @@
           </div>
 
           <!-- Lookup result: already registered -->
-          <div x-show="lookupResult && lookupResult.item && lookupResult.item.id" class="alert alert-success d-flex align-items-start gap-2 mt-3">
+          <div x-show="lookupResult && lookupResult.item && lookupResult.item.id" class="alert alert-success d-flex align-items-start gap-2 mt-3" role="status">
             <i class="ti ti-circle-check fs-5 flex-shrink-0" aria-hidden="true"></i>
             <div>
               <div class="fw-medium"><?php echo $lang === 'ja' ? '商品登録済み' : 'Already Registered'; ?></div>

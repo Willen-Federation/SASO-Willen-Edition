@@ -54,7 +54,7 @@
             <?php endif; ?>
 
             <?php if (!empty($aiResult)): ?>
-              <div class="alert alert-info w-100" style="max-width:20rem;">
+              <div class="alert alert-info w-100" role="note" style="max-width:20rem;">
                 <div class="d-flex align-items-center gap-2 mb-1">
                   <i class="ti ti-bulb fs-5" aria-hidden="true"></i>
                   <span class="fw-semibold"><?php echo $lang === 'ja' ? 'AI解析済み' : 'AI Analysed'; ?></span>

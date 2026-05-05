@@ -17,7 +17,7 @@ $this->content = function ($v) {
       <input type="hidden" name="id" value="<?php echo htmlspecialchars($v->member->id, ENT_QUOTES, 'UTF-8'); ?>">
 
       <?php if (!empty($v->error)): ?>
-        <div class="alert alert-danger mb-3"><?php echo htmlspecialchars($v->error); ?></div>
+        <div class="alert alert-danger mb-3" role="alert"><?php echo htmlspecialchars($v->error); ?></div>
       <?php endif; ?>
 
       <div class="mb-3">

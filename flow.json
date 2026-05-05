@@ -54,6 +54,10 @@
         "menu": "\\saso\\start\\MenuDIContainer",
         "password": "\\saso\\auth\\PasswordDIContainer"
     },
+    "mypage": {
+        "start": "\\saso\\mypage\\MyPageDIContainer",
+        "editProfile": "\\saso\\mypage\\EditProfileDIContainer"
+    },
     "category": {
         "edit": "\\saso\\category\\EditDIContainer",
         "list": "\\saso\\category\\ListDIContainer",
@@ -150,7 +154,8 @@
         "start": "\\saso\\scanStock\\StartDIContainer"
     },
     "settingAdmin": {
-        "start": "\\saso\\settingAdmin\\StartDIContainer"
+        "start": "\\saso\\settingAdmin\\StartDIContainer",
+        "shelf": "\\saso\\settingAdmin\\ShelfSettingsDIContainer"
     },
     "admin": {
         "feature-flags": "\\saso\\admin\\FeatureFlagsDIContainer",

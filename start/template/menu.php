@@ -40,6 +40,7 @@
     [
       'title' => 'システム管理',
       'items' => [
+        ['./mypage/start/',               'マイページ',       'bi-person-circle',  'primary'],
         ['./auth/providers/',             '認証プロバイダー', 'bi-shield-lock',    'primary'],
         ['./member/start/',               'メンバー管理',     'bi-people',         'primary'],
         ['./role/start/',                 'ロール管理',       'bi-shield-check',   'info'],

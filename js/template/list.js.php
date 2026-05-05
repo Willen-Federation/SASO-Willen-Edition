@@ -7,7 +7,7 @@ export default class List {
         let current = document.querySelector('#current');
         let searchButton = document.querySelector('#searchButton');
         let jump = e=>{
-            location.href = './'+current.textContent+'/search/'+encodeURI(search.value.replace(/\//g, ''))
+            location.href = './'+current.textContent+'/search/'+encodeURIComponent(search.value.replace(/\//g, ''))
         };
         search?.addEventListener('keypress', e=>{
             if(e.key === 'Enter') {

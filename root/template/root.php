@@ -3,6 +3,7 @@
 <html lang="ja" dir="ltr">
 <head>
 <base href="<?php echo htmlspecialchars($v->baseUrl, ENT_QUOTES, 'UTF-8'); ?>">
+<meta name="csrf-token" content="<?php echo htmlspecialchars(\saso\util\CSRFtoken::current(), ENT_QUOTES, 'UTF-8'); ?>">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/core@1.0.0/dist/css/tabler.min.css">

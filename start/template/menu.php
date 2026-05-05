@@ -1,5 +1,7 @@
 <?php $this->content = function ($v) { ?>
 
+<div class="menu-fullscreen">
+
 <?php
   $sections = [
     [
@@ -70,5 +72,7 @@
     </div>
   </div>
 <?php endforeach; ?>
+
+</div>
 
 <?php }; ?>

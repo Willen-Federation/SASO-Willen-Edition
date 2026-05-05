@@ -2,7 +2,7 @@
 <?php $this->content = function ($v) { ?>
 <?php $csrf = \saso\util\CSRFtoken::current(); ?>
 
-<h2 class="mb-4">認証プロバイダーの追加</h2>
+<?php /* Title rendered by root.php's <h2 class="page-title">; don't duplicate it. */ ?>
 
 <?php if ($v->errorMessage !== '') { ?>
 <div class="alert alert-danger" role="alert"><?php echo htmlspecialchars($v->errorMessage, ENT_QUOTES, 'UTF-8'); ?></div>

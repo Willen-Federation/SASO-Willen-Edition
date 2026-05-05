@@ -32,13 +32,13 @@
       <?php foreach($v->labelCaches as $labelCache) { if($labelCache) { ?>
         <tr>
           <td>
-            <a href="./item/start/item/<?php echo $labelCache->feature->item->id; ?>/color/<?php echo $labelCache->feature->color->code; ?>/size/<?php echo $labelCache->feature->size->code; ?>/action/label">
-              <span id="longName<?php echo $labelCache->feature->getFullCode(); ?>"><?php
-                echo $labelCache->feature->item->name; ?>/<?php echo $labelCache->feature->color->name; ?>(<?php echo $labelCache->feature->color->code; ?>)<?php echo $labelCache->feature->size->name; ?></span>
+            <a href="./item/start/item/<?php echo (int)$labelCache->feature->item->id; ?>/color/<?php echo rawurlencode($labelCache->feature->color->code); ?>/size/<?php echo rawurlencode($labelCache->feature->size->code); ?>/action/label">
+              <span id="longName<?php echo htmlspecialchars($labelCache->feature->getFullCode(), ENT_QUOTES, 'UTF-8'); ?>"><?php
+                echo htmlspecialchars($labelCache->feature->item->name, ENT_QUOTES, 'UTF-8'); ?>/<?php echo htmlspecialchars($labelCache->feature->color->name, ENT_QUOTES, 'UTF-8'); ?>(<?php echo htmlspecialchars($labelCache->feature->color->code, ENT_QUOTES, 'UTF-8'); ?>)<?php echo htmlspecialchars($labelCache->feature->size->name, ENT_QUOTES, 'UTF-8'); ?></span>
             </a>
           </td>
-          <td><span class="fullCode font-monospace"><?php echo $labelCache->feature->getFullCode(); ?></span></td>
-          <td class="text-end"><?php echo $labelCache->amount; ?></td>
+          <td><span class="fullCode font-monospace"><?php echo htmlspecialchars($labelCache->feature->getFullCode(), ENT_QUOTES, 'UTF-8'); ?></span></td>
+          <td class="text-end"><?php echo (int)$labelCache->amount; ?></td>
         </tr>
       <?php } } ?>
       </tbody>

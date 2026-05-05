@@ -88,7 +88,7 @@
                   <i class="ti ti-flag me-1"></i>機能フラグ
                 </a>
                 <div class="dropdown-divider"></div>
-                <a class="dropdown-item" href="./auth/provider/new/">認証プロバイダーの追加</a>
+                <a class="dropdown-item" href="./auth/providerNew/">認証プロバイダーの追加</a>
                 <a class="dropdown-item" href="./auth/providers/">認証プロバイダー一覧</a>
                 <div class="dropdown-divider"></div>
                 <a class="dropdown-item" href="./start/password/">パスワード変更</a>

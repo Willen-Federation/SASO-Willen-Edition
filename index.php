@@ -66,6 +66,25 @@ if (is_file(__DIR__.'/vendor/autoload.php')) {
 require_once 'ClassLoader.php';
 spl_autoload_register(ClassLoader::load($config));
 
+// --- Helper safety net -------------------------------------------------------
+// `ui()` and `__()` are normally registered via Composer's `files` autoload
+// (composer.json: "files": ["framework/ui/helpers.php",
+// "src/Infrastructure/Translation/functions.php"]). When `vendor/` is missing
+// — typical on hosts that haven't run `composer install --no-dev` yet — that
+// autoload never fires and any template calling `ui('card', …)` or
+// `__('foo', [], null, 'Fallback')` would emit a fatal "undefined function"
+// error and the page renders blank. We require the helper file directly
+// (idempotent, has its own `function_exists` guard) and provide a stub `__()`
+// that just returns the fallback. The translator-backed `__()` from
+// functions.php — when present — is loaded BEFORE this block by the autoload
+// above, so this branch only fires when the real helper truly isn't there.
+require_once __DIR__ . '/framework/ui/helpers.php';
+if (!function_exists('__')) {
+    function __(string $key, array $params = [], ?string $locale = null, ?string $fallback = null): string {
+        return $fallback ?? $key;
+    }
+}
+
 // --- M3 REST API surface ----------------------------------------------------
 // Requests under /api/v1/* are handled by the schema-first router declared
 // in config/openapi.yaml (cf. ADR 0002). Legacy screens, the installer, and

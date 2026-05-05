@@ -1,8 +1,9 @@
 {
     "auth": {
-        "start":     { "matter": "auth", "action": "start" },
-        "provider":  { "matter": "auth", "action": "provider" },
-        "providers": { "matter": "auth", "action": "providers" }
+        "start":       { "matter": "auth", "action": "start" },
+        "provider":    { "matter": "auth", "action": "provider" },
+        "providers":   { "matter": "auth", "action": "providers" },
+        "providerNew": { "matter": "auth", "action": "providerNew" }
     },
     "js": {
         "main.js":       { "matter": "js", "action": "main" },

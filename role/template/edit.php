@@ -1,6 +1,7 @@
 <?php $this->title = 'ロール編集'; ?>
-<?php $this->content = function ($v) { ?>
-<?php use saso\entity\Role; ?>
+<?php $this->content = function ($v) {
+    $allPermissions = \saso\entity\Role::PERMISSIONS;
+?>
 
 <ol class="breadcrumb mb-3">
   <li class="breadcrumb-item"><a href="./">Dashboard</a></li>
@@ -44,7 +45,7 @@
           </div>
         <?php endif; ?>
         <div class="row g-2">
-          <?php foreach (Role::PERMISSIONS as $key => $lbl): ?>
+          <?php foreach ($allPermissions as $key => $lbl): ?>
           <div class="col-6 col-md-4">
             <label class="form-check">
               <input class="form-check-input" type="checkbox"

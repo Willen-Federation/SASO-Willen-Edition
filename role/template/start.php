@@ -1,6 +1,7 @@
 <?php $this->title = 'ロール管理'; ?>
-<?php $this->content = function ($v) { ?>
-<?php use saso\entity\Role; ?>
+<?php $this->content = function ($v) {
+    $allPermissions = \saso\entity\Role::PERMISSIONS;
+?>
 
 <div class="mb-3 d-flex align-items-center justify-content-between">
   <?php ui('button', [
@@ -38,7 +39,7 @@
           <td><?php echo htmlspecialchars($r->label, ENT_QUOTES, 'UTF-8'); ?></td>
           <td>
             <div class="d-flex flex-wrap gap-1">
-              <?php foreach (Role::PERMISSIONS as $key => $lbl): ?>
+              <?php foreach ($allPermissions as $key => $lbl): ?>
                 <?php if ($r->hasPermission($key)): ?>
                   <span class="badge bg-blue-lt"><?php echo htmlspecialchars($lbl, ENT_QUOTES, 'UTF-8'); ?></span>
                 <?php endif; ?>

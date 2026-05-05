@@ -21,10 +21,10 @@
     <table class="table table-vcenter card-table">
       <thead>
         <tr>
-          <th><?php echo ui_text(__('ui.member.col_id', [], null, 'User ID')); ?></th>
-          <th><?php echo ui_text(__('ui.member.col_name', [], null, 'Name')); ?></th>
-          <th><?php echo ui_text(__('ui.member.col_role', [], null, 'Role')); ?></th>
-          <th class="text-center"><?php echo ui_text(__('ui.member.col_actions', [], null, 'Actions')); ?></th>
+          <th scope="col"><?php echo ui_text(__('ui.member.col_id', [], null, 'User ID')); ?></th>
+          <th scope="col"><?php echo ui_text(__('ui.member.col_name', [], null, 'Name')); ?></th>
+          <th scope="col"><?php echo ui_text(__('ui.member.col_role', [], null, 'Role')); ?></th>
+          <th scope="col" class="text-center"><?php echo ui_text(__('ui.member.col_actions', [], null, 'Actions')); ?></th>
         </tr>
       </thead>
       <tbody>

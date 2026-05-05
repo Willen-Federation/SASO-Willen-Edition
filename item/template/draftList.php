@@ -52,11 +52,11 @@
           <table class="table table-vcenter" aria-label="<?php echo $lang === 'ja' ? 'ドラフト一覧' : 'Draft items'; ?>">
             <thead>
               <tr>
-                <th><?php echo $lang === 'ja' ? '画像' : 'Image'; ?></th>
-                <th><?php echo $lang === 'ja' ? 'ステータス' : 'Status'; ?></th>
-                <th><?php echo $lang === 'ja' ? 'バーコードヒント' : 'Barcode Hint'; ?></th>
-                <th><?php echo $lang === 'ja' ? '登録日時' : 'Created'; ?></th>
-                <th><?php echo $lang === 'ja' ? '操作' : 'Actions'; ?></th>
+                <th scope="col"><?php echo $lang === 'ja' ? '画像' : 'Image'; ?></th>
+                <th scope="col"><?php echo $lang === 'ja' ? 'ステータス' : 'Status'; ?></th>
+                <th scope="col"><?php echo $lang === 'ja' ? 'バーコードヒント' : 'Barcode Hint'; ?></th>
+                <th scope="col"><?php echo $lang === 'ja' ? '登録日時' : 'Created'; ?></th>
+                <th scope="col"><?php echo $lang === 'ja' ? '操作' : 'Actions'; ?></th>
               </tr>
             </thead>
             <tbody>

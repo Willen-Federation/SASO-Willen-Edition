@@ -55,11 +55,11 @@
       <table class="table table-striped table-vcenter card-table" aria-label="<?php echo $lang === 'ja' ? 'フィーチャーフラグ一覧' : 'Feature Flags'; ?>">
         <thead>
           <tr>
-            <th><?php echo $lang === 'ja' ? 'キー' : 'Key'; ?></th>
-            <th><?php echo $lang === 'ja' ? '説明' : 'Description'; ?></th>
-            <th class="text-center"><?php echo $lang === 'ja' ? '有効/無効' : 'Enabled'; ?></th>
-            <th><?php echo $lang === 'ja' ? '最終更新' : 'Updated'; ?></th>
-            <th class="text-end"><?php echo $lang === 'ja' ? '操作' : 'Actions'; ?></th>
+            <th scope="col"><?php echo $lang === 'ja' ? 'キー' : 'Key'; ?></th>
+            <th scope="col"><?php echo $lang === 'ja' ? '説明' : 'Description'; ?></th>
+            <th scope="col" class="text-center"><?php echo $lang === 'ja' ? '有効/無効' : 'Enabled'; ?></th>
+            <th scope="col"><?php echo $lang === 'ja' ? '最終更新' : 'Updated'; ?></th>
+            <th scope="col" class="text-end"><?php echo $lang === 'ja' ? '操作' : 'Actions'; ?></th>
           </tr>
         </thead>
         <tbody>

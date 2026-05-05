@@ -34,9 +34,9 @@
           <table class="table table-vcenter card-table">
             <thead>
               <tr>
-                <th><?php echo ui_text(__('ui.label_pending.col_code', [], null, 'Barcode')); ?></th>
-                <th><?php echo ui_text(__('ui.label_pending.col_batch', [], null, 'Batch')); ?></th>
-                <th><?php echo ui_text(__('ui.label_pending.col_created', [], null, 'Created')); ?></th>
+                <th scope="col"><?php echo ui_text(__('ui.label_pending.col_code', [], null, 'Barcode')); ?></th>
+                <th scope="col"><?php echo ui_text(__('ui.label_pending.col_batch', [], null, 'Batch')); ?></th>
+                <th scope="col"><?php echo ui_text(__('ui.label_pending.col_created', [], null, 'Created')); ?></th>
               </tr>
             </thead>
             <tbody>

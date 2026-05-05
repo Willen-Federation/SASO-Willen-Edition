@@ -44,7 +44,7 @@
       <table class="table table-striped table-vcenter table-hover card-table">
         <thead>
           <tr>
-            <th><label class="form-check m-0"><input type="checkbox" class="form-check-input" id="checkAllArchiveAllCheckbox"><span class="form-check-label">アーカイブ</span></label></th>
+            <th scope="col"><label class="form-check m-0"><input type="checkbox" class="form-check-input" id="checkAllArchiveAllCheckbox"><span class="form-check-label">アーカイブ</span></label></th>
             <th scope="col">商品番号
               <a class="text-secondary" href="./<?php echo htmlspecialchars($v->request, ENT_QUOTES, 'UTF-8'); ?>/sortby/concatId/direction/desc/<?php echo htmlspecialchars($v->searchUrl, ENT_QUOTES, 'UTF-8'); ?>">▼</a>
               <a class="text-secondary" href="./<?php echo htmlspecialchars($v->request, ENT_QUOTES, 'UTF-8'); ?>/sortby/concatId/direction/asc/<?php echo htmlspecialchars($v->searchUrl, ENT_QUOTES, 'UTF-8'); ?>">▲</a>

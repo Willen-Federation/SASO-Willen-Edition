@@ -31,9 +31,10 @@ final class ConfigLoader
         }
         $config = json_decode(file_get_contents(self::$configFile), true);
         $env = EnvLoader::loadFile($relative.'.env');
-        // Populate PHP's environment variables from .env so getenv() calls work
+        // Populate PHP's environment variables from .env so getenv() calls work.
+        // Use === false so existing env vars (including those with value "0") are never overwritten.
         foreach ($env as $key => $value) {
-            if (!getenv($key)) {
+            if (getenv($key) === false) {
                 putenv("$key=$value");
             }
         }

@@ -150,13 +150,13 @@
             
             <!-- Empty State -->
             <div class="map-empty-state" x-show="!mapImage">
-                <div style="width: 4rem; height: 4rem; background-color: #f1f5f9; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem auto;">
-                    <svg style="width: 2rem; height: 2rem; color: #94a3b8;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div class="avatar avatar-xl rounded-circle bg-light text-secondary mx-auto mb-4">
+                    <svg style="width: 2rem; height: 2rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                     </svg>
                 </div>
-                <h3 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 0.5rem; color: inherit;">Visual Map Pending</h3>
-                <p style="font-size: 0.875rem; color: #64748b; margin-bottom: 1.5rem; line-height: 1.4;">Your warehouse layout isn't loaded yet. Upload a blueprint to start pinning locations.</p>
+                <h3 class="fs-4 fw-bold mb-2">Visual Map Pending</h3>
+                <p class="text-muted small mb-4 lh-base">Your warehouse layout isn't loaded yet. Upload a blueprint to start pinning locations.</p>
                 <a href="./shelf/simple/" class="fw-bold small link-primary">
                     Open Shelf Setup &rarr;
                 </a>
@@ -189,27 +189,27 @@
         <div class="map-sidebar">
             
             <!-- Pin Details (Top Priority if selected) -->
-            <div x-show="selectedPin" class="map-card" style="position: relative;">
-                <div style="position: absolute; top: 1rem; right: 1rem;">
-                    <button @click="selectedPin = null" class="btn-close" aria-label="Close"></button>
+            <div x-show="selectedPin" class="map-card position-relative">
+                <div class="position-absolute top-0 end-0 p-3">
+                    <button type="button" @click="selectedPin = null" class="btn-close" aria-label="Close"></button>
                 </div>
 
-                <div style="margin-bottom: 1.5rem;">
-                    <span style="display: inline-block; padding: 0.25rem 0.5rem; background-color: #e0e7ff; color: #3730a3; font-size: 0.625rem; font-weight: 700; border-radius: 9999px; text-transform: uppercase; margin-bottom: 0.5rem;" x-text="selectedPin?.type"></span>
-                    <h4 style="font-size: 1.5rem; font-weight: 900; line-height: 1.2; margin: 0; color: inherit;" x-text="selectedPin?.name"></h4>
+                <div class="mb-4">
+                    <span class="badge bg-indigo-lt text-uppercase mb-2" x-text="selectedPin?.type"></span>
+                    <h4 class="h3 fw-bold lh-sm m-0" x-text="selectedPin?.name"></h4>
                 </div>
-                
-                <div style="display: flex; flex-direction: column; gap: 0.75rem;">
-                    <div style="background-color: rgba(0,0,0,0.03); padding: 0.75rem; border-radius: 0.75rem; display: flex; justify-content: space-between; align-items: center;">
-                        <span style="font-size: 0.75rem; font-weight: 700; color: #94a3b8; text-transform: uppercase;">Code</span>
-                        <span style="font-family: monospace; font-weight: 700; color: inherit;" x-text="selectedPin?.code"></span>
+
+                <div class="d-flex flex-column gap-3">
+                    <div class="d-flex justify-content-between align-items-center bg-light p-3 rounded-2">
+                        <span class="text-muted fw-bold small text-uppercase">Code</span>
+                        <span class="font-monospace fw-bold" x-text="selectedPin?.code"></span>
                     </div>
-                    <div style="background-color: rgba(0,0,0,0.03); padding: 0.75rem; border-radius: 0.75rem; display: flex; justify-content: space-between; align-items: center;">
-                        <span style="font-size: 0.75rem; font-weight: 700; color: #94a3b8; text-transform: uppercase;">Status</span>
-                        <span style="display: inline-block; padding: 0.25rem 0.5rem; border-radius: 0.5rem; font-size: 0.75rem; font-weight: 700; background-color: #d1fae5; color: #065f46;" x-text="selectedPin?.status"></span>
+                    <div class="d-flex justify-content-between align-items-center bg-light p-3 rounded-2">
+                        <span class="text-muted fw-bold small text-uppercase">Status</span>
+                        <span class="badge bg-success-lt" x-text="selectedPin?.status"></span>
                     </div>
-                    
-                    <div style="padding-top: 1rem; display: flex; flex-direction: column; gap: 0.75rem;">
+
+                    <div class="d-flex flex-column gap-3 pt-3">
                         <a :href="`./item/list?location=${selectedPin?.id}`" class="btn btn-dark w-100">
                             View Inventory &rarr;
                         </a>
@@ -218,39 +218,42 @@
             </div>
 
             <!-- Global Stats -->
-            <div class="map-card" style="display: flex; flex-direction: column; gap: 1.5rem;">
+            <div class="map-card d-flex flex-column gap-4">
                 <div>
-                    <h4 style="font-size: 0.75rem; font-weight: 700; color: #94a3b8; text-transform: uppercase; margin-bottom: 0.75rem;">Coverage Insights</h4>
-                    <div style="height: 0.5rem; background-color: #f1f5f9; border-radius: 9999px; overflow: hidden; position: relative;">
-                        <div style="position: absolute; top: 0; bottom: 0; left: 0; background-color: #4f46e5; transition: width 1s;" :style="`width: ${pins.length > 0 ? (pins.filter(p => p.x !== null).length / pins.length * 100) : 0}%`"></div>
+                    <h4 class="text-muted fw-bold small text-uppercase mb-3">Coverage Insights</h4>
+                    <div class="progress" style="height: 0.5rem;">
+                        <div class="progress-bar bg-indigo" role="progressbar"
+                             :style="`width: ${pins.length > 0 ? (pins.filter(p => p.x !== null).length / pins.length * 100) : 0}%; transition: width 1s;`"
+                             :aria-valuenow="pins.filter(p => p.x !== null).length"
+                             aria-valuemin="0" :aria-valuemax="pins.length"></div>
                     </div>
-                    <div style="display: flex; justify-content: space-between; margin-top: 0.5rem;">
-                        <span style="font-size: 0.625rem; font-weight: 700; color: #64748b; text-transform: uppercase;">
+                    <div class="d-flex justify-content-between mt-2">
+                        <span class="text-muted fw-bold" style="font-size: 0.625rem; text-transform: uppercase;">
                             <span x-text="pins.filter(p => p.x !== null).length"></span> Pinned
                         </span>
-                        <span style="font-size: 0.625rem; font-weight: 700; color: #4f46e5; text-transform: uppercase;" x-text="pins.length > 0 ? Math.round((pins.filter(p => p.x !== null).length / pins.length) * 100) + '%' : '0%'"></span>
+                        <span class="fw-bold text-indigo" style="font-size: 0.625rem; text-transform: uppercase;" x-text="pins.length > 0 ? Math.round((pins.filter(p => p.x !== null).length / pins.length) * 100) + '%' : '0%'"></span>
                     </div>
                 </div>
 
                 <div class="map-stat-grid">
                     <div class="map-stat-box map-stat-primary">
-                        <div style="font-size: 0.625rem; text-transform: uppercase; margin-bottom: 0.25rem; opacity: 0.8;">Total Assets</div>
-                        <div style="font-size: 1.75rem; font-weight: 900;" x-text="pins.length"></div>
+                        <div class="small text-uppercase mb-1" style="opacity: 0.8;">Total Assets</div>
+                        <div class="fw-black" style="font-size: 1.75rem;" x-text="pins.length"></div>
                     </div>
                     <div class="map-stat-box map-stat-success">
-                        <div style="font-size: 0.625rem; text-transform: uppercase; margin-bottom: 0.25rem; opacity: 0.8;">Active Now</div>
-                        <div style="font-size: 1.75rem; font-weight: 900;" x-text="pins.filter(p => p.status === 'available').length"></div>
+                        <div class="small text-uppercase mb-1" style="opacity: 0.8;">Active Now</div>
+                        <div class="fw-black" style="font-size: 1.75rem;" x-text="pins.filter(p => p.status === 'available').length"></div>
                     </div>
                 </div>
             </div>
 
             <!-- Shortcuts -->
-            <div class="map-card" style="text-align: center; padding: 1rem;">
-                <p style="font-size: 0.625rem; font-weight: 700; color: #94a3b8; text-transform: uppercase; margin-bottom: 0.75rem;">Navigation Tips</p>
-                <div style="display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: center;">
-                    <span style="font-size: 0.625rem; padding: 0.25rem 0.5rem; background-color: #f1f5f9; color: #64748b; border-radius: 9999px;">Scroll to Zoom</span>
-                    <span style="font-size: 0.625rem; padding: 0.25rem 0.5rem; background-color: #f1f5f9; color: #64748b; border-radius: 9999px;">Click to Detail</span>
-                    <span style="font-size: 0.625rem; padding: 0.25rem 0.5rem; background-color: #f1f5f9; color: #64748b; border-radius: 9999px;">Drag to Pan</span>
+            <div class="map-card text-center">
+                <p class="text-muted fw-bold small text-uppercase mb-3">Navigation Tips</p>
+                <div class="d-flex flex-wrap gap-2 justify-content-center">
+                    <span class="badge bg-light text-secondary rounded-pill">Scroll to Zoom</span>
+                    <span class="badge bg-light text-secondary rounded-pill">Click to Detail</span>
+                    <span class="badge bg-light text-secondary rounded-pill">Drag to Pan</span>
                 </div>
             </div>
         </div>

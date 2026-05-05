@@ -23,7 +23,7 @@
           </div>
         </div>
         <div class="col-auto">
-          <button class="btn btn-primary" id="submitMultiButton">
+          <button type="button" class="btn btn-primary" id="submitMultiButton">
             <i class="ti ti-arrow-right me-1"></i>移動
           </button>
         </div>

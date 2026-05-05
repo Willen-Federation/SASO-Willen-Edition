@@ -10,7 +10,7 @@
   <li class="breadcrumb-item active" aria-current="page"><?php echo $lang === 'ja' ? 'フィーチャーフラグ' : 'Feature Flags'; ?></li>
 </ol>
 
-<div class="alert alert-info mb-3" role="alert">
+<div class="alert alert-info mb-3" role="note">
   <i class="ti ti-info-circle me-2"></i>
   <?php echo $lang === 'ja'
     ? 'フィーチャーフラグを使用すると、機能のON/OFFをコードの変更なしに制御できます。モバイルアプリ連携や外部サービス連携の切り替えにも使用されます。'

@@ -28,7 +28,7 @@
         <input type="text" id="addFeature-size" name="sizeName" class="form-control">
         <div class="form-hint">追加するものが複数ある場合は半角カンマ ( , ) で区切って下さい。</div>
       </div>
-      <div class="alert alert-info mb-3" role="alert">
+      <div class="alert alert-info mb-3" role="note">
         各色・各サイズは50字まで。<br>
         色の数とサイズの数をかけて100を超えてはいけません。<br>
         色数 × サイズ数 ≦ 100

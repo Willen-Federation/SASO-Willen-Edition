@@ -6,7 +6,7 @@
   <li class="breadcrumb-item active" aria-current="page">棚番作成</li>
 </ol>
 
-<div class="alert alert-info mb-3" role="alert">
+<div class="alert alert-info mb-3" role="note">
   ラベルは <a href="./label/start/" class="alert-link">ラベル寸法管理</a> で予め登録して下さい。
 </div>
 
@@ -44,7 +44,7 @@
     <div class="row mt-3">
       <div class="col-md-3 offset-md-2">
         <input type="hidden" id="pageNumber" value="1">
-        <button class="btn btn-primary w-100" id="submitMultiButton">
+        <button type="button" class="btn btn-primary w-100" id="submitMultiButton">
           <i class="ti ti-list me-1"></i>ラベルリスト作成
         </button>
       </div>
@@ -63,7 +63,7 @@
         <input type="text" id="singleShelfNumber" class="form-control" maxlength="15" pattern="^[0-9A-Za-z\-]+$" required>
       </div>
       <div class="col-md-2">
-        <button class="btn btn-primary w-100" id="submitSingleButton">
+        <button type="button" class="btn btn-primary w-100" id="submitSingleButton">
           <i class="ti ti-plus me-1"></i>ラベル作成
         </button>
       </div>

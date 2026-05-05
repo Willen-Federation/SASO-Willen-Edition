@@ -1,6 +1,6 @@
 <?php $this->content = function($v) { ?>
 
-<th scope="row"><a href="<?php echo './item/start/item/' . $v->item->id; ?>"><?php echo $v->item->id; ?></a></th>
+<th scope="row"><a href="<?php echo './item/start/item/' . (int)$v->item->id; ?>"><?php echo (int)$v->item->id; ?></a></th>
 <td class="text-break"><?php echo htmlspecialchars($v->item->name, ENT_QUOTES, 'UTF-8'); ?></td>
 <td class="categoryPath"><?php echo htmlspecialchars((string)$v->iv->categoryId, ENT_QUOTES, 'UTF-8'); ?></td>
 <td><?php echo number_format($v->iv->price??0); ?></td>
@@ -23,7 +23,7 @@
 echo implode(', ', array_map(
     function($color) use ($v) {
         return
-            '<a href="./image/start/item/' . $this->item->id . '/color/' . htmlspecialchars($color->code, ENT_QUOTES, 'UTF-8') . '">'
+            '<a href="./image/start/item/' . (int)$this->item->id . '/color/' . rawurlencode($color->code) . '">'
         .
             htmlspecialchars($color->name, ENT_QUOTES, 'UTF-8') . '(' . htmlspecialchars($color->code, ENT_QUOTES, 'UTF-8') . ')'
         .

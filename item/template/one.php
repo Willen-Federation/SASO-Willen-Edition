@@ -21,10 +21,10 @@
 
 <?php if(!$v->archive->archive) { ?>
   <div class="btn-list mb-3">
-    <a href="./item/edit/item/<?php echo $v->item->id; ?>" class="btn btn-outline-primary">
+    <a href="./item/edit/item/<?php echo (int)$v->item->id; ?>" class="btn btn-outline-primary">
       <i class="ti ti-edit me-1"></i>商品情報編集
     </a>
-    <a href="./item/addFeature/item/<?php echo $v->item->id; ?>" class="btn btn-outline-primary">
+    <a href="./item/addFeature/item/<?php echo (int)$v->item->id; ?>" class="btn btn-outline-primary">
       <i class="ti ti-plus me-1"></i>色・サイズ追加
     </a>
   </div>
@@ -37,7 +37,7 @@
         <dt class="col-sm-3">アーカイブ日時</dt>
         <dd class="col-sm-9"><?php echo $v->archive->archiveAt->format('Y年m月d日 H時i分') ?></dd>
       </dl>
-      <form method="post" action="<?php echo './item/reproduction/item/' . $v->item->id; ?>">
+      <form method="post" action="<?php echo './item/reproduction/item/' . (int)$v->item->id; ?>">
         <input type="hidden" name="isPost" value="true">
         <button type="submit" class="btn btn-warning"><i class="ti ti-refresh me-1"></i>復刻</button>
       </form>
@@ -72,20 +72,20 @@ foreach($v->quantityLogsGen as $quantityLogs) {
 <tr>
 <td class="featureCode">
 <?php if($quantityLogs->isInventoried()){ ?>
-<a href="<?php echo './item/history/item/'.$feature->item->id.'/color/'.$feature->color->code.'/size/'.$feature->size->code; ?>">
-<?php echo $feature->getFullCode(); ?>
+<a href="<?php echo './item/history/item/'.(int)$feature->item->id.'/color/'.rawurlencode($feature->color->code).'/size/'.rawurlencode($feature->size->code); ?>">
+<?php echo htmlspecialchars($feature->getFullCode(), ENT_QUOTES, 'UTF-8'); ?>
 </a>
-<?php }else{ echo $feature->getFullCode(); } ?>
+<?php }else{ echo htmlspecialchars($feature->getFullCode(), ENT_QUOTES, 'UTF-8'); } ?>
 </td>
-<td><a href="<?php echo './image/start/item/' . $feature->item->id . '/color/' . htmlspecialchars($feature->color->code, ENT_QUOTES, 'UTF-8'); ?>"><?php echo htmlspecialchars($feature->color->name, ENT_QUOTES, 'UTF-8') . '(' . htmlspecialchars($feature->color->code, ENT_QUOTES, 'UTF-8') . ')'; ?></a></td>
+<td><a href="<?php echo './image/start/item/' . (int)$feature->item->id . '/color/' . rawurlencode($feature->color->code); ?>"><?php echo htmlspecialchars($feature->color->name, ENT_QUOTES, 'UTF-8') . '(' . htmlspecialchars($feature->color->code, ENT_QUOTES, 'UTF-8') . ')'; ?></a></td>
 <td><?php echo htmlspecialchars($feature->size->name, ENT_QUOTES, 'UTF-8'); ?></td>
-<td class="number featureSum" id="sumof<?php echo $feature->getFullCode(); ?>">
-<?php if($quantityLogs->isInventoried()){ echo $quantityLogs->sum() ;} ?>
+<td class="number featureSum" id="sumof<?php echo htmlspecialchars($feature->getFullCode(), ENT_QUOTES, 'UTF-8'); ?>">
+<?php if($quantityLogs->isInventoried()){ echo (int)$quantityLogs->sum(); } ?>
 </td>
 <?php if(!$v->archive->archive) { ?>
 <?php if($quantityLogs->isInventoried()){ ?>
 <td>
-<form method="post" action="<?php echo './item/stock/item/'.$feature->item->id.'/color/'.$feature->color->code.'/size/'.$feature->size->code; ?>">
+<form method="post" action="<?php echo './item/stock/item/'.(int)$feature->item->id.'/color/'.rawurlencode($feature->color->code).'/size/'.rawurlencode($feature->size->code); ?>">
 <div class="input-group mb-3">
     <input
         type="number" name="amount"
@@ -98,10 +98,10 @@ foreach($v->quantityLogsGen as $quantityLogs) {
 </form>
 </td>
 <td>
-<form method="post" action="<?php echo './item/shipment/item/'.$feature->item->id.'/color/'.$feature->color->code.'/size/'.$feature->size->code; ?>">
+<form method="post" action="<?php echo './item/shipment/item/'.(int)$feature->item->id.'/color/'.rawurlencode($feature->color->code).'/size/'.rawurlencode($feature->size->code); ?>">
 <div class="input-group mb-3">
     <input
-        id="shipmentof<?php echo $feature->getFullCode(); ?>" type="number" name="amount"
+        id="shipmentof<?php echo htmlspecialchars($feature->getFullCode(), ENT_QUOTES, 'UTF-8'); ?>" type="number" name="amount"
         class="form-control <?php echo ($feature->color->code===$v->color &&$feature->size->code===$v->size &&$v->action==='shipment')?'focused':''; ?>"
         aria-describedby="shipmentButton" max="9999" min="1" required
     > 
@@ -111,7 +111,7 @@ foreach($v->quantityLogsGen as $quantityLogs) {
 </form>
 </td>
 <td>
-<form method="post" action="<?php echo './item/inventory/item/'.$feature->item->id.'/color/'.$feature->color->code.'/size/'.$feature->size->code; ?>">
+<form method="post" action="<?php echo './item/inventory/item/'.(int)$feature->item->id.'/color/'.rawurlencode($feature->color->code).'/size/'.rawurlencode($feature->size->code); ?>">
 <div class="input-group mb-3">
     <input
         type="number" name="amount"
@@ -127,7 +127,7 @@ foreach($v->quantityLogsGen as $quantityLogs) {
 <td></td>
 <td></td>
 <td>
-<form method="post" action="<?php echo './item/inventory/item/'.$feature->item->id.'/color/'.$feature->color->code.'/size/'.$feature->size->code; ?>">
+<form method="post" action="<?php echo './item/inventory/item/'.(int)$feature->item->id.'/color/'.rawurlencode($feature->color->code).'/size/'.rawurlencode($feature->size->code); ?>">
 <div class="input-group mb-3">
     <input
         type="number" name="amount"
@@ -142,7 +142,7 @@ foreach($v->quantityLogsGen as $quantityLogs) {
 <?php } ?>
 <?php } ?>
 <td>
-<form method="post" action="<?php echo './shelf/put/item/'.$feature->item->id.'/color/'.$feature->color->code.'/size/'.$feature->size->code; ?>">
+<form method="post" action="<?php echo './shelf/put/item/'.(int)$feature->item->id.'/color/'.rawurlencode($feature->color->code).'/size/'.rawurlencode($feature->size->code); ?>">
 <div class="input-group mb-3">
     <input
         type="text" name="number" value="<?php echo htmlspecialchars($feature->shelf?->number ?? '', ENT_QUOTES, 'UTF-8'); ?>"
@@ -154,10 +154,10 @@ foreach($v->quantityLogsGen as $quantityLogs) {
 </form>
 </td>
 <td>
-<form method="post" action="<?php echo './label/select/item/'.$feature->item->id.'/color/'.$feature->color->code.'/size/'.$feature->size->code; ?>">
+<form method="post" action="<?php echo './label/select/item/'.(int)$feature->item->id.'/color/'.rawurlencode($feature->color->code).'/size/'.rawurlencode($feature->size->code); ?>">
 <div class="input-group mb-3">
     <input
-        type="number" name="amount" value="<?php echo $feature->labelAmount===0?'':$feature->labelAmount; ?>"
+        type="number" name="amount" value="<?php echo $feature->labelAmount===0 ? '' : (int)$feature->labelAmount; ?>"
         class="form-control labelSheetsInput <?php echo ($feature->color->code===$v->color &&$feature->size->code===$v->size &&$v->action==='label')?'focused':''; ?>"
         aria-describedby="putShelfButton" min="0" max="100" range="1"
     >
@@ -171,7 +171,7 @@ foreach($v->quantityLogsGen as $quantityLogs) {
 ?>
 </tbody></table>
 
-<div id="labelSheetsAmount" class="d-none"><?php echo $v->labelSheetsAmount; ?></div>
-<div id="labelSheetsAmountMax" class="d-none"><?php echo $v->labelSheetsAmountMax; ?></div>
+<div id="labelSheetsAmount" class="d-none"><?php echo (int)$v->labelSheetsAmount; ?></div>
+<div id="labelSheetsAmountMax" class="d-none"><?php echo (int)$v->labelSheetsAmountMax; ?></div>
 
 <?php }; ?>

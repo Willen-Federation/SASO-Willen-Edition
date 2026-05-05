@@ -3,7 +3,7 @@
 <div class="card mb-3">
   <div class="card-body">
     <h3 class="card-title">価格変更</h3>
-    <form method="post" action="./item/changePrice/item/<?php echo $v->item->id; ?>">
+    <form method="post" action="./item/changePrice/item/<?php echo (int)$v->item->id; ?>">
       <div class="mb-3">
         <label for="changePrice-price" class="form-label">価格</label>
         <div class="input-group">

@@ -16,7 +16,7 @@
         <button type="button" class="btn btn-sm btn-outline-secondary d-none ms-2" id="deselectCategory">選択解除</button>
       </p>
       <p>もとの分類：<span class="categoryPath text-secondary"><?php echo htmlspecialchars((string)$v->itemVar->categoryId, ENT_QUOTES, 'UTF-8'); ?></span></p>
-      <form method="post" action="./item/changeCategory/item/<?php echo $v->item->id; ?>">
+      <form method="post" action="./item/changeCategory/item/<?php echo (int)$v->item->id; ?>">
         <input type="hidden" name="categoryId" id="categoryId" value="<?php echo htmlspecialchars((string)$v->itemVar->categoryId, ENT_QUOTES, 'UTF-8'); ?>">
         <button type="submit" class="btn btn-primary"><i class="ti ti-check me-1"></i>変更</button>
       </form>

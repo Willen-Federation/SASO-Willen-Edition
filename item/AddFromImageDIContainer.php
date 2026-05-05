@@ -138,8 +138,13 @@ final class AddFromImageDIContainer implements DIContainer
 
         // Dispatch ProcessItemDraft message via sync bus
         try {
+            $appKeyRaw = (string) (getenv('APP_KEY') ?: '');
+            $appKeyBytes = $appKeyRaw !== '' ? base64_decode($appKeyRaw, true) : false;
+            if ($appKeyBytes === false || strlen($appKeyBytes) !== 32) {
+                throw new \RuntimeException('APP_KEY not configured or invalid; cannot dispatch draft processing.');
+            }
             $draftRepository = new PdoItemDraftRepository($pdo);
-            $settingService = new PdoSystemSettingService($pdo, new SecretEncryptor());
+            $settingService = new PdoSystemSettingService($pdo, new SecretEncryptor($appKeyBytes));
             $flagRepository = new PdoFeatureFlagRepository($pdo);
             $handler = ProcessItemDraftDIContainer::createHandler($draftRepository, $settingService, $flagRepository);
 

@@ -163,6 +163,4 @@
 
 </form>
 
-<script defer src="./js/alpine.min.js"></script>
-
 <?php }; ?>

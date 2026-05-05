@@ -10,6 +10,7 @@
 <link href="./css/style.css" rel="stylesheet">
 <link rel="shortcut icon" href="./favicon.ico" type="image/vnd.microsoft.icon">
 <link rel="icon" href="./favicon.ico" type="image/vnd.microsoft.icon">
+<script defer src="./js/alpine.min.js"></script>
 <title>在庫管理システム「SASO<?php echo htmlspecialchars($v->version, ENT_QUOTES, 'UTF-8'); ?>」 - <?php echo htmlspecialchars($v->insideView->getTitle(), ENT_QUOTES, 'UTF-8'); ?></title>
 </head>
 <body>

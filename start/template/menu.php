@@ -34,7 +34,7 @@
       'items' => [
         ['./verify/start/',               'データ照合',       'bi-check-circle',   'primary'],
         ['./archive/list/',               'アーカイブ一覧',   'bi-archive',        'secondary'],
-        ['./item/archivingAll/',          '一括アーカイブ',   'bi-inbox-archive',  'warning'],
+        ['./item/archivingAll/',          '一括アーカイブ',   'bi-boxes',          'warning'],
       ],
     ],
     [

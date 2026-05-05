@@ -32,7 +32,7 @@ export default class Barcode {
         let performKeywordSearch = ()=>{
             let keyword = keywordInput?.value?.trim();
             if(keyword) {
-                location.href = './item/start/search/' + encodeURIComponent(keyword.replace(/\//g, ''));
+                location.href = './search/start/search/' + encodeURIComponent(keyword.replace(/\//g, ''));
             }
         };
         keywordSubmit?.addEventListener('click', performKeywordSearch);

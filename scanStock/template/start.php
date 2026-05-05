@@ -45,10 +45,11 @@ $this->content = function ($v) {
     },
 
     actionEndpoint() {
-      if (this.mode === 'stock')     return './item/stock/';
-      if (this.mode === 'shipment')  return './item/shipment/';
-      if (this.mode === 'inventory') return './item/inventory/';
-      return './item/stock/';
+      const id = this.item ? this.item.id : '';
+      if (this.mode === 'stock')     return './item/stock/item/' + id + '/';
+      if (this.mode === 'shipment')  return './item/shipment/item/' + id + '/';
+      if (this.mode === 'inventory') return './item/inventory/item/' + id + '/';
+      return './item/stock/item/' + id + '/';
     },
 
     async submitStock() {
@@ -58,8 +59,8 @@ $this->content = function ($v) {
       this.submitError  = null;
       try {
         const form = new FormData();
-        form.append('itemId',    this.item.id);
-        form.append('quantity',  this.quantity);
+        form.append('kind',      this.mode);
+        form.append('amount',    this.quantity);
         form.append('csrftoken', this.csrfToken);
         const res = await fetch(this.actionEndpoint(), { method: 'POST', body: form });
         if (!res.ok) throw new Error(res.statusText);

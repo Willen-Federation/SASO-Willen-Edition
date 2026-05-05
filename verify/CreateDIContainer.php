@@ -23,6 +23,10 @@ final class CreateDIContainer implements DIContainer
         $this->notPost = empty($post);
         $this->view    = new FailView();
 
+        if ($this->notPost) {
+            return;
+        }
+
         $modeRaw = strtolower(trim((string) ($post['mode'] ?? '')));
         $mode    = VerificationMode::tryFrom($modeRaw) ?? VerificationMode::Stocktake;
         $area    = trim((string) ($post['areaCode'] ?? '')) ?: null;

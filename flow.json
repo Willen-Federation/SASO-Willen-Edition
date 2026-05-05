@@ -62,6 +62,7 @@
         "registerFromBarcode": "\\saso\\item\\RegisterFromBarcodeDIContainer",
         "registerFromImage": "\\saso\\item\\AddFromImageDIContainer",
         "draftList": "\\saso\\item\\DraftListDIContainer",
+        "drafts": "\\saso\\item\\DraftListDIContainer",
         "draftConfirm": "\\saso\\item\\DraftConfirmDIContainer",
         "draftSave": "\\saso\\item\\DraftConfirmSaveDIContainer",
         "draftDiscard": "\\saso\\item\\DraftDiscardDIContainer",

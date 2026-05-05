@@ -1,6 +1,9 @@
 .hidden {
     display: none;
 }
+[x-cloak] {
+    display: none !important;
+}
 .blue {
     color: #009;
 }

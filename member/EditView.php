@@ -13,6 +13,7 @@ final class EditView implements View
     public string $error = '';
     public Member $member;
     public bool $isAdmin = false;
+    public array $roles = [];
 
     public function display(): void
     {

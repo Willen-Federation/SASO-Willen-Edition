@@ -1,16 +1,14 @@
 <?php
-namespace saso\member;
+namespace saso\role;
 
 use saso\framework\DIContainer;
 use saso\framework\View;
-use saso\repository\DbUpdater;
 use saso\repository\DbFinder;
-use saso\repository\DBConnection;
-use Saso\Application\Auth\AdminGuard;
+use saso\repository\DbUpdater;
 
 final class EditDIContainer implements DIContainer
 {
-    private $usecase;
+    private EditUsecase $usecase;
     public function isTopLevel(): bool { return false; }
     public function di(\Closure $inside, array $query, array $post, array $config, \DateTime $now): void
     {
@@ -20,11 +18,7 @@ final class EditDIContainer implements DIContainer
             new DbFinder(),
             new DbUpdater(),
             new EditPresenter(new EditView()),
-            new AdminGuard(DBConnection::getPdo()),
         );
     }
-    public function flow(): View
-    {
-        return $this->usecase->exec();
-    }
+    public function flow(): View { return $this->usecase->exec(); }
 }

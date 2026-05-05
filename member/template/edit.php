@@ -33,12 +33,17 @@ $this->content = function ($v) {
                class="form-control" placeholder="Enter display name" required>
       </div>
 
-      <?php if ($v->isAdmin): ?>
+      <?php if ($v->isAdmin && !empty($v->roles)): ?>
       <div class="mb-3">
         <label for="m-role" class="form-label">Role</label>
         <select id="m-role" name="role" class="form-select">
-          <option value="operator" <?php echo $v->member->role === 'operator' ? 'selected' : ''; ?>>operator</option>
-          <option value="admin"    <?php echo $v->member->role === 'admin'    ? 'selected' : ''; ?>>admin</option>
+          <?php foreach ($v->roles as $r): ?>
+          <option value="<?php echo htmlspecialchars($r->name, ENT_QUOTES, 'UTF-8'); ?>"
+                  <?php echo $v->member->role === $r->name ? 'selected' : ''; ?>>
+            <?php echo htmlspecialchars($r->label, ENT_QUOTES, 'UTF-8'); ?>
+            (<?php echo htmlspecialchars($r->name, ENT_QUOTES, 'UTF-8'); ?>)
+          </option>
+          <?php endforeach; ?>
         </select>
       </div>
       <?php endif; ?>

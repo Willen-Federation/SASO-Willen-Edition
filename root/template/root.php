@@ -83,6 +83,7 @@
                 <a class="dropdown-item" href="./label/start/">ラベル寸法管理</a>
                 <a class="dropdown-item" href="./category/start/">分類管理</a>
                 <a class="dropdown-item" href="./member/start/">メンバー管理</a>
+                <a class="dropdown-item" href="./role/start/">ロール管理</a>
                 <div class="dropdown-divider"></div>
                 <a class="dropdown-item" href="./admin/aiSettings/">
                   <i class="bi bi-cpu me-1"></i>AI設定

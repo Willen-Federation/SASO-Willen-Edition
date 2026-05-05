@@ -42,6 +42,7 @@
       'items' => [
         ['./auth/providers/',             '認証プロバイダー', 'bi-shield-lock',    'primary'],
         ['./member/start/',               'メンバー管理',     'bi-people',         'primary'],
+        ['./role/start/',                 'ロール管理',       'bi-shield-check',   'info'],
         ['./admin/feature-flags/',        'フィーチャーフラグ', 'bi-flag',         'warning'],
         ['./admin/aiSettings/',           'AI設定',           'bi-cpu',            'warning'],
         ['./settingAdmin/start/',         'システム設定',     'bi-gear',           'secondary'],

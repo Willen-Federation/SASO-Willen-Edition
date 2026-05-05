@@ -26,6 +26,12 @@
         "edit": "\\saso\\member\\EditDIContainer",
         "delete": "\\saso\\member\\DeleteDIContainer"
     },
+    "role": {
+        "start": "\\saso\\role\\StartDIContainer",
+        "add":   "\\saso\\role\\AddDIContainer",
+        "edit":  "\\saso\\role\\EditDIContainer",
+        "delete":"\\saso\\role\\DeleteDIContainer"
+    },
     "search": {
         "start": "\\saso\\search\\StartDIContainer"
     },

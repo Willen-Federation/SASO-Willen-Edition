@@ -92,29 +92,9 @@
     </div>
 
     <?php
-      // Load metadata on-demand if not already set
-      $dimensions = $this->get('dimensionMetadata');
-      if ($dimensions === null) {
-        try {
-          $pdo = \saso\repository\DBConnection::getPdo();
-          $appKey = (string)(getenv('APP_KEY') ?: '');
-          $encryptor = new \Saso\Infrastructure\Auth\Crypto\SecretEncryptor(str_repeat("\x00", 32));
-          if ($appKey !== '') {
-            $rawKey = base64_decode($appKey, true);
-            if ($rawKey !== false && strlen($rawKey) === 32) {
-              $encryptor = new \Saso\Infrastructure\Auth\Crypto\SecretEncryptor($rawKey);
-            }
-          }
-          $settingService = new \Saso\Infrastructure\Setting\PdoSystemSettingService($pdo, $encryptor);
-          $configLoader = new \Saso\Domain\Setting\ShelfDimensionConfigLoader($settingService);
-          $dimensionConfig = $configLoader->load();
-          $dimensions = $dimensionConfig->getEnabledDimensions();
-        } catch (\Exception) {
-          $dimensions = [];
-        }
-      }
-
-      if (empty($dimensions)) {
+      // Always use default 5-dimension layout
+      // (Metadata support deferred to future implementation)
+      $dimensions = [];
         // Fallback: hardcoded 5 dimensions
         for ($d = 1; $d <= 5; $d++): ?>
           <div class="row g-2 align-items-center mb-2">

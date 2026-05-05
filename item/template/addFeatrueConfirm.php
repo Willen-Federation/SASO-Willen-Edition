@@ -18,7 +18,7 @@
 </div>
 
 <?php if(!$v->isValidAmount) { ?>
-  <div class="alert alert-warning" role="alert">
+  <div class="alert alert-warning" role="note">
     追加後の色の数とサイズの数をかけて100を超えてはいけません。<br>
     色数 × サイズ数 ≦ 100
   </div>

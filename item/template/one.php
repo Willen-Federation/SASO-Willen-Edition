@@ -85,15 +85,16 @@ foreach($v->quantityLogsGen as $quantityLogs) {
 <?php if(!$v->archive->archive) { ?>
 <?php if($quantityLogs->isInventoried()){ ?>
 <td>
+<?php $fc = htmlspecialchars($feature->getFullCode(), ENT_QUOTES, 'UTF-8'); ?>
 <form method="post" action="<?php echo './item/stock/item/'.(int)$feature->item->id.'/color/'.rawurlencode($feature->color->code).'/size/'.rawurlencode($feature->size->code); ?>">
 <div class="input-group mb-3">
     <input
         type="number" name="amount"
         class="form-control <?php echo ($feature->color->code===$v->color &&$feature->size->code===$v->size &&$v->action==='stock')?'focused':''; ?>"
-        aria-describedby="stockButton" max="9999" min="1" required
-    > 
+        aria-describedby="stock-<?php echo $fc; ?>" max="9999" min="1" required
+    >
     <input type="hidden" name="kind" value="stock">
-    <button type="submit" class="btn btn-outline-primary stockButton" id="stockButton">入庫</button>
+    <button type="submit" class="btn btn-outline-primary stockButton" id="stock-<?php echo $fc; ?>">入庫</button>
 </div>
 </form>
 </td>
@@ -101,12 +102,12 @@ foreach($v->quantityLogsGen as $quantityLogs) {
 <form method="post" action="<?php echo './item/shipment/item/'.(int)$feature->item->id.'/color/'.rawurlencode($feature->color->code).'/size/'.rawurlencode($feature->size->code); ?>">
 <div class="input-group mb-3">
     <input
-        id="shipmentof<?php echo htmlspecialchars($feature->getFullCode(), ENT_QUOTES, 'UTF-8'); ?>" type="number" name="amount"
+        id="shipmentof<?php echo $fc; ?>" type="number" name="amount"
         class="form-control <?php echo ($feature->color->code===$v->color &&$feature->size->code===$v->size &&$v->action==='shipment')?'focused':''; ?>"
-        aria-describedby="shipmentButton" max="9999" min="1" required
-    > 
+        aria-describedby="shipment-<?php echo $fc; ?>" max="9999" min="1" required
+    >
     <input type="hidden" name="kind" value="shipment">
-    <button type="submit" class="btn btn-outline-primary shipmentButton" id="shipmentButton">出庫</button>
+    <button type="submit" class="btn btn-outline-primary shipmentButton" id="shipment-<?php echo $fc; ?>">出庫</button>
 </div>
 </form>
 </td>
@@ -116,10 +117,10 @@ foreach($v->quantityLogsGen as $quantityLogs) {
     <input
         type="number" name="amount"
         class="form-control <?php echo ($feature->color->code===$v->color &&$feature->size->code===$v->size &&$v->action==='inventory')?'focused':''; ?>"
-        aria-describedby="inventoryButton" max="9999" min="0" required
-    > 
+        aria-describedby="inventory-<?php echo $fc; ?>" max="9999" min="0" required
+    >
     <input type="hidden" name="kind" value="inventory">
-    <button type="submit" class="btn btn-outline-primary inventoryButton" id="inventoryButton" disabled>棚卸</button>
+    <button type="submit" class="btn btn-outline-primary inventoryButton" id="inventory-<?php echo $fc; ?>" disabled>棚卸</button>
 </div>
 </form>
 </td>
@@ -132,10 +133,10 @@ foreach($v->quantityLogsGen as $quantityLogs) {
     <input
         type="number" name="amount"
         class="form-control <?php echo ($feature->color->code===$v->color &&$feature->size->code===$v->size &&$v->action==='inventory')?'focused':''; ?>"
-        aria-describedby="inventoryButton" max="9999" min="0" required
-    > 
+        aria-describedby="inventory-<?php echo $fc; ?>" max="9999" min="0" required
+    >
     <input type="hidden" name="kind" value="inventory">
-    <button type="submit" class="btn btn-outline-primary inventoryButton" id="inventoryButton">棚卸</button>
+    <button type="submit" class="btn btn-outline-primary inventoryButton" id="inventory-<?php echo $fc; ?>">棚卸</button>
 </div>
 </form>
 </td>
@@ -147,9 +148,9 @@ foreach($v->quantityLogsGen as $quantityLogs) {
     <input
         type="text" name="number" value="<?php echo htmlspecialchars($feature->shelf?->number ?? '', ENT_QUOTES, 'UTF-8'); ?>"
         class="form-control <?php echo ($feature->color->code===$v->color &&$feature->size->code===$v->size &&$v->action==='shelf')?'focused':''; ?>"
-        aria-describedby="putShelfButton" pattern="^[0-9A-Za-z\-]+$" maxlength="15" required
+        aria-describedby="shelf-<?php echo $fc; ?>" pattern="^[0-9A-Za-z\-]+$" maxlength="15" required
     >
-    <button type="submit" class="btn btn-outline-primary" id="putShelfButton">棚置</button>
+    <button type="submit" class="btn btn-outline-primary" id="shelf-<?php echo $fc; ?>">棚置</button>
 </div>
 </form>
 </td>
@@ -159,9 +160,9 @@ foreach($v->quantityLogsGen as $quantityLogs) {
     <input
         type="number" name="amount" value="<?php echo $feature->labelAmount===0 ? '' : (int)$feature->labelAmount; ?>"
         class="form-control labelSheetsInput <?php echo ($feature->color->code===$v->color &&$feature->size->code===$v->size &&$v->action==='label')?'focused':''; ?>"
-        aria-describedby="putShelfButton" min="0" max="100" range="1"
+        aria-describedby="label-<?php echo $fc; ?>" min="0" max="100" range="1"
     >
-    <button type="submit" class="btn btn-outline-primary" id="">追加</button>
+    <button type="submit" class="btn btn-outline-primary" id="label-<?php echo $fc; ?>">追加</button>
 </div>
 </form>
 </td>

@@ -47,7 +47,7 @@
       <button type="submit" class="btn btn-primary mb-3"><i class="ti ti-plus me-1"></i>登録</button>
 
       <?php if(!$v->validFeaturesAmount) { ?>
-        <div class="alert alert-warning" role="alert">
+        <div class="alert alert-warning" role="note">
           色の数とサイズの数をかけて100を超えてはいけません。<br>
           色数 × サイズ数 ≦ 100
         </div>

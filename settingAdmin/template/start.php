@@ -28,7 +28,7 @@
       <?php endif; ?>
 
       <?php if ($v->envOverrides['APP_HTTPS']): ?>
-        <div class="alert alert-warning mb-4" role="alert">
+        <div class="alert alert-warning mb-4" role="note">
           This setting is currently overridden by <code>.env</code> (APP_HTTPS). UI edits will not take effect until the <code>.env</code> entry is removed.
         </div>
       <?php endif; ?>

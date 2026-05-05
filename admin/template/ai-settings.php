@@ -21,7 +21,7 @@
 </ol>
 
 <?php if (!$authorized): ?>
-  <div class="alert alert-danger" role="alert">
+  <div class="alert alert-danger" role="note">
     <i class="ti ti-shield-x me-2"></i>
     <?php echo $lang === 'ja' ? 'このページへのアクセス権限がありません。' : 'You do not have permission to access this page.'; ?>
   </div>

@@ -59,8 +59,8 @@
         <div class="col-4 col-md-3 col-lg-2">
           <a href="<?php echo htmlspecialchars($href); ?>" class="card card-link card-link-pop h-100">
             <div class="card-body text-center py-4">
-              <span class="avatar avatar-rounded bg-<?php echo htmlspecialchars($tone); ?>-lt mb-3">
-                <i class="ti <?php echo htmlspecialchars($icon); ?> fs-3"></i>
+              <span class="avatar avatar-xl avatar-rounded bg-<?php echo htmlspecialchars($tone); ?>-lt mb-3">
+                <i class="ti <?php echo htmlspecialchars($icon); ?> fs-2"></i>
               </span>
               <div class="fw-medium"><?php echo htmlspecialchars($label); ?></div>
             </div>

@@ -2,7 +2,7 @@
 <?php $this->content = function($v) { ?>
 
 <div class="d-flex justify-content-center mb-3">
-<div class="card" style="max-width: 48rem;">
+<div class="card w-100">
   <div class="card-header">
     <h3 class="card-title"><i class="ti ti-search me-2"></i>商品を検索</h3>
   </div>

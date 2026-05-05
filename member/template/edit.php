@@ -13,7 +13,7 @@ $this->content = function ($v) {
     <h3 class="card-title">Edit User: <?php echo htmlspecialchars($v->member->id, ENT_QUOTES, 'UTF-8'); ?></h3>
   </div>
   <div class="card-body">
-    <form action="./member/edit/" method="POST">
+    <form action="./member/edit/" method="post">
       <input type="hidden" name="id" value="<?php echo htmlspecialchars($v->member->id, ENT_QUOTES, 'UTF-8'); ?>">
 
       <?php if (!empty($v->error)): ?>

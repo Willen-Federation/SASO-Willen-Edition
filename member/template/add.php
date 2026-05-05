@@ -13,7 +13,7 @@ $this->content = function ($v) {
     <h3 class="card-title">User Details</h3>
   </div>
   <div class="card-body">
-    <form action="./member/add/" method="POST">
+    <form action="./member/add/" method="post">
       <?php if (!empty($v->error)): ?>
         <div class="alert alert-danger mb-3" role="alert"><?php echo htmlspecialchars($v->error); ?></div>
       <?php endif; ?>

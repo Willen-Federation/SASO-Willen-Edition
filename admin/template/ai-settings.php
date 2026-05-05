@@ -4,6 +4,7 @@
   $settings   = $v->settings ?? [];
   $authorized = $v->authorized ?? false;
   $saved      = $v->saved ?? false;
+  $csrf       = \saso\util\CSRFtoken::current();
 
   $visionProvider  = $settings['ai_provider_vision']    ?? '';
   $chatProvider    = $settings['ai_provider_chat']      ?? '';
@@ -46,6 +47,7 @@
   },
   removeKey(list, idx) { this[list].splice(idx, 1); }
 }">
+  <input type="hidden" name="csrftoken" value="<?php echo htmlspecialchars($csrf, ENT_QUOTES, 'UTF-8'); ?>">
 
   <div class="card mb-3">
     <div class="card-header">
@@ -160,5 +162,7 @@
   </div>
 
 </form>
+
+<script defer src="./js/alpine.min.js"></script>
 
 <?php }; ?>

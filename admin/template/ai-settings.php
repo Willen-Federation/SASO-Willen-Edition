@@ -36,9 +36,9 @@
 <?php endif; ?>
 
 <form method="post" action="" x-data="{
-  openaiKeys: <?php echo json_encode(array_values($openaiKeys), JSON_UNESCAPED_UNICODE); ?>,
-  geminiKeys: <?php echo json_encode(array_values($geminiKeys), JSON_UNESCAPED_UNICODE); ?>,
-  anthropicKeys: <?php echo json_encode(array_values($anthropicKeys), JSON_UNESCAPED_UNICODE); ?>,
+  openaiKeys: <?php echo json_encode(array_values($openaiKeys), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_UNESCAPED_UNICODE); ?>,
+  geminiKeys: <?php echo json_encode(array_values($geminiKeys), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_UNESCAPED_UNICODE); ?>,
+  anthropicKeys: <?php echo json_encode(array_values($anthropicKeys), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_UNESCAPED_UNICODE); ?>,
   newOpenai: '', newGemini: '', newAnthropic: '',
   addKey(list, key) {
     const k = key.trim();

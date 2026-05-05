@@ -56,7 +56,7 @@
     <h3 class="text-secondary text-uppercase fs-5 mb-3"><?php echo htmlspecialchars($section['title']); ?></h3>
     <div class="row row-cards">
       <?php foreach ($section['items'] as [$href, $label, $icon, $tone]): ?>
-        <div class="col-6 col-md-4 col-lg-3">
+        <div class="col-4 col-md-3 col-lg-2">
           <a href="<?php echo htmlspecialchars($href); ?>" class="card card-link card-link-pop h-100">
             <div class="card-body text-center py-4">
               <span class="avatar avatar-rounded bg-<?php echo htmlspecialchars($tone); ?>-lt mb-3">

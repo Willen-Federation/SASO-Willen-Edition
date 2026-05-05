@@ -1,11 +1,6 @@
 <?php $this->title = 'バーコード・商品検索'; ?>
 <?php $this->content = function($v) { ?>
 
-<ol class="breadcrumb mb-3" aria-label="breadcrumbs">
-  <li class="breadcrumb-item"><a href="./">ホーム</a></li>
-  <li class="breadcrumb-item active" aria-current="page">バーコード・商品検索</li>
-</ol>
-
 <div class="card mb-3" style="max-width: 48rem;">
   <div class="card-header">
     <h3 class="card-title"><i class="ti ti-search me-2"></i>商品を検索</h3>

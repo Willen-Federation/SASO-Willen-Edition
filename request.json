@@ -65,6 +65,7 @@
         "draftSave":          { "matter": "item",    "action": "draftSave" },
         "draftDiscard":       { "matter": "item",    "action": "draftDiscard" },
         "draftRetry":         { "matter": "item",    "action": "draftRetry" },
+        "list":               { "matter": "item",    "action": "listPage" },
         "listFrame":          { "matter": "item",    "action": "listFrame" },
         "listContents":       { "matter": "item",    "action": "listContents" },
         "head":               { "matter": "item",    "action": "head" },

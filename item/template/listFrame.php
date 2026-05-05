@@ -12,7 +12,7 @@
       </div>
       <div class="col-md-auto">
         <button id="searchButton" type="button" class="btn btn-outline-primary">
-          <i class="ti ti-search me-1"></i>検索
+          <i class="bi bi-search me-1"></i>検索
         </button>
       </div>
       <div class="col-md-auto">

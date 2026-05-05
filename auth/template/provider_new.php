@@ -22,7 +22,7 @@
            aria-pressed="false">
         <div class="card-body">
           <h6 class="card-title d-flex align-items-center gap-2">
-            <i class="ti ti-shield-lock text-primary"></i> Auth0
+            <i class="bi bi-shield-lock text-primary"></i> Auth0
           </h6>
           <p class="card-text text-muted small">
             クラウド型 IDaaS。<strong>Auth0 ドメイン</strong>・<strong>クライアント ID</strong>・
@@ -37,7 +37,7 @@
            aria-pressed="false">
         <div class="card-body">
           <h6 class="card-title d-flex align-items-center gap-2">
-            <i class="ti ti-cloud text-warning"></i> Amazon Cognito
+            <i class="bi bi-cloud text-warning"></i> Amazon Cognito
           </h6>
           <p class="card-text text-muted small">
             AWS マネージド認証。<strong>リージョン</strong>・<strong>ユーザープール ID</strong>・
@@ -52,7 +52,7 @@
            aria-pressed="false">
         <div class="card-body">
           <h6 class="card-title d-flex align-items-center gap-2">
-            <i class="ti ti-flame text-danger"></i> Firebase Authentication
+            <i class="bi bi-flame text-danger"></i> Firebase Authentication
           </h6>
           <p class="card-text text-muted small">
             Google のモバイルファースト認証。<strong>プロジェクト ID</strong>・
@@ -78,7 +78,7 @@
            aria-pressed="false">
         <div class="card-body">
           <h6 class="card-title d-flex align-items-center gap-2">
-            <i class="ti ti-key text-secondary"></i> 汎用 OIDC
+            <i class="bi bi-key text-secondary"></i> 汎用 OIDC
           </h6>
           <p class="card-text text-muted small">
             OpenID Connect 対応の任意の ID プロバイダー（Keycloak・Microsoft Entra ID など）。
@@ -94,7 +94,7 @@
            aria-pressed="false">
         <div class="card-body">
           <h6 class="card-title d-flex align-items-center gap-2">
-            <i class="ti ti-building text-secondary"></i> SAML 2.0
+            <i class="bi bi-building text-secondary"></i> SAML 2.0
           </h6>
           <p class="card-text text-muted small">
             エンタープライズ向け SAML ID プロバイダー（Active Directory Federation Services・Shibboleth など）。
@@ -116,7 +116,7 @@
 
   <!-- Auth0 フォーム -->
   <div id="form-auth0" class="provider-form d-none">
-    <h5 class="mb-3"><i class="ti ti-shield-lock text-primary me-2"></i>Auth0 の設定</h5>
+    <h5 class="mb-3"><i class="bi bi-shield-lock text-primary me-2"></i>Auth0 の設定</h5>
     <form method="post" novalidate>
       <input type="hidden" name="csrftoken" value="<?php echo htmlspecialchars($csrf, ENT_QUOTES, 'UTF-8'); ?>">
       <input type="hidden" name="provider_template" value="auth0">
@@ -158,7 +158,7 @@
 
   <!-- Amazon Cognito フォーム -->
   <div id="form-cognito" class="provider-form d-none">
-    <h5 class="mb-3"><i class="ti ti-cloud text-warning me-2"></i>Amazon Cognito の設定</h5>
+    <h5 class="mb-3"><i class="bi bi-cloud text-warning me-2"></i>Amazon Cognito の設定</h5>
     <form method="post">
       <input type="hidden" name="csrftoken" value="<?php echo htmlspecialchars($csrf, ENT_QUOTES, 'UTF-8'); ?>">
       <input type="hidden" name="provider_template" value="cognito">
@@ -200,7 +200,7 @@
 
   <!-- Firebase Authentication フォーム -->
   <div id="form-firebase" class="provider-form d-none">
-    <h5 class="mb-3"><i class="ti ti-flame text-danger me-2"></i>Firebase Authentication の設定</h5>
+    <h5 class="mb-3"><i class="bi bi-flame text-danger me-2"></i>Firebase Authentication の設定</h5>
     <form method="post">
       <input type="hidden" name="csrftoken" value="<?php echo htmlspecialchars($csrf, ENT_QUOTES, 'UTF-8'); ?>">
       <input type="hidden" name="provider_template" value="firebase">
@@ -238,7 +238,7 @@
 
   <!-- 汎用 OIDC フォーム -->
   <div id="form-oidc" class="provider-form d-none">
-    <h5 class="mb-3"><i class="ti ti-key text-secondary me-2"></i>汎用 OIDC の設定</h5>
+    <h5 class="mb-3"><i class="bi bi-key text-secondary me-2"></i>汎用 OIDC の設定</h5>
     <form method="post">
       <input type="hidden" name="csrftoken" value="<?php echo htmlspecialchars($csrf, ENT_QUOTES, 'UTF-8'); ?>">
       <input type="hidden" name="provider_template" value="oidc">
@@ -280,7 +280,7 @@
 
   <!-- SAML 2.0 フォーム -->
   <div id="form-saml" class="provider-form d-none">
-    <h5 class="mb-3"><i class="ti ti-building text-secondary me-2"></i>SAML 2.0 の設定</h5>
+    <h5 class="mb-3"><i class="bi bi-building text-secondary me-2"></i>SAML 2.0 の設定</h5>
     <form method="post">
       <input type="hidden" name="csrftoken" value="<?php echo htmlspecialchars($csrf, ENT_QUOTES, 'UTF-8'); ?>">
       <input type="hidden" name="provider_template" value="saml">

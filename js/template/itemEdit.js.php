@@ -10,9 +10,9 @@ export default class ItemEdit {
             category.classList.toggle('d-none');
             const icon = e.currentTarget.querySelector('i');
             if (isHidden) {
-                e.currentTarget.innerHTML = '<i class="ti ti-x me-1"></i>分類変更しない';
+                e.currentTarget.innerHTML = '<i class="bi bi-x me-1"></i>分類変更しない';
             } else {
-                e.currentTarget.innerHTML = '<i class="ti ti-list-tree me-1"></i>分類一覧表示';
+                e.currentTarget.innerHTML = '<i class="bi bi-diagram-3 me-1"></i>分類一覧表示';
             }
         });
     }

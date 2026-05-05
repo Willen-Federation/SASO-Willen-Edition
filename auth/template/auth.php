@@ -9,7 +9,7 @@
 
         <?php if ($v->isError) { ?>
           <div class="alert alert-danger" role="alert">
-            <i class="ti ti-alert-circle me-2"></i>ID、パスワードが違います。
+            <i class="bi bi-exclamation-circle me-2"></i>ID、パスワードが違います。
           </div>
         <?php } ?>
 
@@ -24,7 +24,7 @@
           </div>
           <div class="form-footer">
             <button type="submit" class="btn btn-primary w-100">
-              <i class="ti ti-login me-2"></i>ログイン
+              <i class="bi bi-box-arrow-in-right me-2"></i>ログイン
             </button>
           </div>
         </form>
@@ -34,7 +34,7 @@
           <div class="d-flex flex-column gap-2 mt-3">
             <?php foreach ($v->providers as $p) { ?>
               <a href="/auth/start/<?php echo htmlspecialchars($p->id->value, ENT_QUOTES, 'UTF-8'); ?>" class="btn btn-outline-secondary">
-                <i class="ti ti-key me-2"></i>
+                <i class="bi bi-key me-2"></i>
                 <?php echo htmlspecialchars($p->name, ENT_QUOTES, 'UTF-8'); ?> でログイン
               </a>
             <?php } ?>

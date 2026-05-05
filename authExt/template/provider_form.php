@@ -133,7 +133,7 @@ ui('card', [
       <?php
       $autoCards = [
         'auth0'    => ['title' => 'Auth0',        'desc' => $lang === 'ja' ? 'Auth0 テナント・OIDC' : 'Auth0 tenant — OIDC',               'icon' => 'ti-shield-lock', 'tone' => 'primary'],
-        'cognito'  => ['title' => 'AWS Cognito',   'desc' => $lang === 'ja' ? 'ユーザープール + Hosted UI' : 'User Pool + Hosted UI',       'icon' => 'ti-cloud',       'tone' => 'warning'],
+        'cognito'  => ['title' => 'AWS Cognito',   'desc' => $lang === 'ja' ? 'ユーザープール + Hosted UI' : 'User Pool + Hosted UI',       'icon' => 'bi-cloud',       'tone' => 'warning'],
         'firebase' => ['title' => 'Firebase Auth', 'desc' => $lang === 'ja' ? 'Google / Apple / Facebook 等' : 'Google / Apple / Facebook', 'icon' => 'ti-flame',       'tone' => 'danger'],
       ];
       foreach ($autoCards as $val => $info): ?>
@@ -144,7 +144,7 @@ ui('card', [
                   role="option"
                   :aria-selected="choice === '<?php echo $val; ?>'">
             <div class="d-flex align-items-center gap-2 mb-1">
-              <i class="ti <?php echo htmlspecialchars($info['icon']); ?> text-<?php echo htmlspecialchars($info['tone']); ?>"></i>
+              <i class="bi <?php echo htmlspecialchars($info['icon']); ?> text-<?php echo htmlspecialchars($info['tone']); ?>"></i>
               <span class="fw-semibold"><?php echo htmlspecialchars($info['title']); ?></span>
             </div>
             <span class="small text-muted"><?php echo htmlspecialchars($info['desc']); ?></span>
@@ -159,8 +159,8 @@ ui('card', [
     <div class="row row-cols-1 row-cols-sm-2 g-3 mb-4">
       <?php
       $manualCards = [
-        'oidc' => ['title' => 'Generic OIDC', 'desc' => $lang === 'ja' ? '標準準拠の OIDC プロバイダ' : 'Any OIDC-compliant provider',    'icon' => 'ti-key',       'tone' => 'secondary'],
-        'saml' => ['title' => 'SAML 2.0',    'desc' => $lang === 'ja' ? 'Okta / ADFS 等のエンタープライズ IdP' : 'Okta, ADFS, enterprise', 'icon' => 'ti-building',  'tone' => 'secondary'],
+        'oidc' => ['title' => 'Generic OIDC', 'desc' => $lang === 'ja' ? '標準準拠の OIDC プロバイダ' : 'Any OIDC-compliant provider',    'icon' => 'bi-key',       'tone' => 'secondary'],
+        'saml' => ['title' => 'SAML 2.0',    'desc' => $lang === 'ja' ? 'Okta / ADFS 等のエンタープライズ IdP' : 'Okta, ADFS, enterprise', 'icon' => 'bi-building',  'tone' => 'secondary'],
       ];
       foreach ($manualCards as $val => $info): ?>
         <div class="col">
@@ -170,7 +170,7 @@ ui('card', [
                   role="option"
                   :aria-selected="choice === '<?php echo $val; ?>'">
             <div class="d-flex align-items-center gap-2 mb-1">
-              <i class="ti <?php echo htmlspecialchars($info['icon']); ?> text-<?php echo htmlspecialchars($info['tone']); ?>"></i>
+              <i class="bi <?php echo htmlspecialchars($info['icon']); ?> text-<?php echo htmlspecialchars($info['tone']); ?>"></i>
               <span class="fw-semibold"><?php echo htmlspecialchars($info['title']); ?></span>
             </div>
             <span class="small text-muted"><?php echo htmlspecialchars($info['desc']); ?></span>
@@ -191,7 +191,7 @@ ui('card', [
       <button type="button"
               @click="step = 1; choice = ''"
               class="btn btn-link text-primary p-0 mb-4 d-inline-flex align-items-center gap-1 small text-decoration-none">
-        <i class="ti ti-arrow-left" aria-hidden="true"></i>
+        <i class="bi bi-arrow-left" aria-hidden="true"></i>
         <?php echo $lang === 'ja' ? 'プロバイダを選び直す' : 'Choose a different provider'; ?>
       </button>
 
@@ -254,7 +254,7 @@ ui('card', [
                         onclick="navigator.clipboard.writeText(<?php echo htmlspecialchars(json_encode($value)); ?>)"
                         title="<?php echo $lang === 'ja' ? 'コピー' : 'Copy'; ?>"
                         class="btn btn-sm btn-outline-secondary flex-shrink-0">
-                  <i class="ti ti-copy" aria-hidden="true"></i>
+                  <i class="bi bi-clipboard" aria-hidden="true"></i>
                 </button>
               </div>
               <?php if ($note !== ''): ?>
@@ -292,7 +292,7 @@ ui('card', [
     <!-- Auth0 -->
     <fieldset x-show="choice === 'auth0'" x-cloak :disabled="choice !== 'auth0'" class="m-0 border-0 p-0" style="min-width:0">
       <div class="border-top pt-3 mb-3">
-        <h5 class="fw-semibold mb-1"><i class="ti ti-shield-lock text-primary me-2"></i>Auth0</h5>
+        <h5 class="fw-semibold mb-1"><i class="bi bi-shield-lock text-primary me-2"></i>Auth0</h5>
         <p class="small text-muted"><?php echo $lang === 'ja' ? 'Auth0 テナントの OIDC 設定' : 'Auth0 tenant OIDC configuration'; ?></p>
       </div>
       <?php
@@ -318,7 +318,7 @@ ui('card', [
         <?php if ($v->hasSecret): ?>
           <div class="form-text"><?php echo $lang === 'ja' ? '変更する場合のみ入力してください' : 'Leave blank to keep the current secret'; ?></div>
         <?php else: ?>
-          <div class="form-text text-danger"><i class="ti ti-alert-triangle me-1"></i><?php echo $lang === 'ja' ? 'シークレット未設定。入力して保存するまでログインできません。' : 'No client secret stored. Sign-in will fail until a secret is saved.'; ?></div>
+          <div class="form-text text-danger"><i class="bi bi-exclamation-triangle me-1"></i><?php echo $lang === 'ja' ? 'シークレット未設定。入力して保存するまでログインできません。' : 'No client secret stored. Sign-in will fail until a secret is saved.'; ?></div>
         <?php endif; ?>
       </div>
       <?php
@@ -349,7 +349,7 @@ ui('card', [
     <!-- AWS Cognito -->
     <fieldset x-show="choice === 'cognito'" x-cloak :disabled="choice !== 'cognito'" class="m-0 border-0 p-0" style="min-width:0">
       <div class="border-top pt-3 mb-3">
-        <h5 class="fw-semibold mb-1"><i class="ti ti-cloud text-warning me-2"></i>AWS Cognito</h5>
+        <h5 class="fw-semibold mb-1"><i class="bi bi-cloud text-warning me-2"></i>AWS Cognito</h5>
         <p class="small text-muted"><?php echo $lang === 'ja' ? 'Cognito ユーザープール設定' : 'Cognito User Pool configuration'; ?></p>
       </div>
       <?php
@@ -376,7 +376,7 @@ ui('card', [
         <?php if ($v->hasSecret): ?>
           <div class="form-text"><?php echo $lang === 'ja' ? '変更する場合のみ入力してください' : 'Leave blank to keep the current secret'; ?></div>
         <?php else: ?>
-          <div class="form-text text-danger"><i class="ti ti-alert-triangle me-1"></i><?php echo $lang === 'ja' ? 'シークレット未設定。入力して保存するまでログインできません。' : 'No client secret stored. Sign-in will fail until a secret is saved.'; ?></div>
+          <div class="form-text text-danger"><i class="bi bi-exclamation-triangle me-1"></i><?php echo $lang === 'ja' ? 'シークレット未設定。入力して保存するまでログインできません。' : 'No client secret stored. Sign-in will fail until a secret is saved.'; ?></div>
         <?php endif; ?>
       </div>
       <?php
@@ -393,7 +393,7 @@ ui('card', [
     <!-- Firebase Auth -->
     <fieldset x-show="choice === 'firebase'" x-cloak :disabled="choice !== 'firebase'" class="m-0 border-0 p-0" style="min-width:0">
       <div class="border-top pt-3 mb-3">
-        <h5 class="fw-semibold mb-1"><i class="ti ti-flame text-danger me-2"></i>Firebase Auth</h5>
+        <h5 class="fw-semibold mb-1"><i class="bi bi-flame text-danger me-2"></i>Firebase Auth</h5>
         <p class="small text-muted">
           <?php echo $lang === 'ja'
             ? 'Firebase Authentication は OIDC 経由で Google / Apple / Facebook 等のプロバイダをまとめて提供します。'
@@ -435,7 +435,7 @@ ui('card', [
         <?php if ($v->hasSecret): ?>
           <div class="form-text"><?php echo $lang === 'ja' ? '変更する場合のみ入力してください' : 'Leave blank to keep the current secret'; ?></div>
         <?php else: ?>
-          <div class="form-text text-danger"><i class="ti ti-alert-triangle me-1"></i><?php echo $lang === 'ja' ? 'シークレット未設定。入力して保存するまでログインできません。' : 'No client secret stored. Sign-in will fail until a secret is saved.'; ?></div>
+          <div class="form-text text-danger"><i class="bi bi-exclamation-triangle me-1"></i><?php echo $lang === 'ja' ? 'シークレット未設定。入力して保存するまでログインできません。' : 'No client secret stored. Sign-in will fail until a secret is saved.'; ?></div>
         <?php endif; ?>
       </div>
       <?php
@@ -477,7 +477,7 @@ ui('card', [
     <!-- Generic OIDC -->
     <fieldset x-show="choice === 'oidc'" x-cloak :disabled="choice !== 'oidc'" class="m-0 border-0 p-0" style="min-width:0">
       <div class="border-top pt-3 mb-3">
-        <h5 class="fw-semibold mb-1"><i class="ti ti-key text-secondary me-2"></i>Generic OIDC</h5>
+        <h5 class="fw-semibold mb-1"><i class="bi bi-key text-secondary me-2"></i>Generic OIDC</h5>
         <p class="small text-muted"><?php echo $lang === 'ja' ? '標準準拠の OpenID Connect プロバイダ' : 'Any standards-compliant OpenID Connect provider'; ?></p>
       </div>
       <?php
@@ -502,7 +502,7 @@ ui('card', [
         <?php if ($v->hasSecret): ?>
           <div class="form-text"><?php echo $lang === 'ja' ? '変更する場合のみ入力してください' : 'Leave blank to keep the current secret'; ?></div>
         <?php else: ?>
-          <div class="form-text text-danger"><i class="ti ti-alert-triangle me-1"></i><?php echo $lang === 'ja' ? 'シークレット未設定。入力して保存するまでログインできません。' : 'No client secret stored. Sign-in will fail until a secret is saved.'; ?></div>
+          <div class="form-text text-danger"><i class="bi bi-exclamation-triangle me-1"></i><?php echo $lang === 'ja' ? 'シークレット未設定。入力して保存するまでログインできません。' : 'No client secret stored. Sign-in will fail until a secret is saved.'; ?></div>
         <?php endif; ?>
       </div>
       <?php
@@ -519,7 +519,7 @@ ui('card', [
     <!-- SAML 2.0 -->
     <fieldset x-show="choice === 'saml'" x-cloak :disabled="choice !== 'saml'" class="m-0 border-0 p-0" style="min-width:0">
       <div class="border-top pt-3 mb-3">
-        <h5 class="fw-semibold mb-1"><i class="ti ti-building text-secondary me-2"></i>SAML 2.0</h5>
+        <h5 class="fw-semibold mb-1"><i class="bi bi-building text-secondary me-2"></i>SAML 2.0</h5>
         <p class="small text-muted"><?php echo $lang === 'ja' ? 'エンタープライズ IdP (Okta / ADFS 等)' : 'Enterprise IdP (Okta, ADFS, etc.)'; ?></p>
       </div>
       <?php
@@ -628,7 +628,7 @@ ui('card', [
               @click="verify()"
               :disabled="verifyStatus === 'loading'"
               class="btn btn-outline-secondary d-inline-flex align-items-center gap-2">
-        <i class="ti ti-plug" x-show="verifyStatus !== 'loading'" aria-hidden="true"></i>
+        <i class="bi bi-plug" x-show="verifyStatus !== 'loading'" aria-hidden="true"></i>
         <span x-show="verifyStatus === 'loading'" class="spinner-border spinner-border-sm" role="status"></span>
         <span x-show="verifyStatus !== 'loading'"><?php echo $lang === 'ja' ? '接続を確認する' : 'Verify Connection'; ?></span>
         <span x-show="verifyStatus === 'loading'" x-cloak><?php echo $lang === 'ja' ? '確認中...' : 'Checking…'; ?></span>
@@ -636,17 +636,17 @@ ui('card', [
 
       <div class="mt-3" x-show="verifyStatus !== null" x-cloak>
         <div x-show="verifyStatus === 'ok'" class="alert alert-success d-flex align-items-start gap-2" role="status">
-          <i class="ti ti-circle-check fs-5 flex-shrink-0" aria-hidden="true"></i>
+          <i class="bi bi-check-circle fs-5 flex-shrink-0" aria-hidden="true"></i>
           <div x-text="verifyMsg"></div>
         </div>
         <div x-show="verifyStatus === 'error'" class="alert alert-danger d-flex align-items-start gap-2" role="alert">
-          <i class="ti ti-alert-circle fs-5 flex-shrink-0" aria-hidden="true"></i>
+          <i class="bi bi-exclamation-circle fs-5 flex-shrink-0" aria-hidden="true"></i>
           <div x-text="verifyMsg"></div>
         </div>
         <template x-if="verifyStatus === 'ok' && verifyAuthUrl">
           <a :href="verifyAuthUrl" target="_blank" rel="noopener noreferrer"
              class="btn btn-outline-primary w-100 d-flex align-items-center justify-content-center gap-2 mt-2">
-            <i class="ti ti-external-link" aria-hidden="true"></i>
+            <i class="bi bi-box-arrow-up-right" aria-hidden="true"></i>
             <?php echo ui_text($lang === 'ja' ? 'テストサインインを開く →' : 'Open Test Sign-In →'); ?>
           </a>
         </template>

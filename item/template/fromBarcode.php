@@ -57,7 +57,7 @@
             ?>
             <div class="input-group mt-2">
               <span class="input-group-text">
-                <i class="ti ti-qrcode" aria-hidden="true"></i>
+                <i class="bi bi-qr-code" aria-hidden="true"></i>
               </span>
               <input
                 id="barcode-input"
@@ -70,7 +70,7 @@
                 aria-label="<?php echo $lang === 'ja' ? 'バーコード番号' : 'Barcode number'; ?>"
               >
               <button type="button" @click="lookup()" class="btn btn-primary" :disabled="loading">
-                <span x-show="!loading"><i class="ti ti-search me-1" aria-hidden="true"></i><?php echo $lang === 'ja' ? '検索' : 'Search'; ?></span>
+                <span x-show="!loading"><i class="bi bi-search me-1" aria-hidden="true"></i><?php echo $lang === 'ja' ? '検索' : 'Search'; ?></span>
                 <span x-show="loading" class="d-flex align-items-center gap-2">
                   <span class="spinner-border spinner-border-sm" role="status" aria-label="<?php echo $lang === 'ja' ? '検索中' : 'Searching'; ?>"></span>
                   <?php echo $lang === 'ja' ? '検索中...' : 'Searching...'; ?>
@@ -82,7 +82,7 @@
 
           <!-- Lookup result: already registered -->
           <div x-show="lookupResult && lookupResult.item && lookupResult.item.id" class="alert alert-success d-flex align-items-start gap-2 mt-3" role="status">
-            <i class="ti ti-circle-check fs-5 flex-shrink-0" aria-hidden="true"></i>
+            <i class="bi bi-check-circle fs-5 flex-shrink-0" aria-hidden="true"></i>
             <div>
               <div class="fw-medium"><?php echo $lang === 'ja' ? '商品登録済み' : 'Already Registered'; ?></div>
               <div class="small" x-text="lookupResult && lookupResult.item ? lookupResult.item.name : ''"></div>
@@ -146,7 +146,7 @@
             </div>
 
             <button type="submit" class="btn btn-primary w-100" :disabled="!barcodeInput">
-              <i class="ti ti-plus me-2" aria-hidden="true"></i>
+              <i class="bi bi-plus me-2" aria-hidden="true"></i>
               <?php echo $lang === 'ja' ? '商品情報を登録する' : 'Register Product'; ?>
             </button>
           </form>

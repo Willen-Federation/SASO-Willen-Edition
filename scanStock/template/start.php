@@ -162,7 +162,7 @@ $this->content = function ($v) {
               :disabled="loading || !scannedCode.trim()"
             >
               <span x-show="!loading">
-                <i class="ti ti-search me-1" aria-hidden="true"></i><?php echo ui_text($lang === 'ja' ? '検索' : 'Find'); ?>
+                <i class="bi bi-search me-1" aria-hidden="true"></i><?php echo ui_text($lang === 'ja' ? '検索' : 'Find'); ?>
               </span>
               <span x-show="loading" class="d-flex align-items-center gap-1">
                 <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>

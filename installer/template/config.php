@@ -55,7 +55,7 @@ DB_PASSWORD=&lt;your password&gt;</code></pre>
   <div class="card-body">
     <p>下記の項目を入力し、「インストール」ボタンを押して下さい。</p>
     <div class="alert alert-warning" role="note">
-      <i class="ti ti-alert-triangle me-2"></i>ログイン ID とパスワードはどこかに書き留めておいて下さい。忘れると、復元できません。
+      <i class="bi bi-exclamation-triangle me-2"></i>ログイン ID とパスワードはどこかに書き留めておいて下さい。忘れると、復元できません。
     </div>
 
     <form method="post" action="./installer/install/">
@@ -83,7 +83,7 @@ DB_PASSWORD=&lt;your password&gt;</code></pre>
         <div class="form-hint">同じパスワードを再入力してください</div>
       </div>
       <button type="submit" class="btn btn-primary">
-        <i class="ti ti-server me-1"></i>インストール
+        <i class="bi bi-server me-1"></i>インストール
       </button>
     </form>
   </div>

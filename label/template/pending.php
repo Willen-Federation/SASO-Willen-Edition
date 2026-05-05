@@ -14,7 +14,7 @@
   'body' => function () use ($v) {
       if (empty($v->codes)) { ?>
         <div class="d-flex flex-column align-items-center gap-3 py-5 text-muted">
-          <i class="ti ti-barcode-off fs-1" aria-hidden="true"></i>
+          <i class="bi bi-barcode fs-1" aria-hidden="true"></i>
           <p class="mb-0"><?php echo ui_text(__('ui.label_pending.empty', [], null, 'No pending labels. Mint a batch from the wizard.')); ?></p>
           <?php ui('button', [
             'label'   => __('ui.label_pending.go_wizard', [], null, 'Go to wizard'),

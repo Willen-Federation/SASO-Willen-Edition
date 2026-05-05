@@ -54,8 +54,8 @@
                   : '';
               $editUrl   = './auth/provider/edit/' . $p['id'];
               $deleteUrl = './auth/provider/delete/' . $p['id'];
-              $editLink = '<a href="'.ui_attr($editUrl).'" class="btn btn-sm btn-outline-primary me-2"><i class="ti ti-pencil me-1"></i>'.ui_text(__('ui.auth_providers.edit', [], null, 'Edit')).'</a>';
-              $deleteLink = '<form method="post" action="'.ui_attr($deleteUrl).'" class="d-inline m-0" onsubmit="return confirm(\''.ui_attr(__('ui.auth_providers.confirm_delete', [], null, 'Delete this provider?')).'\')"><button type="submit" class="btn btn-sm btn-outline-danger"><i class="ti ti-trash me-1"></i>'.ui_text(__('ui.auth_providers.delete', [], null, 'Delete')).'</button></form>';
+              $editLink = '<a href="'.ui_attr($editUrl).'" class="btn btn-sm btn-outline-primary me-2"><i class="bi bi-pencil me-1"></i>'.ui_text(__('ui.auth_providers.edit', [], null, 'Edit')).'</a>';
+              $deleteLink = '<form method="post" action="'.ui_attr($deleteUrl).'" class="d-inline m-0" onsubmit="return confirm(\''.ui_attr(__('ui.auth_providers.confirm_delete', [], null, 'Delete this provider?')).'\')"><button type="submit" class="btn btn-sm btn-outline-danger"><i class="bi bi-trash me-1"></i>'.ui_text(__('ui.auth_providers.delete', [], null, 'Delete')).'</button></form>';
 
               $rows[] = [
                   ['value' => '<span class="badge bg-primary text-white text-uppercase">'.ui_text($p['flavor']).'</span>', 'html' => true],

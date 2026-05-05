@@ -18,7 +18,7 @@
       </div>
       <div class="col-md-auto">
         <button id="searchButton" type="button" class="btn btn-outline-primary">
-          <i class="ti ti-search me-1"></i>検索
+          <i class="bi bi-search me-1"></i>検索
         </button>
       </div>
       <div class="col-md-auto">
@@ -35,7 +35,7 @@
         <label for="archiveAll-note" class="form-label">アーカイブ理由</label>
         <input type="text" id="archiveAll-note" name="archiveNote" class="form-control" maxlength="50">
       </div>
-      <button type="submit" class="btn btn-warning"><i class="ti ti-archive me-1"></i>一括アーカイブ</button>
+      <button type="submit" class="btn btn-warning"><i class="bi bi-archive me-1"></i>一括アーカイブ</button>
     </div>
   </div>
 

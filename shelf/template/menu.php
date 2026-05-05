@@ -13,7 +13,7 @@
 <!-- ── 単一作成（最も多いユースケース → 上に配置） ───────────────────── -->
 <div class="card mb-3">
   <div class="card-header">
-    <h3 class="card-title"><i class="ti ti-plus me-1"></i>単一作成</h3>
+    <h3 class="card-title"><i class="bi bi-plus me-1"></i>単一作成</h3>
     <div class="card-options text-secondary small">よく使う形式をワンクリックで入力できます</div>
   </div>
   <div class="card-body">
@@ -47,7 +47,7 @@
       </div>
       <div class="col-md-2">
         <button class="btn btn-primary btn-lg w-100" id="submitSingleButton">
-          <i class="ti ti-printer me-1"></i>ラベル作成
+          <i class="bi bi-printer me-1"></i>ラベル作成
         </button>
       </div>
     </div>
@@ -57,7 +57,7 @@
 <!-- ── 一括作成 ─────────────────────────────────────────────────────────── -->
 <div class="card mb-3">
   <div class="card-header">
-    <h3 class="card-title"><i class="ti ti-list me-1"></i>一括作成</h3>
+    <h3 class="card-title"><i class="bi bi-list me-1"></i>一括作成</h3>
   </div>
   <div class="card-body">
     <p class="text-secondary">
@@ -110,7 +110,7 @@
       <div class="col-md-3 offset-md-2">
         <input type="hidden" id="pageNumber" value="1">
         <button class="btn btn-primary w-100" id="submitMultiButton">
-          <i class="ti ti-list me-1"></i>ラベルリスト作成
+          <i class="bi bi-list me-1"></i>ラベルリスト作成
         </button>
       </div>
     </div>

@@ -11,7 +11,7 @@
 </ol>
 
 <div class="alert alert-info mb-3" role="note">
-  <i class="ti ti-info-circle me-2"></i>
+  <i class="bi bi-info-circle me-2"></i>
   <?php echo $lang === 'ja'
     ? 'フィーチャーフラグを使用すると、機能のON/OFFをコードの変更なしに制御できます。モバイルアプリ連携や外部サービス連携の切り替えにも使用されます。'
     : 'Feature flags allow you to control feature availability without code changes. Also used for mobile and external service integration toggles.'; ?>
@@ -24,7 +24,7 @@
         <div class="col-md-5">
           <label for="ff-search" class="form-label"><?php echo $lang === 'ja' ? 'キーで検索' : 'Search by key'; ?></label>
           <div class="input-group">
-            <span class="input-group-text"><i class="ti ti-search"></i></span>
+            <span class="input-group-text"><i class="bi bi-search"></i></span>
             <input id="ff-search" type="search" x-model="search" class="form-control" placeholder="<?php echo $lang === 'ja' ? 'キーで検索...' : 'Search by key...'; ?>">
           </div>
         </div>
@@ -43,7 +43,7 @@
         </div>
         <div class="col text-end">
           <button @click="showAdd = true" type="button" class="btn btn-primary">
-            <i class="ti ti-plus me-1"></i><?php echo $lang === 'ja' ? '新規フラグを追加' : 'Add Flag'; ?>
+            <i class="bi bi-plus me-1"></i><?php echo $lang === 'ja' ? '新規フラグを追加' : 'Add Flag'; ?>
           </button>
         </div>
       </div>
@@ -65,7 +65,7 @@
         <tbody>
           <?php if(empty($flags)): ?>
             <tr><td colspan="5" class="text-center text-secondary py-5">
-              <i class="ti ti-flag-off" style="font-size: 2rem;"></i>
+              <i class="bi bi-flag-off" style="font-size: 2rem;"></i>
               <p class="mt-2 mb-0"><?php echo $lang === 'ja' ? 'フィーチャーフラグが設定されていません' : 'No feature flags configured'; ?></p>
             </td></tr>
           <?php else: foreach($flags as $flag): ?>
@@ -92,7 +92,7 @@
                       class="d-inline m-0"
                       onsubmit="return confirm('<?php echo $lang === 'ja' ? '削除してよろしいですか？' : 'Are you sure?'; ?>')">
                   <input type="hidden" name="csrftoken" value="<?php echo htmlspecialchars($csrf, ENT_QUOTES, 'UTF-8'); ?>">
-                  <button type="submit" class="btn btn-sm btn-outline-danger"><i class="ti ti-trash me-1"></i><?php echo $lang === 'ja' ? '削除' : 'Delete'; ?></button>
+                  <button type="submit" class="btn btn-sm btn-outline-danger"><i class="bi bi-trash me-1"></i><?php echo $lang === 'ja' ? '削除' : 'Delete'; ?></button>
                 </form>
               </td>
             </tr>
@@ -130,7 +130,7 @@
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-link link-secondary" @click="showAdd = false"><?php echo $lang === 'ja' ? 'キャンセル' : 'Cancel'; ?></button>
-            <button type="submit" class="btn btn-primary"><i class="ti ti-plus me-1"></i><?php echo $lang === 'ja' ? '作成する' : 'Create'; ?></button>
+            <button type="submit" class="btn btn-primary"><i class="bi bi-plus me-1"></i><?php echo $lang === 'ja' ? '作成する' : 'Create'; ?></button>
           </div>
         </form>
       </div>

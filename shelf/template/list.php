@@ -24,7 +24,7 @@
         </div>
         <div class="col-auto">
           <button type="button" class="btn btn-primary" id="submitMultiButton">
-            <i class="ti ti-arrow-right me-1"></i>移動
+            <i class="bi bi-arrow-right me-1"></i>移動
           </button>
         </div>
       </div>
@@ -58,7 +58,7 @@
       <?php } ?>
       <input type="hidden" name="amount" value="<?php echo count($v->shelves); ?>">
       <button type="submit" class="btn btn-primary">
-        <i class="ti ti-printer me-1"></i>PDF出力
+        <i class="bi bi-printer me-1"></i>PDF出力
       </button>
     </div>
   </div>

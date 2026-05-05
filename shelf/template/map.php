@@ -17,7 +17,7 @@
                 </div>
                 <div>
                     <a href="./shelf/simple/" class="btn btn-light d-inline-flex align-items-center gap-2">
-                        <i class="ti ti-plus" aria-hidden="true"></i>
+                        <i class="bi bi-plus" aria-hidden="true"></i>
                         Configure Shelves
                     </a>
                 </div>

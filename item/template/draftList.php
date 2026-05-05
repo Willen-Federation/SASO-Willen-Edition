@@ -44,7 +44,7 @@
     'body' => function () use ($drafts, $lang, $statusLabels, $statusBadgeClasses) {
       if (empty($drafts)): ?>
         <div class="d-flex flex-column align-items-center gap-3 py-5 text-muted">
-          <i class="ti ti-photo-off" style="font-size:3rem;" aria-hidden="true"></i>
+          <i class="bi bi-image-off" style="font-size:3rem;" aria-hidden="true"></i>
           <p class="small mb-0"><?php echo $lang === 'ja' ? '保留中のドラフトはありません。' : 'No pending drafts.'; ?></p>
         </div>
       <?php else: ?>
@@ -85,7 +85,7 @@
                   <?php else: ?>
                     <div class="d-flex align-items-center justify-content-center rounded border bg-light"
                          style="width:3.5rem;height:3.5rem;">
-                      <i class="ti ti-photo text-muted" aria-hidden="true"></i>
+                      <i class="bi bi-image text-muted" aria-hidden="true"></i>
                     </div>
                   <?php endif; ?>
                 </td>
@@ -108,13 +108,13 @@
                     <a href="./item/draftConfirm/id/<?php echo $draftId; ?>/"
                        class="btn btn-sm btn-outline-primary d-inline-flex align-items-center gap-1">
                       <?php echo $lang === 'ja' ? '確認する' : 'Review'; ?>
-                      <i class="ti ti-chevron-right" aria-hidden="true"></i>
+                      <i class="bi bi-chevron-right" aria-hidden="true"></i>
                     </a>
                   <?php elseif ($status === 'failed'): ?>
                     <form method="post" action="./item/draftRetry/id/<?php echo $draftId; ?>/" class="d-inline">
                       <input type="hidden" name="id" value="<?php echo $draftId; ?>">
                       <button type="submit" class="btn btn-sm btn-outline-warning">
-                        <i class="ti ti-refresh me-1" aria-hidden="true"></i><?php echo $lang === 'ja' ? '再試行' : 'Retry'; ?>
+                        <i class="bi bi-arrow-clockwise me-1" aria-hidden="true"></i><?php echo $lang === 'ja' ? '再試行' : 'Retry'; ?>
                       </button>
                     </form>
                   <?php else: ?>

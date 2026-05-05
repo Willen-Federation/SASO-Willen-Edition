@@ -85,7 +85,7 @@ $wrapperId = 'saso-scanner-wrapper-' . $uniqueId;
     class="btn btn-secondary d-inline-flex align-items-center gap-2 <?php echo htmlspecialchars($buttonClass, ENT_QUOTES, 'UTF-8'); ?>"
     aria-label="<?php echo ui_attr(__('ui.scanner.open', [], null, 'Scan Barcode / QR')); ?>"
   >
-    <i class="ti ti-qrcode" aria-hidden="true"></i>
+    <i class="bi bi-qr-code" aria-hidden="true"></i>
     <span><?php echo ui_text($buttonLabel); ?></span>
   </button>
 

@@ -10,12 +10,12 @@
 
 <div class="card">
   <div class="card-header">
-    <h3 class="card-title"><i class="ti ti-list-tree me-2 text-secondary"></i>分類ツリー</h3>
+    <h3 class="card-title"><i class="bi bi-diagram-3 me-2 text-secondary"></i>分類ツリー</h3>
   </div>
   <div class="card-body">
     <div id="appendingParentInputs"></div>
     <button type="button" id="appendingParent" class="btn btn-outline-secondary btn-sm mb-3">
-      <i class="ti ti-plus me-1"></i>ルート分類を追加
+      <i class="bi bi-plus me-1"></i>ルート分類を追加
     </button>
     <div id="categoriesRoot"></div>
   </div>

@@ -33,7 +33,7 @@
         色の数とサイズの数をかけて100を超えてはいけません。<br>
         色数 × サイズ数 ≦ 100
       </div>
-      <button type="submit" class="btn btn-primary"><i class="ti ti-plus me-1"></i>追加</button>
+      <button type="submit" class="btn btn-primary"><i class="bi bi-plus me-1"></i>追加</button>
     </form>
   </div>
 </div>

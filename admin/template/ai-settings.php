@@ -23,7 +23,7 @@
 
 <?php if (!$authorized): ?>
   <div class="alert alert-danger" role="note">
-    <i class="ti ti-shield-x me-2"></i>
+    <i class="bi bi-shield-x me-2"></i>
     <?php echo $lang === 'ja' ? 'このページへのアクセス権限がありません。' : 'You do not have permission to access this page.'; ?>
   </div>
   <?php return; ?>
@@ -31,7 +31,7 @@
 
 <?php if ($saved): ?>
   <div class="alert alert-success" role="status">
-    <i class="ti ti-circle-check me-2"></i>
+    <i class="bi bi-check-circle me-2"></i>
     <?php echo $lang === 'ja' ? '設定を保存しました。' : 'Settings saved successfully.'; ?>
   </div>
 <?php endif; ?>
@@ -97,7 +97,7 @@
               <input type="hidden" :name="'<?php echo $list; ?>[' + idx + ']'" :value="key">
               <span class="input-group-text font-monospace flex-grow-1 text-start" x-text="key.length > 4 ? '•'.repeat(Math.max(0, key.length - 4)) + key.slice(-4) : key"></span>
               <button type="button" class="btn btn-outline-danger" @click="removeKey('<?php echo $stateVar; ?>', idx)" aria-label="<?php echo $lang === 'ja' ? 'キーを削除' : 'Remove key'; ?>">
-                <i class="ti ti-trash"></i>
+                <i class="bi bi-trash"></i>
               </button>
             </div>
           </template>
@@ -106,7 +106,7 @@
                    @keydown.enter.prevent="addKey('<?php echo $stateVar; ?>', <?php echo $newVar; ?>); <?php echo $newVar; ?> = ''">
             <button type="button" class="btn btn-primary"
                     @click="addKey('<?php echo $stateVar; ?>', <?php echo $newVar; ?>); <?php echo $newVar; ?> = ''">
-              <i class="ti ti-plus me-1"></i><?php echo $lang === 'ja' ? '追加' : 'Add'; ?>
+              <i class="bi bi-plus me-1"></i><?php echo $lang === 'ja' ? '追加' : 'Add'; ?>
             </button>
           </div>
         </div>
@@ -157,7 +157,7 @@
 
   <div class="d-flex justify-content-end">
     <button type="submit" class="btn btn-primary">
-      <i class="ti ti-device-floppy me-1"></i><?php echo $lang === 'ja' ? '設定を保存' : 'Save Settings'; ?>
+      <i class="bi bi-floppy me-1"></i><?php echo $lang === 'ja' ? '設定を保存' : 'Save Settings'; ?>
     </button>
   </div>
 

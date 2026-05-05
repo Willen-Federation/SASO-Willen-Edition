@@ -39,7 +39,7 @@
 ?>
 
 <div class="alert alert-success d-flex align-items-start gap-2 mb-4" role="note">
-  <i class="ti ti-shield-check fs-4 flex-shrink-0" aria-hidden="true"></i>
+  <i class="bi bi-shield-check fs-4 flex-shrink-0" aria-hidden="true"></i>
   <div>
     <strong><?php echo $lang === 'ja' ? 'バーコードファースト方式' : 'Barcode-First Workflow'; ?></strong><br>
     <span class="small">
@@ -97,7 +97,7 @@
       <div class="card h-100">
         <div class="card-header">
           <h3 class="card-title">
-            <i class="ti ti-layout-grid me-2" aria-hidden="true"></i>
+            <i class="bi bi-grid-3x3-gap me-2" aria-hidden="true"></i>
             <?php echo $lang === 'ja' ? 'シートレイアウト選択' : 'Select Sheet Layout'; ?>
           </h3>
         </div>
@@ -195,7 +195,7 @@
       <div class="card h-100">
         <div class="card-header">
           <h3 class="card-title">
-            <i class="ti ti-printer me-2" aria-hidden="true"></i>
+            <i class="bi bi-printer me-2" aria-hidden="true"></i>
             <?php echo $lang === 'ja' ? '印刷設定' : 'Print Settings'; ?>
           </h3>
         </div>
@@ -242,13 +242,13 @@
             <input type="hidden" name="startNo"  :value="startNo">
             <input type="hidden" name="count"    :value="count">
             <button type="submit" class="btn btn-primary w-100" :disabled="!selectedLayout">
-              <i class="ti ti-printer me-2" aria-hidden="true"></i>
+              <i class="bi bi-printer me-2" aria-hidden="true"></i>
               <?php echo $lang === 'ja' ? 'バーコードシートを印刷' : 'Print Barcode Sheet'; ?>
             </button>
           </form>
 
           <a href="./item/fromBarcode/" class="btn btn-outline-secondary w-100">
-            <i class="ti ti-barcode me-2" aria-hidden="true"></i>
+            <i class="bi bi-barcode me-2" aria-hidden="true"></i>
             <?php echo $lang === 'ja' ? 'バーコードから商品登録 →' : 'Register from Barcode →'; ?>
           </a>
 
@@ -256,7 +256,7 @@
           <div x-show="selectedLayout && selectedLayout.id !== 'custom'" x-transition>
             <hr class="my-2">
             <p class="small text-muted mb-2">
-              <i class="ti ti-device-floppy me-1" aria-hidden="true"></i>
+              <i class="bi bi-floppy me-1" aria-hidden="true"></i>
               <?php echo $lang === 'ja' ? 'このレイアウトをラベル寸法に登録' : 'Save layout as label size'; ?>
             </p>
             <form method="post" action="./label/add/">
@@ -280,7 +280,7 @@
               <input type="hidden" name="intervalRow"    value="0">
               <button type="submit" class="btn btn-outline-success btn-sm w-100"
                       :disabled="!selectedLayout || !saveLabelName">
-                <i class="ti ti-plus me-1" aria-hidden="true"></i>
+                <i class="bi bi-plus me-1" aria-hidden="true"></i>
                 <?php echo $lang === 'ja' ? 'ラベル寸法として保存' : 'Save as label size'; ?>
               </button>
             </form>

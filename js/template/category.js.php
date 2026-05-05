@@ -43,7 +43,7 @@ export default class Category {
                 editButton.setAttribute('id', 'editButton');
                 editButton.setAttribute('title', data.selected);
                 let editMark = document.createElement('i');
-                editMark.setAttribute('class', 'ti ti-pencil');
+                editMark.setAttribute('class', 'bi bi-pencil');
                 editMark.setAttribute('title', data.selected);
                 editButton.appendChild(editMark);
                 selected.appendChild(editButton);

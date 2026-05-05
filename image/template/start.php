@@ -43,7 +43,7 @@
         <div class="form-hint">画像形式は jpeg, png, gif のみ。</div>
       </div>
       <button type="submit" class="btn btn-primary">
-        <i class="ti ti-upload me-1"></i>アップロード
+        <i class="bi bi-upload me-1"></i>アップロード
       </button>
     </form>
   </div>

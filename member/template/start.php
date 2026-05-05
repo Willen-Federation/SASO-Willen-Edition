@@ -7,7 +7,7 @@
     'href'    => './member/add/',
     'type'    => 'link',
     'variant' => 'primary',
-    'icon'    => '<i class="ti ti-plus me-1"></i>',
+    'icon'    => '<i class="bi bi-plus me-1"></i>',
   ]); ?>
 </div>
 
@@ -49,14 +49,14 @@
               <a href="./member/edit/?id=<?php echo urlencode($m->id); ?>"
                  class="btn btn-sm btn-outline-secondary"
                  title="<?php echo ui_attr(__('ui.member.edit', [], null, 'Edit')); ?>">
-                <i class="ti ti-pencil me-1" aria-hidden="true"></i><?php echo ui_text(__('ui.member.edit', [], null, 'Edit')); ?>
+                <i class="bi bi-pencil me-1" aria-hidden="true"></i><?php echo ui_text(__('ui.member.edit', [], null, 'Edit')); ?>
               </a>
               <form method="post" action="./member/delete/" class="d-inline m-0"
                     onsubmit="return confirm('<?php echo ui_attr(__('ui.member.confirm_delete', [], null, 'Delete this user?')); ?>');">
                 <input type="hidden" name="id" value="<?php echo ui_attr($m->id); ?>">
                 <button type="submit" class="btn btn-sm btn-outline-danger"
                         title="<?php echo ui_attr(__('ui.member.delete', [], null, 'Delete')); ?>">
-                  <i class="ti ti-trash me-1" aria-hidden="true"></i><?php echo ui_text(__('ui.member.delete', [], null, 'Delete')); ?>
+                  <i class="bi bi-trash me-1" aria-hidden="true"></i><?php echo ui_text(__('ui.member.delete', [], null, 'Delete')); ?>
                 </button>
               </form>
             </div>

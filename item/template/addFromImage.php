@@ -24,7 +24,7 @@
 
 <?php if (!$aiProviderConfigured): ?>
   <div class="alert alert-warning d-flex align-items-center gap-2 mb-3" role="alert">
-    <i class="ti ti-alert-triangle fs-4 flex-shrink-0" aria-hidden="true"></i>
+    <i class="bi bi-exclamation-triangle fs-4 flex-shrink-0" aria-hidden="true"></i>
     <div>
       <?php if ($lang === 'ja'): ?>
         <strong>AIプロバイダーが設定されていません。</strong>
@@ -74,7 +74,7 @@
         >
           <template x-if="!previewUrl">
             <div class="d-flex flex-column align-items-center gap-3">
-              <i class="ti ti-photo text-muted" style="font-size:3rem;" aria-hidden="true"></i>
+              <i class="bi bi-image text-muted" style="font-size:3rem;" aria-hidden="true"></i>
               <div>
                 <label for="image-upload" class="text-primary fw-semibold" style="cursor:pointer;">
                   <?php echo $lang === 'ja' ? 'ファイルを選択' : 'Choose a file'; ?>

@@ -18,7 +18,7 @@
           </div>
         <?php } ?>
       </div>
-      <button type="submit" class="btn btn-primary mt-3"><i class="ti ti-check me-1"></i>変更</button>
+      <button type="submit" class="btn btn-primary mt-3"><i class="bi bi-check me-1"></i>変更</button>
     </form>
   </div>
 </div>

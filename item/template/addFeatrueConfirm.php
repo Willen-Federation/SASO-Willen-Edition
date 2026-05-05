@@ -48,7 +48,7 @@
                value="<?php echo htmlspecialchars($v->inputSizes, ENT_QUOTES, 'UTF-8'); ?>">
         <div class="form-hint">追加するものが複数ある場合は半角カンマ ( , ) で区切って下さい。</div>
       </div>
-      <button type="submit" class="btn btn-primary"><i class="ti ti-plus me-1"></i>追加</button>
+      <button type="submit" class="btn btn-primary"><i class="bi bi-plus me-1"></i>追加</button>
     </form>
   </div>
 </div>

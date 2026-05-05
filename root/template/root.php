@@ -23,18 +23,18 @@
       </button>
       <h1 class="navbar-brand navbar-brand-autodark d-none-navbar-horizontal pe-0 pe-md-3 mb-0">
         <a href="./" class="text-white text-decoration-none">
-          <i class="ti ti-packages me-2"></i>在庫管理 SASO<?php echo htmlspecialchars($v->version, ENT_QUOTES, 'UTF-8'); ?>
+          <i class="bi bi-box2 me-2"></i>在庫管理 SASO<?php echo htmlspecialchars($v->version, ENT_QUOTES, 'UTF-8'); ?>
         </a>
       </h1>
       <?php if($v->authed) { ?>
         <div class="navbar-nav flex-row order-md-last">
           <div class="nav-item d-none d-md-flex me-3 align-items-center text-white-50">
-            <i class="ti ti-user me-2"></i>
+            <i class="bi bi-person me-2"></i>
             <span><?php echo htmlspecialchars($_SESSION['userName'] ?? '', ENT_QUOTES, 'UTF-8'); ?>様</span>
           </div>
           <div class="nav-item">
             <a href="./start/logout/" class="btn btn-sm btn-outline-light">
-              <i class="ti ti-logout me-1"></i>ログアウト
+              <i class="bi bi-box-arrow-right me-1"></i>ログアウト
             </a>
           </div>
         </div>
@@ -42,31 +42,31 @@
           <ul class="navbar-nav">
             <li class="nav-item">
               <a class="nav-link" href="./">
-                <span class="nav-link-icon d-md-none d-lg-inline-block"><i class="ti ti-home"></i></span>
+                <span class="nav-link-icon d-md-none d-lg-inline-block"><i class="bi bi-house"></i></span>
                 <span class="nav-link-title">ホーム</span>
               </a>
             </li>
             <li class="nav-item">
               <a class="nav-link" href="./item/add/">
-                <span class="nav-link-icon d-md-none d-lg-inline-block"><i class="ti ti-plus"></i></span>
+                <span class="nav-link-icon d-md-none d-lg-inline-block"><i class="bi bi-plus"></i></span>
                 <span class="nav-link-title">商品登録</span>
               </a>
             </li>
             <li class="nav-item">
               <a class="nav-link" href="./shelf/start/">
-                <span class="nav-link-icon d-md-none d-lg-inline-block"><i class="ti ti-stack-2"></i></span>
+                <span class="nav-link-icon d-md-none d-lg-inline-block"><i class="bi bi-stack"></i></span>
                 <span class="nav-link-title">棚番作成</span>
               </a>
             </li>
             <li class="nav-item">
               <a class="nav-link" href="./label/features/">
-                <span class="nav-link-icon d-md-none d-lg-inline-block"><i class="ti ti-printer"></i></span>
+                <span class="nav-link-icon d-md-none d-lg-inline-block"><i class="bi bi-printer"></i></span>
                 <span class="nav-link-title">商品ラベル印刷</span>
               </a>
             </li>
             <li class="nav-item dropdown">
               <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" role="button" aria-expanded="false">
-                <span class="nav-link-icon d-md-none d-lg-inline-block"><i class="ti ti-archive"></i></span>
+                <span class="nav-link-icon d-md-none d-lg-inline-block"><i class="bi bi-archive"></i></span>
                 <span class="nav-link-title">アーカイブ</span>
               </a>
               <div class="dropdown-menu">
@@ -76,7 +76,7 @@
             </li>
             <li class="nav-item dropdown">
               <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" role="button" aria-expanded="false">
-                <span class="nav-link-icon d-md-none d-lg-inline-block"><i class="ti ti-settings"></i></span>
+                <span class="nav-link-icon d-md-none d-lg-inline-block"><i class="bi bi-gear"></i></span>
                 <span class="nav-link-title">管理</span>
               </a>
               <div class="dropdown-menu">
@@ -84,10 +84,10 @@
                 <a class="dropdown-item" href="./category/start/">分類管理</a>
                 <div class="dropdown-divider"></div>
                 <a class="dropdown-item" href="./admin/aiSettings/">
-                  <i class="ti ti-robot me-1"></i>AI設定
+                  <i class="bi bi-cpu me-1"></i>AI設定
                 </a>
                 <a class="dropdown-item" href="./admin/feature-flags/">
-                  <i class="ti ti-flag me-1"></i>機能フラグ
+                  <i class="bi bi-flag me-1"></i>機能フラグ
                 </a>
                 <div class="dropdown-divider"></div>
                 <a class="dropdown-item" href="./auth/providerNew/">認証プロバイダーの追加</a>

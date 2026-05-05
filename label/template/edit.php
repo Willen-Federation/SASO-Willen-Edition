@@ -29,7 +29,7 @@
           </p>
           <p id="labelSizeDeleteButton" class="d-none">
             <button type="button" id="labelSizeDelete" class="btn btn-outline-danger btn-sm">
-              <i class="ti ti-trash me-1"></i>削除
+              <i class="bi bi-trash me-1"></i>削除
             </button>
           </p>
         </div>
@@ -73,7 +73,7 @@
             <?php endforeach; ?>
 
             <button id="newLabelSizeSubmit" type="submit" class="btn btn-primary">
-              <i class="ti ti-check me-1"></i>登録
+              <i class="bi bi-check me-1"></i>登録
             </button>
           </form>
         </div>

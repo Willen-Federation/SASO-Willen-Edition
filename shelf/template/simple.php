@@ -40,12 +40,12 @@
       <div class="card h-100">
         <div class="card-header">
           <h3 class="card-title">
-            <i class="ti ti-grid-dots me-2" aria-hidden="true"></i>
+            <i class="bi bi-grids me-2" aria-hidden="true"></i>
             <?php echo $lang === 'ja' ? '棚番・エリアコード入力' : 'Shelf / Area Code Entry'; ?>
           </h3>
           <div class="card-options">
             <button type="button" @click="addRow()" class="btn btn-primary btn-sm">
-              <i class="ti ti-plus me-1" aria-hidden="true"></i>
+              <i class="bi bi-plus me-1" aria-hidden="true"></i>
               <?php echo $lang === 'ja' ? '行を追加' : 'Add Row'; ?>
             </button>
           </div>
@@ -115,7 +115,7 @@
                       <td>
                         <button type="button" @click="removeRow(i)" x-show="rows.length > 1"
                           class="btn btn-ghost-danger btn-sm" :aria-label="'行' + (i+1) + 'を削除'">
-                          <i class="ti ti-x" aria-hidden="true"></i>
+                          <i class="bi bi-x" aria-hidden="true"></i>
                         </button>
                       </td>
                     </tr>
@@ -135,11 +135,11 @@
 
             <div class="d-flex gap-3 mt-3">
               <button type="submit" class="btn btn-primary">
-                <i class="ti ti-check me-2" aria-hidden="true"></i>
+                <i class="bi bi-check me-2" aria-hidden="true"></i>
                 <?php echo $lang === 'ja' ? '保存する' : 'Save'; ?>
               </button>
               <a href="./shelf/label/" class="btn btn-outline-secondary">
-                <i class="ti ti-printer me-2" aria-hidden="true"></i>
+                <i class="bi bi-printer me-2" aria-hidden="true"></i>
                 <?php echo $lang === 'ja' ? '棚番シール印刷' : 'Print Shelf Labels'; ?>
               </a>
             </div>
@@ -154,7 +154,7 @@
       <div class="card h-100">
         <div class="card-header">
           <h3 class="card-title">
-            <i class="ti ti-map me-2" aria-hidden="true"></i>
+            <i class="bi bi-map me-2" aria-hidden="true"></i>
             <?php echo $lang === 'ja' ? 'フロアマップ（任意）' : 'Floor Map (Optional)'; ?>
           </h3>
           <div class="card-options">
@@ -199,7 +199,7 @@
                 :style="'left:' + pin.x + '%;top:' + pin.y + '%;transform:translate(-50%,-100%);pointer-events:none;'"
               >
                 <span class="badge bg-primary fw-bold mb-1" x-text="rows[pin.row]?.shelfNo || (pin.row+1)"></span>
-                <i class="ti ti-map-pin text-primary fs-4" aria-hidden="true"></i>
+                <i class="bi bi-geo-alt text-primary fs-4" aria-hidden="true"></i>
               </div>
             </template>
           </div>
@@ -208,18 +208,18 @@
             <?php echo $lang === 'ja' ? '画像をアップロードするとここに表示されます' : 'Upload an image to display it here'; ?>
           </p>
           <p x-show="mapPreview && selectedRow === null" class="mt-3 small text-warning">
-            <i class="ti ti-alert-triangle me-1" aria-hidden="true"></i>
+            <i class="bi bi-exclamation-triangle me-1" aria-hidden="true"></i>
             <?php echo $lang === 'ja' ? '左の表で行（番号）をクリックしてからマップを操作してください' : 'Click a row number on the left, then click the map'; ?>
           </p>
           <p x-show="selectedRow !== null" class="mt-3 small text-success">
-            <i class="ti ti-check me-1" aria-hidden="true"></i>
+            <i class="bi bi-check me-1" aria-hidden="true"></i>
             <?php echo $lang === 'ja' ? '選択中：' : 'Selected row: '; ?><span x-text="selectedRow !== null ? rows[selectedRow]?.shelfNo || (selectedRow+1) : ''"></span>
           </p>
         </div>
 
         <div class="card-body" x-show="!mapMode">
           <div class="d-flex flex-column align-items-center gap-3 py-5 text-muted">
-            <i class="ti ti-map-2 fs-1" aria-hidden="true"></i>
+            <i class="bi bi-map-2 fs-1" aria-hidden="true"></i>
             <p class="small mb-0"><?php echo $lang === 'ja' ? 'マップモードを有効にするとフロアマップ上に棚の位置をピンで設定できます' : 'Enable map mode to pin shelf positions on a floor map'; ?></p>
           </div>
         </div>

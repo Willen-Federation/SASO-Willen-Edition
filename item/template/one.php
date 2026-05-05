@@ -22,10 +22,10 @@
 <?php if(!$v->archive->archive) { ?>
   <div class="btn-list mb-3">
     <a href="./item/edit/item/<?php echo (int)$v->item->id; ?>" class="btn btn-outline-primary">
-      <i class="ti ti-edit me-1"></i>商品情報編集
+      <i class="bi bi-pencil-square me-1"></i>商品情報編集
     </a>
     <a href="./item/addFeature/item/<?php echo (int)$v->item->id; ?>" class="btn btn-outline-primary">
-      <i class="ti ti-plus me-1"></i>色・サイズ追加
+      <i class="bi bi-plus me-1"></i>色・サイズ追加
     </a>
   </div>
 <?php } else { ?>
@@ -39,7 +39,7 @@
       </dl>
       <form method="post" action="<?php echo './item/reproduction/item/' . (int)$v->item->id; ?>">
         <input type="hidden" name="isPost" value="true">
-        <button type="submit" class="btn btn-warning"><i class="ti ti-refresh me-1"></i>復刻</button>
+        <button type="submit" class="btn btn-warning"><i class="bi bi-arrow-clockwise me-1"></i>復刻</button>
       </form>
     </div>
   </div>

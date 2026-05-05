@@ -44,7 +44,7 @@
       <input type="hidden" name="paperConfirm" value="<?php echo $v->item->paper?'1':''; ?>">
       <input type="hidden" name="paperNoteConfirm" value="<?php echo htmlspecialchars($v->item->paperNote, ENT_QUOTES, 'UTF-8'); ?>">
 
-      <button type="submit" class="btn btn-primary mb-3"><i class="ti ti-plus me-1"></i>登録</button>
+      <button type="submit" class="btn btn-primary mb-3"><i class="bi bi-plus me-1"></i>登録</button>
 
       <?php if(!$v->validFeaturesAmount) { ?>
         <div class="alert alert-warning" role="note">
@@ -127,7 +127,7 @@
         </div>
       </fieldset>
 
-      <button type="submit" class="btn btn-primary"><i class="ti ti-plus me-1"></i>登録</button>
+      <button type="submit" class="btn btn-primary"><i class="bi bi-plus me-1"></i>登録</button>
     </form>
   </div>
 </div>

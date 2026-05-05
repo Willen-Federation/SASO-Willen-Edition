@@ -5,7 +5,7 @@
     <h3 class="card-title">分類変更</h3>
     <p>
       <button type="button" class="btn btn-outline-primary" id="changeCategotyOfAnItem">
-        <i class="ti ti-list-tree me-1"></i>分類一覧表示
+        <i class="bi bi-diagram-3 me-1"></i>分類一覧表示
       </button>
     </p>
     <div class="d-none" id="category">
@@ -18,7 +18,7 @@
       <p>もとの分類：<span class="categoryPath text-secondary"><?php echo htmlspecialchars((string)$v->itemVar->categoryId, ENT_QUOTES, 'UTF-8'); ?></span></p>
       <form method="post" action="./item/changeCategory/item/<?php echo (int)$v->item->id; ?>">
         <input type="hidden" name="categoryId" id="categoryId" value="<?php echo htmlspecialchars((string)$v->itemVar->categoryId, ENT_QUOTES, 'UTF-8'); ?>">
-        <button type="submit" class="btn btn-primary"><i class="ti ti-check me-1"></i>変更</button>
+        <button type="submit" class="btn btn-primary"><i class="bi bi-check me-1"></i>変更</button>
       </form>
     </div>
   </div>

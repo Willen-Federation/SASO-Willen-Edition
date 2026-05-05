@@ -49,14 +49,14 @@
             <?php else: ?>
               <div class="d-flex align-items-center justify-content-center rounded border bg-light"
                    style="width:100%;max-width:20rem;height:16rem;">
-                <i class="ti ti-photo text-muted" style="font-size:4rem;" aria-hidden="true"></i>
+                <i class="bi bi-image text-muted" style="font-size:4rem;" aria-hidden="true"></i>
               </div>
             <?php endif; ?>
 
             <?php if (!empty($aiResult)): ?>
               <div class="alert alert-info w-100" role="note" style="max-width:20rem;">
                 <div class="d-flex align-items-center gap-2 mb-1">
-                  <i class="ti ti-bulb fs-5" aria-hidden="true"></i>
+                  <i class="bi bi-lightbulb fs-5" aria-hidden="true"></i>
                   <span class="fw-semibold"><?php echo $lang === 'ja' ? 'AI解析済み' : 'AI Analysed'; ?></span>
                 </div>
                 <p class="small mb-0">

@@ -14,7 +14,7 @@
         </div>
         <div class="form-hint">9桁までの数</div>
       </div>
-      <button type="submit" class="btn btn-primary"><i class="ti ti-check me-1"></i>変更</button>
+      <button type="submit" class="btn btn-primary"><i class="bi bi-check me-1"></i>変更</button>
     </form>
   </div>
 </div>

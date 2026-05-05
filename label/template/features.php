@@ -13,7 +13,7 @@
       <form method="post" action="./label/deleteAll/" class="m-0">
         <input type="hidden" name="deleteAll" value="deleteAll">
         <button id="deleteAllItemLabels" type="button" class="btn btn-outline-warning btn-sm">
-          <i class="ti ti-trash me-1"></i>商品ラベル全削除
+          <i class="bi bi-trash me-1"></i>商品ラベル全削除
         </button>
       </form>
     </div>
@@ -54,7 +54,7 @@
         <?php ($v->inside)('label', 'list'); ?>
       </ul>
       <button type="submit" class="btn btn-primary">
-        <i class="ti ti-printer me-1"></i>PDF出力
+        <i class="bi bi-printer me-1"></i>PDF出力
       </button>
     </div>
   </div>

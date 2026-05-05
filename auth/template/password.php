@@ -13,12 +13,12 @@
 
         <?php if ($v->changed) { ?>
           <div class="alert alert-success" role="alert">
-            <i class="ti ti-circle-check me-2"></i>パスワードが変更されました。
+            <i class="bi bi-check-circle me-2"></i>パスワードが変更されました。
           </div>
         <?php } ?>
         <?php if ($v->errorNow) { ?>
           <div class="alert alert-danger" role="alert">
-            <i class="ti ti-alert-circle me-2"></i>現在のパスワードが正しくありません。
+            <i class="bi bi-exclamation-circle me-2"></i>現在のパスワードが正しくありません。
           </div>
         <?php } ?>
 
@@ -44,7 +44,7 @@
           </div>
           <div class="form-footer">
             <button id="changePasswordSubmit" type="submit" class="btn btn-primary" disabled>
-              <i class="ti ti-key me-2"></i>パスワード変更
+              <i class="bi bi-key me-2"></i>パスワード変更
             </button>
           </div>
         </form>

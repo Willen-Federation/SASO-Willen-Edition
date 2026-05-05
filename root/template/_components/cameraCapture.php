@@ -135,7 +135,7 @@ $videoId   = 'saso-camera-preview-' . $uniqueId;
     @click="openCamera()"
     class="btn btn-secondary d-inline-flex align-items-center gap-2 <?php echo htmlspecialchars($buttonClass, ENT_QUOTES, 'UTF-8'); ?>"
   >
-    <i class="ti ti-camera" aria-hidden="true"></i>
+    <i class="bi bi-camera" aria-hidden="true"></i>
     <span><?php echo ui_text($buttonLabel); ?></span>
   </button>
 
@@ -218,7 +218,7 @@ $videoId   = 'saso-camera-preview-' . $uniqueId;
         <div x-show="!capturedDataUrl">
           <label class="d-flex flex-column align-items-center justify-content-center gap-2 rounded border border-2 p-5 text-muted"
                  style="border-style:dashed;cursor:pointer;">
-            <i class="ti ti-photo fs-2" aria-hidden="true"></i>
+            <i class="bi bi-image fs-2" aria-hidden="true"></i>
             <span class="small">
               <?php echo ui_text(__('ui.item.register.image_drop', [], null, 'Drop photo or tap to select')); ?>
             </span>

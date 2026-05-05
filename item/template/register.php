@@ -13,7 +13,7 @@
   <!-- 基本情報 -->
   <div class="card mb-3">
     <div class="card-header">
-      <h3 class="card-title"><i class="ti ti-tag me-2 text-primary"></i>基本情報</h3>
+      <h3 class="card-title"><i class="bi bi-tag me-2 text-primary"></i>基本情報</h3>
     </div>
     <div class="card-body">
       <div class="row g-3">
@@ -39,13 +39,13 @@
   <!-- 分類 -->
   <div class="card mb-3">
     <div class="card-header">
-      <h3 class="card-title"><i class="ti ti-list-tree me-2 text-secondary"></i>分類</h3>
+      <h3 class="card-title"><i class="bi bi-diagram-3 me-2 text-secondary"></i>分類</h3>
     </div>
     <div class="card-body">
       <div id="category">
         <div id="appendingParentInputs"></div>
         <button type="button" id="appendingParent" class="btn btn-outline-secondary btn-sm mb-2">
-          <i class="ti ti-plus me-1"></i>ルート分類を追加
+          <i class="bi bi-plus me-1"></i>ルート分類を追加
         </button>
         <div id="categoriesRoot" class="mt-2"></div>
         <div class="mt-2 d-flex align-items-center gap-2">
@@ -63,7 +63,7 @@
   <!-- バリエーション -->
   <div class="card mb-3">
     <div class="card-header">
-      <h3 class="card-title"><i class="ti ti-palette me-2 text-info"></i>バリエーション</h3>
+      <h3 class="card-title"><i class="bi bi-palette me-2 text-info"></i>バリエーション</h3>
     </div>
     <div class="card-body">
       <div class="row g-3">
@@ -81,7 +81,7 @@
         </div>
         <div class="col-12">
           <div class="alert alert-info py-2 mb-0" role="note">
-            <i class="ti ti-info-circle me-1"></i>
+            <i class="bi bi-info-circle me-1"></i>
             色の数 × サイズの数 &le; 100
           </div>
         </div>
@@ -92,7 +92,7 @@
   <!-- 梱包 -->
   <div class="card mb-4">
     <div class="card-header">
-      <h3 class="card-title"><i class="ti ti-package me-2 text-warning"></i>梱包</h3>
+      <h3 class="card-title"><i class="bi bi-box me-2 text-warning"></i>梱包</h3>
     </div>
     <div class="card-body">
       <div class="row g-3">
@@ -117,10 +117,10 @@
   <!-- 送信 -->
   <div class="d-flex justify-content-end gap-2">
     <a href="./" class="btn btn-outline-secondary">
-      <i class="ti ti-x me-1"></i>キャンセル
+      <i class="bi bi-x me-1"></i>キャンセル
     </a>
     <button type="submit" class="btn btn-primary">
-      <i class="ti ti-check me-1"></i>登録
+      <i class="bi bi-check me-1"></i>登録
     </button>
   </div>
 

@@ -22,10 +22,10 @@ final class PrintSheetDIContainer implements DIContainer
         $pdo = DBConnection::getPdo();
         $barcodeRepo = new PdoBarcodeRepository($pdo);
         
-        $this->ctrl = new PrintSheetController($post);
+        $this->ctrl    = new PrintSheetController($post);
         $this->usecase = new PrintSheetUsecase(
             $barcodeRepo,
-            new PrintSheetView($inside)
+            new PrintSheetView($inside),
         );
     }
 }

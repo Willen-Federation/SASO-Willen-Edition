@@ -21,6 +21,7 @@ $this->content = function ($v) {
     submitting: false,
     submitSuccess: false,
     submitError: null,
+    csrfToken: <?php echo json_encode(\saso\util\CSRFtoken::current(), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT); ?>,
 
     async onBarcodeDetected(code) {
       this.scannedCode = code;
@@ -57,8 +58,9 @@ $this->content = function ($v) {
       this.submitError  = null;
       try {
         const form = new FormData();
-        form.append('itemId',   this.item.id);
-        form.append('quantity', this.quantity);
+        form.append('itemId',    this.item.id);
+        form.append('quantity',  this.quantity);
+        form.append('csrftoken', this.csrfToken);
         const res = await fetch(this.actionEndpoint(), { method: 'POST', body: form });
         if (!res.ok) throw new Error(res.statusText);
         this.submitSuccess = true;

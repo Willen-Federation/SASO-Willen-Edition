@@ -1,7 +1,8 @@
 <?php $this->title = 'バーコード・商品検索'; ?>
 <?php $this->content = function($v) { ?>
 
-<div class="card mb-3" style="max-width: 48rem;">
+<div class="d-flex justify-content-center mb-3">
+<div class="card" style="max-width: 48rem;">
   <div class="card-header">
     <h3 class="card-title"><i class="ti ti-search me-2"></i>商品を検索</h3>
   </div>
@@ -51,6 +52,7 @@
       </div>
     </div>
   </div>
+</div>
 </div>
 
 <?php }; ?>

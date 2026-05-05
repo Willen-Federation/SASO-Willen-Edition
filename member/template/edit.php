@@ -8,7 +8,7 @@ $this->content = function ($v) {
   <li class="breadcrumb-item active" aria-current="page">Edit</li>
 </ol>
 
-<div class="card" style="max-width:36rem;">
+<div class="card mx-auto" style="max-width:36rem;">
   <div class="card-header">
     <h3 class="card-title">Edit User: <?php echo htmlspecialchars($v->member->id, ENT_QUOTES, 'UTF-8'); ?></h3>
   </div>
@@ -32,6 +32,16 @@ $this->content = function ($v) {
                value="<?php echo htmlspecialchars($v->member->name, ENT_QUOTES, 'UTF-8'); ?>"
                class="form-control" placeholder="Enter display name" required>
       </div>
+
+      <?php if ($v->isAdmin): ?>
+      <div class="mb-3">
+        <label for="m-role" class="form-label">Role</label>
+        <select id="m-role" name="role" class="form-select">
+          <option value="operator" <?php echo $v->member->role === 'operator' ? 'selected' : ''; ?>>operator</option>
+          <option value="admin"    <?php echo $v->member->role === 'admin'    ? 'selected' : ''; ?>>admin</option>
+        </select>
+      </div>
+      <?php endif; ?>
 
       <button type="submit" class="btn btn-primary w-100">Update User</button>
     </form>

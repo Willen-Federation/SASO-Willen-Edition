@@ -17,6 +17,31 @@ export default class Barcode {
             );
             submit?.focus();
         });
+        input?.addEventListener('keypress', e=>{
+            if(e.key === 'Enter') {
+                let href = submit?.getAttribute('href');
+                if(href && href !== '') {
+                    location.href = href;
+                }
+            }
+        });
+
+        // キーワード検索ハンドラー
+        let keywordInput = document.querySelector('#keywordInput');
+        let keywordSubmit = document.querySelector('#keywordSubmit');
+        let performKeywordSearch = ()=>{
+            let keyword = keywordInput?.value?.trim();
+            if(keyword) {
+                location.href = './item/start/search/' + encodeURIComponent(keyword.replace(/\//g, ''));
+            }
+        };
+        keywordSubmit?.addEventListener('click', performKeywordSearch);
+        keywordInput?.addEventListener('keypress', e=>{
+            if(e.key === 'Enter') {
+                performKeywordSearch();
+            }
+        });
+
         let focused = document.querySelector('.focused');
         focused?.select();
     }

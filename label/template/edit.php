@@ -25,7 +25,7 @@
             </li>
           </ul>
           <p>
-            <a class="text-primary" id="labelSizeDeleteDisplay" href="#" role="button">ラベル寸法削除ボタン表示</a>
+            <button type="button" class="btn btn-link text-primary p-0" id="labelSizeDeleteDisplay">ラベル寸法削除ボタン表示</button>
           </p>
           <p id="labelSizeDeleteButton" class="d-none">
             <button type="button" id="labelSizeDelete" class="btn btn-outline-danger btn-sm">

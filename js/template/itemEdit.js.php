@@ -6,12 +6,13 @@ export default class ItemEdit {
         let displayCategoryChangeButton = document.querySelector('#changeCategotyOfAnItem');
         displayCategoryChangeButton?.addEventListener('click', e=>{
             let category = document.querySelector('#category');
-            if(category.getAttribute('class') === 'hidden') {
-                category.setAttribute('class', '');
-                e.target.textContent = "分類変更しない";
+            const isHidden = category.classList.contains('d-none');
+            category.classList.toggle('d-none');
+            const icon = e.currentTarget.querySelector('i');
+            if (isHidden) {
+                e.currentTarget.innerHTML = '<i class="ti ti-x me-1"></i>分類変更しない';
             } else {
-                category.setAttribute('class', 'hidden');
-                e.target.textContent = "分類一覧表示";
+                e.currentTarget.innerHTML = '<i class="ti ti-list-tree me-1"></i>分類一覧表示';
             }
         });
     }

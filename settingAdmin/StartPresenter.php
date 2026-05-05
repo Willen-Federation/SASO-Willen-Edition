@@ -1,19 +1,18 @@
 <?php
 namespace saso\settingAdmin;
 
-use saso\framework\Output;
 use saso\framework\Presenter;
+use saso\framework\View;
+use saso\util\monad\Either;
 
 final class StartPresenter implements Presenter
 {
-    use Output;
-
     public function __construct(private StartView $view)
     {
     }
 
-    public function display(): void
+    public function complete(Either $output): View
     {
-        $this->view->display();
+        return $this->view;
     }
 }

@@ -117,7 +117,8 @@ final class AddFromImageDIContainer implements DIContainer
         $barcodeHint  = $userData['barcode_hint'] ?? null;
         $userDataJson = empty($userData) ? null : json_encode($userData, JSON_UNESCAPED_UNICODE);
         $nowStr       = $this->now->format('Y-m-d H:i:s');
-        $createdBy    = isset($_SESSION['id']) ? (int) $_SESSION['id'] : null;
+        $idRaw     = $_SESSION['id'] ?? null;
+        $createdBy = (is_string($idRaw) && is_numeric($idRaw)) ? (int) $idRaw : null;
 
         $stmt = $pdo->prepare(
             'INSERT INTO item_draft

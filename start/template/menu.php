@@ -5,47 +5,47 @@
     [
       'title' => '商品管理',
       'items' => [
-        ['./item/add/',                   '商品登録',         'ti-plus',           'primary'],
-        ['./item/registerFromImage/',     '画像から商品登録', 'ti-photo-plus',     'primary'],
-        ['./item/fromBarcode/',           'バーコード登録',   'ti-barcode',        'success'],
-        ['./item/draftList/',             '下書き一覧',       'ti-file-pencil',    'warning'],
-        ['./item/list/',                  '商品一覧',         'ti-list',           'primary'],
-        ['./category/start/',             '分類管理',         'ti-list-tree',      'secondary'],
+        ['./item/add/',                   '商品登録',         'bi-plus-circle',    'primary'],
+        ['./item/registerFromImage/',     '画像から商品登録', 'bi-image-plus',     'primary'],
+        ['./item/fromBarcode/',           'バーコード登録',   'bi-barcode',        'success'],
+        ['./item/draftList/',             '下書き一覧',       'bi-file-earmark-text', 'warning'],
+        ['./item/list/',                  '商品一覧',         'bi-list-ul',        'primary'],
+        ['./category/start/',             '分類管理',         'bi-diagram-3',      'secondary'],
       ],
     ],
     [
       'title' => 'バーコード・ラベル',
       'items' => [
-        ['./barcode/sheet/',              'バーコードシート発行', 'ti-qrcode',     'success'],
-        ['./label/wizard/',               'ラベルファースト',     'ti-wand',       'primary'],
-        ['./label/features/',             '商品ラベル印刷',       'ti-printer',    'warning'],
-        ['./label/start/',                'ラベル寸法管理',       'ti-ruler-measure', 'secondary'],
+        ['./barcode/sheet/',              'バーコードシート発行', 'bi-qr-code',    'success'],
+        ['./label/wizard/',               'ラベルファースト',     'bi-wand2',      'primary'],
+        ['./label/features/',             '商品ラベル印刷',       'bi-printer',    'warning'],
+        ['./label/start/',                'ラベル寸法管理',       'bi-rulers',     'secondary'],
       ],
     ],
     [
       'title' => '棚番管理',
       'items' => [
-        ['./shelf/simple/',               '棚番簡易作成', 'ti-grid-dots',  'success'],
-        ['./shelf/start/',                '棚番作成',     'ti-stack-2',    'primary'],
+        ['./shelf/simple/',               '棚番簡易作成', 'bi-grid-3x3',  'success'],
+        ['./shelf/start/',                '棚番作成',     'bi-stack',     'primary'],
       ],
     ],
     [
       'title' => '在庫・照合',
       'items' => [
-        ['./verify/start/',               'データ照合',       'ti-check',          'primary'],
-        ['./archive/list/',               'アーカイブ一覧',   'ti-archive',        'secondary'],
-        ['./item/archivingAll/',          '一括アーカイブ',   'ti-archive-off',    'warning'],
+        ['./verify/start/',               'データ照合',       'bi-check-circle',   'primary'],
+        ['./archive/list/',               'アーカイブ一覧',   'bi-archive',        'secondary'],
+        ['./item/archivingAll/',          '一括アーカイブ',   'bi-archive-x',      'warning'],
       ],
     ],
     [
       'title' => 'システム管理',
       'items' => [
-        ['./auth/providers/',             '認証プロバイダー', 'ti-shield-lock',    'primary'],
-        ['./member/start/',               'メンバー管理',     'ti-users',          'primary'],
-        ['./admin/feature-flags/',        'フィーチャーフラグ', 'ti-flag',         'warning'],
-        ['./admin/aiSettings/',           'AI設定',           'ti-robot',          'warning'],
-        ['./settingAdmin/start/',         'システム設定',     'ti-settings',       'secondary'],
-        ['./start/password/',             'パスワード変更',   'ti-key',            'secondary'],
+        ['./auth/providers/',             '認証プロバイダー', 'bi-shield-lock',    'primary'],
+        ['./member/start/',               'メンバー管理',     'bi-people',         'primary'],
+        ['./admin/feature-flags/',        'フィーチャーフラグ', 'bi-flag',         'warning'],
+        ['./admin/aiSettings/',           'AI設定',           'bi-cpu',            'warning'],
+        ['./settingAdmin/start/',         'システム設定',     'bi-gear',           'secondary'],
+        ['./start/password/',             'パスワード変更',   'bi-key',            'secondary'],
       ],
     ],
   ];
@@ -60,7 +60,7 @@
           <a href="<?php echo htmlspecialchars($href); ?>" class="card card-link card-link-pop h-100">
             <div class="card-body text-center py-4">
               <span class="avatar avatar-xl avatar-rounded bg-<?php echo htmlspecialchars($tone); ?>-lt mb-3">
-                <i class="ti <?php echo htmlspecialchars($icon); ?> fs-2"></i>
+                <i class="bi <?php echo htmlspecialchars($icon); ?>" style="font-size: 2rem;"></i>
               </span>
               <div class="fw-medium"><?php echo htmlspecialchars($label); ?></div>
             </div>

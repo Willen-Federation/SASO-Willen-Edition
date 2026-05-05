@@ -4,18 +4,18 @@
 <div class="d-flex justify-content-center mb-3">
 <div class="card w-100">
   <div class="card-header">
-    <h3 class="card-title"><i class="ti ti-search me-2"></i>商品を検索</h3>
+    <h3 class="card-title"><i class="bi bi-search me-2"></i>商品を検索</h3>
   </div>
   <div class="card-body">
     <ul class="nav nav-tabs" role="tablist">
       <li class="nav-item">
         <a class="nav-link active" id="barcodeTab" href="#barcodePane" data-bs-toggle="tab" role="tab">
-          <i class="ti ti-barcode me-1"></i>バーコード検索
+          <i class="bi bi-barcode me-1"></i>バーコード検索
         </a>
       </li>
       <li class="nav-item">
         <a class="nav-link" id="keywordTab" href="#keywordPane" data-bs-toggle="tab" role="tab">
-          <i class="ti ti-abc me-1"></i>商品名検索
+          <i class="bi bi-search me-1"></i>商品名検索
         </a>
       </li>
     </ul>
@@ -29,7 +29,7 @@
                    maxlength="12" placeholder="12桁バーコードを入力"
                    autocomplete="off" inputmode="numeric">
             <a id="barcodeSubmit" class="btn btn-primary" href="" role="button">
-              <i class="ti ti-search me-1"></i>検索
+              <i class="bi bi-search me-1"></i>検索
             </a>
           </div>
           <div class="form-text">商品バーコード（12桁）を入力すると棚番管理画面に移動します。</div>
@@ -44,7 +44,7 @@
                    maxlength="50" placeholder="商品名キーワードを入力"
                    autocomplete="off">
             <button id="keywordSubmit" type="button" class="btn btn-primary">
-              <i class="ti ti-search me-1"></i>検索
+              <i class="bi bi-search me-1"></i>検索
             </button>
           </div>
           <div class="form-text">商品名のキーワードで検索します。</div>

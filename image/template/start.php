@@ -6,7 +6,7 @@
   <?php if($v->archive->archive) { ?>
     <li class="breadcrumb-item"><a href="./archive/list">アーカイブ一覧</a></li>
   <?php } ?>
-  <li class="breadcrumb-item"><a href="<?php echo 'item/start/item/' . $v->item->id; ?>">商品情報</a></li>
+  <li class="breadcrumb-item"><a href="<?php echo 'item/start/item/' . (int)$v->item->id; ?>">商品情報</a></li>
   <li class="breadcrumb-item active" aria-current="page">商品画像</li>
 </ol>
 
@@ -27,7 +27,7 @@
     <?php if(is_null($v->color->imageType)) { ?>
       <p class="text-secondary">画像はありません。</p>
     <?php }else{ ?>
-      <img src="./image/display<?php echo '/item/'.$v->item->id. '/color/' . $v->color->code; ?>"
+      <img src="./image/display<?php echo '/item/'.(int)$v->item->id.'/color/'.rawurlencode((string)$v->color->code); ?>"
            alt="<?php echo htmlspecialchars($v->item->name . 'の' . $v->color->name . '(' . $v->color->code . ')', ENT_QUOTES, 'UTF-8'); ?>"
            class="img-fluid rounded">
     <?php } ?>
@@ -36,7 +36,7 @@
 
 <div class="card">
   <div class="card-body">
-    <form method="post" action="./image/add<?php echo '/item/'.$v->item->id. '/color/' . $v->color->code; ?>" enctype="multipart/form-data">
+    <form method="post" action="./image/add<?php echo '/item/'.(int)$v->item->id.'/color/'.rawurlencode((string)$v->color->code); ?>" enctype="multipart/form-data">
       <div class="mb-3">
         <label for="image-upload" class="form-label">画像ファイル</label>
         <input id="image-upload" type="file" name="image" class="form-control" accept=".jpg,.jpeg,.png,.gif">

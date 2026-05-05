@@ -91,12 +91,7 @@
       <code>00-A-00, 00-A-01, 01-A-00, 01-A-01, 02-A-00, 02-A-01</code>
     </div>
 
-    <?php
-      // Always use default 5-dimension layout
-      // (Metadata support deferred to future implementation)
-      $dimensions = [];
-        // Fallback: hardcoded 5 dimensions
-        for ($d = 1; $d <= 5; $d++): ?>
+    <?php for ($d = 1; $d <= 5; $d++): ?>
           <div class="row g-2 align-items-center mb-2">
             <div class="col-md-2 col-form-label"><?php echo $d; ?>次元</div>
             <div class="col-md-2">
@@ -109,29 +104,7 @@
                      class="form-control" maxlength="2" pattern="^[0-9]+$" placeholder="max">
             </div>
           </div>
-        <?php endfor;
-      } else {
-        // Use metadata from ShelfDimensionConfig
-        foreach ($dimensions as $dim):
-          $pos = $dim->position;
-          $label = $dim->name ?: "第{$pos}階層";
-      ?>
-          <div class="row g-2 align-items-center mb-2">
-            <div class="col-md-2 col-form-label"><?php echo htmlspecialchars($label, ENT_QUOTES, 'UTF-8'); ?></div>
-            <div class="col-md-2">
-              <input type="text" id="dimension<?php echo $pos; ?>min"
-                     class="form-control" maxlength="2" pattern="^[0-9A-Za-z]+$" placeholder="min"
-                     title="<?php echo htmlspecialchars($dim->description, ENT_QUOTES, 'UTF-8'); ?>">
-            </div>
-            <div class="col-auto text-secondary">〜</div>
-            <div class="col-md-2">
-              <input type="text" id="dimension<?php echo $pos; ?>max"
-                     class="form-control" maxlength="2" pattern="^[0-9]+$" placeholder="max">
-            </div>
-          </div>
-        <?php endforeach;
-      }
-    ?>
+    <?php endfor; ?>
 
     <div class="row mt-3">
       <div class="col-md-3 offset-md-2">

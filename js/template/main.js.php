@@ -12,7 +12,7 @@ import CSRF from './csrf.js';
 import Shelf from './shelf.js';
 import ArchiveAll from './archiveAll.js';
 
-let csrftoken = '<?php echo $v->csrftoken; ?>';
+let csrftoken = <?php echo json_encode($v->csrftoken); ?>;
 
 new Password();
 new Label(csrftoken);

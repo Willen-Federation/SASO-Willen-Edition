@@ -28,16 +28,16 @@
           </button>
         </div>
       </div>
-      <input type="hidden" id="dimension1min" value="<?php echo $v->mins[0]??''; ?>">
-      <input type="hidden" id="dimension1max" value="<?php echo $v->maxs[0]??''; ?>">
-      <input type="hidden" id="dimension2min" value="<?php echo $v->mins[1]??''; ?>">
-      <input type="hidden" id="dimension2max" value="<?php echo $v->maxs[1]??''; ?>">
-      <input type="hidden" id="dimension3min" value="<?php echo $v->mins[2]??''; ?>">
-      <input type="hidden" id="dimension3max" value="<?php echo $v->maxs[2]??''; ?>">
-      <input type="hidden" id="dimension4min" value="<?php echo $v->mins[3]??''; ?>">
-      <input type="hidden" id="dimension4max" value="<?php echo $v->maxs[3]??''; ?>">
-      <input type="hidden" id="dimension5min" value="<?php echo $v->mins[4]??''; ?>">
-      <input type="hidden" id="dimension5max" value="<?php echo $v->maxs[4]??''; ?>">
+      <input type="hidden" id="dimension1min" value="<?php echo (int)($v->mins[0]??0); ?>">
+      <input type="hidden" id="dimension1max" value="<?php echo (int)($v->maxs[0]??0); ?>">
+      <input type="hidden" id="dimension2min" value="<?php echo (int)($v->mins[1]??0); ?>">
+      <input type="hidden" id="dimension2max" value="<?php echo (int)($v->maxs[1]??0); ?>">
+      <input type="hidden" id="dimension3min" value="<?php echo (int)($v->mins[2]??0); ?>">
+      <input type="hidden" id="dimension3max" value="<?php echo (int)($v->maxs[2]??0); ?>">
+      <input type="hidden" id="dimension4min" value="<?php echo (int)($v->mins[3]??0); ?>">
+      <input type="hidden" id="dimension4max" value="<?php echo (int)($v->maxs[3]??0); ?>">
+      <input type="hidden" id="dimension5min" value="<?php echo (int)($v->mins[4]??0); ?>">
+      <input type="hidden" id="dimension5max" value="<?php echo (int)($v->maxs[4]??0); ?>">
     <?php } ?>
 
     <p class="font-monospace">

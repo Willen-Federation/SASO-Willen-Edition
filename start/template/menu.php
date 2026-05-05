@@ -1,6 +1,6 @@
 <?php $this->content = function ($v) { ?>
 
-<div class="menu-fullscreen">
+<div class="menu-fullscreen container-fluid">
 
 <?php
   $sections = [

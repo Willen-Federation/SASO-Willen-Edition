@@ -3,7 +3,7 @@
 
 <ol class="breadcrumb mb-3" aria-label="breadcrumbs">
   <li class="breadcrumb-item"><a href="./">ホーム</a></li>
-  <li class="breadcrumb-item"><a href="./item/start/item/<?php echo $v->item->id; ?>">商品情報</a></li>
+  <li class="breadcrumb-item"><a href="./item/start/item/<?php echo (int)$v->item->id; ?>">商品情報</a></li>
   <li class="breadcrumb-item active" aria-current="page">商品情報編集</li>
 </ol>
 

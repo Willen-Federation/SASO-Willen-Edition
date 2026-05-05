@@ -2,7 +2,7 @@
 <!DOCTYPE html>
 <html lang="ja" dir="ltr">
 <head>
-<base href="<?php echo $v->baseUrl; ?>">
+<base href="<?php echo htmlspecialchars($v->baseUrl, ENT_QUOTES, 'UTF-8'); ?>">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/core@1.0.0/dist/css/tabler.min.css">
@@ -10,7 +10,7 @@
 <link href="./css/style.css" rel="stylesheet">
 <link rel="shortcut icon" href="./favicon.ico" type="image/vnd.microsoft.icon">
 <link rel="icon" href="./favicon.ico" type="image/vnd.microsoft.icon">
-<title>在庫管理システム「SASO<?php echo $v->version; ?>」 - <?php echo $v->insideView->getTitle(); ?></title>
+<title>在庫管理システム「SASO<?php echo htmlspecialchars($v->version, ENT_QUOTES, 'UTF-8'); ?>」 - <?php echo htmlspecialchars($v->insideView->getTitle(), ENT_QUOTES, 'UTF-8'); ?></title>
 </head>
 <body>
 <div class="page">
@@ -21,7 +21,7 @@
       </button>
       <h1 class="navbar-brand navbar-brand-autodark d-none-navbar-horizontal pe-0 pe-md-3 mb-0">
         <a href="./" class="text-white text-decoration-none">
-          <i class="ti ti-packages me-2"></i>在庫管理 SASO<?php echo $v->version; ?>
+          <i class="ti ti-packages me-2"></i>在庫管理 SASO<?php echo htmlspecialchars($v->version, ENT_QUOTES, 'UTF-8'); ?>
         </a>
       </h1>
       <?php if($v->authed) { ?>
@@ -97,7 +97,7 @@
       <div class="container-xl">
         <div class="row g-2 align-items-center">
           <div class="col">
-            <h2 class="page-title"><?php echo $v->insideView->getTitle(); ?></h2>
+            <h2 class="page-title"><?php echo htmlspecialchars($v->insideView->getTitle(), ENT_QUOTES, 'UTF-8'); ?></h2>
           </div>
         </div>
       </div>

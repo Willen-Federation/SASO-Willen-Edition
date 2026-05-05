@@ -7,7 +7,7 @@
 <?php if($v->archive->archive) { ?>
 <li class="breadcrumb-item"><a href="./archive/list">アーカイブ一覧</a></li>
 <?php } ?>
-<li class="breadcrumb-item"><a href="<?php echo 'item/start/item/' . $v->item->id; ?>">商品情報</a></li>
+<li class="breadcrumb-item"><a href="<?php echo 'item/start/item/' . (int)$v->item->id; ?>">商品情報</a></li>
 <li class="breadcrumb-item active">入出庫履歴</li>
 </ol>
 </nav>
@@ -42,7 +42,7 @@
         <?php foreach($v->quantityLogs as $log): ?>
         <tr>
           <td><?php echo $log->changeAt->format('Y年m月d日 H時i分'); ?></td>
-          <td class="number"><?php echo $log->fluctuation; ?></td>
+          <td class="number"><?php echo (int)$log->fluctuation; ?></td>
           <td>
             <?php
             if($log->isInventory){ echo '棚卸'; }
@@ -54,7 +54,7 @@
         <?php endforeach; ?>
         <tr class="fw-bold">
           <td>合計</td>
-          <td class="number"><?php echo $v->quantityLogs->sum(); ?></td>
+          <td class="number"><?php echo (int)$v->quantityLogs->sum(); ?></td>
           <td></td>
         </tr>
       </tbody>

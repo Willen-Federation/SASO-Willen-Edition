@@ -6,6 +6,9 @@ use saso\framework\DIContainer;
 use saso\framework\View;
 use saso\repository\DBConnection;
 use Saso\Application\Enrichment\Step\AiVisionStep;
+use Saso\Domain\Feature\FeatureFlag;
+use Saso\Domain\Feature\FeatureKey;
+use Saso\Domain\Feature\Repository\FeatureFlagRepository;
 use Saso\Domain\Setting\SettingKey;
 use Saso\Infrastructure\Ai\AiAssistantFactory;
 use Saso\Infrastructure\Auth\Crypto\SecretEncryptor;
@@ -157,7 +160,21 @@ final class AiDebugDIContainer implements DIContainer
 
         try {
             $aiAssistant = AiAssistantFactory::forVision($settingService);
-            $aiVisionStep = new AiVisionStep($aiAssistant);
+            // Debug probe always bypasses the feature flag — it is an admin-only tool for
+            // directly testing the AI pipeline regardless of flag state.
+            $alwaysEnabled = new class implements FeatureFlagRepository {
+                public function findByKey(FeatureKey $key): ?FeatureFlag
+                {
+                    $now = new \DateTimeImmutable();
+                    return new FeatureFlag(1, $key, 'debug-probe', true, 100, null, 0, 1, null, null, $now, $now);
+                }
+                public function findById(int $id): ?FeatureFlag { return null; }
+                /** @return list<FeatureFlag> */
+                public function listAll(): array { return []; }
+                public function save(FeatureFlag $flag): FeatureFlag { return $flag; }
+                public function delete(int $id): void {}
+            };
+            $aiVisionStep = new AiVisionStep($aiAssistant, $alwaysEnabled);
 
             // If base64 image provided, decode and write to temporary file
             $imagePath = null;

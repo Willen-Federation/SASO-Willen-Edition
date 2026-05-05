@@ -46,7 +46,7 @@
           </td>
           <td class="text-center">
             <div class="d-inline-flex gap-2">
-              <a href="./member/edit/?id=<?php echo urlencode($m->id); ?>"
+              <a href="./member/edit/id/<?php echo urlencode($m->id); ?>/"
                  class="btn btn-sm btn-outline-secondary"
                  title="<?php echo ui_attr(__('ui.member.edit', [], null, 'Edit')); ?>">
                 <i class="bi bi-pencil me-1" aria-hidden="true"></i><?php echo ui_text(__('ui.member.edit', [], null, 'Edit')); ?>

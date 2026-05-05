@@ -1,80 +1,85 @@
 <?php
 namespace saso\item;
 
-use saso\framework\DTO;
-use saso\framework\Usecase;
-use saso\repository\Finder;
-use saso\repository\Updater;
-use saso\repository\TransactionInterface;
-use saso\framework\Presenter;
 use Saso\Domain\Barcode\BarcodeCode;
 use Saso\Domain\Barcode\Repository\BarcodeRepository;
+use saso\framework\DTO;
+use saso\framework\Presenter;
+use saso\framework\Usecase;
+use saso\framework\View;
+use saso\repository\Finder;
+use saso\repository\TransactionInterface;
+use saso\repository\Updater;
 use saso\util\monad\Either;
+use saso\util\monad\Left;
 
 final class RegisterFromBarcodeUsecase implements Usecase
 {
+    private Either $result;
+
     public function __construct(
-        private Finder $finder,
-        private Updater $updater,
-        private TransactionInterface $transaction,
-        private BarcodeRepository $barcodes,
-        private Presenter $presenter,
+        private readonly Finder $finder,
+        private readonly Updater $updater,
+        private readonly TransactionInterface $transaction,
+        private readonly BarcodeRepository $barcodes,
+        private readonly Presenter $presenter,
     ) {
+        $this->result = Either::left('not yet run');
     }
 
     public function handle(DTO $data): void
     {
         /** @var RegisterFromBarcodeController $data */
-        
+
+        // Capture the item path produced by RegisterUsecase
+        $capture = new class implements Presenter {
+            public Either $captured;
+            public function complete(Either $output): View
+            {
+                $this->captured = $output;
+                return new \saso\common\RegisterSuccessView();
+            }
+        };
+        $capture->captured = Either::left('Item registration did not produce output.');
+
+        $registerUsecase = new RegisterUsecase(
+            $this->finder,
+            $this->updater,
+            $this->transaction,
+            $capture,
+        );
+        $registerUsecase->handle($data->registerData);
+        $registerUsecase->output(); // triggers $capture->complete()
+
+        if ($capture->captured instanceof Left) {
+            $this->result = $capture->captured;
+            return;
+        }
+
+        // Extract item ID from path "item/start/item/<id>"
+        $itemPath = $capture->captured->getOrElse('');
+        $itemId   = basename($itemPath);
+
+        // Link the barcode to the new item (runs outside the item txn — auto-commit)
         try {
-            $this->transaction->begin();
-            
-            // 1. Create the item using existing RegisterUsecase logic
-            // We'll use a local presenter to capture the result
-            $capturePresenter = new class implements Presenter {
-                public $result;
-                public function present(mixed $data): void { $this->result = $data; }
-            };
-            
-            $registerUsecase = new RegisterUsecase(
-                $this->finder,
-                $this->updater,
-                $this->transaction,
-                $capturePresenter
-            );
-            
-            $registerUsecase->handle($data->registerData);
-            
-            // Check if registration was successful
-            $itemPath = $capturePresenter->result;
-            if ($itemPath instanceof Either && $itemPath->isLeft()) {
-                throw new \Exception($itemPath->getLeft());
-            }
-            
-            // The itemPath is something like "item/start/item/2604290001"
-            $itemId = basename($itemPath);
-            
-            // 2. Link the barcode to this item
             $barcodeCode = new BarcodeCode($data->barcodeId);
-            $barcode = $this->barcodes->findByCode($barcodeCode);
-            
+            $barcode     = $this->barcodes->findByCode($barcodeCode);
+
             if ($barcode === null) {
-                throw new \Exception("Barcode not found in pool: " . $data->barcodeId);
+                $this->result = Either::left('Barcode not found in pool: ' . $data->barcodeId);
+                return;
             }
-            
+
             $linkedBarcode = $barcode->link($itemId, new \DateTimeImmutable());
             $this->barcodes->save($linkedBarcode);
-            
-            $this->transaction->commit();
-            
-            // 3. Success redirect
-            $this->presenter->present($itemPath);
-            
+            $this->result = $capture->captured;
         } catch (\Exception $e) {
-            if ($this->transaction->inTransaction()) {
-                $this->transaction->rollBack();
-            }
-            $this->presenter->present(Either::left($e->getMessage()));
+            $this->result = Either::left($e->getMessage());
         }
+    }
+
+    public function output(): View
+    {
+        return $this->presenter->complete($this->result);
     }
 }

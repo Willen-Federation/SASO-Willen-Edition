@@ -26,15 +26,14 @@ final class PrintSheetView implements View, Presenter
         $layout = $this->data['layout'];
         $codes = $this->data['codes'];
 
-        // Mock a Label entity for the legacy Pdf class
         $label = new Label(
-            0,
-            $layout['w'],
-            $layout['h'],
-            10.0, // marginTop
-            10.0, // marginLeft
-            0.0,  // intervalRow
-            0.0,  // intervalColomn
+            '0',
+            10.0,          // marginTop
+            10.0,          // marginLeft
+            $layout['w'],  // width
+            $layout['h'],  // height
+            0.0,           // intervalColomn
+            0.0,           // intervalRow
         );
 
         $contents = (function() use ($codes) {

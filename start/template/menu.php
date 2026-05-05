@@ -1,7 +1,5 @@
 <?php $this->content = function ($v) { ?>
 
-<div class="menu-fullscreen container-fluid">
-
 <?php
   $sections = [
     [
@@ -56,7 +54,7 @@
 <?php foreach ($sections as $section): ?>
   <div class="mb-4">
     <h3 class="text-secondary text-uppercase fs-5 mb-3"><?php echo htmlspecialchars($section['title']); ?></h3>
-    <div class="row row-cards">
+    <div class="row row-cards justify-content-center">
       <?php foreach ($section['items'] as [$href, $label, $icon, $tone]): ?>
         <div class="col-4 col-md-3 col-lg-2">
           <a href="<?php echo htmlspecialchars($href); ?>" class="card card-link card-link-pop h-100">
@@ -72,7 +70,5 @@
     </div>
   </div>
 <?php endforeach; ?>
-
-</div>
 
 <?php }; ?>

@@ -44,7 +44,7 @@
         ['./member/start/',               'メンバー管理',     'ti-users',          'primary'],
         ['./admin/feature-flags/',        'フィーチャーフラグ', 'ti-flag',         'warning'],
         ['./admin/aiSettings/',           'AI設定',           'ti-robot',          'warning'],
-        ['./settingAdmin/start/',         '保管場所設定',     'ti-map-pin',        'secondary'],
+        ['./settingAdmin/start/',         'システム設定',     'ti-settings',       'secondary'],
         ['./start/password/',             'パスワード変更',   'ti-key',            'secondary'],
       ],
     ],

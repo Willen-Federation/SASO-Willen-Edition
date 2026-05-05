@@ -25,7 +25,12 @@ final class ListFrameView implements View
     }
     public function onRoot(): bool
     {
-        return false;
+        // Direct navigation to /item/listFrame/ must render inside Tabler
+        // chrome. Returning false echoes the fragment before <!DOCTYPE> and
+        // produces a whiteout. The template uses the standard
+        // `$this->content = function($v) { ... }` pattern so it is fully
+        // compatible with the wrapped path.
+        return true;
     }
     public function getTitle(): string
     {

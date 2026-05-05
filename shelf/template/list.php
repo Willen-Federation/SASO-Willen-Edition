@@ -18,8 +18,8 @@
         <div class="col-auto">
           <div class="input-group">
             <input type="number" id="pageNumber" class="form-control" min="1"
-                   max="<?php echo $v->pagesAmount; ?>" value="<?php echo $v->page; ?>" style="max-width: 6em;">
-            <span class="input-group-text">/ <?php echo $v->pagesAmount; ?></span>
+                   max="<?php echo (int)$v->pagesAmount; ?>" value="<?php echo (int)$v->page; ?>" style="max-width: 6em;">
+            <span class="input-group-text">/ <?php echo (int)$v->pagesAmount; ?></span>
           </div>
         </div>
         <div class="col-auto">

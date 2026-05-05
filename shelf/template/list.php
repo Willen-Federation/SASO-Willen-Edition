@@ -28,16 +28,21 @@
           </button>
         </div>
       </div>
-      <input type="hidden" id="dimension1min" value="<?php echo (int)($v->mins[0]??0); ?>">
-      <input type="hidden" id="dimension1max" value="<?php echo (int)($v->maxs[0]??0); ?>">
-      <input type="hidden" id="dimension2min" value="<?php echo (int)($v->mins[1]??0); ?>">
-      <input type="hidden" id="dimension2max" value="<?php echo (int)($v->maxs[1]??0); ?>">
-      <input type="hidden" id="dimension3min" value="<?php echo (int)($v->mins[2]??0); ?>">
-      <input type="hidden" id="dimension3max" value="<?php echo (int)($v->maxs[2]??0); ?>">
-      <input type="hidden" id="dimension4min" value="<?php echo (int)($v->mins[3]??0); ?>">
-      <input type="hidden" id="dimension4max" value="<?php echo (int)($v->maxs[3]??0); ?>">
-      <input type="hidden" id="dimension5min" value="<?php echo (int)($v->mins[4]??0); ?>">
-      <input type="hidden" id="dimension5max" value="<?php echo (int)($v->maxs[4]??0); ?>">
+      <?php
+        // Generate hidden inputs based on actual dimension count
+        $dimensionMetadata = $v->dimensionMetadata ?? [];
+        $dimensionCount = !empty($dimensionMetadata) ? count($dimensionMetadata) : count($v->mins);
+
+        for ($i = 0; $i < $dimensionCount; $i++) {
+          $dimNum = $i + 1;
+          $minVal = is_numeric($v->mins[$i] ?? null) ? (int)$v->mins[$i] : htmlspecialchars($v->mins[$i] ?? '', ENT_QUOTES, 'UTF-8');
+          $maxVal = $v->maxs[$i] ?? '';
+      ?>
+        <input type="hidden" id="dimension<?php echo $dimNum; ?>min" value="<?php echo $minVal; ?>">
+        <input type="hidden" id="dimension<?php echo $dimNum; ?>max" value="<?php echo $maxVal; ?>">
+      <?php
+        }
+      ?>>
     <?php } ?>
 
     <p class="font-monospace">

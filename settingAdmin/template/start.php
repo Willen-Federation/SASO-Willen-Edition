@@ -13,6 +13,19 @@
   ]); ?>
 <?php } else { ?>
 
+  <!-- Configuration Management Links -->
+  <div class="row mb-4 g-3">
+    <div class="col-md-6">
+      <div class="card h-100">
+        <div class="card-body">
+          <h5 class="card-title"><i class="bi bi-diagram-3 me-2"></i>Shelf Dimensions</h5>
+          <p class="card-text text-secondary small">Customize shelf numbering dimensions and labels</p>
+          <a href="./settingAdmin/shelf/" class="btn btn-sm btn-outline-primary">Configure</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <?php
     ui('card', [
       'title'   => $title,

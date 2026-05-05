@@ -71,7 +71,7 @@ ui('card', [
       $loginUrl, $displayCallback, $displayAcs, $displaySls,
       $fbProviderOptions, $fbProvidersEnabled
   ) {
-    $csrfToken = htmlspecialchars(\saso\util\CSRFtoken::current());
+    $csrfToken = htmlspecialchars(\saso\util\CSRFtoken::current(), ENT_QUOTES, 'UTF-8');
     $initChoice = $isEdit ? $flavor : '';
     $initStep   = $isEdit ? 2 : 1;
 ?>

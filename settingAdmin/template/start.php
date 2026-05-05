@@ -19,7 +19,7 @@
       'body'    => function () use ($v, $lang) {
   ?>
     <form method="POST" action="">
-      <input type="hidden" name="csrftoken" value="<?php echo htmlspecialchars(\saso\util\CSRFtoken::current()); ?>">
+      <input type="hidden" name="csrftoken" value="<?php echo htmlspecialchars(\saso\util\CSRFtoken::current(), ENT_QUOTES, 'UTF-8'); ?>">
 
       <?php if (!empty($v->message)): ?>
         <div class="mb-4">

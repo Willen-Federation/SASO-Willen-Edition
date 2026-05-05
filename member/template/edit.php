@@ -10,11 +10,11 @@ $this->content = function ($v) {
 
 <div class="card" style="max-width:36rem;">
   <div class="card-header">
-    <h3 class="card-title">Edit User: <?php echo htmlspecialchars($v->member->id); ?></h3>
+    <h3 class="card-title">Edit User: <?php echo htmlspecialchars($v->member->id, ENT_QUOTES, 'UTF-8'); ?></h3>
   </div>
   <div class="card-body">
     <form action="./member/edit/" method="POST">
-      <input type="hidden" name="id" value="<?php echo htmlspecialchars($v->member->id); ?>">
+      <input type="hidden" name="id" value="<?php echo htmlspecialchars($v->member->id, ENT_QUOTES, 'UTF-8'); ?>">
 
       <?php if (!empty($v->error)): ?>
         <div class="alert alert-danger mb-3"><?php echo htmlspecialchars($v->error); ?></div>
@@ -22,14 +22,14 @@ $this->content = function ($v) {
 
       <div class="mb-3">
         <label class="form-label">User ID</label>
-        <input type="text" value="<?php echo htmlspecialchars($v->member->id); ?>"
+        <input type="text" value="<?php echo htmlspecialchars($v->member->id, ENT_QUOTES, 'UTF-8'); ?>"
                class="form-control bg-light" disabled aria-readonly="true">
       </div>
 
       <div class="mb-3">
         <label for="m-name" class="form-label">Name</label>
         <input id="m-name" type="text" name="userName"
-               value="<?php echo htmlspecialchars($v->member->name); ?>"
+               value="<?php echo htmlspecialchars($v->member->name, ENT_QUOTES, 'UTF-8'); ?>"
                class="form-control" placeholder="Enter display name" required>
       </div>
 

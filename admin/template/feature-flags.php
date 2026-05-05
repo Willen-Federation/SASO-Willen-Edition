@@ -73,11 +73,11 @@
                   (filterEnabled === 'all' ||
                    (filterEnabled === 'enabled' && <?php echo $flag->enabled ? 'true' : 'false'; ?>) ||
                    (filterEnabled === 'disabled' && <?php echo !$flag->enabled ? 'true' : 'false'; ?>)) &&
-                  (!search || '<?php echo addslashes($flag->key->value); ?>'.toLowerCase().includes(search.toLowerCase()))">
-              <td><code class="font-monospace"><?php echo htmlspecialchars($flag->key->value); ?></code></td>
-              <td class="text-secondary"><?php echo htmlspecialchars($flag->description ?: '—'); ?></td>
+                  (!search || <?php echo htmlspecialchars(json_encode((string)$flag->key->value), ENT_QUOTES, 'UTF-8'); ?>.toLowerCase().includes(search.toLowerCase()))">
+              <td><code class="font-monospace"><?php echo htmlspecialchars($flag->key->value, ENT_QUOTES, 'UTF-8'); ?></code></td>
+              <td class="text-secondary"><?php echo htmlspecialchars($flag->description ?: '—', ENT_QUOTES, 'UTF-8'); ?></td>
               <td class="text-center">
-                <form method="post" action="./admin/feature-flags/toggle/<?php echo htmlspecialchars($flag->key->value); ?>/" class="d-inline m-0">
+                <form method="post" action="./admin/feature-flags/toggle/<?php echo htmlspecialchars($flag->key->value, ENT_QUOTES, 'UTF-8'); ?>/" class="d-inline m-0">
                   <input type="hidden" name="csrftoken" value="<?php echo htmlspecialchars($csrf, ENT_QUOTES, 'UTF-8'); ?>">
                   <label class="form-check form-switch m-0 d-inline-block" aria-label="<?php echo $lang === 'ja' ? 'フラグを切り替え' : 'Toggle flag'; ?>">
                     <input type="checkbox" class="form-check-input" name="enabled" value="1"
@@ -88,7 +88,7 @@
               </td>
               <td class="text-secondary"><?php echo htmlspecialchars($flag->updatedAt->format('Y-m-d H:i')); ?></td>
               <td class="text-end">
-                <form method="post" action="./admin/feature-flags/delete/<?php echo htmlspecialchars($flag->key->value); ?>/"
+                <form method="post" action="./admin/feature-flags/delete/<?php echo htmlspecialchars($flag->key->value, ENT_QUOTES, 'UTF-8'); ?>/"
                       class="d-inline m-0"
                       onsubmit="return confirm('<?php echo $lang === 'ja' ? '削除してよろしいですか？' : 'Are you sure?'; ?>')">
                   <input type="hidden" name="csrftoken" value="<?php echo htmlspecialchars($csrf, ENT_QUOTES, 'UTF-8'); ?>">

@@ -34,8 +34,8 @@
             $toggleLabel = $f['enabled'] ? 'Disable' : 'Enable';
             $toggleVariant = $f['enabled'] ? 'danger' : 'success';
             
-            $csrf = htmlspecialchars(\saso\util\CSRFtoken::current());
-            $keyHtml = htmlspecialchars($f['key']);
+            $csrf = htmlspecialchars(\saso\util\CSRFtoken::current(), ENT_QUOTES, 'UTF-8');
+            $keyHtml = htmlspecialchars($f['key'], ENT_QUOTES, 'UTF-8');
             
             $actionForm = <<<HTML
 <form method="POST" action="" class="d-inline-block m-0">

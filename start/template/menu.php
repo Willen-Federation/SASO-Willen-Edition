@@ -7,7 +7,7 @@
       'items' => [
         ['./item/add/',                   '商品登録',         'ti-plus',           'primary'],
         ['./item/registerFromImage/',     '画像から商品登録', 'ti-photo-plus',     'primary'],
-        ['./item/registerFromBarcode/',   'バーコード登録',   'ti-barcode',        'success'],
+        ['./item/fromBarcode/',           'バーコード登録',   'ti-barcode',        'success'],
         ['./item/draftList/',             '下書き一覧',       'ti-file-pencil',    'warning'],
         ['./item/list/',                  '商品一覧',         'ti-list',           'primary'],
         ['./category/start/',             '分類管理',         'ti-list-tree',      'secondary'],

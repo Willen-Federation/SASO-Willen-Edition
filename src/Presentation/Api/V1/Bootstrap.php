@@ -103,10 +103,10 @@ final class Bootstrap
             'getSwaggerUi'    => [$swaggerUi, 'page'],
 
             'listFeatureFlags'  => [$flagList, 'handle'],
-            'createFeatureFlag' => [$flagCreate, 'handle'],
+            'createFeatureFlag' => static function (HttpRequest $r) use ($flagCreate) { self::requireSessionAuth(); return $flagCreate->handle($r); },
             'getFeatureFlag'    => [$flagGet, 'handle'],
-            'updateFeatureFlag' => [$flagUpdate, 'handle'],
-            'deleteFeatureFlag' => [$flagDelete, 'handle'],
+            'updateFeatureFlag' => static function (HttpRequest $r) use ($flagUpdate) { self::requireSessionAuth(); return $flagUpdate->handle($r); },
+            'deleteFeatureFlag' => static function (HttpRequest $r) use ($flagDelete) { self::requireSessionAuth(); return $flagDelete->handle($r); },
 
             'createPairingCode' => [$qr, 'handle'],
             'mobileConnect'     => [$connect, 'handle'],
@@ -120,6 +120,20 @@ final class Bootstrap
     public static function specPath(): string
     {
         return dirname(__DIR__, 4).'/config/openapi.yaml';
+    }
+
+    private static function requireSessionAuth(): void
+    {
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+        $authed = isset($_SESSION['id'], $_SESSION['time']) && $_SESSION['time'] + 3600 > time();
+        if (!$authed) {
+            http_response_code(401);
+            header('Content-Type: application/problem+json; charset=utf-8');
+            echo json_encode(['status' => 401, 'title' => 'Unauthorized', 'detail' => 'Admin session required.']);
+            exit;
+        }
     }
 
     private static function createPdo(): PDO

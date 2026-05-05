@@ -160,7 +160,7 @@ foreach($v->quantityLogsGen as $quantityLogs) {
     <input
         type="number" name="amount" value="<?php echo $feature->labelAmount===0 ? '' : (int)$feature->labelAmount; ?>"
         class="form-control labelSheetsInput <?php echo ($feature->color->code===$v->color &&$feature->size->code===$v->size &&$v->action==='label')?'focused':''; ?>"
-        aria-describedby="label-<?php echo $fc; ?>" min="0" max="100" range="1"
+        min="0" max="100" step="1"
     >
     <button type="submit" class="btn btn-outline-primary" id="label-<?php echo $fc; ?>">追加</button>
 </div>

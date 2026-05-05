@@ -54,7 +54,7 @@ DB_PASSWORD=&lt;your password&gt;</code></pre>
   </div>
   <div class="card-body">
     <p>下記の項目を入力し、「インストール」ボタンを押して下さい。</p>
-    <div class="alert alert-warning" role="alert">
+    <div class="alert alert-warning" role="note">
       <i class="ti ti-alert-triangle me-2"></i>ログイン ID とパスワードはどこかに書き留めておいて下さい。忘れると、復元できません。
     </div>
 

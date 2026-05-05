@@ -59,6 +59,27 @@ final class AddFromImageDIContainer implements DIContainer
             return $view;
         }
 
+        // Validate MIME type against the actual file content (not the client filename)
+        $allowedMimes = [
+            'image/jpeg' => 'jpg',
+            'image/png'  => 'png',
+            'image/gif'  => 'gif',
+            'image/webp' => 'webp',
+        ];
+        $finfo = new \finfo(FILEINFO_MIME_TYPE);
+        $mimeType = $finfo->file($_FILES['image']['tmp_name']);
+        if (!isset($allowedMimes[$mimeType])) {
+            $errorMsg = 'Invalid file type. Only JPEG, PNG, GIF, and WebP images are accepted.';
+            if ($this->isAjax()) {
+                header('Content-Type: application/json; charset=utf-8');
+                http_response_code(415);
+                echo json_encode(['error' => $errorMsg]);
+                exit;
+            }
+            $_SESSION['flash_error'] = $errorMsg;
+            return new AddFromImageView();
+        }
+
         // Determine upload directory relative to document root
         $docRoot = rtrim((string) ($_SERVER['DOCUMENT_ROOT'] ?? '/var/www/html'), '/');
         $uploadDir = $docRoot . '/uploads/item_drafts/';
@@ -66,8 +87,8 @@ final class AddFromImageDIContainer implements DIContainer
             mkdir($uploadDir, 0755, true);
         }
 
-        // Generate unique filename
-        $ext = strtolower(pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION) ?: 'jpg');
+        // Generate unique filename using the MIME-derived extension (not user-supplied)
+        $ext = $allowedMimes[$mimeType];
         $filename = uniqid('draft_', true) . '.' . $ext;
         $destPath = $uploadDir . $filename;
 

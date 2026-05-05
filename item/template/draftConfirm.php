@@ -71,6 +71,9 @@
 
         <!-- Right: Confirmation form -->
         <div class="col-lg-6">
+          <form id="draft-discard-form" method="post"
+                action="./item/draftDiscard/id/<?php echo $draftId; ?>/"></form>
+
           <form method="post" action="./item/draftSave/id/<?php echo $draftId; ?>/" novalidate>
 
             <?php
@@ -138,15 +141,10 @@
             <?php endif; ?>
 
             <div class="d-flex align-items-center justify-content-between gap-3 pt-2">
-              <form method="post"
-                    action="./item/draftDiscard/id/<?php echo $draftId; ?>/"
-                    onsubmit="return confirm('<?php echo $lang === 'ja' ? 'このドラフトを破棄しますか？' : 'Discard this draft?'; ?>')">
-                <?php ui('button', [
-                  'label'   => $lang === 'ja' ? '破棄する' : 'Discard',
-                  'type'    => 'submit',
-                  'variant' => 'danger',
-                ]); ?>
-              </form>
+              <button type="submit" form="draft-discard-form" class="btn btn-danger"
+                      onclick="return confirm(<?php echo htmlspecialchars(json_encode($lang === 'ja' ? 'このドラフトを破棄しますか？' : 'Discard this draft?'), ENT_QUOTES, 'UTF-8'); ?>)">
+                <?php echo $lang === 'ja' ? '破棄する' : 'Discard'; ?>
+              </button>
 
               <div class="d-flex align-items-center gap-2">
                 <?php ui('button', [

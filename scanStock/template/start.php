@@ -45,15 +45,22 @@ $this->content = function ($v) {
     },
 
     actionEndpoint() {
-      const id = this.item ? this.item.id : '';
-      if (this.mode === 'stock')     return './item/stock/item/' + id + '/';
-      if (this.mode === 'shipment')  return './item/shipment/item/' + id + '/';
-      if (this.mode === 'inventory') return './item/inventory/item/' + id + '/';
-      return './item/stock/item/' + id + '/';
+      const id    = this.item ? this.item.id        : '';
+      const color = this.item ? this.item.colorCode  : '';
+      const size  = this.item ? this.item.sizeCode   : '';
+      const tail  = 'item/' + id + '/color/' + color + '/size/' + size + '/';
+      if (this.mode === 'stock')     return './item/stock/'     + tail;
+      if (this.mode === 'shipment')  return './item/shipment/'  + tail;
+      if (this.mode === 'inventory') return './item/inventory/' + tail;
+      return './item/stock/' + tail;
     },
 
     async submitStock() {
       if (!this.item) return;
+      if (!this.item.colorCode || !this.item.sizeCode) {
+        this.submitError = <?php echo json_encode($lang === 'ja' ? 'この商品には色・サイズが登録されていません' : 'This item has no color/size registered'); ?>;
+        return;
+      }
       this.submitting   = true;
       this.submitSuccess = false;
       this.submitError  = null;

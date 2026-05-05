@@ -495,6 +495,16 @@ components:
             name:
               type: string
               description: Item name.
+            colorCode:
+              type: string
+              nullable: true
+              description: First available color code (2-digit zero-padded); null if none.
+              example: '01'
+            sizeCode:
+              type: string
+              nullable: true
+              description: First available size code (2-digit zero-padded); null if none.
+              example: '01'
 
     # -------------------------------------------------------------------------
     # Feature Flags

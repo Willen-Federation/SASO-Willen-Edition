@@ -124,6 +124,7 @@
   </div>
 </div>
 <script type="module" src="./js/main.js"></script>
+<script defer src="./js/browser-init.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@tabler/core@1.0.0/dist/js/tabler.min.js"></script>
 </body>
 </html>

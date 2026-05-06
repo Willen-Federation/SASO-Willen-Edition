@@ -154,11 +154,11 @@ ui:
     copyright: '© {year} SASO — Willen Edition'
     version: 'Version {version}'
   pagination:
-    summary: 'Page {current} / {last}'
-    prev: Prev
+    prev: Previous
     next: Next
+    summary: 'Showing {from}–{to} of {total}'
   table:
-    empty: 'No records'
+    empty: No rows to display.
   a11y:
     skip_to_main: Skip to main content
     search: Search
@@ -167,22 +167,11 @@ ui:
     breadcrumb: Breadcrumb
     pagination: Pagination
     tabs: Tabs
-  button:
-    cancel: Cancel
-    close: Close
-    dismiss: Dismiss
-    save: Save
   scanner:
     open: Scan Barcode / QR
     close: Close
     scanning: Scanning...
     camera_denied: Camera access denied. Please allow camera access and try again.
-  table:
-    empty: No rows to display.
-  pagination:
-    prev: Previous
-    next: Next
-    summary: Showing {from}-{to} of {total}
   auth_providers:
     title: Authentication Providers
     add: Add Provider
@@ -227,9 +216,17 @@ ui:
     help: 'Add, rename, and reorder categories. Drag is not supported yet — use the controls inline next to each row.'
     empty: 'Loading…'
   item:
+    add_from_image:
+      title: Register Item from Image
+    draft_confirm:
+      title: Confirm Draft
+    draft_list:
+      title: Item Drafts
     register:
       title: Register a new product
       submit: Register product
+      image_drop: Drop an image here or choose a file.
+      take_photo: Take Photo
     field:
       name: Product name
       name_help: Up to 50 characters.
@@ -265,6 +262,8 @@ ui:
     go_to_pending: Open pending labels
     requirements_title: Required
     requirements_body: 'Run the M6 migrations 20260428120000–20260428120004 to create the barcode_pool, barcode_batch, label_sheet_layout, and location_map tables.'
+    sheet_type: Sheet type
+    no_sheets: No label sheets are registered.
   verify:
     title: Data verification
     start_title: Start a verification session
@@ -301,30 +300,6 @@ ui:
       active: Active
       disabled: Disabled
       tripped: Circuit breaker tripped
-  item:
-    add_from_image:
-      title: Register Item from Image
-    draft_confirm:
-      title: Confirm Draft
-    draft_list:
-      title: Item Drafts
-    register:
-      image_drop: Drop an image here or choose a file.
-      take_photo: Take Photo
-  label_wizard:
-    title: Label Wizard
-    step1: Select sheet
-    step1_help: Choose a label sheet layout.
-    step2: Configure count
-    step2_help: Enter how many labels to create.
-    step3: Print
-    step3_help: Review settings and print.
-    step3_note: Confirm printer settings before printing.
-    sheet_type: Sheet type
-    count: Count
-    print: Print
-    no_sheets: No label sheets are registered.
-    go_to_pending: View Pending Barcodes
   label_pending:
     title: Pending Barcodes
     count: Count
@@ -334,22 +309,3 @@ ui:
     col_batch: Batch
     col_code: Code
     col_created: Created
-  verify:
-    title: Verification
-    start_title: Start Verification
-    start_help: Create a verification session for shelf or stock checks.
-    begin: Begin
-    area: Area
-    area_help: Optional shelf or warehouse area.
-    mode: Mode
-    mode.spot: Spot Check
-    mode.stocktake: Stocktake
-    recent: Recent Sessions
-    recent_caption: Recent verification sessions
-    no_recent: No recent sessions.
-    mcp_title: Mobile / MCP
-    mcp_body: Pair a device to continue verification from a scanner.
-    col:
-      mode: Mode
-      started: Started
-      status: Status

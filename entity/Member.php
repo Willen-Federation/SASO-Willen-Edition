@@ -89,7 +89,7 @@ final class Member
      */
     public static function hashPassword(string $raw): string
     {
-        return password_hash($raw, PASSWORD_ARGON2ID);
+        return password_hash($raw, \PASSWORD_ARGON2ID);
     }
 
     /**
@@ -116,7 +116,7 @@ final class Member
         if ($storedHash === '' || !str_starts_with($storedHash, '$')) {
             return true;
         }
-        return password_needs_rehash($storedHash, PASSWORD_ARGON2ID);
+        return password_needs_rehash($storedHash, \PASSWORD_ARGON2ID);
     }
 
     /**

@@ -1,9 +1,15 @@
 <?php
+
 namespace saso\auth;
 
 use saso\framework\Setter;
 use saso\framework\View;
 
+/**
+ * @method \Closure restoredPath(\Closure $setter)
+ * @method \Closure isError(\Closure $setter)
+ * @method \Closure providers(\Closure $setter)
+ */
 final class AuthView implements View
 {
     use Setter;
@@ -11,8 +17,8 @@ final class AuthView implements View
     protected \Closure $content;
     protected string $restoredPath;
     protected bool $isError;
-    /** @var list<array{id:string,name:string,flavor:string,type:string}> */
-    public array $idpProviders = [];
+    /** @var array<int, object> */
+    protected array $providers = [];
     public function display(): void
     {
         require_once 'auth/template/auth.php';

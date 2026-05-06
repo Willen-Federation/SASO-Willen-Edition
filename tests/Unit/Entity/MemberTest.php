@@ -110,6 +110,28 @@ final class MemberTest extends TestCase
         self::assertNull($bad->getOrElse(null));
     }
 
+    public function testLoginPasswordConstraintAcceptsExistingShortPasswords(): void
+    {
+        self::assertSame('ai', Member::loginPasswordConstraint('ai')->getOrElse(null));
+        self::assertSame('abc-DEF_123', Member::loginPasswordConstraint('abc-DEF_123')->getOrElse(null));
+    }
+
+    public function testLoginPasswordConstraintRejectsEmptyLongOrUnsafePasswords(): void
+    {
+        self::assertNull(Member::loginPasswordConstraint('')->getOrElse(null));
+        self::assertNull(Member::loginPasswordConstraint(str_repeat('a', 21))->getOrElse(null));
+        self::assertNull(Member::loginPasswordConstraint('passwd!!')->getOrElse(null));
+    }
+
+    public function testRoleDefaultsToOperatorAndCanBeMappedFromDatabaseRows(): void
+    {
+        $operator = new Member('aioperation', 'AI Operation', Member::hashPassword('ai'));
+        $admin = new Member('bootstrap', 'Bootstrap', Member::hashPassword('secret123'), 'admin');
+
+        self::assertSame('operator', $operator->__get('role'));
+        self::assertSame('admin', $admin->__get('role'));
+    }
+
     /**
      * Reproduces entity\Member::legacyHashed (private) so tests can construct
      * legacy-format digests without reflection. Mirrors the exact SHA256 chain

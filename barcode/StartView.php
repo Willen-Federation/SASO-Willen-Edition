@@ -8,6 +8,7 @@ final class StartView implements View
 {
     use Setter;
     private \Closure $content;
+    private string $title;
     public function __construct(
     )
     {

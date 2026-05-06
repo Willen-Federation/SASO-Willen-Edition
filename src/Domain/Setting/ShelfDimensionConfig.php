@@ -8,11 +8,11 @@ use InvalidArgumentException;
 
 final readonly class ShelfDimensionConfig
 {
-    /** @var ShelfDimensionMetadata[] */
+    /** @var list<ShelfDimensionMetadata> */
     public array $dimensions;
 
     /**
-     * @param ShelfDimensionMetadata[] $dimensions
+     * @param list<ShelfDimensionMetadata> $dimensions
      */
     public function __construct(array $dimensions)
     {
@@ -73,12 +73,15 @@ final readonly class ShelfDimensionConfig
         return $encoded;
     }
 
+    /**
+     * @return list<ShelfDimensionMetadata>
+     */
     public function getEnabledDimensions(): array
     {
-        return array_filter(
+        return array_values(array_filter(
             $this->dimensions,
             fn($dim) => $dim->enabled
-        );
+        ));
     }
 
     public function getDimensionCount(): int

@@ -23,6 +23,9 @@ final readonly class ShelfDimensionMetadata
         }
     }
 
+    /**
+     * @param array<string, mixed> $data
+     */
     public static function fromArray(array $data): self
     {
         $typeValue = $data['type'] ?? 'numeric';
@@ -37,6 +40,9 @@ final readonly class ShelfDimensionMetadata
         );
     }
 
+    /**
+     * @return array{name: string, description: string, type: string, position: int, enabled: bool}
+     */
     public function toArray(): array
     {
         return [

@@ -47,6 +47,14 @@ final class Member
             ->filter(fn($v)=>preg_match('/[^0-9a-zA-Z]/', $v)===0);
     }
 
+    public static function loginPasswordConstraint(string $password): Either
+    {
+        return Either::of($password)
+            ->filter(fn($v)=>!empty($v))
+            ->filter(fn($v)=>mb_strlen($v)<=20)
+            ->filter(fn($v)=>preg_match('/[^0-9a-zA-Z_-]/', $v)===0);
+    }
+
     public static function avatarUrlConstraint(?string $url): Either
     {
         if (empty($url)) {

@@ -6,7 +6,7 @@
 
 set -euo pipefail
 
-cd /home/schicksal/domains/saso.sksl.jp/public_html
+cd "${SASO_WEBHOOK_WORKTREE:-$(cd "$(dirname "$0")" && pwd)}"
 
 git fetch origin
 

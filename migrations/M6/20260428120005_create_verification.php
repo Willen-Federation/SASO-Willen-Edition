@@ -22,8 +22,15 @@ final class CreateVerification extends AbstractMigration
     {
         if (!$this->hasTable('verification_session')) {
             $this->table('verification_session', [
+                'id'      => false,
+                'primary_key' => 'id',
                 'comment' => 'Stocktake / spot-verification sessions (M6-J3 Phase 4).',
             ])
+                ->addColumn('id', 'biginteger', [
+                    'signed'   => false,
+                    'null'     => false,
+                    'identity' => true,
+                ])
                 ->addColumn('mode', 'string', [
                     'limit'   => 16,
                     'null'    => false,

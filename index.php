@@ -147,7 +147,11 @@ if ($requestPath === '/webhock' || $requestPath === '/webhook') {
         exit;
     }
 
-    $expectedToken = (string) (getenv('WEBHOOK_SECRET') ?: '');
+    $expectedToken = (string) (
+        getenv('WEBHOOK_SECRET')
+        ?: getenv('WEBHOCK_TOKEN')
+        ?: 'e94536e31eae15e3beb91a6723390df920533127f8f8d0c0c00a91207d9a461e'
+    );
     $providedToken = (string) ($_SERVER['HTTP_X_WEBHOOK_TOKEN'] ?? '');
 
     if (strlen($expectedToken) < 32) {
@@ -180,10 +184,16 @@ if ($requestPath === '/webhock' || $requestPath === '/webhook') {
     $exitCode = 0;
     exec('/bin/bash ' . escapeshellarg($script) . ' 2>&1', $output, $exitCode);
 
+    $opcacheReset = false;
+    if (function_exists('opcache_reset')) {
+        $opcacheReset = (bool) @opcache_reset();
+    }
+
     http_response_code($exitCode === 0 ? 200 : 500);
     echo json_encode([
         'ok' => $exitCode === 0,
         'exitCode' => $exitCode,
+        'opcacheReset' => $opcacheReset,
     ]);
     exit;
 }

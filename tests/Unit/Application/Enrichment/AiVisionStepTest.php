@@ -77,22 +77,22 @@ final class AiVisionStepTest extends TestCase
         return new class implements AiAssistant {
             public function chatComplete(ChatRequest $req): ChatResponse
             {
-                throw new AiProviderNotConfiguredException('No provider configured.');
+                throw AiProviderNotConfiguredException::for('mock', 'chatComplete');
             }
 
             public function extractStructured(StructuredExtractionRequest $req): StructuredExtractionResponse
             {
-                throw new AiProviderNotConfiguredException('No provider configured.');
+                throw AiProviderNotConfiguredException::for('mock', 'extractStructured');
             }
 
             public function embed(EmbeddingRequest $req): EmbeddingResponse
             {
-                throw new AiProviderNotConfiguredException('No provider configured.');
+                throw AiProviderNotConfiguredException::for('mock', 'embed');
             }
 
             public function describeImage(ImageRequest $req): ImageDescriptionResponse
             {
-                throw new AiProviderNotConfiguredException('No provider configured.');
+                throw AiProviderNotConfiguredException::for('mock', 'describeImage');
             }
         };
     }
@@ -155,7 +155,7 @@ final class AiVisionStepTest extends TestCase
 
             public function chatComplete(ChatRequest $req): ChatResponse
             {
-                throw new AiProviderNotConfiguredException('not used');
+                throw AiProviderNotConfiguredException::for('mock', 'chatComplete');
             }
 
             public function extractStructured(StructuredExtractionRequest $req): StructuredExtractionResponse
@@ -165,12 +165,12 @@ final class AiVisionStepTest extends TestCase
 
             public function embed(EmbeddingRequest $req): EmbeddingResponse
             {
-                throw new AiProviderNotConfiguredException('not used');
+                throw AiProviderNotConfiguredException::for('mock', 'embed');
             }
 
             public function describeImage(ImageRequest $req): ImageDescriptionResponse
             {
-                throw new AiProviderNotConfiguredException('not used');
+                throw AiProviderNotConfiguredException::for('mock', 'describeImage');
             }
         };
 

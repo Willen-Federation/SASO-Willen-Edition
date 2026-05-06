@@ -38,18 +38,9 @@ RedirectMatch 404 (?i)/migrations(/|$)
 RedirectMatch 404 (?i)/docker(/|$)
 RedirectMatch 404 (?i)/docs(/|$)
 
-# Block PHP/script execution in user upload directories (defense-in-depth)
-<DirectoryMatch "uploads/">
-    <FilesMatch "\.(php\d?|phtml|phar|pl|py|cgi|sh|bash)$">
-        <IfModule mod_authz_core.c>
-            Require all denied
-        </IfModule>
-        <IfModule !mod_authz_core.c>
-            Order allow,deny
-            Deny from all
-        </IfModule>
-    </FilesMatch>
-</DirectoryMatch>
+# Block PHP/script execution in user upload directories (defense-in-depth).
+# DirectoryMatch is not allowed in .htaccess, so keep this path-based.
+RedirectMatch 404 (?i)^/uploads/.*\.(php[0-9]?|phtml|phar|pl|py|cgi|sh|bash)$
 
 # -----------------------------------------------------------------------------
 # 2) Disable directory listing

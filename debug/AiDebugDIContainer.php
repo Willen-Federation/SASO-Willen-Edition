@@ -1,11 +1,15 @@
 <?php
 namespace saso\debug;
 
+use DateTimeImmutable;
 use InvalidArgumentException;
 use saso\framework\DIContainer;
 use saso\framework\View;
 use saso\repository\DBConnection;
 use Saso\Application\Enrichment\Step\AiVisionStep;
+use Saso\Domain\Feature\FeatureFlag;
+use Saso\Domain\Feature\FeatureKey;
+use Saso\Domain\Feature\Repository\FeatureFlagRepository;
 use Saso\Domain\Setting\SettingKey;
 use Saso\Infrastructure\Ai\AiAssistantFactory;
 use Saso\Infrastructure\Auth\Crypto\SecretEncryptor;
@@ -157,7 +161,8 @@ final class AiDebugDIContainer implements DIContainer
 
         try {
             $aiAssistant = AiAssistantFactory::forVision($settingService);
-            $aiVisionStep = new AiVisionStep($aiAssistant);
+            $flagRepo = $this->createDebugFlagRepo();
+            $aiVisionStep = new AiVisionStep($aiAssistant, $flagRepo);
 
             // If base64 image provided, decode and write to temporary file
             $imagePath = null;
@@ -215,5 +220,52 @@ final class AiDebugDIContainer implements DIContainer
         }
 
         return false;
+    }
+
+    private function createDebugFlagRepo(): FeatureFlagRepository
+    {
+        return new class () implements FeatureFlagRepository {
+            public function findByKey(FeatureKey $key): ?FeatureFlag
+            {
+                // Enable AI auto-judge flag for debug probe
+                if ($key->value === 'ai.auto_judge') {
+                    return new FeatureFlag(
+                        id: 1,
+                        key: $key,
+                        description: 'AI auto-judge (debug)',
+                        enabled: true,
+                        rolloutPercent: 100,
+                        conditions: null,
+                        errorThreshold: 0,
+                        errorWindowMinutes: 1,
+                        autoDisabledAt: null,
+                        autoDisableReason: null,
+                        createdAt: new DateTimeImmutable(),
+                        updatedAt: new DateTimeImmutable(),
+                    );
+                }
+                return null;
+            }
+
+            public function findById(int $id): ?FeatureFlag
+            {
+                return null;
+            }
+
+            /** @return list<FeatureFlag> */
+            public function listAll(): array
+            {
+                return [];
+            }
+
+            public function save(FeatureFlag $flag): FeatureFlag
+            {
+                return $flag;
+            }
+
+            public function delete(int $id): void
+            {
+            }
+        };
     }
 }

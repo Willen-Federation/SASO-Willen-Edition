@@ -121,7 +121,6 @@ plugins:
       type: iso_date
       fallback_to_build_date: true
       enable_creation_date: false
-  - mermaid2
 
 # -----------------------------------------------------------------------------
 # Markdown extensions — match the conventions used in the root-level docs
@@ -142,11 +141,7 @@ markdown_extensions:
       pygments_lang_class: true
   - pymdownx.inlinehilite
   - pymdownx.snippets
-  - pymdownx.superfences:
-      custom_fences:
-        - name: mermaid
-          class: mermaid
-          format: !!python/name:mermaid2.fence_mermaid_custom
+  - pymdownx.superfences
   - pymdownx.tabbed:
       alternate_style: true
   - pymdownx.tasklist:

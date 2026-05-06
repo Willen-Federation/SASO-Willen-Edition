@@ -139,10 +139,10 @@ After saving, use the **Test connection** button to probe the discovery URL with
 | `GET` | `/api/v1/auth/providers/{id}` | Fetch a single provider |
 | `POST` | `/api/v1/auth/providers/{id}/test` | Probe discovery URL, return parsed endpoint set |
 
-Full request / response shapes are in [`docs/api.md`](../api.md#auth-providers).
+Full request / response shapes are in [`docs/api.md`](../api.md#specification).
 
 ## See also
 
 * ADR 0003 — pluggable IdP contract
 * ADR 0017 — TailAdmin migration
-* [API Reference — Auth Providers](../api.md#auth-providers)
+* [API Reference — Auth Providers](../api.md#specification)

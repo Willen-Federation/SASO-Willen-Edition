@@ -4,7 +4,7 @@
 
 本ドキュメントサイトでは、アプリの運用方法、貢献方法、近代化ロードマップ（M0〜M5）を導くアーキテクチャ判断を扱います。
 
-> [English](/) / オリジナル日本語 README は [`ORIGINAL_README.md`](https://github.com/Willen-Federation/SASO-Willen-Edition/blob/main/ORIGINAL_README.md) にあります。
+> <a href="/">English</a> / オリジナル日本語 README は [`ORIGINAL_README.md`](https://github.com/Willen-Federation/SASO-Willen-Edition/blob/main/ORIGINAL_README.md) にあります。
 
 ## 章立て
 

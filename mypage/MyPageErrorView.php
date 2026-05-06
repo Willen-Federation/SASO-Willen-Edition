@@ -19,7 +19,7 @@ final class MyPageErrorView implements View
 
     public function onRoot(): bool
     {
-        return false;
+        return true;
     }
 
     public function getTitle(): string

@@ -14,16 +14,26 @@ import ArchiveAll from './archiveAll.js';
 
 let csrftoken = document.querySelector('meta[name="csrf-token"]')?.content ?? '';
 
-new Password();
-new Label(csrftoken);
-new Category(csrftoken);
-new Item();
-new ItemEdit();
-new List();
-new Feature();
-new Barcode();
-new CSRF(csrftoken);
-new Shelf();
-new ArchiveAll();
+let initialize = callback=>{
+    try {
+        callback();
+    } catch (error) {
+        console.error('SASO client initializer failed:', error);
+    }
+};
+
+document.documentElement?.setAttribute('data-saso-main-loaded', '1');
+
+initialize(()=>new Password());
+initialize(()=>new Label(csrftoken));
+initialize(()=>new Category(csrftoken));
+initialize(()=>new Item());
+initialize(()=>new ItemEdit());
+initialize(()=>new List());
+initialize(()=>new Feature());
+initialize(()=>new Barcode());
+initialize(()=>new CSRF(csrftoken));
+initialize(()=>new Shelf());
+initialize(()=>new ArchiveAll());
 
 //<?php } ?>

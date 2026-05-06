@@ -1,8 +1,8 @@
 <?php
 /** @var \saso\mypage\MyPageView $v */
 ?>
-<?php $v->title = __('My Page'); ?>
-<?php $v->content = function ($v) { ?>
+<?php $this->title = __('My Page'); ?>
+<?php $this->content = function ($v) { ?>
 <div class="container mt-5">
     <div class="row">
         <div class="col-md-8">
@@ -54,7 +54,7 @@
                                 </dl>
 
                                 <div class="mt-3">
-                                    <a href="./mypage/editProfile/" class="btn btn-primary btn-sm">
+                                    <a href="/mypage/editProfile/" class="btn btn-primary btn-sm">
                                         <?php echo htmlspecialchars(__('Edit Profile')); ?>
                                     </a>
                                 </div>
@@ -76,7 +76,7 @@
                         <div class="mt-3">
                             <h5><?php echo htmlspecialchars(__('Local Authentication')); ?></h5>
                             <p><?php echo htmlspecialchars(__('Manage your password')); ?></p>
-                            <a href="./start/password/" class="btn btn-outline-primary btn-sm">
+                            <a href="/start/password/" class="btn btn-outline-primary btn-sm">
                                 <?php echo htmlspecialchars(__('Change Password')); ?>
                             </a>
                         </div>

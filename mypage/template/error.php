@@ -1,8 +1,8 @@
 <?php
 /** @var \saso\mypage\MyPageErrorView $v */
 ?>
-<?php $v->title = __('Error'); ?>
-<?php $v->content = function ($v) { ?>
+<?php $this->title = __('Error'); ?>
+<?php $this->content = function ($v) { ?>
 <div class="container mt-5">
     <div class="alert alert-danger" role="alert">
         <h4 class="alert-heading"><?php echo htmlspecialchars(__('Error')); ?></h4>

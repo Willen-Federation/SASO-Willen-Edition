@@ -9,6 +9,7 @@ use saso\framework\Presenter;
 use saso\framework\Usecase;
 use saso\repository\DbFinder;
 use saso\repository\DbUpdater;
+use saso\repository\DBConnection;
 use saso\util\monad\Either;
 
 final class EditProfileSaveUsecase implements Usecase
@@ -50,36 +51,43 @@ final class EditProfileSaveUsecase implements Usecase
             return;
         }
 
-        // Update Member
-        $this->updater->transact(
-            new EditProfileUpdateRepository(),
-            [
-                'id' => $this->memberId,
-                'display_name' => $displayName,
-                'bio' => $bio,
-                'avatar_url' => $avatarUrl,
-                'updated_at' => date('Y-m-d H:i:s'),
-            ]
-        );
+        if ($this->profileColumnsExist()) {
+            $this->updater->exec(
+                new EditProfileUpdateRepository(),
+                [
+                    'id' => $this->memberId,
+                    'display_name' => $displayName,
+                    'bio' => $bio,
+                    'avatar_url' => $avatarUrl,
+                    'updated_at' => date('Y-m-d H:i:s'),
+                ]
+            );
+        }
 
         // Fetch updated Member
-        $members = $this->finder->query(
+        $member = $this->finder->current(
             new \saso\repository\member\FindOne(),
             ['id' => $this->memberId]
-        );
+        )->getOrElse(null);
 
-        if (empty($members)) {
+        if ($member === null) {
             $this->output = new MyPageErrorOutput('Member not found after update');
             return;
         }
 
         $this->output = new EditProfileOutput(
-            member: $members[0],
+            member: $member,
         );
     }
 
     public function output(): \saso\framework\View
     {
         return $this->presenter->complete(Either::of($this->output));
+    }
+
+    private function profileColumnsExist(): bool
+    {
+        $stmt = DBConnection::pdo()->query("SHOW COLUMNS FROM Member LIKE 'display_name'");
+        return $stmt !== false && $stmt->fetch(\PDO::FETCH_ASSOC) !== false;
     }
 }

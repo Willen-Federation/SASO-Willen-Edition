@@ -24,18 +24,18 @@ final class EditProfileFormUsecase implements Usecase
 
     public function handle(DTO $data): void
     {
-        $members = $this->finder->query(
+        $member = $this->finder->current(
             new \saso\repository\member\FindOne(),
             ['id' => $this->memberId]
-        );
+        )->getOrElse(null);
 
-        if (empty($members)) {
+        if ($member === null) {
             $this->output = new MyPageErrorOutput('Member not found');
             return;
         }
 
         $this->output = new EditProfileOutput(
-            member: $members[0],
+            member: $member,
         );
     }
 

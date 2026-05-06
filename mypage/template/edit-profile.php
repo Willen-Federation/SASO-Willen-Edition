@@ -1,8 +1,8 @@
 <?php
 /** @var \saso\mypage\EditProfileView $v */
 ?>
-<?php $v->title = __('Edit Profile'); ?>
-<?php $v->content = function ($v) { ?>
+<?php $this->title = __('Edit Profile'); ?>
+<?php $this->content = function ($v) { ?>
 <div class="container mt-5">
     <div class="row">
         <div class="col-md-8 offset-md-2">
@@ -12,7 +12,7 @@
                 </div>
                 <div class="card-body">
                     <?php if ($v->member): ?>
-                    <form method="POST" action="./mypage/editProfile/">
+                    <form method="POST" action="/mypage/editProfile/">
                         <div class="mb-3">
                             <label for="display_name" class="form-label">
                                 <?php echo htmlspecialchars(__('Display Name')); ?>

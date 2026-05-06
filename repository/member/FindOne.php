@@ -6,17 +6,21 @@ use saso\repository\DbPrepare;
 use saso\util\Each;
 
 /**
- * Look up a Member row by its id, including all profile fields.
+ * Look up a Member row by its id.
  *
- * Used by the MyPage feature to display and edit a user's own profile
- * (avatar, display_name, bio, etc).
+ * Profile columns were added after the base Member table and may not exist on
+ * older production databases yet, so this query keeps those fields nullable.
  */
 final class FindOne implements DbPrepare
 {
     public function getQuery(): string
     {
         return '
-            SELECT id, password, userName, role, avatar_url, display_name, bio, updated_at
+            SELECT id, password, userName, role,
+                   NULL AS avatar_url,
+                   NULL AS display_name,
+                   NULL AS bio,
+                   NULL AS updated_at
                 FROM Member
                 WHERE id = :id
         ';

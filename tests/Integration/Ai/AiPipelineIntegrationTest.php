@@ -130,7 +130,7 @@ final class AiPipelineIntegrationTest extends TestCase
 
     private function enabledAiFlagRepo(): FeatureFlagRepository
     {
-        return new class implements FeatureFlagRepository {
+        return new class () implements FeatureFlagRepository {
             public function findByKey(FeatureKey $key): ?FeatureFlag
             {
                 return new FeatureFlag(

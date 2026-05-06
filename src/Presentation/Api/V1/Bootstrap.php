@@ -110,10 +110,19 @@ final class Bootstrap
             'getBarcode'      => [$barcodeGet, 'handle'],
 
             'listFeatureFlags'  => [$flagList, 'handle'],
-            'createFeatureFlag' => static function (HttpRequest $r) use ($flagCreate) { self::requireSessionAuth(); return $flagCreate->handle($r); },
+            'createFeatureFlag' => static function (HttpRequest $r) use ($flagCreate) {
+                self::requireSessionAuth();
+                return $flagCreate->handle($r);
+            },
             'getFeatureFlag'    => [$flagGet, 'handle'],
-            'updateFeatureFlag' => static function (HttpRequest $r) use ($flagUpdate) { self::requireSessionAuth(); return $flagUpdate->handle($r); },
-            'deleteFeatureFlag' => static function (HttpRequest $r) use ($flagDelete) { self::requireSessionAuth(); return $flagDelete->handle($r); },
+            'updateFeatureFlag' => static function (HttpRequest $r) use ($flagUpdate) {
+                self::requireSessionAuth();
+                return $flagUpdate->handle($r);
+            },
+            'deleteFeatureFlag' => static function (HttpRequest $r) use ($flagDelete) {
+                self::requireSessionAuth();
+                return $flagDelete->handle($r);
+            },
 
             'createPairingCode' => [$qr, 'handle'],
             'mobileConnect'     => [$connect, 'handle'],

@@ -10,6 +10,11 @@ final class Member
         private string $id,
         private string $name,
         private string $password,
+        private string $role = 'operator',
+        private ?string $avatarUrl = null,
+        private ?string $displayName = null,
+        private ?string $bio = null,
+        private ?\DateTime $updatedAt = null,
     )
     {
     }

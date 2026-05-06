@@ -224,6 +224,8 @@ ui:
       take_photo: 写真を撮影
       title: 商品の新規登録
       submit: 商品を登録
+      image_drop: 画像をここにドロップするか、ファイルを選択してください。
+      take_photo: 写真を撮影
     field:
       name: 商品名
       name_help: 50字以内。
@@ -261,6 +263,8 @@ ui:
     no_sheets: ラベルシートは登録されていません。
     requirements_title: マイグレーションの実行が必要です
     requirements_body: 'barcode_pool / barcode_batch / label_sheet_layout / location_map テーブルを作成するため、M6 マイグレーション 20260428120000–20260428120004 を実行してください。'
+    sheet_type: シート種別
+    no_sheets: ラベルシートは登録されていません。
   verify:
     title: データ照合
     start_title: 照合セッションを開始

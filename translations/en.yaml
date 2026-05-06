@@ -227,6 +227,8 @@ ui:
       take_photo: Take Photo
       title: Register a new product
       submit: Register product
+      image_drop: Drop an image here or choose a file.
+      take_photo: Take Photo
     field:
       name: Product name
       name_help: Up to 50 characters.
@@ -264,6 +266,8 @@ ui:
     no_sheets: No label sheets are registered.
     requirements_title: Required
     requirements_body: 'Run the M6 migrations 20260428120000–20260428120004 to create the barcode_pool, barcode_batch, label_sheet_layout, and location_map tables.'
+    sheet_type: Sheet type
+    no_sheets: No label sheets are registered.
   verify:
     title: Data verification
     start_title: Start a verification session

@@ -106,6 +106,7 @@
         </div>
         <div class="card-body">
           <form method="post" action="./item/registerFromBarcode/" novalidate>
+            <input type="hidden" name="csrftoken" value="<?php echo ui_attr(\saso\util\CSRFtoken::current()); ?>">
             <input type="hidden" name="barcodeId" :value="barcodeInput">
 
             <div class="mb-3">

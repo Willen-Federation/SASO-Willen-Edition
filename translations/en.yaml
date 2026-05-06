@@ -1,6 +1,7 @@
 # =============================================================================
 # English (en) — default locale.
 # =============================================================================
+"...": "…"
 # This catalogue is the source of truth for user-facing strings the application
 # emits. The Japanese translation lives in `ja.yaml`; new locales are added by
 # dropping a sibling `<locale>.yaml` file with the same key tree.
@@ -86,3 +87,115 @@ error:
   SASO-INFRA-9004:
     title: Method not allowed
     detail: 'The requested HTTP method is not supported on this endpoint.'
+ui:
+  a11y:
+    pagination: Pagination
+    tabs: Tabs
+  button:
+    cancel: Cancel
+    close: Close
+    dismiss: Dismiss
+    save: Save
+  scanner:
+    open: Scan Barcode / QR
+    close: Close
+    scanning: Scanning...
+    camera_denied: Camera access denied. Please allow camera access and try again.
+  table:
+    empty: No rows to display.
+  pagination:
+    prev: Previous
+    next: Next
+    summary: Showing {from}-{to} of {total}
+  auth_providers:
+    title: Authentication Providers
+    add: Add Provider
+    edit: Edit
+    delete: Delete
+    confirm_delete: Delete this provider?
+    empty: No authentication providers are configured.
+    table_caption: Authentication provider list
+    saved_title: Provider saved
+    saved_body: The authentication provider has been saved.
+    deleted_title: Provider deleted
+    deleted_body: The authentication provider has been deleted.
+    forbidden_title: Access denied
+    forbidden_body: You do not have permission to manage authentication providers.
+    col:
+      name: Name
+      flavor: Type
+      issuer: Issuer
+      status: Status
+      actions: Actions
+    status:
+      active: Active
+      disabled: Disabled
+  feature_flags:
+    title: Feature Flags
+    refresh: Refresh
+    empty: No feature flags are configured.
+    table_caption: Feature flag list
+    forbidden_title: Access denied
+    forbidden_body: You do not have permission to manage feature flags.
+    col:
+      key: Key
+      description: Description
+      rollout: Rollout
+      status: Status
+      actions: Actions
+    status:
+      active: Active
+      disabled: Disabled
+      tripped: Circuit breaker tripped
+  item:
+    add_from_image:
+      title: Register Item from Image
+    draft_confirm:
+      title: Confirm Draft
+    draft_list:
+      title: Item Drafts
+    register:
+      image_drop: Drop an image here or choose a file.
+      take_photo: Take Photo
+  label_wizard:
+    title: Label Wizard
+    step1: Select sheet
+    step1_help: Choose a label sheet layout.
+    step2: Configure count
+    step2_help: Enter how many labels to create.
+    step3: Print
+    step3_help: Review settings and print.
+    step3_note: Confirm printer settings before printing.
+    sheet_type: Sheet type
+    count: Count
+    print: Print
+    no_sheets: No label sheets are registered.
+    go_to_pending: View Pending Barcodes
+  label_pending:
+    title: Pending Barcodes
+    count: Count
+    empty: No pending barcodes.
+    go_wizard: Go to Wizard
+    back_to_wizard: Back to Wizard
+    col_batch: Batch
+    col_code: Code
+    col_created: Created
+  verify:
+    title: Verification
+    start_title: Start Verification
+    start_help: Create a verification session for shelf or stock checks.
+    begin: Begin
+    area: Area
+    area_help: Optional shelf or warehouse area.
+    mode: Mode
+    mode.spot: Spot Check
+    mode.stocktake: Stocktake
+    recent: Recent Sessions
+    recent_caption: Recent verification sessions
+    no_recent: No recent sessions.
+    mcp_title: Mobile / MCP
+    mcp_body: Pair a device to continue verification from a scanner.
+    col:
+      mode: Mode
+      started: Started
+      status: Status

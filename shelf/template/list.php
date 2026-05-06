@@ -52,6 +52,7 @@
 </div>
 
 <form id="labelPrint" target="_blank" method="post" action="./shelf/outputPdf/">
+  <input type="hidden" name="csrftoken" value="<?php echo ui_attr(\saso\util\CSRFtoken::current()); ?>">
   <div class="card mb-3">
     <div class="card-body">
       <p class="form-label">ラベルを選択してください。</p>

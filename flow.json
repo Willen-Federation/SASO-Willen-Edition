@@ -56,7 +56,11 @@
     },
     "mypage": {
         "start": "\\saso\\mypage\\MyPageDIContainer",
-        "editProfile": "\\saso\\mypage\\EditProfileDIContainer"
+        "editProfile": "\\saso\\mypage\\EditProfileDIContainer",
+        "unlinkProvider": "\\saso\\mypage\\UnlinkProviderDIContainer",
+        "passkeyBegin": "\\saso\\mypage\\PasskeyBeginDIContainer",
+        "passkeyComplete": "\\saso\\mypage\\PasskeyCompleteDIContainer",
+        "passkeyDelete": "\\saso\\mypage\\PasskeyDeleteDIContainer"
     },
     "category": {
         "edit": "\\saso\\category\\EditDIContainer",

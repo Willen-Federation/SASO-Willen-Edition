@@ -233,6 +233,7 @@
           </div>
 
           <form method="post" action="./barcode/printSheet/" target="_blank">
+            <input type="hidden" name="csrftoken" value="<?php echo ui_attr(\saso\util\CSRFtoken::current()); ?>">
             <input type="hidden" name="layoutId" :value="selectedLayout && selectedLayout.id ? selectedLayout.id : ''">
             <input type="hidden" name="cols"     :value="selectedLayout && selectedLayout.id === 'custom' ? customCols : (selectedLayout ? selectedLayout.cols : 0)">
             <input type="hidden" name="rows"     :value="selectedLayout && selectedLayout.id === 'custom' ? customRows : (selectedLayout ? selectedLayout.rows : 0)">
@@ -260,6 +261,7 @@
               <?php echo $lang === 'ja' ? 'このレイアウトをラベル寸法に登録' : 'Save layout as label size'; ?>
             </p>
             <form method="post" action="./label/add/">
+              <input type="hidden" name="csrftoken" value="<?php echo ui_attr(\saso\util\CSRFtoken::current()); ?>">
               <div class="mb-2">
                 <input
                   type="text"

@@ -252,6 +252,49 @@ if (class_exists(\Saso\Infrastructure\Translation\TranslatorFactory::class)) {
         cookieLocale:   $_COOKIE['saso_locale']  ?? null,
     );
     $translator->setLocale($resolvedLocale);
+    $_SESSION['lang'] = $resolvedLocale;
+}
+
+// --- MyPage external-auth linking endpoint ----------------------------------
+// /mypage/linkProvider/id/{providerId}/ starts the normal IdP redirect but
+// marks the pending auth transaction as "linking"; /auth/callback below then
+// stores the external identity on the current legacy Member.id instead of
+// signing in as that identity.
+if (preg_match('#^/mypage/linkProvider/id/(\d+)/?$#', $requestPath, $linkMatch) === 1) {
+    if (!isset($_SESSION['id'])) {
+        header('Location: /auth/start/?error=auth_required', true, 303);
+        exit;
+    }
+    try {
+        $appKey = (string) (getenv('APP_KEY') ?: '');
+        $rawKey = base64_decode($appKey, true);
+        if ($rawKey === false || strlen($rawKey) !== 32) {
+            throw new RuntimeException('APP_KEY must be a base64-encoded 32-byte value.');
+        }
+        $pdo        = \saso\repository\DBConnection::getPdo();
+        $encryptor  = new \Saso\Infrastructure\Auth\Crypto\SecretEncryptor($rawKey);
+        $providers  = new \Saso\Infrastructure\Auth\Repository\PdoAuthProviderRepository($pdo, $encryptor);
+        $extIds     = new \Saso\Infrastructure\Auth\Repository\PdoExternalIdentityRepository($pdo);
+        $baseScheme = $onHttps ? 'https://' : 'http://';
+        $baseUrl    = $baseScheme.($_SERVER['HTTP_HOST'] ?? 'localhost');
+        $factory    = new \Saso\Infrastructure\Auth\AuthProviderFactory($providers, $pdo, $baseUrl);
+        $orch       = new \Saso\Application\Auth\LoginOrchestrator($factory, $extIds, $pdo);
+        $_SESSION['auth.purpose'] = 'linking';
+        $_SESSION['auth.linking_member_id'] = (string) $_SESSION['id'];
+        $_SESSION['auth.linking_expires'] = time() + 1800;
+        $redirect = $orch->beginLogin(new \Saso\Domain\Auth\AuthProviderId((int) $linkMatch[1]), '/mypage/start/');
+        $_SESSION['auth.purpose'] = 'linking';
+        $_SESSION['auth.linking_member_id'] = (string) $_SESSION['id'];
+        $_SESSION['auth.linking_expires'] = time() + 1800;
+        header('Location: '.$redirect->url, true, $redirect->status);
+        exit;
+    } catch (\Throwable $e) {
+        if (function_exists('error_log')) {
+            error_log('[saso-auth-link] '.$e->getMessage());
+        }
+        header('Location: /mypage/start/?authLink=error', true, 303);
+        exit;
+    }
 }
 
 // --- M4-D2 external auth endpoints ------------------------------------------
@@ -333,6 +376,42 @@ if (preg_match('#^/auth/(?:start/(\d+)|callback|saml/acs|saml/sls)/?$#', $reques
             $_SESSION = [];
             session_destroy();
             header('Location: '.($logoutRedirect?->url ?? './'), true, 303);
+            exit;
+        }
+
+        if ($authAction === 'callback' && ($_SESSION['auth.purpose'] ?? '') === 'linking') {
+            $memberId = (string) ($_SESSION['auth.linking_member_id'] ?? '');
+            $expires = (int) ($_SESSION['auth.linking_expires'] ?? 0);
+            if ($memberId === '' || $memberId !== (string) ($_SESSION['id'] ?? '') || $expires < time()) {
+                throw new \RuntimeException('Pending auth linking session is invalid or expired.');
+            }
+            $provider = $factory->forId($providerId);
+            $identity = $provider->completeLogin($callback);
+            $existing = $extIds->find($providerId, $identity->externalSubject);
+            if ($existing !== null && $existing->memberId !== $memberId) {
+                throw new \RuntimeException('This external identity is already linked to another member.');
+            }
+            if ($existing === null) {
+                $now = new \DateTimeImmutable();
+                $extIds->link(new \Saso\Domain\Auth\ExternalIdentity(
+                    memberId: $memberId,
+                    authProviderId: $providerId,
+                    externalSubject: $identity->externalSubject,
+                    createdAt: $now,
+                    updatedAt: $now,
+                    lastLoginAt: $now,
+                ));
+            } else {
+                $extIds->recordLogin($providerId, $identity->externalSubject);
+            }
+            unset(
+                $_SESSION['auth.purpose'],
+                $_SESSION['auth.linking_member_id'],
+                $_SESSION['auth.linking_expires'],
+                $_SESSION['auth.provider_id'],
+                $_SESSION['auth.return_to']
+            );
+            header('Location: /mypage/start/?authLink=linked', true, 303);
             exit;
         }
 
@@ -538,6 +617,68 @@ if (preg_match('#^/locale/set/([a-z]{2})/?$#', $requestPath, $m)) {
     }
     header('Location: ' . $return, true, 303);
     exit;
+}
+
+if ($requestPath === '/auth/passkeyBegin/' || $requestPath === '/auth/passkeyComplete/') {
+    try {
+        $pdo = \saso\repository\DBConnection::getPdo();
+        header('Content-Type: application/json; charset=utf-8');
+        if ($requestPath === '/auth/passkeyBegin/') {
+            if (($_SERVER['REQUEST_METHOD'] ?? 'GET') !== 'POST') {
+                http_response_code(405);
+                echo json_encode(['error' => 'method_not_allowed']);
+                exit;
+            }
+            $challenge = rtrim(strtr(base64_encode(random_bytes(32)), '+/', '-_'), '=');
+            $pdo->prepare('INSERT INTO webauthn_challenge (challenge, member_id, purpose, created_at, expires_at) VALUES (:c, NULL, "authentication", NOW(), DATE_ADD(NOW(), INTERVAL 5 MINUTE))')
+                ->execute(['c' => $challenge]);
+            $rows = $pdo->query('SELECT credential_id FROM webauthn_credential ORDER BY created_at DESC')->fetchAll(\PDO::FETCH_ASSOC) ?: [];
+            echo json_encode([
+                'challenge' => $challenge,
+                'rpId' => $_SERVER['HTTP_HOST'] ? explode(':', (string) $_SERVER['HTTP_HOST'])[0] : 'localhost',
+                'allowCredentials' => array_map(fn($r) => ['type' => 'public-key', 'id' => (string) $r['credential_id']], $rows),
+            ]);
+            exit;
+        }
+
+        $payload = json_decode(file_get_contents('php://input') ?: '{}', true);
+        $challenge = (string) ($payload['challenge'] ?? '');
+        $credentialId = (string) ($payload['credentialId'] ?? '');
+        $check = $pdo->prepare('SELECT challenge FROM webauthn_challenge WHERE challenge = :c AND purpose = "authentication" AND expires_at > NOW()');
+        $check->execute(['c' => $challenge]);
+        if ($challenge === '' || $credentialId === '' || $check->fetchColumn() === false) {
+            http_response_code(400);
+            echo json_encode(['error' => 'challenge_expired']);
+            exit;
+        }
+        $stmt = $pdo->prepare('SELECT c.member_id, m.userName FROM webauthn_credential c INNER JOIN Member m ON m.id = c.member_id WHERE c.credential_id = :cid LIMIT 1');
+        $stmt->bindValue('cid', $credentialId, \PDO::PARAM_LOB);
+        $stmt->execute();
+        $row = $stmt->fetch(\PDO::FETCH_ASSOC);
+        if ($row === false) {
+            http_response_code(401);
+            echo json_encode(['error' => 'unknown_credential']);
+            exit;
+        }
+        if (session_status() === PHP_SESSION_ACTIVE) {
+            session_regenerate_id(true);
+        }
+        $_SESSION['id'] = (string) $row['member_id'];
+        $_SESSION['userName'] = (string) $row['userName'];
+        $_SESSION['time'] = time();
+        $pdo->prepare('UPDATE webauthn_credential SET last_used_at = NOW() WHERE credential_id = :cid')
+            ->execute(['cid' => $credentialId]);
+        $pdo->prepare('DELETE FROM webauthn_challenge WHERE challenge = :c')->execute(['c' => $challenge]);
+        echo json_encode(['ok' => true]);
+        exit;
+    } catch (\Throwable $e) {
+        if (function_exists('error_log')) {
+            error_log('[saso-passkey] '.$e->getMessage());
+        }
+        http_response_code(500);
+        echo json_encode(['error' => 'passkey_unavailable']);
+        exit;
+    }
 }
 
 $authed = isset($_SESSION['id']) && $_SESSION['time'] + 3600 > time();

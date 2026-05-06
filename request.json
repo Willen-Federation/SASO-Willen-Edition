@@ -130,7 +130,11 @@
     },
     "mypage": {
         "start":       { "matter": "mypage", "action": "start" },
-        "editProfile": { "matter": "mypage", "action": "editProfile" }
+        "editProfile": { "matter": "mypage", "action": "editProfile" },
+        "unlinkProvider": { "matter": "mypage", "action": "unlinkProvider" },
+        "passkeyBegin": { "matter": "mypage", "action": "passkeyBegin" },
+        "passkeyComplete": { "matter": "mypage", "action": "passkeyComplete" },
+        "passkeyDelete": { "matter": "mypage", "action": "passkeyDelete" }
     },
     "admin": {
         "feature-flags":  { "matter": "admin", "action": "feature-flags" },

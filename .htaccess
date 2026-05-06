@@ -37,6 +37,7 @@ RedirectMatch 404 (?i)/tests(/|$)
 RedirectMatch 404 (?i)/migrations(/|$)
 RedirectMatch 404 (?i)/docker(/|$)
 RedirectMatch 404 (?i)/docs(/|$)
+RedirectMatch 404 (?i)^/(pull\.sh|.*\.(sh|bash))$
 
 # Block PHP/script execution in user upload directories (defense-in-depth).
 # DirectoryMatch is not allowed in .htaccess, so keep this path-based.

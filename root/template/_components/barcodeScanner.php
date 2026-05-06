@@ -28,8 +28,8 @@ $wrapperId = 'saso-scanner-wrapper-' . $uniqueId;
 <div id="<?php echo htmlspecialchars($wrapperId, ENT_QUOTES, 'UTF-8'); ?>"
      x-data="{
        ...sasoScanner(),
-       _readerId: <?php echo json_encode($readerId); ?>,
-       _targetInput: <?php echo json_encode($inputId); ?>,
+       _readerId: <?php echo htmlspecialchars(json_encode($readerId), ENT_QUOTES, 'UTF-8'); ?>,
+       _targetInput: <?php echo htmlspecialchars(json_encode($inputId), ENT_QUOTES, 'UTF-8'); ?>,
 
        openScanner() {
          this.result = null;

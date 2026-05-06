@@ -31,8 +31,8 @@ $videoId   = 'saso-camera-preview-' . $uniqueId;
 <div id="<?php echo htmlspecialchars($wrapperId, ENT_QUOTES, 'UTF-8'); ?>"
      x-data="{
        ...sasoCamera(),
-       _videoId:     <?php echo json_encode($videoId); ?>,
-       _fileInputId: <?php echo json_encode($fileInputId); ?>,
+       _videoId:     <?php echo htmlspecialchars(json_encode($videoId), ENT_QUOTES, 'UTF-8'); ?>,
+       _fileInputId: <?php echo htmlspecialchars(json_encode($fileInputId), ENT_QUOTES, 'UTF-8'); ?>,
 
        openCamera() {
          this.capturedDataUrl = null;

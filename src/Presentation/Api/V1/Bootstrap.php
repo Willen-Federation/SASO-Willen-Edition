@@ -103,10 +103,19 @@ final class Bootstrap
             'getSwaggerUi'    => [$swaggerUi, 'page'],
 
             'listFeatureFlags'  => [$flagList, 'handle'],
-            'createFeatureFlag' => [$flagCreate, 'handle'],
+            'createFeatureFlag' => static function (HttpRequest $r) use ($flagCreate) {
+                self::requireSessionAuth();
+                return $flagCreate->handle($r);
+            },
             'getFeatureFlag'    => [$flagGet, 'handle'],
-            'updateFeatureFlag' => [$flagUpdate, 'handle'],
-            'deleteFeatureFlag' => [$flagDelete, 'handle'],
+            'updateFeatureFlag' => static function (HttpRequest $r) use ($flagUpdate) {
+                self::requireSessionAuth();
+                return $flagUpdate->handle($r);
+            },
+            'deleteFeatureFlag' => static function (HttpRequest $r) use ($flagDelete) {
+                self::requireSessionAuth();
+                return $flagDelete->handle($r);
+            },
 
             'createPairingCode' => [$qr, 'handle'],
             'mobileConnect'     => [$connect, 'handle'],

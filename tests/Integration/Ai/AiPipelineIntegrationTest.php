@@ -124,4 +124,47 @@ final class AiPipelineIntegrationTest extends TestCase
         $this->assertNotNull($aiAssistant);
         $this->assertNotEquals('Saso\Infrastructure\Ai\NullAssistant', get_class($aiAssistant));
     }
+
+    private function enabledAiFlagRepo(): FeatureFlagRepository
+    {
+        return new class () implements FeatureFlagRepository {
+            public function findByKey(FeatureKey $key): ?FeatureFlag
+            {
+                return new FeatureFlag(
+                    id: 1,
+                    key: $key,
+                    description: 'AI auto-judge',
+                    enabled: true,
+                    rolloutPercent: 100,
+                    conditions: null,
+                    errorThreshold: 0,
+                    errorWindowMinutes: 1,
+                    autoDisabledAt: null,
+                    autoDisableReason: null,
+                    createdAt: new \DateTimeImmutable(),
+                    updatedAt: new \DateTimeImmutable(),
+                );
+            }
+
+            public function findById(int $id): ?FeatureFlag
+            {
+                return null;
+            }
+
+            /** @return list<FeatureFlag> */
+            public function listAll(): array
+            {
+                return [];
+            }
+
+            public function save(FeatureFlag $flag): FeatureFlag
+            {
+                return $flag;
+            }
+
+            public function delete(int $id): void
+            {
+            }
+        };
+    }
 }

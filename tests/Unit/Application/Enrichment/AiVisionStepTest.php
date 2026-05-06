@@ -53,28 +53,41 @@ final class AiVisionStepTest extends TestCase
     /** @param FeatureFlag|null $flag */
     private function flagRepo(?FeatureFlag $flag): FeatureFlagRepository
     {
-        return new class($flag) implements FeatureFlagRepository {
-            public function __construct(private readonly ?FeatureFlag $flag) {}
+        return new class ($flag) implements FeatureFlagRepository {
+            public function __construct(private readonly ?FeatureFlag $flag)
+            {
+            }
 
             public function findByKey(FeatureKey $key): ?FeatureFlag
             {
                 return $this->flag;
             }
 
-            public function findById(int $id): ?FeatureFlag { return null; }
+            public function findById(int $id): ?FeatureFlag
+            {
+                return null;
+            }
 
             /** @return list<FeatureFlag> */
-            public function listAll(): array { return []; }
+            public function listAll(): array
+            {
+                return [];
+            }
 
-            public function save(FeatureFlag $flag): FeatureFlag { return $flag; }
+            public function save(FeatureFlag $flag): FeatureFlag
+            {
+                return $flag;
+            }
 
-            public function delete(int $id): void {}
+            public function delete(int $id): void
+            {
+            }
         };
     }
 
     private function nullAi(): AiAssistant
     {
-        return new class implements AiAssistant {
+        return new class () implements AiAssistant {
             public function chatComplete(ChatRequest $req): ChatResponse
             {
                 throw AiProviderNotConfiguredException::for('mock', 'chatComplete');
@@ -149,9 +162,11 @@ final class AiVisionStepTest extends TestCase
             'category_hint' => '電子機器',
         ];
 
-        $mockAi = new class($expected) implements AiAssistant {
+        $mockAi = new class ($expected) implements AiAssistant {
             /** @param array<string, mixed> $data */
-            public function __construct(private readonly array $data) {}
+            public function __construct(private readonly array $data)
+            {
+            }
 
             public function chatComplete(ChatRequest $req): ChatResponse
             {

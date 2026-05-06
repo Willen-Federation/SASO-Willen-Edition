@@ -61,7 +61,6 @@ $this->title = $lang === 'ja' ? 'ログイン' : 'Login';
     </div>
   </div>
 </div>
-<?php } ?>
 
 <script defer src="./js/passkey-login.js"></script>
 <?php }; ?>

@@ -77,11 +77,12 @@ final class CreateVerification extends AbstractMigration
                 'constraint'  => 'fk_verif_event_session',
             ])
             ->create();
+        }
     }
 
     public function down(): void
     {
-        $this->table('verification_event')->drop()->update();
-        $this->table('verification_session')->drop()->update();
+        $this->table('verification_event')->drop()->save();
+        $this->table('verification_session')->drop()->save();
     }
 }

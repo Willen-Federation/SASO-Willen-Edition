@@ -23,7 +23,7 @@ final class PdoExternalIdentityRepositoryTest extends TestCase
 
         $this->pdo->exec(
             'CREATE TABLE member_external_identity (
-                member_id          INTEGER NOT NULL,
+                member_id          TEXT NOT NULL,
                 auth_provider_id   INTEGER NOT NULL,
                 external_subject   TEXT NOT NULL,
                 created_at         TEXT NOT NULL,
@@ -43,22 +43,22 @@ final class PdoExternalIdentityRepositoryTest extends TestCase
 
     public function testLinkThenFindRoundTrips(): void
     {
-        $identity = $this->makeIdentity(memberId: 42, providerId: 1, sub: 'auth0|abc');
+        $identity = $this->makeIdentity(memberId: 'alice_001', providerId: 1, sub: 'auth0|abc');
         $this->repo->link($identity);
 
         $found = $this->repo->find(new AuthProviderId(1), 'auth0|abc');
         self::assertNotNull($found);
-        self::assertSame(42, $found->memberId);
+        self::assertSame('alice_001', $found->memberId);
         self::assertSame('auth0|abc', $found->externalSubject);
     }
 
     public function testListForMemberReturnsAllLinks(): void
     {
-        $this->repo->link($this->makeIdentity(memberId: 1, providerId: 1, sub: 'idp1|sub'));
-        $this->repo->link($this->makeIdentity(memberId: 1, providerId: 2, sub: 'idp2|sub'));
-        $this->repo->link($this->makeIdentity(memberId: 99, providerId: 1, sub: 'unrelated'));
+        $this->repo->link($this->makeIdentity(memberId: 'alice_001', providerId: 1, sub: 'idp1|sub'));
+        $this->repo->link($this->makeIdentity(memberId: 'alice_001', providerId: 2, sub: 'idp2|sub'));
+        $this->repo->link($this->makeIdentity(memberId: 'other_001', providerId: 1, sub: 'unrelated'));
 
-        $list = $this->repo->listForMember(1);
+        $list = $this->repo->listForMember('alice_001');
 
         self::assertCount(2, $list);
         self::assertSame(
@@ -69,7 +69,7 @@ final class PdoExternalIdentityRepositoryTest extends TestCase
 
     public function testRecordLoginUpdatesLastLoginAt(): void
     {
-        $this->repo->link($this->makeIdentity(memberId: 1, providerId: 1, sub: 's', lastLogin: null));
+        $this->repo->link($this->makeIdentity(memberId: 'alice_001', providerId: 1, sub: 's', lastLogin: null));
         $this->repo->recordLogin(new AuthProviderId(1), 's');
 
         $found = $this->repo->find(new AuthProviderId(1), 's');
@@ -79,7 +79,7 @@ final class PdoExternalIdentityRepositoryTest extends TestCase
 
     public function testUnlinkRemovesTheRow(): void
     {
-        $this->repo->link($this->makeIdentity(memberId: 1, providerId: 1, sub: 's'));
+        $this->repo->link($this->makeIdentity(memberId: 'alice_001', providerId: 1, sub: 's'));
         $this->repo->unlink(new AuthProviderId(1), 's');
 
         self::assertNull($this->repo->find(new AuthProviderId(1), 's'));
@@ -88,15 +88,15 @@ final class PdoExternalIdentityRepositoryTest extends TestCase
     public function testCompositePrimaryKeyEnforced(): void
     {
         // Same (provider_id, external_subject) — second link must raise.
-        $this->repo->link($this->makeIdentity(memberId: 1, providerId: 1, sub: 's'));
+        $this->repo->link($this->makeIdentity(memberId: 'alice_001', providerId: 1, sub: 's'));
 
         $this->expectException(\PDOException::class);
 
-        $this->repo->link($this->makeIdentity(memberId: 2, providerId: 1, sub: 's'));
+        $this->repo->link($this->makeIdentity(memberId: 'other_001', providerId: 1, sub: 's'));
     }
 
     private function makeIdentity(
-        int $memberId,
+        string $memberId,
         int $providerId,
         string $sub,
         ?DateTimeImmutable $lastLogin = null,

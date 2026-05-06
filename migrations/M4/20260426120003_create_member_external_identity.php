@@ -33,8 +33,8 @@ final class CreateMemberExternalIdentity extends AbstractMigration
             'collation'   => 'utf8mb4_unicode_ci',
             'comment'     => 'Member ↔ external IdP identity links (ADR 0003).',
         ])
-            ->addColumn('member_id', 'biginteger', [
-                'signed' => false,
+            ->addColumn('member_id', 'string', [
+                'limit'  => 20,
                 'null'   => false,
             ])
             ->addColumn('auth_provider_id', 'biginteger', [

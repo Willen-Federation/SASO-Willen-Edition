@@ -38,16 +38,22 @@ foreach($v->shelves as $shelf) {
 </p>
 
 <form id="labelPrint" target="_blank" method="post" action="./shelf/outputPdf/">
-<p>ラベルを選択して下さい。</p>
-<ul class="unstyled">
-<?php ($v->inside)('label', 'list'); ?>
-<ul>
-<?php foreach($v->shelves as $index=>$shelf) { ?>
-<input type="hidden" name="shelf<?php echo $index; ?>" value="<?php echo $shelf; ?>">
-<?php } ?>
-<input type="hidden" name="amount" value="<?php echo count($v->shelves); ?>">
-
-<p><input type="submit" value="PDF出力"></p>
+  <input type="hidden" name="csrftoken" value="<?php echo ui_attr(\saso\util\CSRFtoken::current()); ?>">
+  <div class="card mb-3">
+    <div class="card-body">
+      <p class="form-label">ラベルを選択してください。</p>
+      <ul class="list-unstyled mb-3">
+        <?php ($v->inside)('label', 'list'); ?>
+      </ul>
+      <?php foreach($v->shelves as $index=>$shelf) { ?>
+        <input type="hidden" name="shelf<?php echo (int)$index; ?>" value="<?php echo htmlspecialchars($shelf, ENT_QUOTES, 'UTF-8'); ?>">
+      <?php } ?>
+      <input type="hidden" name="amount" value="<?php echo count($v->shelves); ?>">
+      <button type="submit" class="btn btn-primary">
+        <i class="bi bi-printer me-1"></i>PDF出力
+      </button>
+    </div>
+  </div>
 </form>
 
 <?php ($v->inside)('label', 'svg'); ?>

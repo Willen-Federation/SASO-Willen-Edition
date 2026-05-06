@@ -38,8 +38,43 @@ final class Member
     {
         return Either::of($password)
             ->filter(fn($v)=>!empty($v))
-            ->filter(fn($v)=>mb_strlen($v)<=20&&mb_strlen($v)>=8)
-            ->filter(fn($v)=>preg_match('/[^0-9a-zA-Z]/', $v)===0);
+            ->filter(fn($v)=>mb_strlen($v)<=64&&mb_strlen($v)>=8)
+            ->filter(fn($v)=>preg_match('/[^0-9a-zA-Z_-]/', $v)===0);
+    }
+
+    public static function loginPasswordConstraint(string $password): Either
+    {
+        return Either::of($password)
+            ->filter(fn($v)=>!empty($v))
+            ->filter(fn($v)=>mb_strlen($v)<=64)
+            ->filter(fn($v)=>preg_match('/[^0-9a-zA-Z_-]/', $v)===0);
+    }
+
+    public static function avatarUrlConstraint(?string $url): Either
+    {
+        if (empty($url)) {
+            return Either::of(null);
+        }
+        return Either::of($url)
+            ->filter(fn($v) => filter_var($v, FILTER_VALIDATE_URL) !== false)
+            ->filter(fn($v) => preg_match('/\.(jpg|jpeg|png|webp)$/i', $v) === 1);
+    }
+
+    public static function displayNameConstraint(?string $name): Either
+    {
+        if (empty($name)) {
+            return Either::of(null);
+        }
+        return EntityConstraint::requiredStringConstraint($name, 100);
+    }
+
+    public static function bioConstraint(?string $bio): Either
+    {
+        if (empty($bio)) {
+            return Either::of(null);
+        }
+        return Either::of($bio)
+            ->filter(fn($v) => mb_strlen($v) <= 500);
     }
 
     /**

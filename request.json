@@ -224,25 +224,62 @@
         }
     },
     "shelf": {
-        "put": {
-            "matter": "feature",
-            "action": "shelf"
-        },
-        "start": {
-            "matter": "shelf",
-            "action": "menu"
-        },
-        "multi": {
-            "matter": "shelf",
-            "action": "multi"
-        },
-        "single": {
-            "matter": "shelf",
-            "action": "single"
-        },
-        "outputPdf": {
-            "matter": "shelf",
-            "action": "pdf"
-        }
+        "put":       { "matter": "feature", "action": "shelf" },
+        "start":     { "matter": "shelf",   "action": "menu" },
+        "multi":     { "matter": "shelf",   "action": "multi" },
+        "single":    { "matter": "shelf",   "action": "single" },
+        "outputPdf": { "matter": "shelf",   "action": "pdf" },
+        "simple":    { "matter": "shelf",   "action": "simple" },
+        "simpleSave":{ "matter": "shelf",   "action": "simpleSave" },
+        "map":       { "matter": "shelf",   "action": "map" },
+        "shelves":   { "matter": "shelf",   "action": "shelves" },
+        "label":     { "matter": "feature", "action": "label" }
+    },
+    "barcode": {
+        "start":      { "matter": "barcode", "action": "start" },
+        "sheet":      { "matter": "barcode", "action": "sheet" },
+        "printSheet": { "matter": "barcode", "action": "printSheet" }
+    },
+    "member": {
+        "start":  { "matter": "member", "action": "start" },
+        "add":    { "matter": "member", "action": "add" },
+        "edit":   { "matter": "member", "action": "edit" },
+        "delete": { "matter": "member", "action": "delete" }
+    },
+    "role": {
+        "start":  { "matter": "role", "action": "start" },
+        "add":    { "matter": "role", "action": "add" },
+        "edit":   { "matter": "role", "action": "edit" },
+        "delete": { "matter": "role", "action": "delete" }
+    },
+    "scanStock": {
+        "start": { "matter": "scanStock", "action": "start" }
+    },
+    "settingAdmin": {
+        "start": { "matter": "settingAdmin", "action": "start" },
+        "shelf": { "matter": "settingAdmin", "action": "shelf" }
+    },
+    "mypage": {
+        "start":       { "matter": "mypage", "action": "start" },
+        "editProfile": { "matter": "mypage", "action": "editProfile" },
+        "unlinkProvider": { "matter": "mypage", "action": "unlinkProvider" },
+        "passkeyBegin": { "matter": "mypage", "action": "passkeyBegin" },
+        "passkeyComplete": { "matter": "mypage", "action": "passkeyComplete" },
+        "passkeyDelete": { "matter": "mypage", "action": "passkeyDelete" }
+    },
+    "admin": {
+        "feature-flags":  { "matter": "admin", "action": "feature-flags" },
+        "aiSettings":     { "matter": "admin", "action": "aiSettings" },
+        "auth-providers": { "matter": "admin", "action": "auth-providers" }
+    },
+    "verify": {
+        "start":  { "matter": "verify", "action": "start" },
+        "create": { "matter": "verify", "action": "create" }
+    },
+    "featureAdmin": {
+        "list": { "matter": "featureAdmin", "action": "list" }
+    },
+    "search": {
+        "start": { "matter": "search", "action": "start" }
     }
 }

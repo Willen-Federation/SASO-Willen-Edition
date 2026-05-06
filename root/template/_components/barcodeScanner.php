@@ -23,53 +23,21 @@ $uniqueId    = $uniqueId    ?? uniqid('bs_');
 
 $readerId  = 'saso-qr-reader-' . $uniqueId;
 $wrapperId = 'saso-scanner-wrapper-' . $uniqueId;
+$lang      = $_SESSION['lang'] ?? ($_COOKIE['saso_locale'] ?? 'ja');
+$scannerConfig = [
+    'readerId'    => $readerId,
+    'targetInput' => $inputId,
+    'messages'    => [
+        'libraryMissing' => $lang === 'ja' ? 'スキャナーライブラリを読み込めませんでした。ページを再読み込みしてください。' : 'Scanner library was not loaded. Reload the page and try again.',
+        'elementMissing' => $lang === 'ja' ? 'スキャナー表示領域が見つかりません。' : 'Scanner element was not found.',
+        'noCamera'       => $lang === 'ja' ? 'Webカメラが見つかりません。物理バーコードリーダーをご利用の場合は入力欄にカーソルを合わせて読み取ってください。' : 'No web camera was found. If you use a physical barcode reader, focus the input field and scan there.',
+    ],
+];
+$scannerConfigJson = json_encode($scannerConfig, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT);
 ?>
 
 <div id="<?php echo htmlspecialchars($wrapperId, ENT_QUOTES, 'UTF-8'); ?>"
-     x-data="{
-       ...sasoScanner(),
-       _readerId: <?php echo json_encode($readerId); ?>,
-       _targetInput: <?php echo json_encode($inputId); ?>,
-
-       openScanner() {
-         this.result = null;
-         this.error  = null;
-         this.active = true;
-         this.$nextTick(() => {
-           if (typeof Html5Qrcode === 'undefined') {
-             this.error = 'Scanner library not loaded.';
-             return;
-           }
-           const el = document.getElementById(this._readerId);
-           if (!el) { this.error = 'Scanner element not found.'; return; }
-           this.scanner = new Html5Qrcode(this._readerId);
-           Html5Qrcode.getCameras()
-             .then((cameras) => {
-               if (!cameras || cameras.length === 0) { this.error = 'No camera found.'; return; }
-               const cam = cameras.find(c => /back|rear|environment/i.test(c.label)) || cameras[cameras.length - 1];
-               return this.scanner.start(
-                 cam.id,
-                 { fps: 10, qrbox: { width: 250, height: 250 } },
-                 (code) => {
-                   this.result = code;
-                   this.$dispatch('barcode-detected', { code, targetInput: this._targetInput });
-                   this.closeScanner();
-                 },
-                 () => {}
-               );
-             })
-             .catch((err) => {
-               const msg = (err && err.message) ? err.message : String(err);
-               this.error = /denied|NotAllowed/i.test(msg) ? 'camera_denied' : msg;
-             });
-         });
-       },
-
-       closeScanner() {
-         this.stopScan();
-         this.active = false;
-       },
-     }"
+     x-data='sasoBarcodeScanner(<?php echo htmlspecialchars($scannerConfigJson ?: '{}', ENT_QUOTES, 'UTF-8'); ?>)'
      @barcode-detected.window="
        if ($event.detail.targetInput === _targetInput) {
          const inp = document.getElementById(_targetInput);
@@ -128,6 +96,9 @@ $wrapperId = 'saso-scanner-wrapper-' . $uniqueId;
       <p x-show="!error" class="mb-3 text-sm text-gray-500 dark:text-gray-400">
         <?php echo ui_text(__('ui.scanner.scanning', [], null, 'Scanning…')); ?>
       </p>
+      <p class="mb-3 small text-muted">
+        <?php echo ui_text($lang === 'ja' ? 'Webカメラで読み取れない場合は、入力欄にカーソルを合わせてバーコードリーダー本体で読み取れます。' : 'If camera scanning is unavailable, focus the input field and scan with a hardware barcode reader.'); ?>
+      </p>
 
       <div
         id="<?php echo htmlspecialchars($readerId, ENT_QUOTES, 'UTF-8'); ?>"
@@ -149,8 +120,9 @@ $wrapperId = 'saso-scanner-wrapper-' . $uniqueId;
         </template>
       </div>
 
-      <button type="button" @click="closeScanner()" class="btn btn-secondary mt-4 w-full">
-        <?php echo ui_text(__('ui.scanner.close', [], null, 'Close')); ?>
+      <button type="button" @click="closeScanner()" class="btn btn-secondary mt-4 w-100" :disabled="stopping">
+        <span x-show="!stopping"><?php echo ui_text(__('ui.scanner.close', [], null, 'Close')); ?></span>
+        <span x-show="stopping"><?php echo ui_text($lang === 'ja' ? '停止中...' : 'Stopping...'); ?></span>
       </button>
     </div>
   </div>

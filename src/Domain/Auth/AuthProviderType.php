@@ -16,4 +16,5 @@ enum AuthProviderType: string
     case Local = 'local';
     case Oidc  = 'oidc';
     case Saml  = 'saml';
+    case WebAuthn = 'webauthn';
 }

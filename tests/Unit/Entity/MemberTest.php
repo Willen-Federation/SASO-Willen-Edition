@@ -98,7 +98,7 @@ final class MemberTest extends TestCase
     public function testPasswordConstraintRejectsTooShortOrTooLong(): void
     {
         $short = Member::passwordConstraint('abc1234');
-        $long = Member::passwordConstraint(str_repeat('a', 21));
+        $long = Member::passwordConstraint(str_repeat('a', 65));
 
         self::assertNull($short->getOrElse(null));
         self::assertNull($long->getOrElse(null));
@@ -108,6 +108,28 @@ final class MemberTest extends TestCase
     {
         $bad = Member::passwordConstraint('passwd!!');
         self::assertNull($bad->getOrElse(null));
+    }
+
+    public function testLoginPasswordConstraintAcceptsExistingShortPasswords(): void
+    {
+        self::assertSame('ai', Member::loginPasswordConstraint('ai')->getOrElse(null));
+        self::assertSame('abc-DEF_123', Member::loginPasswordConstraint('abc-DEF_123')->getOrElse(null));
+    }
+
+    public function testLoginPasswordConstraintRejectsEmptyLongOrUnsafePasswords(): void
+    {
+        self::assertNull(Member::loginPasswordConstraint('')->getOrElse(null));
+        self::assertNull(Member::loginPasswordConstraint(str_repeat('a', 65))->getOrElse(null));
+        self::assertNull(Member::loginPasswordConstraint('passwd!!')->getOrElse(null));
+    }
+
+    public function testRoleDefaultsToOperatorAndCanBeMappedFromDatabaseRows(): void
+    {
+        $operator = new Member('aioperation', 'AI Operation', Member::hashPassword('ai'));
+        $admin = new Member('bootstrap', 'Bootstrap', Member::hashPassword('secret123'), 'admin');
+
+        self::assertSame('operator', $operator->__get('role'));
+        self::assertSame('admin', $admin->__get('role'));
     }
 
     /**

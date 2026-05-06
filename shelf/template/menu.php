@@ -103,15 +103,42 @@
     </div>
 </div>
 
-<h2>単一作成</h2>
-<p>作成する棚版を入力(半角英数、ハイフン)
-<br>英字は大文字に変換されます。
-</p>
-<div class="container-lg">
-    <div class="row mb-1">
-        <div class="col-lg-2">
-            <input type="text" id="singleShelfNumber" maxlength="15" pattern="^[0-9A-Za-z\-]+$" required>
-        </div>
+<div class="saso-action-row mb-3">
+  <a href="./shelf/simple/" class="btn btn-outline-primary">
+    <i class="bi bi-grid-3x3-gap me-2" aria-hidden="true"></i>棚番号ラベルシートを作成
+  </a>
+  <a href="./label/start/" class="btn btn-outline-secondary">
+    <i class="bi bi-rulers me-2" aria-hidden="true"></i>ラベル寸法管理
+  </a>
+</div>
+
+<!-- ── 単一作成（最も多いユースケース → 上に配置） ───────────────────── -->
+<div class="card mb-3">
+  <div class="card-header">
+    <h3 class="card-title"><i class="bi bi-plus me-1"></i>単一作成</h3>
+    <div class="card-options text-secondary small">よく使う形式をワンクリックで入力できます</div>
+  </div>
+  <div class="card-body">
+    <p class="text-secondary mb-2">棚番を入力（半角英数・ハイフン）。英字は大文字に変換されます。</p>
+
+    <!-- よく使うプリセット -->
+    <div class="mb-3">
+      <span class="text-muted small me-2">よく使う形式：</span>
+      <?php
+        $presets = [
+          ['label' => 'A-01',    'value' => 'A-01'],
+          ['label' => 'A-01-01', 'value' => 'A-01-01'],
+          ['label' => '01-A-01', 'value' => '01-A-01'],
+          ['label' => 'R01-S01', 'value' => 'R01-S01'],
+          ['label' => 'W-01',    'value' => 'W-01'],
+        ];
+        foreach ($presets as $p):
+      ?>
+        <button type="button" class="btn btn-sm btn-outline-secondary me-1 mb-1 shelf-preset"
+                data-value="<?php echo htmlspecialchars($p['value'], ENT_QUOTES, 'UTF-8'); ?>">
+          <?php echo htmlspecialchars($p['label'], ENT_QUOTES, 'UTF-8'); ?>
+        </button>
+      <?php endforeach; ?>
     </div>
     <div class="row mb-1">
         <div class="col-lg-2">

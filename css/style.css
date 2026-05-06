@@ -16,3 +16,66 @@ div#categoriesRoot li {
 div#categoriesRoot p, div#categoriesRoot button {
     display: inline;
 }
+
+:root {
+    --saso-focus: #ffbf47;
+    --saso-icon: #1f2937;
+}
+
+.navbar-dark .nav-link,
+.navbar-dark .navbar-brand,
+.navbar-dark .btn-outline-light {
+    color: #fff;
+}
+
+.bi {
+    color: currentColor;
+}
+
+.nav-link-icon .bi,
+.dropdown-item .bi,
+.btn .bi,
+.card-title .bi,
+.input-group-text .bi {
+    opacity: 1;
+}
+
+.btn-outline-secondary {
+    color: #243447;
+    border-color: #6b7280;
+}
+
+.text-muted,
+.text-secondary {
+    color: #4b5563 !important;
+}
+
+.btn:focus-visible,
+.form-control:focus,
+.form-select:focus,
+.form-check-input:focus,
+a:focus-visible,
+[role="button"]:focus-visible {
+    outline: 3px solid var(--saso-focus);
+    outline-offset: 2px;
+    box-shadow: 0 0 0 .2rem rgba(255, 191, 71, .25);
+}
+
+.btn:disabled,
+.btn.disabled,
+fieldset:disabled .btn {
+    opacity: .65;
+}
+
+.saso-auth-method {
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    padding: 1rem;
+}
+
+.saso-action-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .75rem;
+    align-items: center;
+}

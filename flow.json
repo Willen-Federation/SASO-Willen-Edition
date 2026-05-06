@@ -34,7 +34,16 @@
     },
     "start": {
         "start": "\\saso\\start\\StartDIContainer",
-        "menu": "\\saso\\start\\MenuDIContainer"
+        "menu": "\\saso\\start\\MenuDIContainer",
+        "password": "\\saso\\auth\\PasswordDIContainer"
+    },
+    "mypage": {
+        "start": "\\saso\\mypage\\MyPageDIContainer",
+        "editProfile": "\\saso\\mypage\\EditProfileDIContainer",
+        "unlinkProvider": "\\saso\\mypage\\UnlinkProviderDIContainer",
+        "passkeyBegin": "\\saso\\mypage\\PasskeyBeginDIContainer",
+        "passkeyComplete": "\\saso\\mypage\\PasskeyCompleteDIContainer",
+        "passkeyDelete": "\\saso\\mypage\\PasskeyDeleteDIContainer"
     },
     "category": {
         "edit": "\\saso\\category\\EditDIContainer",

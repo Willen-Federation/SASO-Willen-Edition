@@ -96,16 +96,18 @@
     </div>
 
     <!-- Step 2: Register product info -->
-    <div class="card">
-      <div class="card-header">
-        <h2 class="font-semibold text-black dark:text-white">
-          <span class="inline-flex h-6 w-6 items-center justify-center rounded-full bg-brand-500 text-white text-xs mr-2">2</span>
-          <?php echo $lang === 'ja' ? '商品情報を入力' : 'Enter Product Info'; ?>
-        </h2>
-      </div>
-      <div class="card-body">
-        <form method="post" action="./item/registerFromBarcode/" novalidate>
-          <input type="hidden" name="barcodeId" :value="barcodeInput">
+    <div class="col-lg-6">
+      <div class="card h-100">
+        <div class="card-header">
+          <h3 class="card-title">
+            <span class="badge bg-primary rounded-circle me-2">2</span>
+            <?php echo $lang === 'ja' ? '商品情報を入力' : 'Enter Product Info'; ?>
+          </h3>
+        </div>
+        <div class="card-body">
+          <form method="post" action="./item/registerFromBarcode/" novalidate>
+            <input type="hidden" name="csrftoken" value="<?php echo ui_attr(\saso\util\CSRFtoken::current()); ?>">
+            <input type="hidden" name="barcodeId" :value="barcodeInput">
 
           <div class="mb-4">
             <label for="fb-barcode" class="form-label"><?php echo $lang === 'ja' ? 'バーコード番号' : 'Barcode'; ?></label>

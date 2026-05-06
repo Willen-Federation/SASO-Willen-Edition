@@ -15,18 +15,22 @@ final class MultiPresenter implements Presenter
     }
     public function complete(Either $output): View
     {
-        $result = $output->flatMap(
-            $this->success->pagesAmount(fn($v) => $v->pagesAmount)
+        return $output->flatMap(
+            $this->success->pagesAmount(fn($v)=>$v->pagesAmount)
         )->flatMap(
-            $this->success->shelves(fn($v) => $v->shelves)
+            $this->success->shelves(fn($v)=>$v->shelves)
         )->flatMap(
-            $this->success->page(fn($v) => $v->page)
+            $this->success->page(fn($v)=>$v->page)
         )->flatMap(
-            $this->success->mins(fn($v) => $v->mins)
+            $this->success->mins(fn($v)=>$v->mins)
         )->flatMap(
-            $this->success->maxs(fn($v) => $v->maxs)
-        );
-
-        return $result->isRight() ? $this->success : $this->failure;
+            $this->success->maxs(fn($v)=>$v->maxs)
+        )->flatMap(
+            $this->success->dimensionMetadata(fn($v)=>$v->dimensionMetadata)
+        )->flatMap(
+            fn($v)=>$this->success
+        )->orElse(
+            fn($v)=>Either::left($this->failure->errorMessage(fn($e)=>$e)($v))
+        )->getOrElse($this->failure);
     }
 }

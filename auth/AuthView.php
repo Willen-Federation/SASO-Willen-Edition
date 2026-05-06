@@ -7,12 +7,11 @@ use saso\framework\View;
 final class AuthView implements View
 {
     use Setter;
-    protected string $title;
-    protected \Closure $content;
-    protected string $restoredPath;
-    protected bool $isError;
-    /** @var list<array{id:string,name:string,flavor:string,type:string}> */
-    public array $idpProviders = [];
+    private string $title;
+    private \Closure $content;
+    private string $restoredPath;
+    private bool $isError;
+    private array $providers = [];
     public function display(): void
     {
         require_once 'auth/template/auth.php';

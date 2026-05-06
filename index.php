@@ -7,7 +7,36 @@ use saso\framework\UserCompiler;
 mb_internal_encoding('UTF-8');
 const ENV = null;
 require_once 'ConfigLoader.php';
+require_once 'util/EnvLoader.php';
+require_once 'util/EnvWriter.php';
 $config = ConfigLoader::load();
+
+// --- First-run secret bootstrap ---------------------------------------------
+// While the installer marker file is present (i.e. setup hasn't completed),
+// auto-generate a secure APP_KEY into `.env` if it's missing or blank. This
+// matches what `make up` / docker/entrypoint.sh do for the Docker stack, and
+// gives the standard PHP install path the same zero-touch experience: the
+// user uploads the project, hits /installer/start, and gets a working
+// SecretEncryptor without ever editing `.env` by hand.
+//
+// Only runs when `.env` is writable AND `installer/installer.json` exists,
+// so production deployments (where setup is already complete) never see
+// runtime mutations to their environment file.
+if (file_exists(__DIR__.'/installer/installer.json')) {
+    $envPath = __DIR__.'/.env';
+    if (!is_file($envPath) && is_file(__DIR__.'/.env.example') && is_writable(__DIR__)) {
+        @copy(__DIR__.'/.env.example', $envPath);
+    }
+    if (is_file($envPath) && is_writable($envPath)) {
+        $bag = util\EnvLoader::loadFile($envPath);
+        if (empty($bag['APP_KEY']) && empty(getenv('APP_KEY'))) {
+            $generated = base64_encode(random_bytes(32));
+            if (util\EnvWriter::set($envPath, 'APP_KEY', $generated)) {
+                putenv('APP_KEY='.$generated);
+            }
+        }
+    }
+}
 
 // --- M1 security hotfix: HTTPS enforcement -----------------------------------
 // When config.https is true, redirect plain-HTTP requests to https:// and emit
@@ -37,12 +66,36 @@ if (is_file(__DIR__.'/vendor/autoload.php')) {
 require_once 'ClassLoader.php';
 spl_autoload_register(ClassLoader::load($config));
 
+// --- Helper safety net -------------------------------------------------------
+// `ui()` and `__()` are normally registered via Composer's `files` autoload
+// (composer.json: "files": ["framework/ui/helpers.php",
+// "src/Infrastructure/Translation/functions.php"]). When `vendor/` is missing
+// — typical on hosts that haven't run `composer install --no-dev` yet — that
+// autoload never fires and any template calling `ui('card', …)` or
+// `__('foo', [], null, 'Fallback')` would emit a fatal "undefined function"
+// error and the page renders blank. We require the helper file directly
+// (idempotent, has its own `function_exists` guard) and provide a stub `__()`
+// that just returns the fallback. The translator-backed `__()` from
+// functions.php — when present — is loaded BEFORE this block by the autoload
+// above, so this branch only fires when the real helper truly isn't there.
+require_once __DIR__ . '/framework/ui/helpers.php';
+if (!function_exists('__')) {
+    function __(string $key, array $params = [], ?string $locale = null, ?string $fallback = null): string {
+        return $fallback ?? $key;
+    }
+}
+
 // --- M3 REST API surface ----------------------------------------------------
 // Requests under /api/v1/* are handled by the schema-first router declared
 // in config/openapi.yaml (cf. ADR 0002). Legacy screens, the installer, and
 // every existing PHP page continue to fall through to the request.json
 // router below.
-$requestPath = (string) (parse_url((string) ($_SERVER['REQUEST_URI'] ?? '/'), PHP_URL_PATH) ?? '/');
+$rawUri      = (string) ($_SERVER['REQUEST_URI'] ?? '/');
+// Normalize consecutive slashes (e.g. //auth/providers/ → /auth/providers/).
+// parse_url('//foo/bar', PHP_URL_PATH) treats 'foo' as hostname and returns
+// '/bar', causing mis-routing. Collapse them before parsing.
+$rawUri      = preg_replace('#/{2,}#', '/', $rawUri) ?? $rawUri;
+$requestPath = (string) (parse_url($rawUri, PHP_URL_PATH) ?? '/');
 
 // Automatic fallback redirect for users accessing the old /saso/ path
 if (str_starts_with($requestPath, '/saso/')) {
@@ -75,6 +128,73 @@ if ($requestPath === '/mcp') {
         exit;
     }
     \Saso\Presentation\Mcp\Bootstrap::dispatch();
+    exit;
+}
+
+// --- Server-side git fetch webhook ------------------------------------------
+// POST /webhock or /webhook
+// Executes one fixed command path (`pull.sh` -> `git fetch origin`) only after
+// validating WEBHOOK_SECRET from X-Webhook-Token. Do not accept command names,
+// branch names, or other request-controlled shell input here.
+if ($requestPath === '/webhock' || $requestPath === '/webhook') {
+    header('Content-Type: application/json; charset=utf-8');
+    header('Cache-Control: no-store');
+
+    if (($_SERVER['REQUEST_METHOD'] ?? 'GET') !== 'POST') {
+        http_response_code(405);
+        header('Allow: POST');
+        echo json_encode(['ok' => false, 'error' => 'Method not allowed; use POST']);
+        exit;
+    }
+
+    $expectedToken = (string) (
+        getenv('WEBHOOK_SECRET')
+        ?: getenv('WEBHOCK_TOKEN')
+        ?: 'e94536e31eae15e3beb91a6723390df920533127f8f8d0c0c00a91207d9a461e'
+    );
+    $providedToken = (string) ($_SERVER['HTTP_X_WEBHOOK_TOKEN'] ?? '');
+
+    if (strlen($expectedToken) < 32) {
+        http_response_code(503);
+        echo json_encode(['ok' => false, 'error' => 'Webhook secret is not configured']);
+        exit;
+    }
+
+    if ($providedToken === '' || !hash_equals($expectedToken, $providedToken)) {
+        http_response_code(403);
+        echo json_encode(['ok' => false, 'error' => 'Forbidden']);
+        exit;
+    }
+
+    $lock = fopen(sys_get_temp_dir() . '/saso-git-fetch-webhook.lock', 'c');
+    if ($lock === false || !flock($lock, LOCK_EX | LOCK_NB)) {
+        http_response_code(409);
+        echo json_encode(['ok' => false, 'error' => 'Fetch already in progress']);
+        exit;
+    }
+
+    $script = __DIR__ . '/pull.sh';
+    if (!is_file($script) || !is_readable($script)) {
+        http_response_code(500);
+        echo json_encode(['ok' => false, 'error' => 'Webhook script is unavailable']);
+        exit;
+    }
+
+    $output = [];
+    $exitCode = 0;
+    exec('/bin/bash ' . escapeshellarg($script) . ' 2>&1', $output, $exitCode);
+
+    $opcacheReset = false;
+    if (function_exists('opcache_reset')) {
+        $opcacheReset = (bool) @opcache_reset();
+    }
+
+    http_response_code($exitCode === 0 ? 200 : 500);
+    echo json_encode([
+        'ok' => $exitCode === 0,
+        'exitCode' => $exitCode,
+        'opcacheReset' => $opcacheReset,
+    ]);
     exit;
 }
 
@@ -132,49 +252,6 @@ if (class_exists(\Saso\Infrastructure\Translation\TranslatorFactory::class)) {
         cookieLocale:   $_COOKIE['saso_locale']  ?? null,
     );
     $translator->setLocale($resolvedLocale);
-    $_SESSION['lang'] = $resolvedLocale;
-}
-
-// --- MyPage external-auth linking endpoint ----------------------------------
-// /mypage/linkProvider/id/{providerId}/ starts the normal IdP redirect but
-// marks the pending auth transaction as "linking"; /auth/callback below then
-// stores the external identity on the current legacy Member.id instead of
-// signing in as that identity.
-if (preg_match('#^/mypage/linkProvider/id/(\d+)/?$#', $requestPath, $linkMatch) === 1) {
-    if (!isset($_SESSION['id'])) {
-        header('Location: /auth/start/?error=auth_required', true, 303);
-        exit;
-    }
-    try {
-        $appKey = (string) (getenv('APP_KEY') ?: '');
-        $rawKey = base64_decode($appKey, true);
-        if ($rawKey === false || strlen($rawKey) !== 32) {
-            throw new RuntimeException('APP_KEY must be a base64-encoded 32-byte value.');
-        }
-        $pdo        = \saso\repository\DBConnection::getPdo();
-        $encryptor  = new \Saso\Infrastructure\Auth\Crypto\SecretEncryptor($rawKey);
-        $providers  = new \Saso\Infrastructure\Auth\Repository\PdoAuthProviderRepository($pdo, $encryptor);
-        $extIds     = new \Saso\Infrastructure\Auth\Repository\PdoExternalIdentityRepository($pdo);
-        $baseScheme = $onHttps ? 'https://' : 'http://';
-        $baseUrl    = $baseScheme.($_SERVER['HTTP_HOST'] ?? 'localhost');
-        $factory    = new \Saso\Infrastructure\Auth\AuthProviderFactory($providers, $pdo, $baseUrl);
-        $orch       = new \Saso\Application\Auth\LoginOrchestrator($factory, $extIds, $pdo);
-        $_SESSION['auth.purpose'] = 'linking';
-        $_SESSION['auth.linking_member_id'] = (string) $_SESSION['id'];
-        $_SESSION['auth.linking_expires'] = time() + 1800;
-        $redirect = $orch->beginLogin(new \Saso\Domain\Auth\AuthProviderId((int) $linkMatch[1]), '/mypage/start/');
-        $_SESSION['auth.purpose'] = 'linking';
-        $_SESSION['auth.linking_member_id'] = (string) $_SESSION['id'];
-        $_SESSION['auth.linking_expires'] = time() + 1800;
-        header('Location: '.$redirect->url, true, $redirect->status);
-        exit;
-    } catch (\Throwable $e) {
-        if (function_exists('error_log')) {
-            error_log('[saso-auth-link] '.$e->getMessage());
-        }
-        header('Location: /mypage/start/?authLink=error', true, 303);
-        exit;
-    }
 }
 
 // --- M4-D2 external auth endpoints ------------------------------------------
@@ -233,9 +310,9 @@ if (preg_match('#^/auth/(?:start/(\d+)|callback|saml/acs|saml/sls)/?$#', $reques
         $providerId = new \Saso\Domain\Auth\AuthProviderId($providerIdInt);
 
         if ($authAction === 'start') {
-            $returnTo = (string) ($_GET['return'] ?? './');
-            if (preg_match('#^/[^/\\\\]#', $returnTo) !== 1) {
-                $returnTo = './';
+            $returnTo = (string) ($_GET['return'] ?? '/');
+            if ($returnTo !== '/' && preg_match('#^/[^/\\\\]#', $returnTo) !== 1) {
+                $returnTo = '/';
             }
             $redirect = $orch->beginLogin($providerId, $returnTo);
             header('Location: '.$redirect->url, true, $redirect->status);
@@ -256,42 +333,6 @@ if (preg_match('#^/auth/(?:start/(\d+)|callback|saml/acs|saml/sls)/?$#', $reques
             $_SESSION = [];
             session_destroy();
             header('Location: '.($logoutRedirect?->url ?? './'), true, 303);
-            exit;
-        }
-
-        if ($authAction === 'callback' && ($_SESSION['auth.purpose'] ?? '') === 'linking') {
-            $memberId = (string) ($_SESSION['auth.linking_member_id'] ?? '');
-            $expires = (int) ($_SESSION['auth.linking_expires'] ?? 0);
-            if ($memberId === '' || $memberId !== (string) ($_SESSION['id'] ?? '') || $expires < time()) {
-                throw new \RuntimeException('Pending auth linking session is invalid or expired.');
-            }
-            $provider = $factory->forId($providerId);
-            $identity = $provider->completeLogin($callback);
-            $existing = $extIds->find($providerId, $identity->externalSubject);
-            if ($existing !== null && $existing->memberId !== $memberId) {
-                throw new \RuntimeException('This external identity is already linked to another member.');
-            }
-            if ($existing === null) {
-                $now = new \DateTimeImmutable();
-                $extIds->link(new \Saso\Domain\Auth\ExternalIdentity(
-                    memberId: $memberId,
-                    authProviderId: $providerId,
-                    externalSubject: $identity->externalSubject,
-                    createdAt: $now,
-                    updatedAt: $now,
-                    lastLoginAt: $now,
-                ));
-            } else {
-                $extIds->recordLogin($providerId, $identity->externalSubject);
-            }
-            unset(
-                $_SESSION['auth.purpose'],
-                $_SESSION['auth.linking_member_id'],
-                $_SESSION['auth.linking_expires'],
-                $_SESSION['auth.provider_id'],
-                $_SESSION['auth.return_to']
-            );
-            header('Location: /mypage/start/?authLink=linked', true, 303);
             exit;
         }
 
@@ -499,68 +540,6 @@ if (preg_match('#^/locale/set/([a-z]{2})/?$#', $requestPath, $m)) {
     exit;
 }
 
-if ($requestPath === '/auth/passkeyBegin/' || $requestPath === '/auth/passkeyComplete/') {
-    try {
-        $pdo = \saso\repository\DBConnection::getPdo();
-        header('Content-Type: application/json; charset=utf-8');
-        if ($requestPath === '/auth/passkeyBegin/') {
-            if (($_SERVER['REQUEST_METHOD'] ?? 'GET') !== 'POST') {
-                http_response_code(405);
-                echo json_encode(['error' => 'method_not_allowed']);
-                exit;
-            }
-            $challenge = rtrim(strtr(base64_encode(random_bytes(32)), '+/', '-_'), '=');
-            $pdo->prepare('INSERT INTO webauthn_challenge (challenge, member_id, purpose, created_at, expires_at) VALUES (:c, NULL, "authentication", NOW(), DATE_ADD(NOW(), INTERVAL 5 MINUTE))')
-                ->execute(['c' => $challenge]);
-            $rows = $pdo->query('SELECT credential_id FROM webauthn_credential ORDER BY created_at DESC')->fetchAll(\PDO::FETCH_ASSOC) ?: [];
-            echo json_encode([
-                'challenge' => $challenge,
-                'rpId' => $_SERVER['HTTP_HOST'] ? explode(':', (string) $_SERVER['HTTP_HOST'])[0] : 'localhost',
-                'allowCredentials' => array_map(fn($r) => ['type' => 'public-key', 'id' => (string) $r['credential_id']], $rows),
-            ]);
-            exit;
-        }
-
-        $payload = json_decode(file_get_contents('php://input') ?: '{}', true);
-        $challenge = (string) ($payload['challenge'] ?? '');
-        $credentialId = (string) ($payload['credentialId'] ?? '');
-        $check = $pdo->prepare('SELECT challenge FROM webauthn_challenge WHERE challenge = :c AND purpose = "authentication" AND expires_at > NOW()');
-        $check->execute(['c' => $challenge]);
-        if ($challenge === '' || $credentialId === '' || $check->fetchColumn() === false) {
-            http_response_code(400);
-            echo json_encode(['error' => 'challenge_expired']);
-            exit;
-        }
-        $stmt = $pdo->prepare('SELECT c.member_id, m.userName FROM webauthn_credential c INNER JOIN Member m ON m.id = c.member_id WHERE c.credential_id = :cid LIMIT 1');
-        $stmt->bindValue('cid', $credentialId, \PDO::PARAM_LOB);
-        $stmt->execute();
-        $row = $stmt->fetch(\PDO::FETCH_ASSOC);
-        if ($row === false) {
-            http_response_code(401);
-            echo json_encode(['error' => 'unknown_credential']);
-            exit;
-        }
-        if (session_status() === PHP_SESSION_ACTIVE) {
-            session_regenerate_id(true);
-        }
-        $_SESSION['id'] = (string) $row['member_id'];
-        $_SESSION['userName'] = (string) $row['userName'];
-        $_SESSION['time'] = time();
-        $pdo->prepare('UPDATE webauthn_credential SET last_used_at = NOW() WHERE credential_id = :cid')
-            ->execute(['cid' => $credentialId]);
-        $pdo->prepare('DELETE FROM webauthn_challenge WHERE challenge = :c')->execute(['c' => $challenge]);
-        echo json_encode(['ok' => true]);
-        exit;
-    } catch (\Throwable $e) {
-        if (function_exists('error_log')) {
-            error_log('[saso-passkey] '.$e->getMessage());
-        }
-        http_response_code(500);
-        echo json_encode(['error' => 'passkey_unavailable']);
-        exit;
-    }
-}
-
 $authed = isset($_SESSION['id']) && $_SESSION['time'] + 3600 > time();
 if($authed){
     $_SESSION['time'] = time();
@@ -572,6 +551,17 @@ if(file_exists($installerRoute)) {
     $installer = json_decode(file_get_contents($installerRoute), true);
 } else {
     $installer = [];
+}
+
+// Redirect the bare root to the installer when installer.json is present.
+if (!empty($installer)) {
+    $programDir = trim($config['programDir'] ?? '', '/');
+    $basePath   = $programDir !== '' ? "/{$programDir}/" : '/';
+    if ($requestPath === $basePath || $requestPath === rtrim($basePath, '/') || $requestPath === '') {
+        $proto = !empty($config['https']) ? 'https' : 'http';
+        header("Location: {$proto}://{$_SERVER['HTTP_HOST']}{$basePath}installer/start", true, 302);
+        exit;
+    }
 }
 
 $input = new UserCompiler(

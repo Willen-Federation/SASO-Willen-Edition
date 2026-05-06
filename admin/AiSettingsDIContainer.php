@@ -16,7 +16,7 @@ final class AiSettingsDIContainer implements DIContainer
 
     public function isTopLevel(): bool
     {
-        return true;
+        return false;
     }
 
     public function di(\Closure $inside, array $query, array $post, array $config, \DateTime $now): void
@@ -48,8 +48,9 @@ final class AiSettingsDIContainer implements DIContainer
 
         if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
             self::handlePost($settingService, $post, $changedBy);
-            $redirectTo = strtok((string) ($_SERVER['REQUEST_URI'] ?? './admin/ai-settings/'), '?');
-            header('Location: ' . $redirectTo . '?saved=1', true, 303);
+            $programDir = trim((string) ($config['programDir'] ?? ''), '/');
+            $base = '/' . ($programDir !== '' ? $programDir . '/' : '');
+            header('Location: ' . $base . 'admin/aiSettings/?saved=1', true, 303);
             exit;
         }
 

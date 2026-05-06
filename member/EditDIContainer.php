@@ -5,6 +5,8 @@ use saso\framework\DIContainer;
 use saso\framework\View;
 use saso\repository\DbUpdater;
 use saso\repository\DbFinder;
+use saso\repository\DBConnection;
+use Saso\Application\Auth\AdminGuard;
 
 final class EditDIContainer implements DIContainer
 {
@@ -17,7 +19,8 @@ final class EditDIContainer implements DIContainer
             $post,
             new DbFinder(),
             new DbUpdater(),
-            new EditPresenter(new EditView())
+            new EditPresenter(new EditView()),
+            new AdminGuard(DBConnection::getPdo()),
         );
     }
     public function flow(): View

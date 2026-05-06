@@ -14,10 +14,10 @@ final class ListPresenter implements Presenter
     }
     public function complete(Either $output): View
     {
-        $output->flatMap(
-            $this->success->labels(fn($v) => $v)
-        );
-
-        return $this->success;
+        return $output->flatMap(
+            $this->success->labels(fn($v)=>$v)
+        )->flatMap(
+            fn($v)=>$this->success
+        )->getOrElse($this->success);
     }
 }

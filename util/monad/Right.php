@@ -27,14 +27,6 @@ class Right extends Either
     {
         return Either::fromNullable($f($this->value)?$this->value:false);
     }
-    public function isRight(): bool
-    {
-        return true;
-    }
-    public function isLeft(): bool
-    {
-        return false;
-    }
     public function join()
     {
         if(! $this->value instanceof Monad) {

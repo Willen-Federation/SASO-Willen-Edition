@@ -1,16 +1,17 @@
 <?php $this->content = function ($v) { ?>
 
-<div class="grid gap-6 lg:grid-cols-3">
-  <div class="lg:col-span-2">
+<div class="row g-3">
+  <div class="col-lg-8">
     <?php
       ui('card', [
         'title' => __('ui.verify.start_title', [], null, 'Start a verification session'),
         'body'  => function () { ?>
-          <p class="mb-4 text-theme-sm text-gray-500 dark:text-gray-400">
+          <p class="mb-4 small text-muted">
             <?php echo ui_text(__('ui.verify.start_help', [], null, 'Pick a mode and a scope, then begin scanning. Sessions can be resumed via /verify/{id} as long as they are still active.')); ?>
           </p>
 
-          <form method="post" action="./api/v1/verifications" class="space-y-4">
+          <form method="post" action="./verify/create/" class="vstack gap-3">
+            <input type="hidden" name="csrftoken" value="<?php echo htmlspecialchars(\saso\util\CSRFtoken::current(), ENT_QUOTES, 'UTF-8'); ?>">
             <?php ui('formField', [
               'name'    => 'mode',
               'label'   => __('ui.verify.mode', [], null, 'Mode'),
@@ -27,7 +28,7 @@
               'help'        => __('ui.verify.area_help', [], null, 'Limit the scope to a specific shelf area. Leave blank for the whole warehouse.'),
             ]); ?>
 
-            <div class="flex justify-end gap-2">
+            <div class="d-flex justify-content-end gap-2">
               <?php ui('button', [
                 'label'   => __('ui.button.cancel', [], null, 'Cancel'),
                 'variant' => 'secondary',
@@ -52,7 +53,7 @@
     ?>
   </div>
 
-  <div>
+  <div class="col-lg-4">
     <?php
       ui('card', [
         'title' => __('ui.verify.recent', [], null, 'Recent sessions'),
@@ -67,10 +68,10 @@
             $rows = [];
             foreach ($v->recent as $s) {
                 $statusBadge = $s['status'] === 'completed'
-                    ? '<span class="ta-badge ta-badge-success">'.ui_text((string) $s['status']).'</span>'
+                    ? '<span class="badge bg-success">'.ui_text((string) $s['status']).'</span>'
                     : ($s['status'] === 'active'
-                        ? '<span class="ta-badge ta-badge-warning">'.ui_text((string) $s['status']).'</span>'
-                        : '<span class="ta-badge ta-badge-gray">'.ui_text((string) $s['status']).'</span>');
+                        ? '<span class="badge bg-warning">'.ui_text((string) $s['status']).'</span>'
+                        : '<span class="badge bg-secondary">'.ui_text((string) $s['status']).'</span>');
                 $rows[] = [
                     ['value' => '#'.(int) $s['id']],
                     ['value' => ui_text((string) $s['mode']) ],

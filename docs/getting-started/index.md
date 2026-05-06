@@ -27,7 +27,7 @@ make migrate                                 # apply migrations/*.sql
 open http://localhost:8080/installer/start
 ```
 
-Adminer is at `http://localhost:8081` (server `db`, user `saso_user`, password `saso_dev_password`).
+Adminer is at `http://localhost:8081` (server `db`, user `saso_user`, password: see `DB_PASSWORD` in the auto-generated `.env`).
 
 For local OIDC / SAML testing add the `sso` profile:
 

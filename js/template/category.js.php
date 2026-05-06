@@ -43,7 +43,7 @@ export default class Category {
                 editButton.setAttribute('id', 'editButton');
                 editButton.setAttribute('title', data.selected);
                 let editMark = document.createElement('i');
-                editMark.setAttribute('class', 'bi bi-pencil-square');
+                editMark.setAttribute('class', 'bi bi-pencil');
                 editMark.setAttribute('title', data.selected);
                 editButton.appendChild(editMark);
                 selected.appendChild(editButton);
@@ -77,14 +77,14 @@ export default class Category {
                             elm.textContent = data.path;
                         });
                         let deselect = document.querySelector('#deselectCategory');
-                        deselect.setAttribute('class', '');
+                        deselect.classList.remove('d-none');
                         deselect.addEventListener('click', e=>{
                             document.querySelector('#categoryId').setAttribute('value', '');
                             this.showChildren(e);
                             document.querySelectorAll('.categoryPathChangable').forEach(elm=>{
                                 elm.textContent = '';
                             })
-                            e.target.setAttribute('class', 'hidden');
+                            e.target.classList.add('d-none');
                         });
                     });
                 }

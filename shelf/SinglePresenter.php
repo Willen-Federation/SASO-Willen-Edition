@@ -15,18 +15,20 @@ final class SinglePresenter implements Presenter
     }
     public function complete(Either $output): View
     {
-        $result = $output->flatMap(
-            $this->success->shelves(fn($v) => [$v])
+        return $output->flatMap(
+            $this->success->shelves(fn($v)=>[$v])
         )->flatMap(
-            $this->success->pagesAmount(fn($v) => 1)
+            $this->success->pagesAmount(fn($v)=>1)
         )->flatMap(
-            $this->success->page(fn($v) => 1)
+            $this->success->page(fn($v)=>1)
         )->flatMap(
-            $this->success->mins(fn($v) => [])
+            $this->success->mins(fn($v)=>[])
         )->flatMap(
-            $this->success->maxs(fn($v) => [])
-        );
-
-        return $result->isRight() ? $this->success : $this->failure;
+            $this->success->maxs(fn($v)=>[])
+        )->flatMap(
+            fn($v)=>$this->success
+        )->orElse(
+            fn($v)=>Either::left($this->failure->errorMessage(fn($e)=>$e)($v))
+        )->getOrElse($this->failure);
     }
 }

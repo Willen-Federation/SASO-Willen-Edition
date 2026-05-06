@@ -18,12 +18,6 @@ final class MyPagePresenter implements Presenter
         return $output->flatMap(
             $this->success->member(fn($v) => $v->member)
         )->flatMap(
-            $this->success->authMethods(fn($v) => $v->authMethods)
-        )->flatMap(
-            $this->success->availableProviders(fn($v) => $v->availableProviders)
-        )->flatMap(
-            $this->success->passkeys(fn($v) => $v->passkeys)
-        )->flatMap(
             fn($v) => $this->success
         )->getOrElse($this->success);
     }

@@ -12,7 +12,7 @@ final class PrintSheetDIContainer implements DIContainer
     use OnlyPostFlow;
     public function isTopLevel(): bool
     {
-        return false;
+        return true;
     }
     public function di(\Closure $inside, array $query, array $post, array $config, \DateTime $now): void
     {
@@ -22,10 +22,10 @@ final class PrintSheetDIContainer implements DIContainer
         $pdo = DBConnection::getPdo();
         $barcodeRepo = new PdoBarcodeRepository($pdo);
         
-        $this->ctrl = new PrintSheetController($post);
+        $this->ctrl    = new PrintSheetController($post);
         $this->usecase = new PrintSheetUsecase(
             $barcodeRepo,
-            new PrintSheetView($inside)
+            new PrintSheetView($inside),
         );
     }
 }

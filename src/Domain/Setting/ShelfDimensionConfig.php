@@ -47,7 +47,7 @@ final readonly class ShelfDimensionConfig
         }
 
         $dimensions = array_map(
-            fn ($item) => ShelfDimensionMetadata::fromArray($item),
+            fn($item) => ShelfDimensionMetadata::fromArray($item),
             $data
         );
 
@@ -57,7 +57,7 @@ final readonly class ShelfDimensionConfig
     public function toJson(): string
     {
         $data = array_map(
-            fn ($dim) => $dim->toArray(),
+            fn($dim) => $dim->toArray(),
             $this->dimensions
         );
 
@@ -80,7 +80,7 @@ final readonly class ShelfDimensionConfig
     {
         return array_values(array_filter(
             $this->dimensions,
-            fn ($dim) => $dim->enabled
+            fn($dim) => $dim->enabled
         ));
     }
 

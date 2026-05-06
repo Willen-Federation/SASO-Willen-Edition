@@ -98,7 +98,7 @@ final class MemberTest extends TestCase
     public function testPasswordConstraintRejectsTooShortOrTooLong(): void
     {
         $short = Member::passwordConstraint('abc1234');
-        $long = Member::passwordConstraint(str_repeat('a', 65));
+        $long = Member::passwordConstraint(str_repeat('a', 21));
 
         self::assertNull($short->getOrElse(null));
         self::assertNull($long->getOrElse(null));
@@ -119,7 +119,7 @@ final class MemberTest extends TestCase
     public function testLoginPasswordConstraintRejectsEmptyLongOrUnsafePasswords(): void
     {
         self::assertNull(Member::loginPasswordConstraint('')->getOrElse(null));
-        self::assertNull(Member::loginPasswordConstraint(str_repeat('a', 65))->getOrElse(null));
+        self::assertNull(Member::loginPasswordConstraint(str_repeat('a', 21))->getOrElse(null));
         self::assertNull(Member::loginPasswordConstraint('passwd!!')->getOrElse(null));
     }
 

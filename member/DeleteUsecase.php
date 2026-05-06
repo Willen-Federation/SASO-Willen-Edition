@@ -15,7 +15,8 @@ final class DeleteUsecase
     public function exec(): View
     {
         $id = $this->post['id'] ?? '';
-        if ($id) {
+        $selfId = (string) ($_SESSION['id'] ?? '');
+        if ($id && $id !== $selfId) {
             $this->updater->exec(new Delete(), ['id' => $id]);
         }
         header('Location: ../start/');

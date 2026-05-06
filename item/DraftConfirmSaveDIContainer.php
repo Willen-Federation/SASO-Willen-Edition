@@ -31,6 +31,10 @@ final class DraftConfirmSaveDIContainer implements DIContainer
 
     public function flow(): View
     {
+        if (empty($this->post)) {
+            return new \saso\common\FailView();
+        }
+
         $pdo = DBConnection::pdo();
 
         $draftId = (int) ($this->query['id'] ?? $this->post['id'] ?? 0);

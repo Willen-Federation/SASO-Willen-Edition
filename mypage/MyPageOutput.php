@@ -15,9 +15,6 @@ final class MyPageOutput implements DTO
 
     public function __construct(
         private readonly Member $member,
-        private readonly array $authMethods = [],
-        private readonly array $availableProviders = [],
-        private readonly array $passkeys = [],
     ) {
         $this->another = new EmptyIO();
     }

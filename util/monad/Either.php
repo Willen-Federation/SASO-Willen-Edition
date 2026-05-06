@@ -28,8 +28,6 @@ abstract class Either implements Monad
     public abstract function orElse(\Closure $f);
     public abstract function getOrElseThrow($a);
     public abstract function filter(\Closure $f): Either;
-    public abstract function isRight(): bool;
-    public abstract function isLeft(): bool;
     public function flatMap(\Closure $f)
     {
         return $this->map($f)->join();

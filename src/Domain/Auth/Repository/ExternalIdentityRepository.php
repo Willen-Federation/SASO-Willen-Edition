@@ -21,7 +21,7 @@ interface ExternalIdentityRepository
     /**
      * @return list<ExternalIdentity>
      */
-    public function listForMember(string $memberId): array;
+    public function listForMember(int $memberId): array;
 
     public function link(ExternalIdentity $identity): void;
 

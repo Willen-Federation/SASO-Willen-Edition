@@ -18,15 +18,15 @@ use InvalidArgumentException;
 final readonly class ExternalIdentity
 {
     public function __construct(
-        public string $memberId,
+        public int $memberId,
         public AuthProviderId $authProviderId,
         public string $externalSubject,
         public DateTimeImmutable $createdAt,
         public DateTimeImmutable $updatedAt,
         public ?DateTimeImmutable $lastLoginAt,
     ) {
-        if ($memberId === '') {
-            throw new InvalidArgumentException('ExternalIdentity.memberId must not be empty.');
+        if ($memberId < 1) {
+            throw new InvalidArgumentException('ExternalIdentity.memberId must be a positive integer.');
         }
         if ($externalSubject === '') {
             throw new InvalidArgumentException('ExternalIdentity.externalSubject must not be empty.');

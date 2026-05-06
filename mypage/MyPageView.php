@@ -12,9 +12,6 @@ final class MyPageView implements View
     private string $title;
     private \Closure $content;
     private ?Member $member = null;
-    private array $authMethods = [];
-    private array $availableProviders = [];
-    private array $passkeys = [];
 
     public function display(): void
     {

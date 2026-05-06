@@ -1,12 +1,8 @@
 {
     "auth": {
         "start": {
-           "matter": "auth",
-           "action": "start"
-        },
-        "provider": {
-           "matter": "auth",
-           "action": "providerNew"
+            "matter": "auth",
+            "action": "start"
         }
     },
     "js": {
@@ -61,16 +57,16 @@
     },
     "start": {
         "start": {
-           "matter": "start",
-           "action": "start"
+            "matter": "start",
+            "action": "start"
         },
         "logout": {
-           "matter": "auth",
-           "action": "logout"
+            "matter": "auth",
+            "action": "logout"
         },
         "password": {
-           "matter": "auth",
-           "action": "password"
+            "matter": "auth",
+            "action": "password"
         }
     },
     "image": {
@@ -89,24 +85,24 @@
     },
     "category": {
         "start": {
-           "matter": "category",
-           "action": "edit"
+            "matter": "category",
+            "action": "edit"
         },
         "list.json": {
-           "matter": "category",
-           "action": "list"
+            "matter": "category",
+            "action": "list"
         },
         "add": {
-           "matter": "category",
-           "action": "add"
+            "matter": "category",
+            "action": "add"
         },
         "replace": {
-           "matter": "category",
-           "action": "replace"
+            "matter": "category",
+            "action": "replace"
         },
         "delete": {
-           "matter": "category",
-           "action": "delete"
+            "matter": "category",
+            "action": "delete"
         },
         "path.json": {
             "matter": "category",
@@ -121,12 +117,12 @@
     },
     "item": {
         "start": {
-           "matter": "item",
-           "action": "one"
+            "matter": "item",
+            "action": "one"
         },
         "add": {
-           "matter": "item",
-           "action": "register"
+            "matter": "item",
+            "action": "register"
         },
         "edit": {
             "matter": "item",
@@ -165,8 +161,8 @@
             "action": "reproduction"
         },
         "inventory": {
-           "matter": "feature",
-           "action": "inventory"
+            "matter": "feature",
+            "action": "inventory"
         },
         "stock": {
             "matter": "feature",
@@ -177,22 +173,22 @@
             "action": "shipment"
         },
         "history": {
-           "matter": "feature",
-           "action": "history"
+            "matter": "feature",
+            "action": "history"
         }
     },
     "label": {
         "start": {
-           "matter": "label",
-           "action": "edit"
+            "matter": "label",
+            "action": "edit"
         },
         "list": {
             "matter": "label",
             "action": "list"
         },
         "size.json": {
-           "matter": "label",
-           "action": "size"
+            "matter": "label",
+            "action": "size"
         },
         "add": {
             "matter": "label",
@@ -224,60 +220,6 @@
         }
     },
     "shelf": {
-        "put":       { "matter": "feature", "action": "shelf" },
-        "start":     { "matter": "shelf",   "action": "menu" },
-        "multi":     { "matter": "shelf",   "action": "multi" },
-        "single":    { "matter": "shelf",   "action": "single" },
-        "outputPdf": { "matter": "shelf",   "action": "pdf" },
-        "simple":    { "matter": "shelf",   "action": "simple" },
-        "simpleSave":{ "matter": "shelf",   "action": "simpleSave" },
-        "map":       { "matter": "shelf",   "action": "map" },
-        "shelves":   { "matter": "shelf",   "action": "shelves" },
-        "label":     { "matter": "feature", "action": "label" }
-    },
-    "barcode": {
-        "start":      { "matter": "barcode", "action": "start" },
-        "sheet":      { "matter": "barcode", "action": "sheet" },
-        "printSheet": { "matter": "barcode", "action": "printSheet" }
-    },
-    "member": {
-        "start":  { "matter": "member", "action": "start" },
-        "add":    { "matter": "member", "action": "add" },
-        "edit":   { "matter": "member", "action": "edit" },
-        "delete": { "matter": "member", "action": "delete" }
-    },
-    "role": {
-        "start":  { "matter": "role", "action": "start" },
-        "add":    { "matter": "role", "action": "add" },
-        "edit":   { "matter": "role", "action": "edit" },
-        "delete": { "matter": "role", "action": "delete" }
-    },
-    "scanStock": {
-        "start": { "matter": "scanStock", "action": "start" }
-    },
-    "settingAdmin": {
-        "start": { "matter": "settingAdmin", "action": "start" },
-        "shelf": { "matter": "settingAdmin", "action": "shelf" }
-    },
-    "mypage": {
-        "start":       { "matter": "mypage", "action": "start" },
-        "editProfile": { "matter": "mypage", "action": "editProfile" },
-        "unlinkProvider": { "matter": "mypage", "action": "unlinkProvider" },
-        "passkeyBegin": { "matter": "mypage", "action": "passkeyBegin" },
-        "passkeyComplete": { "matter": "mypage", "action": "passkeyComplete" },
-        "passkeyDelete": { "matter": "mypage", "action": "passkeyDelete" }
-    },
-    "admin": {
-        "feature-flags": {
-           "matter": "featureAdmin",
-           "action": "list"
-        },
-        "auth-providers": {
-           "matter": "admin",
-           "action": "auth-providers"
-        }
-    },
-    "shelf": {
         "put": {
             "matter": "feature",
             "action": "shelf"
@@ -285,14 +227,6 @@
         "start": {
             "matter": "shelf",
             "action": "menu"
-        },
-        "map": {
-            "matter": "shelf",
-            "action": "menu"
-        },
-        "simple": {
-            "matter": "shelf",
-            "action": "simple"
         },
         "multi": {
             "matter": "shelf",
@@ -305,6 +239,150 @@
         "outputPdf": {
             "matter": "shelf",
             "action": "pdf"
+        },
+        "simple": {
+            "matter": "shelf",
+            "action": "simple"
+        },
+        "simpleSave": {
+            "matter": "shelf",
+            "action": "simpleSave"
+        },
+        "map": {
+            "matter": "shelf",
+            "action": "map"
+        },
+        "shelves": {
+            "matter": "shelf",
+            "action": "shelves"
+        },
+        "label": {
+            "matter": "feature",
+            "action": "label"
+        }
+    },
+    "admin": {
+        "flags": {
+            "matter": "admin",
+            "action": "flags"
+        },
+        "auth": {
+            "matter": "admin",
+            "action": "auth"
+        },
+        "mobile": {
+            "matter": "admin",
+            "action": "mobile"
+        },
+        "feature-flags": {
+            "matter": "admin",
+            "action": "feature-flags"
+        },
+        "aiSettings": {
+            "matter": "admin",
+            "action": "aiSettings"
+        },
+        "auth-providers": {
+            "matter": "admin",
+            "action": "auth-providers"
+        }
+    },
+    "barcode": {
+        "start": {
+            "matter": "barcode",
+            "action": "start"
+        },
+        "sheet": {
+            "matter": "barcode",
+            "action": "sheet"
+        },
+        "printSheet": {
+            "matter": "barcode",
+            "action": "printSheet"
+        }
+    },
+    "member": {
+        "start": {
+            "matter": "member",
+            "action": "start"
+        },
+        "add": {
+            "matter": "member",
+            "action": "add"
+        },
+        "edit": {
+            "matter": "member",
+            "action": "edit"
+        },
+        "delete": {
+            "matter": "member",
+            "action": "delete"
+        }
+    },
+    "role": {
+        "start": {
+            "matter": "role",
+            "action": "start"
+        },
+        "add": {
+            "matter": "role",
+            "action": "add"
+        },
+        "edit": {
+            "matter": "role",
+            "action": "edit"
+        },
+        "delete": {
+            "matter": "role",
+            "action": "delete"
+        }
+    },
+    "scanStock": {
+        "start": {
+            "matter": "scanStock",
+            "action": "start"
+        }
+    },
+    "settingAdmin": {
+        "start": {
+            "matter": "settingAdmin",
+            "action": "start"
+        },
+        "shelf": {
+            "matter": "settingAdmin",
+            "action": "shelf"
+        }
+    },
+    "mypage": {
+        "start": {
+            "matter": "mypage",
+            "action": "start"
+        },
+        "editProfile": {
+            "matter": "mypage",
+            "action": "editProfile"
+        }
+    },
+    "verify": {
+        "start": {
+            "matter": "verify",
+            "action": "start"
+        },
+        "create": {
+            "matter": "verify",
+            "action": "create"
+        }
+    },
+    "featureAdmin": {
+        "list": {
+            "matter": "featureAdmin",
+            "action": "list"
+        }
+    },
+    "search": {
+        "start": {
+            "matter": "search",
+            "action": "start"
         }
     }
 }

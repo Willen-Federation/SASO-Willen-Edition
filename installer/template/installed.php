@@ -1,15 +1,12 @@
 <?php $this->title = 'インストール完了'; ?>
-<?php $this->content = function() { ?>
+<?php $this->content = function($v) { ?>
 
-<h2>インストール成功</h2>
-<p>おめでとうございます！<br>インストールに成功しました。</p>
-
-<p style="color: orange; background-color: #ffe0e0; padding: 10px; border-left: 4px solid orange;">
-  ご利用の前に、まず、「installer」フォルダを削除して下さい。
-</p>
-
-<p>それではお楽しみ下さい。</p>
-
-<p><a href="./">ログインメニュー</a></p>
+<div class="text-center py-5">
+  <div class="mb-4" style="font-size:4rem;">&#10003;</div>
+  <h2 class="mb-3">インストール完了</h2>
+  <p class="mb-1">データベースのセットアップと管理者アカウントの作成が完了しました。</p>
+  <p class="text-muted mb-4">インストーラーは自動的に削除されました。</p>
+  <a href="./" class="btn btn-primary btn-lg">ログイン画面へ</a>
+</div>
 
 <?php } ?>

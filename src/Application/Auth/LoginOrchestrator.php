@@ -130,7 +130,7 @@ final class LoginOrchestrator
      * identity, return its id. Otherwise, link to a local member matched by
      * email, or create a new member when no match exists.
      */
-    private function resolveMember(AuthenticatedIdentity $identity): string
+    private function resolveMember(AuthenticatedIdentity $identity): int
     {
         $existing = $this->externalIdentities->find(
             $identity->authProviderId,
@@ -165,7 +165,7 @@ final class LoginOrchestrator
      * deterministically into a positive 64-bit integer. The hash is stable
      * for the lifetime of a local member id.
      */
-    private function findLocalMemberIdByEmail(string $email): ?string
+    private function findLocalMemberIdByEmail(string $email): ?int
     {
         if ($email === '') {
             return null;
@@ -181,7 +181,7 @@ final class LoginOrchestrator
             /** @var array{id?: string}|false $row */
             $row = $stmt->fetch(PDO::FETCH_ASSOC);
             if ($row !== false && isset($row['id'])) {
-                return (string) $row['id'];
+                return self::hashLegacyId((string) $row['id']);
             }
         } catch (\Throwable) {
             // schema does not have email; fall through to JIT create
@@ -189,7 +189,7 @@ final class LoginOrchestrator
         return null;
     }
 
-    private function createJitMember(AuthenticatedIdentity $identity): string
+    private function createJitMember(AuthenticatedIdentity $identity): int
     {
         // Keep within the legacy id constraint regex: `^[0-9a-zA-Z-_]{8,20}$`.
         $base = preg_replace('/[^0-9A-Za-z_-]/', '_', $identity->email !== '' ? $identity->email : $identity->displayName) ?? 'idp_user';
@@ -215,6 +215,20 @@ final class LoginOrchestrator
             // looping the IdP.
             throw AuthFailedException::callbackInvalid('JIT member provisioning failed.');
         }
-        return $candidate;
+        return self::hashLegacyId($candidate);
+    }
+
+    /**
+     * Deterministic, positive 64-bit integer derived from the legacy string
+     * `Member.id`. PHPStan keeps `int` here even though we mask 63 bits.
+     */
+    private static function hashLegacyId(string $localId): int
+    {
+        // Hash and mask to 63 bits to stay within PHP's signed int range.
+        $hex  = substr(hash('sha256', $localId), 0, 16);
+        $high = (int) hexdec(substr($hex, 0, 8));
+        $low  = (int) hexdec(substr($hex, 8, 8));
+        $val  = (($high & 0x7fffffff) << 32) | ($low & 0xffffffff);
+        return $val < 1 ? 1 : $val;
     }
 }

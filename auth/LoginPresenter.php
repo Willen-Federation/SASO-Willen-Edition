@@ -14,11 +14,12 @@ final class LoginPresenter implements Presenter
     }
     public function complete(Either $output): View
     {
-        $result = $output->flatMap(
+        return $output->flatMap(
             $this->success->restoredPath(fn($v)=>$v)
+        )->flatMap(
+            fn($v)=>$this->success
         )->OrElse(
             fn($v)=>Either::left($this->success->restoredPath(fn($a)=>$a)($v))
-        );
-        return $this->success;
+        )->getOrElse($this->success);
     }
 }

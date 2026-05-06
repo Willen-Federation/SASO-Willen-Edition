@@ -13,11 +13,11 @@ $caption = $caption ?? null;
 $class   = $class   ?? '';
 $empty   = $empty   ?? __('ui.table.empty', [], null, 'No records');
 ?>
-<div class="ta-card <?php echo ui_attr($class); ?>">
-  <div class="w-full overflow-x-auto">
-    <table class="ta-table">
+<div class="card <?php echo ui_attr($class); ?>">
+  <div class="table-responsive">
+    <table class="table table-hover card-table">
       <?php if ($caption): ?>
-        <caption class="sr-only"><?php echo ui_text($caption); ?></caption>
+        <caption class="visually-hidden"><?php echo ui_text($caption); ?></caption>
       <?php endif; ?>
       <thead>
         <tr>
@@ -54,7 +54,7 @@ $empty   = $empty   ?? __('ui.table.empty', [], null, 'No records');
         <?php endforeach; ?>
         <?php if ($rendered === 0): ?>
           <tr>
-            <td colspan="<?php echo count($columns); ?>" class="px-4 py-8 text-center text-gray-500 dark:text-gray-400">
+            <td colspan="<?php echo count($columns); ?>" class="p-4 text-center text-muted">
               <?php echo ui_text($empty); ?>
             </td>
           </tr>

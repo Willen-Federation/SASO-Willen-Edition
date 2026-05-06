@@ -10,20 +10,20 @@ $class = $class ?? '';
 $title = $title ?? null;
 $actions = $actions ?? null;
 ?>
-<section class="ta-card <?php echo ui_attr($class); ?>">
+<div class="card <?php echo ui_attr($class); ?>">
   <?php if ($title !== null || $actions !== null): ?>
-    <header class="ta-card-header">
+    <div class="card-header">
       <?php if ($title !== null): ?>
-        <h2 class="font-semibold text-gray-800 dark:text-white/90">
+        <h3 class="card-title">
           <?php echo ui_text($title); ?>
-        </h2>
+        </h3>
       <?php endif; ?>
       <?php if ($actions instanceof Closure): ?>
-        <div class="flex items-center gap-2"><?php $actions(); ?></div>
+        <div class="ms-auto d-flex align-items-center gap-2"><?php $actions(); ?></div>
       <?php endif; ?>
-    </header>
+    </div>
   <?php endif; ?>
-  <div>
+  <div class="card-body">
     <?php if (isset($body) && $body instanceof Closure) $body(); ?>
   </div>
-</section>
+</div>

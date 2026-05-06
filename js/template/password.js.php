@@ -6,10 +6,9 @@ export default class Password {
         let errorEvent = another=>e=>{
             let equals = document.getElementById(another+'Password').value === e.target.value;
             document.getElementById('changePasswordSubmit').disabled = !equals;
-            if(!equals) {
-                document.getElementById('confirmPasswordError').setAttribute('class', 'text-error-500');
-            } else {
-                document.getElementById('confirmPasswordError').setAttribute('class', 'hidden');
+            const err = document.getElementById('confirmPasswordError');
+            if (err) {
+                err.className = equals ? 'invalid-feedback d-none' : 'invalid-feedback d-block';
             }
         }
         document.getElementById('newPassword')?.addEventListener(

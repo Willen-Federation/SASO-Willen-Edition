@@ -16,12 +16,13 @@ final class EditPresenter implements Presenter
     public function complete(Either $output): View
     {
         try {
-            $result = $output->flatMap(
+            return $output->flatMap(
                 $this->success->item(fn($v)=>$v->item->getOrElseThrow('item not found'))
             )->flatMap(
                 $this->success->itemVar(fn($v)=>$v->itemVar->getOrElseThrow('item not found'))
-            );
-            return $result->isRight() ? $this->success : $this->failure;
+            )->flatMap(
+                fn($v)=>$this->success
+            )->getOrElse($this->failure);
         } catch (\Exception $e) {
             return $this->failure;
         }

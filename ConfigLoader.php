@@ -26,15 +26,15 @@ final class ConfigLoader
      */
     public static function load(string $relative=''): array
     {
-        $env = defined('saso\ENV') ? \saso\ENV : (defined('ENV') ? ENV : null);
         if(empty(self::$configFile)) {
-            self::$configFile = $env===null?$relative.'config.json':$relative.'config_'.$env.'.json';
+            self::$configFile = ENV===null?$relative.'config.json':$relative.'config_'.ENV.'.json';
         }
         $config = json_decode(file_get_contents(self::$configFile), true);
         $env = EnvLoader::loadFile($relative.'.env');
-        // Populate PHP's environment variables from .env so getenv() calls work
+        // Populate PHP's environment variables from .env so getenv() calls work.
+        // Use === false so existing env vars (including those with value "0") are never overwritten.
         foreach ($env as $key => $value) {
-            if (!getenv($key)) {
+            if (getenv($key) === false) {
                 putenv("$key=$value");
             }
         }
@@ -78,6 +78,14 @@ final class ConfigLoader
         $https = EnvLoader::get($env, 'APP_HTTPS');
         if ($https !== null) {
             $config['https'] = filter_var($https, FILTER_VALIDATE_BOOLEAN);
+        }
+        $documentRoot = EnvLoader::get($env, 'APP_DOCUMENT_ROOT');
+        if ($documentRoot !== null) {
+            $config['documentRoot'] = $documentRoot;
+        }
+        $programDir = EnvLoader::get($env, 'APP_PROGRAM_DIR');
+        if ($programDir !== null) {
+            $config['programDir'] = $programDir;
         }
         return $config;
     }

@@ -16,7 +16,7 @@ final class ExternalIdentityTest extends TestCase
     {
         $now = new DateTimeImmutable('2026-04-26 12:00:00');
         $id  = new ExternalIdentity(
-            memberId: 'alice_001',
+            memberId: 42,
             authProviderId: new AuthProviderId(3),
             externalSubject: 'auth0|abcdef',
             createdAt: $now,
@@ -24,18 +24,18 @@ final class ExternalIdentityTest extends TestCase
             lastLoginAt: $now,
         );
 
-        self::assertSame('alice_001', $id->memberId);
+        self::assertSame(42, $id->memberId);
         self::assertSame(3, $id->authProviderId->value);
         self::assertSame('auth0|abcdef', $id->externalSubject);
         self::assertSame($now, $id->lastLoginAt);
     }
 
-    public function testRejectsEmptyMemberId(): void
+    public function testRejectsNonPositiveMemberId(): void
     {
         $this->expectException(InvalidArgumentException::class);
 
         new ExternalIdentity(
-            memberId: '',
+            memberId: 0,
             authProviderId: new AuthProviderId(1),
             externalSubject: 's',
             createdAt: new DateTimeImmutable(),
@@ -49,7 +49,7 @@ final class ExternalIdentityTest extends TestCase
         $this->expectException(InvalidArgumentException::class);
 
         new ExternalIdentity(
-            memberId: 'alice_001',
+            memberId: 1,
             authProviderId: new AuthProviderId(1),
             externalSubject: '',
             createdAt: new DateTimeImmutable(),
@@ -61,7 +61,7 @@ final class ExternalIdentityTest extends TestCase
     public function testLastLoginIsOptional(): void
     {
         $id = new ExternalIdentity(
-            memberId: 'alice_001',
+            memberId: 1,
             authProviderId: new AuthProviderId(1),
             externalSubject: 's',
             createdAt: new DateTimeImmutable(),

@@ -7,21 +7,13 @@ use saso\framework\View;
 final class RootView implements View
 {
     use Setter;
-    protected \Closure $content;
-    protected View $insideView;
-    protected string $baseUrl;
-    protected string $version;
-    protected bool $authed;
-    protected string $matter;
-    protected string $action;
-    protected string $currentLocale;
-    /** @var list<string> */
-    protected array $supportedLocales;
-    /** @var list<array{type:string,label:string,items:array}> */
-    protected array $sidebar = [];
-    /** @var list<array{label:string,href?:string}> */
-    protected array $breadcrumb = [];
-
+    private \Closure $content;
+    private View $insideView;
+    private string $baseUrl;
+    private string $version;
+    private bool $authed;
+    private string $matter;
+    private string $action;
     public function __construct(
         private \Closure $inside,
     )
@@ -43,86 +35,7 @@ final class RootView implements View
     }
     public function getContent(): \Closure
     {
+        if(!$this->insideView->onRoot()) return fn()=>null;
         return $this->content;
-    }
-
-    /**
-     * @return list<array{type:string,label:string,items:array}>
-     */
-    private function buildSidebar(): array
-    {
-        $t = static fn (string $k, string $fallback): string => __($k, [], null, $fallback);
-        $svg = static function (string $name): string {
-            ob_start();
-            ui('iconHeroicon', ['name' => $name, 'class' => 'menu-item-icon']);
-            return (string) ob_get_clean();
-        };
-
-        return [
-            [
-                'type'  => 'group',
-                'label' => $t('ui.sidebar.group.inventory', 'Inventory'),
-                'items' => [
-                    ['key' => 'home',         'label' => $t('ui.sidebar.home',         'Home'),           'href' => './',              'icon' => $svg('home')],
-                    ['key' => 'item_add',     'label' => $t('ui.sidebar.item_register', 'Register'),       'href' => './item/add/',      'icon' => $svg('plus-circle')],
-                    ['key' => 'verify',       'label' => $t('ui.sidebar.verify',        'Verification'),   'href' => './verify/start/', 'icon' => $svg('check-circle')],
-                    ['key' => 'item_archive', 'label' => $t('ui.sidebar.item_archive',  'Archive list'),   'href' => './archive/list/',  'icon' => $svg('archive')],
-                ],
-            ],
-            [
-                'type'  => 'group',
-                'label' => $t('ui.sidebar.group.label', 'Labels'),
-                'items' => [
-                    ['key' => 'label_print',  'label' => $t('ui.sidebar.label_print',   'Print labels'),   'href' => './label/features/', 'icon' => $svg('printer')],
-                    ['key' => 'label_first',  'label' => $t('ui.sidebar.label_first',   'Print → register'),'href' => './label/wizard/',   'icon' => $svg('sparkles')],
-                    ['key' => 'barcode_sheet','label' => $t('ui.sidebar.barcode_sheet', 'Barcode sheet'),  'href' => './barcode/sheet/',  'icon' => $svg('qr')],
-                ],
-            ],
-            [
-                'type'  => 'group',
-                'label' => $t('ui.sidebar.group.master', 'Master data'),
-                'items' => [
-                    [
-                        'key'      => 'shelf',
-                        'label'    => $t('ui.sidebar.shelf', 'Shelves'),
-                        'icon'     => $svg('grid'),
-                        'children' => [
-                            ['label' => $t('ui.sidebar.shelf_create', 'Create'), 'href' => './shelf/start/'],
-                            ['label' => $t('ui.sidebar.shelf_map',    'Map'),    'href' => './shelf/map/'],
-                            ['label' => $t('ui.sidebar.shelf_simple', 'Simple setup'), 'href' => './shelf/simple/'],
-                        ],
-                    ],
-                    ['key' => 'category', 'label' => $t('ui.sidebar.category',   'Categories'),  'href' => './category/start/', 'icon' => $svg('tag')],
-                    ['key' => 'label_size', 'label' => $t('ui.sidebar.label_size', 'Label sizes'), 'href' => './label/start/',    'icon' => $svg('list')],
-                ],
-            ],
-            [
-                'type'  => 'group',
-                'label' => $t('ui.sidebar.group.system', 'System'),
-                'items' => [
-                    ['key' => 'flags',    'label' => $t('ui.sidebar.flags',           'Feature flags'), 'href' => './admin/feature-flags/', 'icon' => $svg('toggle')],
-                    ['key' => 'auth',     'label' => $t('ui.sidebar.auth_providers', 'Auth providers'),'href' => './admin/auth-providers/',     'icon' => $svg('shield')],
-                    ['key' => 'password', 'label' => $t('ui.sidebar.password',        'Password'),      'href' => './start/password/',      'icon' => $svg('key')],
-                ],
-            ],
-        ];
-    }
-
-    /**
-     * @return list<array{label:string,href?:string}>
-     */
-    private function buildBreadcrumb(): array
-    {
-        $title = $this->insideView->getTitle();
-        if ($title === '') {
-            return [];
-        }
-        $crumbs = [
-            ['label' => __('ui.nav.home', [], null, 'Home'), 'href' => './'],
-        ];
-        if ($this->matter !== '' && $this->matter !== 'start') {
-            $crumbs[] = ['label' => $title];
-        }
-        return $crumbs;
     }
 }

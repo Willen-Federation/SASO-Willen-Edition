@@ -40,7 +40,7 @@ final class PdoExternalIdentityRepository implements ExternalIdentityRepository
         return $row === false ? null : $this->hydrate($row);
     }
 
-    public function listForMember(string $memberId): array
+    public function listForMember(int $memberId): array
     {
         $stmt = $this->pdo->prepare(
             'SELECT * FROM member_external_identity WHERE member_id = :mid ORDER BY auth_provider_id ASC',
@@ -102,7 +102,7 @@ final class PdoExternalIdentityRepository implements ExternalIdentityRepository
         $lastLogin = $row['last_login_at'] ?? null;
 
         return new ExternalIdentity(
-            memberId: (string) $row['member_id'],
+            memberId: (int) $row['member_id'],
             authProviderId: new AuthProviderId((int) $row['auth_provider_id']),
             externalSubject: (string) $row['external_subject'],
             createdAt: new DateTimeImmutable((string) $row['created_at'], $this->timezone),

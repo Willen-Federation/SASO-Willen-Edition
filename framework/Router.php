@@ -14,13 +14,10 @@ final class Router
         $request0 = $input->request()[0]??'start';
         $request1 = $input->request()[1]??'start';
         $query = $input->query();
-
-        $routeExists = array_key_exists($request0, $this->route)
-            && array_key_exists($request1, $this->route[$request0]);
-
         //matter, action 決定
         if(
-            $routeExists
+            array_key_exists($request0, $this->route)
+            && array_key_exists($request1, $this->route[$request0])
             && ($input->authed() || in_array($request0, ['js', 'installer', 'auth']))
         ) {
             $aRoute = $this->route[$request0][$request1];
@@ -29,7 +26,7 @@ final class Router
             if($matter === 'js') {
                 $query['action'] = $action;
             }
-        } else if(!$routeExists) {
+        } else if($input->authed()) {
             $matter = 'error';
             $action = 'notFound';
         } else {

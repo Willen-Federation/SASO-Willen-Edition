@@ -14,7 +14,6 @@ final class AuthProviderTypeTest extends TestCase
         self::assertSame('local', AuthProviderType::Local->value);
         self::assertSame('oidc', AuthProviderType::Oidc->value);
         self::assertSame('saml', AuthProviderType::Saml->value);
-        self::assertSame('webauthn', AuthProviderType::WebAuthn->value);
     }
 
     public function testFromString(): void
@@ -24,6 +23,6 @@ final class AuthProviderTypeTest extends TestCase
 
     public function testCovers(): void
     {
-        self::assertCount(4, AuthProviderType::cases());
+        self::assertCount(3, AuthProviderType::cases());
     }
 }

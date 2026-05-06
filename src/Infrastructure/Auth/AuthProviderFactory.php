@@ -80,10 +80,6 @@ final class AuthProviderFactory
                 $this->makeSlsUrl($record->id),
             ),
             AuthProviderType::Oidc  => $this->buildOidc($record),
-            AuthProviderType::WebAuthn => throw ProviderMisconfiguredException::for(
-                $record->name,
-                'WebAuthn is handled by the passkey endpoints, not by the redirect factory.',
-            ),
         };
     }
 

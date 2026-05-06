@@ -15,6 +15,8 @@ final class MenuDIContainer implements DIContainer
     }
     public function flow(): View
     {
-        return new MenuView();
+        $view = new MenuView();
+        // Metadata will be loaded lazily in the template if needed
+        return $view;
     }
 }

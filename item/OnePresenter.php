@@ -16,7 +16,7 @@ final class OnePresenter implements Presenter
     public function complete(Either $output): View
     {
         try {
-            $result = $output->flatMap(
+            return $output->flatMap(
                 $this->success->item(fn($v)=>$v->item->getOrElseThrow('item not found'))
             )->flatMap(
                 $this->success->archive(fn($v)=>$v->archive->getOrElseThrow('archive not found'))
@@ -32,8 +32,9 @@ final class OnePresenter implements Presenter
                 $this->success->size(fn($v)=>$v->size->getOrElse(''))
             )->flatMap(
                 $this->success->action(fn($v)=>$v->action->getOrElse(''))
-            );
-            return $result->isRight() ? $this->success : $this->failure;
+            )->flatMap(
+                fn($v)=>$this->success
+            )->getOrElse($this->failure);
         } catch (\Exception $e) {
             return $this->failure;
         }

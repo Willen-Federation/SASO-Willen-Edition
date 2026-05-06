@@ -19,7 +19,7 @@ final class AddUsecase
             $id = $this->post['id'] ?? '';
             $userName = $this->post['userName'] ?? '';
             $password = $this->post['password'] ?? '';
-            if ($id && $userName && Member::passwordConstraint($password)->getOrElse(null) !== null) {
+            if ($id && $userName && $password) {
                 ($this->updater)->exec(new Insert(), [
                     'id' => $id,
                     'userName' => $userName,
@@ -28,7 +28,7 @@ final class AddUsecase
                 header('Location: ../start/');
                 exit;
             } else {
-                return $this->presenter->view('All fields are required and password must be 8-64 characters using letters, numbers, hyphen, or underscore.');
+                return $this->presenter->view('All fields are required.');
             }
         }
         return $this->presenter->view('');

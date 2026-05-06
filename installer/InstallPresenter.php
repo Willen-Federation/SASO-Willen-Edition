@@ -15,12 +15,10 @@ final class InstallPresenter implements Presenter
     }
     public function complete(Either $output): View
     {
-        return $output->flatMap(
-            $this->success->member(fn($v)=>$v)
-        )->flatMap(
-            fn($v)=>$this->success
-        )->orElse(
-            fn($v)=>Either::left($this->failure->errorMessage(fn($e)=>$e)('invalid input.'))
-        )->getOrElse($this->failure);
+        $result = $output->flatMap(
+            $this->success->member(fn($v) => $v)
+        );
+
+        return $result->isRight() ? $this->success : $this->failure;
     }
 }

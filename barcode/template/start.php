@@ -1,58 +1,21 @@
-<?php $this->title = 'バーコード・商品検索'; ?>
 <?php $this->content = function($v) { ?>
 
-<div class="d-flex justify-content-center mb-3">
-<div class="card w-100">
-  <div class="card-header">
-    <h3 class="card-title"><i class="bi bi-search me-2"></i>商品を検索</h3>
-  </div>
-  <div class="card-body">
-    <ul class="nav nav-tabs" role="tablist">
-      <li class="nav-item">
-        <a class="nav-link active" id="barcodeTab" href="#barcodePane" data-bs-toggle="tab" role="tab">
-          <i class="bi bi-barcode me-1"></i>バーコード検索
-        </a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link" id="keywordTab" href="#keywordPane" data-bs-toggle="tab" role="tab">
-          <i class="bi bi-search me-1"></i>商品名検索
-        </a>
-      </li>
-    </ul>
-
-    <div class="tab-content">
-      <div class="tab-pane fade show active" id="barcodePane" role="tabpanel">
-        <div class="mt-3">
-          <label for="barcodeInput" class="form-label">バーコード番号</label>
-          <div class="input-group">
-            <input id="barcodeInput" type="text" class="form-control"
-                   maxlength="12" placeholder="12桁バーコードを入力"
-                   autocomplete="off" inputmode="numeric">
-            <a id="barcodeSubmit" class="btn btn-primary" href="" role="button">
-              <i class="bi bi-search me-1"></i>検索
-            </a>
-          </div>
-          <div class="form-text">商品バーコード（12桁）を入力すると棚番管理画面に移動します。</div>
-        </div>
-      </div>
-
-      <div class="tab-pane fade" id="keywordPane" role="tabpanel">
-        <div class="mt-3">
-          <label for="keywordInput" class="form-label">商品名</label>
-          <div class="input-group">
-            <input id="keywordInput" type="text" class="form-control"
-                   maxlength="50" placeholder="商品名キーワードを入力"
-                   autocomplete="off">
-            <button id="keywordSubmit" type="button" class="btn btn-primary">
-              <i class="bi bi-search me-1"></i>検索
-            </button>
-          </div>
-          <div class="form-text">商品名のキーワードで検索します。</div>
-        </div>
-      </div>
+<div class="flex items-center gap-3">
+  <div class="relative grow max-w-xs">
+    <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
+      <?php ui('iconHeroicon', ['name' => 'qr', 'class' => 'h-5 w-5']); ?>
     </div>
+    <input id="barcodeInput" 
+           type="text" 
+           maxlength="12" 
+           class="form-input pl-10"
+           placeholder="<?php echo ui_attr(__('ui.barcode.input_placeholder', [], null, 'Input barcode')); ?>">
   </div>
-</div>
+  <?php ui('button', [
+    'id'      => 'barcodeSubmit',
+    'label'   => __('ui.common.display', [], null, 'Display'),
+    'variant' => 'success',
+  ]); ?>
 </div>
 
 <?php }; ?>

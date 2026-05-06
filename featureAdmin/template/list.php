@@ -24,30 +24,30 @@
         foreach ($v->flags as $f) {
             $isTripped = $f['autoDisabledAt'] !== null;
             $statusBadge = $isTripped
-                ? '<span class="badge bg-danger">'.ui_text(__('ui.feature_flags.status.tripped', [], null, 'Breaker tripped')).'</span>'
+                ? '<span class="ta-badge ta-badge-danger">'.ui_text(__('ui.feature_flags.status.tripped', [], null, 'Breaker tripped')).'</span>'
                 : ($f['enabled']
-                    ? '<span class="badge bg-success">'.ui_text(__('ui.feature_flags.status.active', [], null, 'Active')).'</span>'
-                    : '<span class="badge bg-secondary">'.ui_text(__('ui.feature_flags.status.disabled', [], null, 'Disabled')).'</span>');
-            $rolloutBadge = '<span class="badge bg-primary">'.((int) $f['rolloutPercent']).'%</span>';
+                    ? '<span class="ta-badge ta-badge-success">'.ui_text(__('ui.feature_flags.status.active', [], null, 'Active')).'</span>'
+                    : '<span class="ta-badge ta-badge-gray">'.ui_text(__('ui.feature_flags.status.disabled', [], null, 'Disabled')).'</span>');
+            $rolloutBadge = '<span class="ta-badge ta-badge-primary">'.((int) $f['rolloutPercent']).'%</span>';
             
             $toggleAction = $f['enabled'] ? 'disable' : 'enable';
             $toggleLabel = $f['enabled'] ? 'Disable' : 'Enable';
             $toggleVariant = $f['enabled'] ? 'danger' : 'success';
             
-            $csrf = htmlspecialchars(\saso\util\CSRFtoken::current(), ENT_QUOTES, 'UTF-8');
-            $keyHtml = htmlspecialchars($f['key'], ENT_QUOTES, 'UTF-8');
+            $csrf = htmlspecialchars(\saso\util\CSRFtoken::current());
+            $keyHtml = htmlspecialchars($f['key']);
             
             $actionForm = <<<HTML
-<form method="POST" action="" class="d-inline-block m-0">
+<form method="POST" action="" class="inline-block">
     <input type="hidden" name="csrftoken" value="{$csrf}">
     <input type="hidden" name="flag_key" value="{$keyHtml}">
     <input type="hidden" name="action" value="{$toggleAction}">
-    <button type="submit" class="btn btn-sm btn-{$toggleVariant}">{$toggleLabel}</button>
+    <button type="submit" class="ta-btn ta-btn-sm ta-btn-{$toggleVariant}">{$toggleLabel}</button>
 </form>
 HTML;
 
             $rows[] = [
-                ['value' => '<code class="small font-monospace">'.ui_text((string) $f['key']).'</code>', 'html' => true],
+                ['value' => '<code class="text-theme-xs">'.ui_text((string) $f['key']).'</code>', 'html' => true],
                 ['value' => ui_text((string) $f['description'])],
                 ['value' => $rolloutBadge,  'html' => true],
                 ['value' => $statusBadge,   'html' => true],

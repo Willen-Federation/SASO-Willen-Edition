@@ -1,6 +1,7 @@
 <?php
 namespace saso\debug;
 
+use DateTimeImmutable;
 use InvalidArgumentException;
 use saso\framework\DIContainer;
 use saso\framework\View;
@@ -160,21 +161,8 @@ final class AiDebugDIContainer implements DIContainer
 
         try {
             $aiAssistant = AiAssistantFactory::forVision($settingService);
-            // Debug probe always bypasses the feature flag — it is an admin-only tool for
-            // directly testing the AI pipeline regardless of flag state.
-            $alwaysEnabled = new class implements FeatureFlagRepository {
-                public function findByKey(FeatureKey $key): ?FeatureFlag
-                {
-                    $now = new \DateTimeImmutable();
-                    return new FeatureFlag(1, $key, 'debug-probe', true, 100, null, 0, 1, null, null, $now, $now);
-                }
-                public function findById(int $id): ?FeatureFlag { return null; }
-                /** @return list<FeatureFlag> */
-                public function listAll(): array { return []; }
-                public function save(FeatureFlag $flag): FeatureFlag { return $flag; }
-                public function delete(int $id): void {}
-            };
-            $aiVisionStep = new AiVisionStep($aiAssistant, $alwaysEnabled);
+            $flagRepo = $this->createDebugFlagRepo();
+            $aiVisionStep = new AiVisionStep($aiAssistant, $flagRepo);
 
             // If base64 image provided, decode and write to temporary file
             $imagePath = null;
@@ -232,5 +220,52 @@ final class AiDebugDIContainer implements DIContainer
         }
 
         return false;
+    }
+
+    private function createDebugFlagRepo(): FeatureFlagRepository
+    {
+        return new class () implements FeatureFlagRepository {
+            public function findByKey(FeatureKey $key): ?FeatureFlag
+            {
+                // Enable AI auto-judge flag for debug probe
+                if ($key->value === 'ai.auto_judge') {
+                    return new FeatureFlag(
+                        id: 1,
+                        key: $key,
+                        description: 'AI auto-judge (debug)',
+                        enabled: true,
+                        rolloutPercent: 100,
+                        conditions: null,
+                        errorThreshold: 0,
+                        errorWindowMinutes: 1,
+                        autoDisabledAt: null,
+                        autoDisableReason: null,
+                        createdAt: new DateTimeImmutable(),
+                        updatedAt: new DateTimeImmutable(),
+                    );
+                }
+                return null;
+            }
+
+            public function findById(int $id): ?FeatureFlag
+            {
+                return null;
+            }
+
+            /** @return list<FeatureFlag> */
+            public function listAll(): array
+            {
+                return [];
+            }
+
+            public function save(FeatureFlag $flag): FeatureFlag
+            {
+                return $flag;
+            }
+
+            public function delete(int $id): void
+            {
+            }
+        };
     }
 }

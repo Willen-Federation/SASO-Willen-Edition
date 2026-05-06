@@ -11,10 +11,14 @@ export default class CSRF {
             return token;
         };
 
-        document.querySelectorAll('form[method="post"]').forEach(
+        document.querySelectorAll('form[method="post"], form[method="POST"]').forEach(
             elm=>{
-                elm.appendChild(input('csrftoken'));
-                elm.appendChild(input('csrftokenConfirm'));
+                if (!elm.querySelector('input[name="csrftoken"]')) {
+                    elm.appendChild(input('csrftoken'));
+                }
+                if (!elm.querySelector('input[name="csrftokenConfirm"]')) {
+                    elm.appendChild(input('csrftokenConfirm'));
+                }
             }
         )
     }

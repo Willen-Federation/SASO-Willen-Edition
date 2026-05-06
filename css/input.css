@@ -1,0 +1,182 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    font-family: "Noto Sans JP", "Hiragino Kaku Gothic ProN", "Hiragino Sans",
+      Meiryo, sans-serif;
+  }
+
+  body {
+    @apply bg-whiter text-black dark:bg-boxdark-2 dark:text-bodydark;
+  }
+
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+}
+
+@layer components {
+  /* Sidebar */
+  .sidebar-link {
+    @apply flex items-center gap-2.5 rounded-md px-4 py-2 text-sm font-medium text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4;
+  }
+  .sidebar-link.active {
+    @apply bg-graydark dark:bg-meta-4 text-white;
+  }
+
+  /* Form inputs */
+  .form-input {
+    @apply w-full rounded border border-stroke bg-transparent py-3 pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary;
+  }
+  .form-label {
+    @apply mb-2.5 block font-medium text-black dark:text-white;
+  }
+  .form-select {
+    @apply relative z-20 w-full appearance-none rounded border border-stroke bg-transparent py-3 pl-5 pr-12 outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white;
+  }
+
+  /* Buttons */
+  .btn-primary {
+    @apply flex justify-center rounded bg-primary p-3 font-medium text-white hover:bg-opacity-90 transition;
+  }
+  .btn-secondary {
+    @apply flex justify-center rounded border border-stroke p-3 font-medium text-black hover:shadow-1 dark:border-strokedark dark:text-white transition;
+  }
+  .btn-danger {
+    @apply flex justify-center rounded bg-danger p-3 font-medium text-white hover:bg-opacity-90 transition;
+  }
+  .btn-success {
+    @apply flex justify-center rounded bg-success p-3 font-medium text-white hover:bg-opacity-90 transition;
+  }
+  .btn-warning {
+    @apply flex justify-center rounded bg-warning p-3 font-medium text-black hover:bg-opacity-90 transition;
+  }
+  .btn-sm {
+    @apply px-4 py-2 text-sm;
+  }
+
+  /* Cards */
+  .card {
+    @apply rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark;
+  }
+  .card-header {
+    @apply border-b border-stroke px-6.5 py-4 dark:border-strokedark;
+  }
+  .card-body {
+    @apply p-6.5;
+  }
+
+  /* Tables */
+  .data-table {
+    @apply w-full table-auto;
+  }
+  .data-table thead tr {
+    @apply bg-gray-2 text-left dark:bg-meta-4;
+  }
+  .data-table thead th {
+    @apply min-w-[120px] py-4 px-4 font-medium text-black dark:text-white xl:pl-11;
+  }
+  .data-table tbody tr {
+    @apply border-b border-stroke dark:border-strokedark;
+  }
+  .data-table tbody td {
+    @apply py-3 px-4 dark:border-strokedark;
+  }
+
+  /* Badges */
+  .badge {
+    @apply inline-flex rounded-full px-3 py-1 text-sm font-medium;
+  }
+  .badge-success {
+    @apply bg-success bg-opacity-10 text-success;
+  }
+  .badge-danger {
+    @apply bg-danger bg-opacity-10 text-danger;
+  }
+  .badge-warning {
+    @apply bg-warning bg-opacity-10 text-black;
+  }
+  .badge-primary {
+    @apply bg-primary bg-opacity-10 text-primary;
+  }
+
+  /* Breadcrumbs */
+  .breadcrumb {
+    @apply flex items-center gap-2 text-sm;
+  }
+  .breadcrumb-item {
+    @apply text-body dark:text-bodydark;
+  }
+  .breadcrumb-item a {
+    @apply text-primary hover:underline;
+  }
+  .breadcrumb-item.active {
+    @apply text-black dark:text-white font-medium;
+  }
+
+  /* Alert */
+  .alert {
+    @apply flex items-start gap-3 rounded-sm border p-4;
+  }
+  .alert-warning {
+    @apply border-warning bg-warning bg-opacity-5 text-black;
+  }
+  .alert-danger {
+    @apply border-danger bg-danger bg-opacity-5 text-danger;
+  }
+  .alert-success {
+    @apply border-success bg-success bg-opacity-5 text-success;
+  }
+
+  /* Toggle switch */
+  .toggle {
+    @apply relative inline-block h-6 w-11 cursor-pointer;
+  }
+  .toggle input {
+    @apply sr-only;
+  }
+  .toggle-slider {
+    @apply absolute inset-0 rounded-full bg-stroke transition duration-300 dark:bg-strokedark;
+  }
+  .toggle input:checked ~ .toggle-slider {
+    @apply bg-primary;
+  }
+  .toggle-slider:before {
+    content: "";
+    @apply absolute left-1 bottom-1 h-4 w-4 rounded-full bg-white transition duration-300;
+  }
+  .toggle input:checked ~ .toggle-slider:before {
+    @apply translate-x-5;
+  }
+}
+
+/* Print styles */
+@media print {
+  .no-print { display: none !important; }
+  .sidebar, header, nav { display: none !important; }
+  main { margin: 0 !important; padding: 0 !important; }
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  @apply bg-gray-2;
+}
+::-webkit-scrollbar-thumb {
+  @apply rounded bg-stroke;
+}
+
+/* Focused input highlight */
+.focused {
+  @apply ring-2 ring-primary ring-offset-1;
+}
+
+/* Hidden utility (legacy compat) */
+.hidden { display: none; }

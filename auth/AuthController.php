@@ -15,14 +15,9 @@ final class AuthController implements Controller
         ?GettableController $anotherCtrl=null
     )
     {
-        $path = (string) ($query['restoredPath'] ?? '');
-        // Reject absolute URLs (contains ://  or protocol-relative //) to prevent
-        // credential phishing via a crafted restoredPath form action.
-        if (preg_match('#(://|^//)#', $path)) {
-            $path = '';
-        }
-        $restoredPath = preg_replace('/error\/1\//', '', $path);
-        $isError = preg_match('/error\/1\//', $path) === 1;
+        $rp = (string) ($query['restoredPath'] ?? 'start/start/');
+        $restoredPath = preg_replace('/error\/1\//', '', $rp);
+        $isError = preg_match('/error\/1\//', $rp) === 1;
         $this->data = new AuthInput(
             $restoredPath,
             $isError,

@@ -47,15 +47,9 @@ COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 COPY docker/php/saso.ini /usr/local/etc/php/conf.d/zz-saso.ini
 COPY docker/apache/000-default.conf /etc/apache2/sites-available/000-default.conf
 
-# --- Entrypoint: idempotent .env bootstrap before Apache starts --------------
-COPY docker/entrypoint.sh /usr/local/bin/saso-entrypoint
-RUN chmod +x /usr/local/bin/saso-entrypoint
-
 # Bind-mount target — the actual project files arrive at runtime via
 # docker-compose volumes so edits are picked up without rebuilding the image.
 WORKDIR /var/www/html
 
 # Apache binds to 80 inside the container; docker-compose maps it to 8080.
 EXPOSE 80
-
-CMD ["saso-entrypoint"]

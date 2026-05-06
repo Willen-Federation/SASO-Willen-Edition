@@ -19,8 +19,7 @@ final class MultiDIContainer implements DIContainer
             new MultiPresenter(
                 new ListView($inside),
                 new common\RegisterFailView('shelf/start'),
-            ),
-            null
+            )
         );
     }
 }

@@ -20,9 +20,7 @@ final class ProviderNewView implements View
 
     public function onRoot(): bool
     {
-        // Render inside Tabler chrome — the provider-new template emits only a
-        // body fragment and relies on root.php for <!DOCTYPE>, navbar and CSS.
-        return true;
+        return false;
     }
 
     public function getTitle(): string

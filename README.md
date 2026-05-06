@@ -16,8 +16,8 @@
 
 - [Features](#features)
 - [Requirements](#requirements)
+- [Quick Start (Standard PHP)](#quick-start-standard-php)
 - [Quick Start (Docker)](#quick-start-docker)
-- [Quick Start (Standard PHP, no Docker)](#quick-start-standard-php-no-docker)
 - [Configuration](#configuration)
 - [Roadmap](#roadmap)
 - [Documentation](#documentation)
@@ -46,47 +46,7 @@
 | Web server | Apache 2.4+ with `mod_rewrite` (LiteSpeed compatible) |
 | PHP extensions | `pdo_mysql`, `gd`, `zip`, `intl`, `mbstring`, `opcache` |
 
-## Quick Start (Docker)
-
-Zero-touch — `make up` generates a `.env` with secure random secrets
-(`APP_KEY`, `DB_PASSWORD`, `MARIADB_ROOT_PASSWORD`) on first run.
-
-```bash
-git clone https://github.com/Willen-Federation/SASO-Willen-Edition.git
-cd SASO-Willen-Edition
-
-make up                          # generates .env, builds images, starts app+db+adminer
-make install                     # composer install inside the app container
-make migrate                     # apply Phinx migrations
-
-open http://localhost:8080/installer/start    # create the first admin user
-```
-
-That's it. AI provider keys (Gemini / OpenAI / Anthropic) and Auth0
-credentials are configured later from the admin Web UI under **Settings →
-AI** and **Settings → Auth Providers** — they're stored encrypted in the
-`system_setting` DB table, not in `.env`.
-
-For a developer override (e.g. testing an AI provider before logging in
-once), the same env vars are still honoured: open `.env` and fill in the
-`Optional developer overrides` block.
-
-For development with an OIDC / SAML test IdP:
-
-```bash
-make up-sso                      # adds Keycloak at http://localhost:8082 (admin / admin)
-```
-
-> **Adminer** at <http://localhost:8081> uses the credentials from the
-> generated `.env` (server: `db`, user: `saso_user`, password: see
-> `DB_PASSWORD` in `.env`).
-
-Tested with **Colima** and **Docker Desktop** on macOS / Linux. Recommended
-Colima sizing on macOS: `colima start --cpu 4 --memory 4 --disk 20`. Apple
-Silicon hosts run the images under qemu (`platform: linux/amd64`) so the
-developer environment matches the deployment surface most operators target.
-
-## Quick Start (Standard PHP, no Docker)
+## Quick Start (Standard PHP)
 
 ```bash
 # 1) Clone
@@ -104,7 +64,10 @@ mysql -u root -p -e "CREATE DATABASE saso CHARACTER SET utf8mb4 COLLATE utf8mb4_
 
 # 4) Configure DB credentials — preferred: .env (kept out of git)
 cp .env.example .env
-$EDITOR .env             # set DB_DSN / DB_USER / DB_PASSWORD
+$EDITOR .env             # set DB_DSN / DB_USER / DB_PASSWORD / APP_HTTPS
+
+# 4b) (optional) Tune non-secret settings in config.json
+$EDITOR config.json      # paths, sheet count, log path, etc.
 
 # 5) Edit .htaccess — set RewriteBase to your install directory
 $EDITOR .htaccess
@@ -113,11 +76,31 @@ $EDITOR .htaccess
 open https://your-host.example.com/installer/start
 ```
 
-`APP_KEY` is generated automatically when you first open
-`/installer/start` (the app writes it back into your `.env`). After that,
-follow the on-screen wizard to create the initial administrator account.
+Follow the on-screen wizard to create the initial administrator account.
 
 > **Shared / rental hosting**: For environments without SSH or Composer access, download the latest release ZIP from [Releases](https://github.com/Willen-Federation/SASO-Willen-Edition/releases) (vendor dependencies pre-bundled), upload via cPanel / FTP, and proceed from step 4.
+
+## Quick Start (Docker)
+
+Tested with **Colima** and **Docker Desktop** on macOS / Linux. Apple Silicon hosts run the images under qemu (`platform: linux/amd64`) so the developer environment matches the deployment surface most operators target.
+
+```bash
+# Recommended Colima sizing on macOS:
+colima start --cpu 4 --memory 4 --disk 20
+
+# 1) Build images and start the stack (Apache + PHP + MariaDB + Adminer)
+make up
+
+# 2) Install Composer dependencies inside the app container
+make install
+
+# 3) Apply pending SQL migrations (idempotent)
+make migrate
+
+# 4) Open the application and the DB admin UI
+open http://localhost:8080      # SASO web installer / app
+open http://localhost:8081      # Adminer  → server: db / user: saso_user / password: saso_dev_password
+```
 
 For development with an OIDC / SAML test IdP:
 
@@ -142,11 +125,11 @@ Configuration is layered. Lower layers act as defaults; higher layers override.
 
 | Layer | What goes here | Status |
 |---|---|---|
-| **`.env`** | Secrets (`DB_PASSWORD`, `APP_KEY`, `MARIADB_ROOT_PASSWORD`) and per-environment toggles (`APP_HTTPS`). Auto-generated on first `make up`. Git-ignored. | shipped (M1) |
+| **`.env`** | Secrets (`DB_PASSWORD`, future `OIDC_CLIENT_SECRET`, `APP_KEY`, …) and per-environment toggles (`APP_HTTPS`). Git-ignored. | shipped (M1) |
 | **`config.json`** | Non-secret operational defaults: paths, log location, sheet count. Written by the installer; commitable as a template. | shipped |
-| **`system_setting` table** | Runtime configuration editable from the admin Web UI — including AI provider keys (`ai.gemini_api_keys`, `ai.openai_api_keys`, `ai.anthropic_api_keys`) and Auth0 (`auth0.*`). Sensitive values encrypted at rest with AES-256-GCM. | shipped (M4) |
+| **`system_setting` table** | Runtime configuration editable from the admin Web UI. Sensitive values encrypted at rest with AES-256-GCM. | planned (M4) |
 
-Resolution order for an overlay-able key (highest first): `system_setting` (DB) → `.env` → real OS environment variable → `config.json`. The `.env`-overlay-able keys are `DB_DSN`, `DB_USER`, `DB_PASSWORD`, `APP_HTTPS`, and `APP_KEY`; everything else is read from `config.json` or the `system_setting` table only.
+Resolution order for an overlay-able key (highest first): `.env` → real OS environment variable → `config.json`. The overlay-able keys are `DB_DSN`, `DB_USER`, `DB_PASSWORD`, and `APP_HTTPS`; everything else is read from `config.json` only.
 
 ## Roadmap
 
@@ -215,10 +198,10 @@ Code authored by Japan Standards Organization (日本標準機構) and Willen Fe
 
 詳細は [ORIGINAL_README.md](ORIGINAL_README.md) または上記の [Quick Start](#quick-start-standard-php) を参照してください。要約：
 
-1. **Docker** の場合：`make up` で `.env` が自動生成され、すぐにスタックが起動します（推奨）。
-2. **手動セットアップ** の場合：データベースを作成し、`.env` をコピーして DB 接続情報を設定、`.htaccess` の `RewriteBase` を設定。
-3. ブラウザから `installer/start` にアクセスして初回セットアップ（`APP_KEY` は自動生成されます）。
-4. AI プロバイダや Auth0 の API キーは、ログイン後に管理画面（**Settings → AI / Auth Providers**）から登録します。
+1. データベースを作成
+2. `config.json` を編集（DSN、ユーザー、パスワード）
+3. `.htaccess` の `RewriteBase` を設定
+4. ブラウザから `installer/start` にアクセスして初回セットアップ
 
 ### 貢献方法
 

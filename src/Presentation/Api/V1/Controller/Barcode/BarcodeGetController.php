@@ -10,10 +10,8 @@ use Saso\Presentation\Api\V1\HttpRequest;
 use Saso\Presentation\Api\V1\Response\HttpResponse;
 use Saso\Presentation\Api\V1\Response\JsonResponse;
 use Saso\Presentation\Api\V1\Response\ProblemResponse;
-use saso\repository\color\FindByItem as FindColorsByItem;
 use saso\repository\DbFinder;
 use saso\repository\item\FindOneById;
-use saso\repository\size\FindByItem as FindSizesByItem;
 
 final class BarcodeGetController
 {
@@ -39,15 +37,14 @@ final class BarcodeGetController
         $itemInfo = null;
         if ($row->linkedItemId !== null) {
             $finder = new DbFinder();
-            $itemEntity = $finder->current(new FindOneById(), ['id' => $row->linkedItemId])->getOrElse(null);
-            if ($itemEntity !== null) {
-                $firstColor = $finder->current(new FindColorsByItem($itemEntity))->getOrElse(null);
-                $firstSize  = $finder->current(new FindSizesByItem($itemEntity))->getOrElse(null);
+            $item = $finder->current(new FindOneById(), ['id' => $row->linkedItemId]);
+            /** @phpstan-ignore-next-line */
+            if ($item->isJust()) {
+                /** @phpstan-ignore-next-line */
+                $itemEntity = $item->get();
                 $itemInfo = [
-                    'id'        => $row->linkedItemId,
-                    'name'      => $itemEntity->name,
-                    'colorCode' => $firstColor?->code,
-                    'sizeCode'  => $firstSize?->code,
+                    'id'   => $row->linkedItemId,
+                    'name' => $itemEntity->name,
                 ];
             }
         }

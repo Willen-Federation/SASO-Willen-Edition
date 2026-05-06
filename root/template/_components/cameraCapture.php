@@ -31,8 +31,8 @@ $videoId   = 'saso-camera-preview-' . $uniqueId;
 <div id="<?php echo htmlspecialchars($wrapperId, ENT_QUOTES, 'UTF-8'); ?>"
      x-data="{
        ...sasoCamera(),
-       _videoId:     <?php echo htmlspecialchars(json_encode($videoId), ENT_QUOTES, 'UTF-8'); ?>,
-       _fileInputId: <?php echo htmlspecialchars(json_encode($fileInputId), ENT_QUOTES, 'UTF-8'); ?>,
+       _videoId:     <?php echo json_encode($videoId); ?>,
+       _fileInputId: <?php echo json_encode($fileInputId); ?>,
 
        openCamera() {
          this.capturedDataUrl = null;
@@ -133,46 +133,58 @@ $videoId   = 'saso-camera-preview-' . $uniqueId;
   <button
     type="button"
     @click="openCamera()"
-    class="btn btn-secondary d-inline-flex align-items-center gap-2 <?php echo htmlspecialchars($buttonClass, ENT_QUOTES, 'UTF-8'); ?>"
+    class="btn btn-secondary inline-flex items-center gap-2 <?php echo htmlspecialchars($buttonClass, ENT_QUOTES, 'UTF-8'); ?>"
   >
-    <i class="bi bi-camera" aria-hidden="true"></i>
+    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 shrink-0" fill="none" viewBox="0 0 24 24"
+         stroke="currentColor" aria-hidden="true">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+        d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812
+           1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/>
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/>
+    </svg>
     <span><?php echo ui_text($buttonLabel); ?></span>
   </button>
 
+  {{-- Camera overlay --}}
   <div
     x-show="active"
     x-cloak
-    class="position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center"
-    style="z-index:9999;"
+    class="fixed inset-0 z-99999 flex items-center justify-center"
     role="dialog"
     aria-modal="true"
     @keydown.escape.window="closeCamera()"
   >
-    <div class="position-absolute top-0 start-0 w-100 h-100" style="background:rgba(0,0,0,.7);" @click="closeCamera()"></div>
+    <div class="absolute inset-0 bg-black/70" @click="closeCamera()"></div>
 
-    <div class="position-relative bg-white rounded shadow-lg p-4" style="width:100%;max-width:24rem;z-index:1;"
+    <div class="relative z-10 w-full max-w-sm rounded-xl bg-white p-6 shadow-2xl dark:bg-gray-800"
          x-trap.inert.noscroll="active">
 
-      <div class="d-flex align-items-center justify-content-between mb-3">
-        <h2 class="h6 fw-semibold mb-0">
+      {{-- Header --}}
+      <div class="mb-4 flex items-center justify-between">
+        <h2 class="text-base font-semibold text-gray-800 dark:text-white">
           <?php echo ui_text(__('ui.item.register.take_photo', [], null, 'Take Photo')); ?>
         </h2>
         <button
           type="button"
           @click="closeCamera()"
-          class="btn-close"
+          class="rounded-lg p-1 text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-white/10"
           aria-label="<?php echo ui_attr(__('ui.scanner.close', [], null, 'Close')); ?>"
-        ></button>
+        >
+          <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M6 6 18 18M6 18 18 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+        </button>
       </div>
 
-      <div class="btn-group w-100 mb-3" role="tablist">
+      {{-- Mode tabs --}}
+      <div class="mb-4 flex rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden" role="tablist">
         <button
           type="button"
           role="tab"
           :aria-selected="mode === 'camera'"
           @click="switchTab('camera')"
-          :class="mode === 'camera' ? 'btn-primary' : 'btn-outline-secondary'"
-          class="btn btn-sm flex-grow-1"
+          :class="mode === 'camera' ? 'bg-brand-500 text-white' : 'bg-transparent text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/5'"
+          class="flex-1 px-4 py-2 text-sm font-medium transition"
         >
           <?php echo ui_text(__('ui.item.register.take_photo', [], null, 'Camera')); ?>
         </button>
@@ -181,55 +193,63 @@ $videoId   = 'saso-camera-preview-' . $uniqueId;
           role="tab"
           :aria-selected="mode === 'file'"
           @click="switchTab('file')"
-          :class="mode === 'file' ? 'btn-primary' : 'btn-outline-secondary'"
-          class="btn btn-sm flex-grow-1"
+          :class="mode === 'file' ? 'bg-brand-500 text-white' : 'bg-transparent text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/5'"
+          class="flex-1 px-4 py-2 text-sm font-medium transition"
         >
           <?php echo ui_text(__('ui.item.register.image_drop', [], null, 'File')); ?>
         </button>
       </div>
 
+      {{-- Camera tab --}}
       <div x-show="mode === 'camera'">
         <div x-show="!capturedDataUrl">
           <video
             id="<?php echo htmlspecialchars($videoId, ENT_QUOTES, 'UTF-8'); ?>"
-            class="w-100 rounded bg-black"
+            class="w-full rounded-lg bg-black"
             style="max-height:280px;object-fit:cover;"
             autoplay
             playsinline
             muted
           ></video>
           <button type="button" @click="capturePhoto()"
-                  class="btn btn-primary mt-3 w-100">
+                  class="btn btn-primary mt-3 w-full">
             <?php echo ui_text(__('ui.item.register.take_photo', [], null, 'Capture')); ?>
           </button>
         </div>
         <div x-show="capturedDataUrl">
-          <img :src="capturedDataUrl" class="w-100 rounded" alt="" style="max-height:280px;object-fit:contain;">
-          <div class="mt-3 d-flex gap-2">
-            <button type="button" @click="retakePhoto()" class="btn btn-secondary flex-grow-1">Retake</button>
-            <button type="button" @click="confirmPhoto()" class="btn btn-primary flex-grow-1">
+          <img :src="capturedDataUrl" class="w-full rounded-lg" alt="" style="max-height:280px;object-fit:contain;">
+          <div class="mt-3 flex gap-2">
+            <button type="button" @click="retakePhoto()" class="btn btn-secondary flex-1">
+              Retake
+            </button>
+            <button type="button" @click="confirmPhoto()" class="btn btn-primary flex-1">
               <?php echo ui_text(__('ui.button.save', [], null, 'Confirm')); ?>
             </button>
           </div>
         </div>
       </div>
 
+      {{-- File tab --}}
       <div x-show="mode === 'file'">
         <div x-show="!capturedDataUrl">
-          <label class="d-flex flex-column align-items-center justify-content-center gap-2 rounded border border-2 p-5 text-muted"
-                 style="border-style:dashed;cursor:pointer;">
-            <i class="bi bi-image fs-2" aria-hidden="true"></i>
-            <span class="small">
+          <label class="flex cursor-pointer flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed border-gray-300 p-8 text-gray-500 hover:border-brand-500 dark:border-gray-600 dark:text-gray-400">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                d="M4 16l4-4 4 4 4-8 4 4M4 20h16"/>
+            </svg>
+            <span class="text-sm">
               <?php echo ui_text(__('ui.item.register.image_drop', [], null, 'Drop photo or tap to select')); ?>
             </span>
-            <input type="file" accept="image/*" class="visually-hidden" @change="handleFile($event)">
+            <input type="file" accept="image/*" class="sr-only" @change="handleFile($event)">
           </label>
         </div>
         <div x-show="capturedDataUrl">
-          <img :src="capturedDataUrl" class="w-100 rounded" alt="" style="max-height:280px;object-fit:contain;">
-          <div class="mt-3 d-flex gap-2">
-            <button type="button" @click="retakePhoto()" class="btn btn-secondary flex-grow-1">Retake</button>
-            <button type="button" @click="confirmPhoto()" class="btn btn-primary flex-grow-1">
+          <img :src="capturedDataUrl" class="w-full rounded-lg" alt="" style="max-height:280px;object-fit:contain;">
+          <div class="mt-3 flex gap-2">
+            <button type="button" @click="retakePhoto()" class="btn btn-secondary flex-1">
+              Retake
+            </button>
+            <button type="button" @click="confirmPhoto()" class="btn btn-primary flex-1">
               <?php echo ui_text(__('ui.button.save', [], null, 'Confirm')); ?>
             </button>
           </div>

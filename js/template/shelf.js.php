@@ -8,8 +8,8 @@ export default class Shelf {
         let pageNumber = document.querySelector('#pageNumber');
         let submitMultiButton = document.querySelector('#submitMultiButton');
         let jump = e=>{
-            let minsText = mins.reduce((carry, item, number)=>carry+'/min'+(number+1)+'/'+(item?.value??''), '');
-            let maxsText = maxs.reduce((carry, item, number)=>carry+'/max'+(number+1)+'/'+(item?.value??''), '');
+            let minsText = mins.reduce((carry, item, number)=>carry+'/min'+(number+1)+'/'+item.value??'', '');
+            let maxsText = maxs.reduce((carry, item, number)=>carry+'/max'+(number+1)+'/'+item.value??'', '');
             location.href = './shelf/multi/page/'+pageNumber.value+minsText+maxsText;
         };
         mins.concat(maxs).concat([pageNumber]).forEach(elm=>{

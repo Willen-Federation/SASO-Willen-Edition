@@ -33,33 +33,18 @@ services:
       - ./:/var/www/html/saso:cached
       - composer-cache:/root/.composer/cache
     environment:
-      # All values are sourced from the project-level `.env` file. `make up`
-      # auto-generates that file with secure random values for APP_KEY /
-      # DB_PASSWORD / MARIADB_ROOT_PASSWORD on first run; the entrypoint
-      # script inside the container also regenerates them if the file is
-      # missing on subsequent boots.
-      #
-      # The `${VAR:?msg}` form fails Compose with a clear message when the
-      # variable is unset — no leaked dev secret can ever fall back as a
-      # default for APP_KEY or DB_PASSWORD.
-      #
-      # AI / Auth0 credentials are stored encrypted in the `system_setting`
-      # DB table and configured via the admin Web UI (/admin/ai-settings,
-      # /admin/auth-providers). The variables passed through below are
-      # optional developer overrides used when no DB row exists yet.
+      # `.env` overlays still apply — these env vars are visible to PHP via
+      # getenv() and are picked up by EnvLoader::get when the .env file omits
+      # them. Set the DSN to point at the compose-internal `db` hostname.
       DB_DSN: "mysql:host=db;dbname=saso_db;charset=utf8mb4"
-      DB_USER: "${DB_USER:-saso_user}"
-      DB_PASSWORD: "${DB_PASSWORD:?set DB_PASSWORD in .env, or run \"make up\" to auto-generate}"
-      APP_HTTPS: "${APP_HTTPS:-false}"
-      APP_KEY: "${APP_KEY:?set APP_KEY in .env, or run \"make up\" to auto-generate}"
-      AI_PROVIDER: "${AI_PROVIDER:-}"
-      LOCAL_GEMINI_KEY: "${LOCAL_GEMINI_KEY:-}"
-      GEMINI_API_KEY: "${GEMINI_API_KEY:-}"
-      OPENAI_API_KEY: "${OPENAI_API_KEY:-}"
-      ANTHROPIC_API_KEY: "${ANTHROPIC_API_KEY:-}"
-      AUTH0_DOMAIN: "${AUTH0_DOMAIN:-}"
-      AUTH0_CLIENT_ID: "${AUTH0_CLIENT_ID:-}"
-      AUTH0_CLIENT_SECRET: "${AUTH0_CLIENT_SECRET:-}"
+      DB_USER: "saso_user"
+      DB_PASSWORD: "saso_dev_password"
+      APP_HTTPS: "false"
+      APP_KEY: "Rk8Yi5ZCup+zgP3K0gWPfaAOGZA5TG9sUv9KIMqJzvM="
+      AI_PROVIDER: "gemini"
+      LOCAL_GEMINI_KEY: "AIzaSyBte9Z0_GtUw6Ydsl4tB58RCY8JvNZJe5g"
+      AUTH0_DOMAIN: "saso.jp.auth0.com"
+      AUTH0_CLIENT_ID: "e7qEqMpfb3OdXlzb6t2dG5Y0rF4sA9mK"
     depends_on:
       db:
         condition: service_healthy
@@ -72,10 +57,10 @@ services:
     platform: linux/amd64
     restart: unless-stopped
     environment:
-      MARIADB_ROOT_PASSWORD: "${MARIADB_ROOT_PASSWORD:?set MARIADB_ROOT_PASSWORD in .env, or run \"make up\" to auto-generate}"
+      MARIADB_ROOT_PASSWORD: rootpw
       MARIADB_DATABASE: saso_db
-      MARIADB_USER: "${DB_USER:-saso_user}"
-      MARIADB_PASSWORD: "${DB_PASSWORD:?set DB_PASSWORD in .env, or run \"make up\" to auto-generate}"
+      MARIADB_USER: saso_user
+      MARIADB_PASSWORD: saso_dev_password
     volumes:
       - db-data:/var/lib/mysql
       - ./docker/mariadb/init.sql:/docker-entrypoint-initdb.d/01-init.sql:ro
@@ -116,8 +101,8 @@ services:
       - sso
     command: ["start-dev"]
     environment:
-      KEYCLOAK_ADMIN: "${KEYCLOAK_ADMIN:-admin}"
-      KEYCLOAK_ADMIN_PASSWORD: "${KEYCLOAK_ADMIN_PASSWORD:-admin}"
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
       KC_HEALTH_ENABLED: "true"
       KC_HOSTNAME: saso-keycloak
       KC_HOSTNAME_PORT: "8080"

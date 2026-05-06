@@ -6,7 +6,6 @@ use saso\framework\OutputForSingleEntity;
 use saso\framework\Presenter;
 use saso\framework\Usecase;
 use saso\util\monad\Either;
-use Saso\Domain\Setting\ShelfDimensionConfigLoader;
 
 final class MultiUsecase implements Usecase
 {
@@ -14,7 +13,6 @@ final class MultiUsecase implements Usecase
     private Either $output;
     public function __construct(
         private Presenter $presenter,
-        private ?ShelfDimensionConfigLoader $configLoader = null,
     )
     {
     }
@@ -34,18 +32,6 @@ final class MultiUsecase implements Usecase
                 fn($carry, $item)=>[...$carry, $mins[$item]<=$maxsSmallable[$item]?$maxsSmallable[$item]:''],
                 []
             );
-
-            // Load dimension metadata if available
-            $dimensionMetadata = null;
-            if ($this->configLoader) {
-                try {
-                    $config = $this->configLoader->load();
-                    $dimensionMetadata = $config->getEnabledDimensions();
-                } catch (\Exception) {
-                    // Fall back to default behavior
-                }
-            }
-
             $aDigitRadix = fn(int $dimension)=>
                 $maxs[$dimension-1] === ''
                 || !is_numeric($mins[$dimension-1])?
@@ -73,7 +59,6 @@ final class MultiUsecase implements Usecase
                     $v,
                     $mins,
                     $maxs,
-                    $dimensionMetadata,
                 )
             )->orElse(
                 fn($v)=>Either::left('invalid page.')

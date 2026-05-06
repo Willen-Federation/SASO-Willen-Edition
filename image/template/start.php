@@ -1,52 +1,35 @@
 <?php $this->title = '商品画像'; ?>
 <?php $this->content = function($v) { ?>
 
-<ol class="breadcrumb mb-3" aria-label="breadcrumbs">
-  <li class="breadcrumb-item"><a href="./">ホーム</a></li>
-  <?php if($v->archive->archive) { ?>
-    <li class="breadcrumb-item"><a href="./archive/list">アーカイブ一覧</a></li>
-  <?php } ?>
-  <li class="breadcrumb-item"><a href="<?php echo 'item/start/item/' . (int)$v->item->id; ?>">商品情報</a></li>
-  <li class="breadcrumb-item active" aria-current="page">商品画像</li>
+<nav aria-label="breadcrumb">
+<ol class="breadcrumb">
+<li class="breadcrumb-item"><a href="./">ホーム</a></li>
+<?php if($v->archive->archive) { ?>
+<li class="breadcrumb-item"><a href="./archive/list">アーカイブ一覧</a></li>
+<?php } ?>
+<li class="breadcrumb-item"><a href="<?php echo 'item/start/item/' . $v->item->id; ?>">商品情報</a></li>
+<li class="breadcrumb-item active">商品画像</li>
 </ol>
+</nav>
 
-<div class="card mb-3">
-  <div class="table-responsive">
-    <table class="table table-striped table-vcenter card-table">
-      <?php ($v->inside)('item', 'head'); ?>
-      <?php ($v->inside)('item', 'row', $v->item); ?>
-    </table>
-  </div>
-</div>
+<table class="table table-striped">
+<?php ($v->inside)('item', 'head'); ?>
+<?php ($v->inside)('item', 'row', $v->item); ?>
+</table>
 
-<div class="card mb-3">
-  <div class="card-header">
-    <h3 class="card-title"><?php echo htmlspecialchars($v->color->name, ENT_QUOTES, 'UTF-8') . '(' . htmlspecialchars($v->color->code, ENT_QUOTES, 'UTF-8') . ')'; ?></h3>
-  </div>
-  <div class="card-body text-center">
-    <?php if(is_null($v->color->imageType)) { ?>
-      <p class="text-secondary">画像はありません。</p>
-    <?php }else{ ?>
-      <img src="./image/display<?php echo '/item/'.(int)$v->item->id.'/color/'.rawurlencode((string)$v->color->code); ?>"
-           alt="<?php echo htmlspecialchars($v->item->name . 'の' . $v->color->name . '(' . $v->color->code . ')', ENT_QUOTES, 'UTF-8'); ?>"
-           class="img-fluid rounded">
-    <?php } ?>
-  </div>
-</div>
+<p>
+<?php echo $v->color->name . '(' . $v->color->code . ')'; ?>
+</p>
 
-<div class="card">
-  <div class="card-body">
-    <form method="post" action="./image/add<?php echo '/item/'.(int)$v->item->id.'/color/'.rawurlencode((string)$v->color->code); ?>" enctype="multipart/form-data">
-      <div class="mb-3">
-        <label for="image-upload" class="form-label">画像ファイル</label>
-        <input id="image-upload" type="file" name="image" class="form-control" accept=".jpg,.jpeg,.png,.gif">
-        <div class="form-hint">画像形式は jpeg, png, gif のみ。</div>
-      </div>
-      <button type="submit" class="btn btn-primary">
-        <i class="bi bi-upload me-1"></i>アップロード
-      </button>
-    </form>
-  </div>
-</div>
+<?php if(is_null($v->color->imageType)) { ?>
+<p>画像はありません。</p>
+<?php }else{ ?>
+<img src="./image/display<?php echo  '/item/'.$v->item->id. '/color/' . $v->color->code; ?>" alt="<?php echo $v->item->name . 'の' .$v->color->name . '(' . $v->color->code . ')'; ?>">
+<?php } ?>
+<form method="post" action="./image/add<?php echo  '/item/'.$v->item->id. '/color/' . $v->color->code; ?>" enctype="multipart/form-data">
+<input type="file" name="image">
+<input type="submit" value="アップロード">
+</form>
+<p>画像形式はjpeg, png, gifのみ。</p>
 
 <?php }; ?>

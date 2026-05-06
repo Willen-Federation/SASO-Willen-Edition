@@ -4,8 +4,8 @@
   $settings   = $v->settings ?? [];
   $authorized = $v->authorized ?? false;
   $saved      = $v->saved ?? false;
-  $csrf       = \saso\util\CSRFtoken::current();
 
+  // Current settings with defaults
   $visionProvider  = $settings['ai_provider_vision']    ?? '';
   $chatProvider    = $settings['ai_provider_chat']      ?? '';
   $promptJa        = $settings['ai_prompt_ja']          ?? '';
@@ -14,150 +14,245 @@
   $openaiKeys      = $settings['ai_openai_api_keys']    ?? [];
   $geminiKeys      = $settings['ai_gemini_api_keys']    ?? [];
   $anthropicKeys   = $settings['ai_anthropic_api_keys'] ?? [];
+
+  // Masking helper: show only last 4 chars
+  $maskKey = fn(string $key): string =>
+    $key === '' ? '' : str_repeat('•', max(0, strlen($key) - 4)) . substr($key, -4);
 ?>
 
-<ol class="breadcrumb mb-3" aria-label="breadcrumbs">
-  <li class="breadcrumb-item"><a href="./"><?php echo $lang === 'ja' ? 'ホーム' : 'Home'; ?></a></li>
-  <li class="breadcrumb-item active" aria-current="page"><?php echo $lang === 'ja' ? 'AI設定' : 'AI Settings'; ?></li>
-</ol>
+<div class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+  <h2 class="text-title-md2 font-semibold text-black dark:text-white"><?php echo $lang === 'ja' ? 'AI設定' : 'AI Settings'; ?></h2>
+  <nav aria-label="<?php echo $lang === 'ja' ? 'パンくず' : 'breadcrumb'; ?>">
+    <ol class="flex items-center gap-2">
+      <li><a class="font-medium hover:text-brand-500" href="./"><?php echo $lang === 'ja' ? 'ホーム' : 'Home'; ?></a></li>
+      <li class="font-medium text-brand-500"><?php echo $lang === 'ja' ? 'AI設定' : 'AI Settings'; ?></li>
+    </ol>
+  </nav>
+</div>
 
 <?php if (!$authorized): ?>
-  <div class="alert alert-danger" role="note">
-    <i class="bi bi-shield-x me-2"></i>
-    <?php echo $lang === 'ja' ? 'このページへのアクセス権限がありません。' : 'You do not have permission to access this page.'; ?>
-  </div>
-  <?php return; ?>
+<div class="rounded-sm border border-error-500 bg-error-500 bg-opacity-10 p-4 text-error-500">
+  <?php echo $lang === 'ja' ? 'このページへのアクセス権限がありません。' : 'You do not have permission to access this page.'; ?>
+</div>
+<?php return; ?>
 <?php endif; ?>
 
 <?php if ($saved): ?>
-  <div class="alert alert-success" role="status">
-    <i class="bi bi-check-circle me-2"></i>
-    <?php echo $lang === 'ja' ? '設定を保存しました。' : 'Settings saved successfully.'; ?>
-  </div>
+<div class="mb-6 rounded-sm border border-success bg-success bg-opacity-10 px-4 py-3 text-success flex items-center gap-3">
+  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+  <span><?php echo $lang === 'ja' ? '設定を保存しました。' : 'Settings saved successfully.'; ?></span>
+</div>
 <?php endif; ?>
 
 <form method="post" action="" x-data="{
-  openaiKeys: <?php echo json_encode(array_values($openaiKeys), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_UNESCAPED_UNICODE); ?>,
-  geminiKeys: <?php echo json_encode(array_values($geminiKeys), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_UNESCAPED_UNICODE); ?>,
-  anthropicKeys: <?php echo json_encode(array_values($anthropicKeys), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_UNESCAPED_UNICODE); ?>,
-  newOpenai: '', newGemini: '', newAnthropic: '',
-  addKey(list, key) {
-    const k = key.trim();
-    if (k) { this[list].push(k); }
+  openaiKeys: <?php echo json_encode(array_values($openaiKeys), JSON_UNESCAPED_UNICODE); ?>,
+  geminiKeys: <?php echo json_encode(array_values($geminiKeys), JSON_UNESCAPED_UNICODE); ?>,
+  anthropicKeys: <?php echo json_encode(array_values($anthropicKeys), JSON_UNESCAPED_UNICODE); ?>,
+  newOpenai: '',
+  newGemini: '',
+  newAnthropic: '',
+  addKey(list, newKey) {
+    const k = newKey.trim();
+    if (k) { this[list].push(k); this['new' + list.charAt(0).toUpperCase() + list.slice(1, -4)] = ''; }
   },
   removeKey(list, idx) { this[list].splice(idx, 1); }
 }">
-  <input type="hidden" name="csrftoken" value="<?php echo htmlspecialchars($csrf, ENT_QUOTES, 'UTF-8'); ?>">
 
-  <div class="card mb-3">
-    <div class="card-header">
-      <h3 class="card-title"><?php echo $lang === 'ja' ? 'AIプロバイダー' : 'AI Provider'; ?></h3>
-      <p class="card-subtitle text-secondary"><?php echo $lang === 'ja' ? 'ビジョン解析と会話に使用するAIプロバイダーを選択してください。' : 'Choose the AI provider for vision analysis and chat.'; ?></p>
+  <!-- ===== Section 1: AI Provider ===== -->
+  <div class="mb-6 rounded-sm border border-gray-200 bg-white shadow-default dark:border-gray-800 dark:bg-boxdark">
+    <div class="border-b border-gray-200 px-6 py-4 dark:border-gray-800">
+      <h3 class="font-semibold text-black dark:text-white"><?php echo $lang === 'ja' ? 'AIプロバイダー' : 'AI Provider'; ?></h3>
+      <p class="mt-1 text-sm text-gray-600 dark:text-gray-400"><?php echo $lang === 'ja' ? 'ビジョン解析と会話に使用するAIプロバイダーを選択してください。' : 'Choose the AI provider to use for vision analysis and chat.'; ?></p>
     </div>
-    <div class="card-body">
-      <div class="row">
-        <div class="col-md-6 mb-3">
-          <label for="ai_provider_vision" class="form-label"><?php echo $lang === 'ja' ? 'ビジョンプロバイダー' : 'Vision Provider'; ?></label>
-          <select id="ai_provider_vision" name="ai_provider_vision" class="form-select">
-            <option value="" <?php echo $visionProvider === ''       ? 'selected' : ''; ?>><?php echo $lang === 'ja' ? 'なし' : 'None'; ?></option>
-            <option value="openai" <?php echo $visionProvider === 'openai' ? 'selected' : ''; ?>>OpenAI</option>
-            <option value="gemini" <?php echo $visionProvider === 'gemini' ? 'selected' : ''; ?>>Gemini</option>
-            <option value="claude" <?php echo $visionProvider === 'claude' ? 'selected' : ''; ?>>Claude</option>
-          </select>
-        </div>
-        <div class="col-md-6 mb-3">
-          <label for="ai_provider_chat" class="form-label"><?php echo $lang === 'ja' ? 'チャットプロバイダー' : 'Chat Provider'; ?></label>
-          <select id="ai_provider_chat" name="ai_provider_chat" class="form-select">
-            <option value="" <?php echo $chatProvider === ''       ? 'selected' : ''; ?>><?php echo $lang === 'ja' ? 'なし' : 'None'; ?></option>
-            <option value="openai" <?php echo $chatProvider === 'openai' ? 'selected' : ''; ?>>OpenAI</option>
-            <option value="gemini" <?php echo $chatProvider === 'gemini' ? 'selected' : ''; ?>>Gemini</option>
-            <option value="claude" <?php echo $chatProvider === 'claude' ? 'selected' : ''; ?>>Claude</option>
-          </select>
-        </div>
+    <div class="p-6 grid grid-cols-1 gap-6 sm:grid-cols-2">
+      <div>
+        <label class="mb-2.5 block font-medium text-black dark:text-white" for="ai_provider_vision">
+          <?php echo $lang === 'ja' ? 'ビジョンプロバイダー' : 'Vision Provider'; ?>
+        </label>
+        <select id="ai_provider_vision" name="ai_provider_vision"
+          class="w-full rounded border border-gray-200 bg-transparent py-3 px-4 font-medium outline-none transition focus:border-brand-500 active:border-brand-500 dark:border-gray-800 dark:bg-form-input dark:focus:border-brand-500 text-black dark:text-white">
+          <option value="" <?php echo $visionProvider === '' ? 'selected' : ''; ?>><?php echo $lang === 'ja' ? 'なし' : 'None'; ?></option>
+          <option value="openai"  <?php echo $visionProvider === 'openai'  ? 'selected' : ''; ?>>OpenAI</option>
+          <option value="gemini"  <?php echo $visionProvider === 'gemini'  ? 'selected' : ''; ?>>Gemini</option>
+          <option value="claude"  <?php echo $visionProvider === 'claude'  ? 'selected' : ''; ?>>Claude</option>
+        </select>
+      </div>
+      <div>
+        <label class="mb-2.5 block font-medium text-black dark:text-white" for="ai_provider_chat">
+          <?php echo $lang === 'ja' ? 'チャットプロバイダー' : 'Chat Provider'; ?>
+        </label>
+        <select id="ai_provider_chat" name="ai_provider_chat"
+          class="w-full rounded border border-gray-200 bg-transparent py-3 px-4 font-medium outline-none transition focus:border-brand-500 active:border-brand-500 dark:border-gray-800 dark:bg-form-input dark:focus:border-brand-500 text-black dark:text-white">
+          <option value="" <?php echo $chatProvider === '' ? 'selected' : ''; ?>><?php echo $lang === 'ja' ? 'なし' : 'None'; ?></option>
+          <option value="openai"  <?php echo $chatProvider === 'openai'  ? 'selected' : ''; ?>>OpenAI</option>
+          <option value="gemini"  <?php echo $chatProvider === 'gemini'  ? 'selected' : ''; ?>>Gemini</option>
+          <option value="claude"  <?php echo $chatProvider === 'claude'  ? 'selected' : ''; ?>>Claude</option>
+        </select>
       </div>
     </div>
   </div>
 
-  <div class="card mb-3">
-    <div class="card-header">
-      <h3 class="card-title"><?php echo $lang === 'ja' ? 'APIキー' : 'API Keys'; ?></h3>
-      <p class="card-subtitle text-secondary"><?php echo $lang === 'ja' ? '各プロバイダーのAPIキーを管理します。複数設定でラウンドロビン使用可能。' : 'Manage API keys per provider. Multiple keys round-robin.'; ?></p>
+  <!-- ===== Section 2: API Keys ===== -->
+  <div class="mb-6 rounded-sm border border-gray-200 bg-white shadow-default dark:border-gray-800 dark:bg-boxdark">
+    <div class="border-b border-gray-200 px-6 py-4 dark:border-gray-800">
+      <h3 class="font-semibold text-black dark:text-white"><?php echo $lang === 'ja' ? 'APIキー' : 'API Keys'; ?></h3>
+      <p class="mt-1 text-sm text-gray-600 dark:text-gray-400"><?php echo $lang === 'ja' ? '各プロバイダーのAPIキーを管理します。複数のキーを設定してラウンドロビンで使用できます。' : 'Manage API keys for each provider. Multiple keys can be set for round-robin use.'; ?></p>
     </div>
-    <div class="card-body">
+    <div class="p-6 space-y-8">
 
-      <?php
-        $renderKeyList = static function (string $list, string $stateVar, string $newVar, string $providerLabel, string $badge, string $badgeBg, string $placeholder, string $lang): void { ?>
-        <div class="mb-4">
-          <h4 class="mb-3 d-flex align-items-center gap-2">
-            <span class="badge <?php echo $badgeBg; ?> text-white"><?php echo $badge; ?></span>
-            <?php echo $providerLabel; ?>
-          </h4>
-          <template x-for="(key, idx) in <?php echo $stateVar; ?>" :key="idx">
-            <div class="input-group mb-2">
-              <input type="hidden" :name="'<?php echo $list; ?>[' + idx + ']'" :value="key">
-              <span class="input-group-text font-monospace flex-grow-1 text-start" x-text="key.length > 4 ? '•'.repeat(Math.max(0, key.length - 4)) + key.slice(-4) : key"></span>
-              <button type="button" class="btn btn-outline-danger" @click="removeKey('<?php echo $stateVar; ?>', idx)" aria-label="<?php echo $lang === 'ja' ? 'キーを削除' : 'Remove key'; ?>">
-                <i class="bi bi-trash"></i>
-              </button>
-            </div>
-          </template>
-          <div class="input-group">
-            <input type="text" x-model="<?php echo $newVar; ?>" class="form-control font-monospace" placeholder="<?php echo $placeholder; ?>" autocomplete="off"
-                   @keydown.enter.prevent="addKey('<?php echo $stateVar; ?>', <?php echo $newVar; ?>); <?php echo $newVar; ?> = ''">
-            <button type="button" class="btn btn-primary"
-                    @click="addKey('<?php echo $stateVar; ?>', <?php echo $newVar; ?>); <?php echo $newVar; ?> = ''">
-              <i class="bi bi-plus me-1"></i><?php echo $lang === 'ja' ? '追加' : 'Add'; ?>
+      <!-- OpenAI -->
+      <div>
+        <h4 class="mb-3 font-medium text-black dark:text-white flex items-center gap-2">
+          <span class="inline-flex h-6 w-6 items-center justify-center rounded bg-black text-white text-xs font-bold">AI</span>
+          OpenAI
+        </h4>
+        <template x-for="(key, idx) in openaiKeys" :key="idx">
+          <div class="mb-2 flex items-center gap-2">
+            <input type="hidden" :name="'ai_openai_api_keys[' + idx + ']'" :value="key">
+            <span class="flex-1 rounded border border-gray-200 bg-gray-100 dark:border-gray-800 dark:bg-gray-700 px-3 py-2 font-mono text-sm text-gray-600 dark:text-gray-400" x-text="key.length > 4 ? '•'.repeat(Math.max(0, key.length - 4)) + key.slice(-4) : key"></span>
+            <button type="button" @click="removeKey('openaiKeys', idx)"
+              class="inline-flex items-center justify-center rounded border border-gray-200 px-3 py-2 text-sm text-error-500 hover:border-error-500 hover:bg-error-500 hover:text-white transition dark:border-gray-800"
+              aria-label="<?php echo $lang === 'ja' ? 'キーを削除' : 'Remove key'; ?>">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
             </button>
           </div>
+        </template>
+        <div class="flex gap-2 mt-2">
+          <input type="text" x-model="newOpenai"
+            class="flex-1 rounded border border-gray-200 bg-transparent py-2 px-3 font-mono text-sm outline-none transition focus:border-brand-500 dark:border-gray-800 dark:bg-form-input dark:focus:border-brand-500 text-black dark:text-white"
+            placeholder="sk-..." autocomplete="off" @keydown.enter.prevent="addKey('openaiKeys', newOpenai); newOpenai = ''">
+          <button type="button" @click="addKey('openaiKeys', newOpenai); newOpenai = ''"
+            class="inline-flex items-center justify-center rounded bg-brand-500 px-4 py-2 text-sm font-medium text-white hover:bg-opacity-90 transition whitespace-nowrap">
+            + <?php echo $lang === 'ja' ? '追加' : 'Add'; ?>
+          </button>
         </div>
-      <?php }; ?>
+      </div>
 
-      <?php $renderKeyList('ai_openai_api_keys',    'openaiKeys',    'newOpenai',    'OpenAI',            'AI', 'bg-dark',    'sk-...',     $lang); ?>
-      <?php $renderKeyList('ai_gemini_api_keys',    'geminiKeys',    'newGemini',    'Gemini (Google)',   'G',  'bg-primary', 'AIza...',    $lang); ?>
-      <?php $renderKeyList('ai_anthropic_api_keys', 'anthropicKeys', 'newAnthropic', 'Anthropic (Claude)', 'AN', 'bg-warning', 'sk-ant-...', $lang); ?>
+      <!-- Gemini -->
+      <div>
+        <h4 class="mb-3 font-medium text-black dark:text-white flex items-center gap-2">
+          <span class="inline-flex h-6 w-6 items-center justify-center rounded bg-blue-500 text-white text-xs font-bold">G</span>
+          Gemini (Google)
+        </h4>
+        <template x-for="(key, idx) in geminiKeys" :key="idx">
+          <div class="mb-2 flex items-center gap-2">
+            <input type="hidden" :name="'ai_gemini_api_keys[' + idx + ']'" :value="key">
+            <span class="flex-1 rounded border border-gray-200 bg-gray-100 dark:border-gray-800 dark:bg-gray-700 px-3 py-2 font-mono text-sm text-gray-600 dark:text-gray-400" x-text="key.length > 4 ? '•'.repeat(Math.max(0, key.length - 4)) + key.slice(-4) : key"></span>
+            <button type="button" @click="removeKey('geminiKeys', idx)"
+              class="inline-flex items-center justify-center rounded border border-gray-200 px-3 py-2 text-sm text-error-500 hover:border-error-500 hover:bg-error-500 hover:text-white transition dark:border-gray-800"
+              aria-label="<?php echo $lang === 'ja' ? 'キーを削除' : 'Remove key'; ?>">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+            </button>
+          </div>
+        </template>
+        <div class="flex gap-2 mt-2">
+          <input type="text" x-model="newGemini"
+            class="flex-1 rounded border border-gray-200 bg-transparent py-2 px-3 font-mono text-sm outline-none transition focus:border-brand-500 dark:border-gray-800 dark:bg-form-input dark:focus:border-brand-500 text-black dark:text-white"
+            placeholder="AIza..." autocomplete="off" @keydown.enter.prevent="addKey('geminiKeys', newGemini); newGemini = ''">
+          <button type="button" @click="addKey('geminiKeys', newGemini); newGemini = ''"
+            class="inline-flex items-center justify-center rounded bg-brand-500 px-4 py-2 text-sm font-medium text-white hover:bg-opacity-90 transition whitespace-nowrap">
+            + <?php echo $lang === 'ja' ? '追加' : 'Add'; ?>
+          </button>
+        </div>
+      </div>
+
+      <!-- Anthropic -->
+      <div>
+        <h4 class="mb-3 font-medium text-black dark:text-white flex items-center gap-2">
+          <span class="inline-flex h-6 w-6 items-center justify-center rounded bg-orange-500 text-white text-xs font-bold">AN</span>
+          Anthropic (Claude)
+        </h4>
+        <template x-for="(key, idx) in anthropicKeys" :key="idx">
+          <div class="mb-2 flex items-center gap-2">
+            <input type="hidden" :name="'ai_anthropic_api_keys[' + idx + ']'" :value="key">
+            <span class="flex-1 rounded border border-gray-200 bg-gray-100 dark:border-gray-800 dark:bg-gray-700 px-3 py-2 font-mono text-sm text-gray-600 dark:text-gray-400" x-text="key.length > 4 ? '•'.repeat(Math.max(0, key.length - 4)) + key.slice(-4) : key"></span>
+            <button type="button" @click="removeKey('anthropicKeys', idx)"
+              class="inline-flex items-center justify-center rounded border border-gray-200 px-3 py-2 text-sm text-error-500 hover:border-error-500 hover:bg-error-500 hover:text-white transition dark:border-gray-800"
+              aria-label="<?php echo $lang === 'ja' ? 'キーを削除' : 'Remove key'; ?>">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+            </button>
+          </div>
+        </template>
+        <div class="flex gap-2 mt-2">
+          <input type="text" x-model="newAnthropic"
+            class="flex-1 rounded border border-gray-200 bg-transparent py-2 px-3 font-mono text-sm outline-none transition focus:border-brand-500 dark:border-gray-800 dark:bg-form-input dark:focus:border-brand-500 text-black dark:text-white"
+            placeholder="sk-ant-..." autocomplete="off" @keydown.enter.prevent="addKey('anthropicKeys', newAnthropic); newAnthropic = ''">
+          <button type="button" @click="addKey('anthropicKeys', newAnthropic); newAnthropic = ''"
+            class="inline-flex items-center justify-center rounded bg-brand-500 px-4 py-2 text-sm font-medium text-white hover:bg-opacity-90 transition whitespace-nowrap">
+            + <?php echo $lang === 'ja' ? '追加' : 'Add'; ?>
+          </button>
+        </div>
+      </div>
 
     </div>
   </div>
 
-  <div class="card mb-3">
-    <div class="card-header">
-      <h3 class="card-title"><?php echo $lang === 'ja' ? '抽出プロンプト' : 'Extraction Prompt'; ?></h3>
-      <p class="card-subtitle text-secondary"><?php echo $lang === 'ja' ? '商品画像から情報を抽出する際にAIに送信するプロンプト。' : 'Prompt sent to AI when extracting info from product images.'; ?></p>
+  <!-- ===== Section 3: Extraction Prompt ===== -->
+  <div class="mb-6 rounded-sm border border-gray-200 bg-white shadow-default dark:border-gray-800 dark:bg-boxdark">
+    <div class="border-b border-gray-200 px-6 py-4 dark:border-gray-800">
+      <h3 class="font-semibold text-black dark:text-white"><?php echo $lang === 'ja' ? '抽出プロンプト' : 'Extraction Prompt'; ?></h3>
+      <p class="mt-1 text-sm text-gray-600 dark:text-gray-400"><?php echo $lang === 'ja' ? '商品画像から情報を抽出する際にAIに送信するプロンプト。' : 'The prompt sent to AI when extracting information from product images.'; ?></p>
     </div>
-    <div class="card-body">
-      <div class="row">
-        <div class="col-md-6 mb-3">
-          <label for="ai_prompt_ja" class="form-label"><?php echo $lang === 'ja' ? '日本語プロンプト' : 'Japanese Prompt'; ?></label>
-          <textarea id="ai_prompt_ja" name="ai_prompt_ja" rows="6" class="form-control"><?php echo htmlspecialchars($promptJa); ?></textarea>
-        </div>
-        <div class="col-md-6 mb-3">
-          <label for="ai_prompt_en" class="form-label"><?php echo $lang === 'ja' ? '英語プロンプト' : 'English Prompt'; ?></label>
-          <textarea id="ai_prompt_en" name="ai_prompt_en" rows="6" class="form-control"><?php echo htmlspecialchars($promptEn); ?></textarea>
-        </div>
+    <div class="p-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
+      <div>
+        <label class="mb-2.5 block font-medium text-black dark:text-white" for="ai_prompt_ja">
+          <?php echo $lang === 'ja' ? '日本語プロンプト' : 'Japanese Prompt'; ?>
+        </label>
+        <textarea
+          id="ai_prompt_ja"
+          name="ai_prompt_ja"
+          rows="6"
+          class="w-full rounded border border-gray-200 bg-transparent py-3 px-4 font-medium outline-none transition focus:border-brand-500 active:border-brand-500 dark:border-gray-800 dark:bg-form-input dark:focus:border-brand-500 text-black dark:text-white resize-y"
+          placeholder="<?php echo $lang === 'ja' ? '日本語のプロンプトを入力してください...' : 'Enter Japanese prompt...'; ?>"
+        ><?php echo htmlspecialchars($promptJa); ?></textarea>
+      </div>
+      <div>
+        <label class="mb-2.5 block font-medium text-black dark:text-white" for="ai_prompt_en">
+          <?php echo $lang === 'ja' ? '英語プロンプト' : 'English Prompt'; ?>
+        </label>
+        <textarea
+          id="ai_prompt_en"
+          name="ai_prompt_en"
+          rows="6"
+          class="w-full rounded border border-gray-200 bg-transparent py-3 px-4 font-medium outline-none transition focus:border-brand-500 active:border-brand-500 dark:border-gray-800 dark:bg-form-input dark:focus:border-brand-500 text-black dark:text-white resize-y"
+          placeholder="<?php echo $lang === 'ja' ? '英語のプロンプトを入力してください...' : 'Enter English prompt...'; ?>"
+        ><?php echo htmlspecialchars($promptEn); ?></textarea>
       </div>
     </div>
   </div>
 
-  <div class="card mb-3">
-    <div class="card-header">
-      <h3 class="card-title"><?php echo $lang === 'ja' ? 'バッチ処理' : 'Batch Processing'; ?></h3>
-      <p class="card-subtitle text-secondary"><?php echo $lang === 'ja' ? 'AIバッチ処理のレート制限を設定します。' : 'Configure rate limits for AI batch processing.'; ?></p>
+  <!-- ===== Section 4: Batch Processing ===== -->
+  <div class="mb-6 rounded-sm border border-gray-200 bg-white shadow-default dark:border-gray-800 dark:bg-boxdark">
+    <div class="border-b border-gray-200 px-6 py-4 dark:border-gray-800">
+      <h3 class="font-semibold text-black dark:text-white"><?php echo $lang === 'ja' ? 'バッチ処理' : 'Batch Processing'; ?></h3>
+      <p class="mt-1 text-sm text-gray-600 dark:text-gray-400"><?php echo $lang === 'ja' ? 'AIバッチ処理のレート制限を設定します。' : 'Configure rate limits for AI batch processing.'; ?></p>
     </div>
-    <div class="card-body">
-      <div class="mb-3" style="max-width: 22em;">
-        <label for="messaging_rate_limit" class="form-label">
+    <div class="p-6">
+      <div class="max-w-xs">
+        <label class="mb-2.5 block font-medium text-black dark:text-white" for="messaging_rate_limit">
           <?php echo $lang === 'ja' ? 'レート制限（リクエスト/分）' : 'Rate Limit (requests/minute)'; ?>
         </label>
-        <input id="messaging_rate_limit" name="messaging_rate_limit" type="number" min="1" max="1000"
-               value="<?php echo (int) $rateLimit; ?>" class="form-control">
-        <div class="form-hint"><?php echo $lang === 'ja' ? '1分あたりの最大AIリクエスト数。' : 'Maximum AI requests per minute.'; ?></div>
+        <input
+          type="number"
+          id="messaging_rate_limit"
+          name="messaging_rate_limit"
+          min="1"
+          max="1000"
+          value="<?php echo (int) $rateLimit; ?>"
+          class="w-full rounded border border-gray-200 bg-transparent py-3 px-4 font-medium outline-none transition focus:border-brand-500 active:border-brand-500 dark:border-gray-800 dark:bg-form-input dark:focus:border-brand-500 text-black dark:text-white"
+        >
+        <p class="mt-1.5 text-xs text-gray-600 dark:text-gray-400">
+          <?php echo $lang === 'ja' ? '1分あたりの最大AIリクエスト数。' : 'Maximum number of AI requests per minute.'; ?>
+        </p>
       </div>
     </div>
   </div>
 
-  <div class="d-flex justify-content-end">
-    <button type="submit" class="btn btn-primary">
-      <i class="bi bi-floppy me-1"></i><?php echo $lang === 'ja' ? '設定を保存' : 'Save Settings'; ?>
+  <!-- ===== Save button ===== -->
+  <div class="flex justify-end gap-3">
+    <button type="submit"
+      class="inline-flex items-center justify-center rounded bg-brand-500 px-8 py-3 font-medium text-white hover:bg-opacity-90 transition">
+      <?php echo $lang === 'ja' ? '設定を保存' : 'Save Settings'; ?>
     </button>
   </div>
 

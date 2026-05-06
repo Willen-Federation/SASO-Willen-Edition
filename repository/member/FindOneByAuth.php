@@ -19,7 +19,7 @@ final class FindOneByAuth implements DbPrepare
     public function getQuery(): string
     {
         return '
-            SELECT id, password, userName, role FROM Member
+            SELECT id, password, userName FROM Member
                 WHERE id = :id
         ';
     }
@@ -33,7 +33,6 @@ final class FindOneByAuth implements DbPrepare
             $v->id,
             $v->userName,
             $v->password,
-            $v->role ?? 'operator',
         ));
     }
 }

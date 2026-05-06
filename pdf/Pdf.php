@@ -24,7 +24,7 @@ final class Pdf
         $key = 0;
         foreach($contents as $data){
             $x = $label->marginLeft + $label->width*($key%$perPage%$colomnlimit) + $label->intervalColomn*($key%$perPage%$colomnlimit);
-            $y = $label->marginTop + $label->height*(floor(($key%$perPage)/$colomnlimit)) + $label->intervalRow*(floor(($key%$perPage)/$colomnlimit));
+            $y = $label->marginTop + $label->height*(floor(($key%$perPage)/$colomnlimit)) + $label->intervalColomn*(floor(($key%$perPage)/$colomnlimit));
             
             $fn($pdf, $label, $data, $x, $y);
 

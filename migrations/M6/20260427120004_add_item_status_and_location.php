@@ -26,7 +26,7 @@ final class AddItemStatusAndLocation extends AbstractMigration
                 'default' => 'active',
                 'comment' => 'Lifecycle status: active | archived | discontinued | pending.',
             ])
-            ->addColumn('storage_location_id', 'biginteger', [
+            ->addColumn('storage_location_id', 'integer', [
                 'null'    => true,
                 'signed'  => false,
                 'comment' => 'FK → storage_location.id; null = unassigned.',

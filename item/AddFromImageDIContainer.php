@@ -59,27 +59,6 @@ final class AddFromImageDIContainer implements DIContainer
             return $view;
         }
 
-        // Validate MIME type against the actual file content (not the client filename)
-        $allowedMimes = [
-            'image/jpeg' => 'jpg',
-            'image/png'  => 'png',
-            'image/gif'  => 'gif',
-            'image/webp' => 'webp',
-        ];
-        $finfo = new \finfo(FILEINFO_MIME_TYPE);
-        $mimeType = $finfo->file($_FILES['image']['tmp_name']);
-        if (!isset($allowedMimes[$mimeType])) {
-            $errorMsg = 'Invalid file type. Only JPEG, PNG, GIF, and WebP images are accepted.';
-            if ($this->isAjax()) {
-                header('Content-Type: application/json; charset=utf-8');
-                http_response_code(415);
-                echo json_encode(['error' => $errorMsg]);
-                exit;
-            }
-            $_SESSION['flash_error'] = $errorMsg;
-            return new AddFromImageView();
-        }
-
         // Determine upload directory relative to document root
         $docRoot = rtrim((string) ($_SERVER['DOCUMENT_ROOT'] ?? '/var/www/html'), '/');
         $uploadDir = $docRoot . '/uploads/item_drafts/';
@@ -87,8 +66,8 @@ final class AddFromImageDIContainer implements DIContainer
             mkdir($uploadDir, 0755, true);
         }
 
-        // Generate unique filename using the MIME-derived extension (not user-supplied)
-        $ext = $allowedMimes[$mimeType];
+        // Generate unique filename
+        $ext = strtolower(pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION) ?: 'jpg');
         $filename = uniqid('draft_', true) . '.' . $ext;
         $destPath = $uploadDir . $filename;
 
@@ -117,8 +96,7 @@ final class AddFromImageDIContainer implements DIContainer
         $barcodeHint  = $userData['barcode_hint'] ?? null;
         $userDataJson = empty($userData) ? null : json_encode($userData, JSON_UNESCAPED_UNICODE);
         $nowStr       = $this->now->format('Y-m-d H:i:s');
-        $idRaw     = $_SESSION['id'] ?? null;
-        $createdBy = (is_string($idRaw) && is_numeric($idRaw)) ? (int) $idRaw : null;
+        $createdBy    = isset($_SESSION['id']) ? (int) $_SESSION['id'] : null;
 
         $stmt = $pdo->prepare(
             'INSERT INTO item_draft
@@ -139,13 +117,8 @@ final class AddFromImageDIContainer implements DIContainer
 
         // Dispatch ProcessItemDraft message via sync bus
         try {
-            $appKeyRaw = (string) (getenv('APP_KEY') ?: '');
-            $appKeyBytes = $appKeyRaw !== '' ? base64_decode($appKeyRaw, true) : false;
-            if ($appKeyBytes === false || strlen($appKeyBytes) !== 32) {
-                throw new \RuntimeException('APP_KEY not configured or invalid; cannot dispatch draft processing.');
-            }
             $draftRepository = new PdoItemDraftRepository($pdo);
-            $settingService = new PdoSystemSettingService($pdo, new SecretEncryptor($appKeyBytes));
+            $settingService = new PdoSystemSettingService($pdo, new SecretEncryptor());
             $flagRepository = new PdoFeatureFlagRepository($pdo);
             $handler = ProcessItemDraftDIContainer::createHandler($draftRepository, $settingService, $flagRepository);
 

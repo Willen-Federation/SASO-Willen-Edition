@@ -15,7 +15,7 @@ final class MapView implements View
 
     public function display(): void
     {
-        require_once 'shelf/template/map.php';
+        require_once 'template/map.php';
     }
 
     public function onRoot(): bool

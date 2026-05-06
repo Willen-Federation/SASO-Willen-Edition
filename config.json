@@ -1,21 +1,21 @@
 {
   "$path_comment": "パス",
-  "documentRoot": "/home/schicksal/domains/saso.sksl.jp/public_html",
+  "documentRoot": "/home/schicksal/domains/saso.sksl.jp/public_html/",
   "programDir": "",
 
   "$database_comment": "データベース",
-  "$database_secret_note": "Set DB_DSN/DB_USER/DB_PASSWORD in .env (see .env.example). The empty values here are intentional — the app fails loudly if .env is missing, which is the safe default. Values from .env override the entries below.",
+  "$database_secret_note": "Recommended: keep these placeholders and set DB_DSN/DB_USER/DB_PASSWORD in .env instead (see .env.example). Values from .env override the entries below.",
   "database": {
-    "dsn": "mysql:host=localhost;dbname=saso_db;charset=utf8mb4",
-    "user": "",
-    "password": ""
+    "dsn": "mysql:host=localhost;dbname=saso_db;charset=utf8",
+    "user": "saso_user",
+    "password": "saso_sql"
   },
 
   "$outputRow_comment": "表示商品数(1=<99)",
   "outputRow": 10,
 
   "$https_comment": "セキュリティー 「https://」ならtrue, 「http://」ならfalse",
-  "https": true,
+  "https": false,
 
   "$sheetAmount_comment": "印刷可能最大ラベル数(1=<9999)",
   "sheetAmount": 100,
@@ -25,5 +25,6 @@
   "domainDepth": 1,
   "phpExtension": ".php",
   "logText": false,
-  "logPath": "/tmp/log/"
+  "logPath": "/tmp/log/",
+  "csrftokensalt": "foobar"
 }

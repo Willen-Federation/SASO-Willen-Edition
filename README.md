@@ -6,6 +6,7 @@
 [![Status](https://img.shields.io/badge/status-modernizing-orange)](#roadmap)
 [![Powered by Netlify](https://img.shields.io/badge/powered%20by-Netlify-00C7B7?logo=netlify&logoColor=white)](https://www.netlify.com)
 [![Netlify Status](https://api.netlify.com/api/v1/badges/abe33548-17b2-4933-b0f2-f89af91e1c1c/deploy-status)](https://app.netlify.com/projects/schicksal/deploys)
+
 **SASO — Willen Edition** is an open-source inventory and warehouse management system written in PHP. It supports item / category management, barcode display, label printing (PDF), and shelf management. This edition is a community-maintained fork of the original [SASO](https://hyoujun.jp/) by Japan Standards Organization (日本標準機構), modernizing the codebase for global use.
 
 [日本語版はこちら](#日本語) / [Original Japanese README](ORIGINAL_README.md)

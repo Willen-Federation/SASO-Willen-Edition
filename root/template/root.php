@@ -123,7 +123,7 @@
     </div>
   </div>
 </div>
-<script type="module">import "./js/main.js";</script>
+<script type="module" src="./js/main.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@tabler/core@1.0.0/dist/js/tabler.min.js"></script>
 </body>
 </html>

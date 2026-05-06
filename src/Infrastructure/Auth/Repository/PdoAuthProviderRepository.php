@@ -103,6 +103,12 @@ final class PdoAuthProviderRepository implements AuthProviderRepository
             $insert->bindValue('created_at', $record->createdAt->setTimezone($this->timezone)->format('Y-m-d H:i:s'));
             $insert->bindValue('updated_at', $now->format('Y-m-d H:i:s'));
             $insert->execute();
+
+            if ($record->id->value === 0) {
+                $newId = (int) $this->pdo->lastInsertId();
+                return $this->findById(new AuthProviderId($newId))
+                    ?? throw new \RuntimeException('PdoAuthProviderRepository::save lost row after write.');
+            }
         } else {
             $update = $this->pdo->prepare(
                 'UPDATE auth_provider SET name = :name, type = :type, '.

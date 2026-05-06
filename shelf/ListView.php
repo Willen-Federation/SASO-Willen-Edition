@@ -12,6 +12,7 @@ final class ListView implements View
     private int $page;
     private array $mins;
     private array $maxs;
+    private ?array $dimensionMetadata = null;
     private string $title;
     private \Closure $content;
     public function __construct(

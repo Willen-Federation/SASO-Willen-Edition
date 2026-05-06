@@ -20,6 +20,19 @@ declare(strict_types=1);
 
 require __DIR__.'/../vendor/autoload.php';
 
+// Define the saso\ENV constant used by ConfigLoader during tests
+eval('namespace saso { const ENV = null; }');
+
+// Load .env file for integration tests (EnvLoader is required by ConfigLoader)
+require __DIR__.'/../util/EnvLoader.php';
+$projectRoot = dirname(__DIR__);
+$env = \saso\util\EnvLoader::loadFile($projectRoot.'/.env');
+foreach ($env as $key => $value) {
+    if (!getenv($key)) {
+        putenv("$key=$value");
+    }
+}
+
 $projectRoot = dirname(__DIR__);
 spl_autoload_register(static function (string $class) use ($projectRoot): void {
     if (strncmp($class, 'saso\\', 5) !== 0) {

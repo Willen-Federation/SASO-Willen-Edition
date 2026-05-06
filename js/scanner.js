@@ -1,0 +1,194 @@
+/*
+ * SASO Scanner helpers.
+ *
+ * Loaded synchronously (like tailadmin.js) before Alpine.js deferred scripts.
+ * Provides:
+ *   - `sasoScanner()` — barcode / QR scan mode using html5-qrcode
+ *   - `sasoCamera()`  — photo-capture mode using getUserMedia
+ *
+ * No build step. Plain ES2020 + Alpine.js v3 globals.
+ */
+(function () {
+  'use strict';
+
+  document.addEventListener('alpine:init', () => {
+    const Alpine = window.Alpine;
+    if (!Alpine) return;
+
+    // -----------------------------------------------------------------------
+    // sasoScanner — barcode / QR scan via camera
+    // -----------------------------------------------------------------------
+    Alpine.data('sasoScanner', () => ({
+      active:  false,
+      result:  null,
+      error:   null,
+      scanner: null,
+
+      open() {
+        this.result = null;
+        this.error  = null;
+        this.active = true;
+        this.$nextTick(() => this.startScan());
+      },
+
+      close() {
+        this.stopScan();
+        this.active = false;
+      },
+
+      startScan() {
+        if (typeof Html5Qrcode === 'undefined') {
+          this.error = 'Scanner library not loaded.';
+          return;
+        }
+
+        const readerId = 'saso-qr-reader';
+        const el = document.getElementById(readerId);
+        if (!el) {
+          this.error = 'Scanner element not found.';
+          return;
+        }
+
+        this.scanner = new Html5Qrcode(readerId);
+
+        Html5Qrcode.getCameras()
+          .then((cameras) => {
+            if (!cameras || cameras.length === 0) {
+              this.error = 'No camera found.';
+              return;
+            }
+            // Prefer rear camera
+            const cam = cameras.find(c => /back|rear|environment/i.test(c.label)) || cameras[cameras.length - 1];
+            return this.scanner.start(
+              cam.id,
+              { fps: 10, qrbox: { width: 250, height: 250 } },
+              (code) => {
+                this.result = code;
+                this.$dispatch('barcode-detected', { code });
+                this.close();
+              },
+              () => { /* frame errors — ignored */ }
+            );
+          })
+          .catch((err) => {
+            const msg = (err && err.message) ? err.message : String(err);
+            if (/denied|NotAllowed/i.test(msg)) {
+              this.error = 'camera_denied';
+            } else {
+              this.error = msg;
+            }
+          });
+      },
+
+      stopScan() {
+        if (this.scanner) {
+          this.scanner.stop().catch(() => {});
+          this.scanner = null;
+        }
+      },
+    }));
+
+    // -----------------------------------------------------------------------
+    // sasoCamera — photo capture via getUserMedia or file input
+    // -----------------------------------------------------------------------
+    Alpine.data('sasoCamera', () => ({
+      active:          false,
+      stream:          null,
+      capturedDataUrl: null,
+      capturedBlob:    null,
+      mode:            'camera', // 'camera' | 'file'
+
+      open() {
+        this.capturedDataUrl = null;
+        this.capturedBlob    = null;
+        this.active          = true;
+        if (this.mode === 'camera') {
+          this.$nextTick(() => this.startCamera());
+        }
+      },
+
+      close() {
+        this.stopCamera();
+        this.active = false;
+      },
+
+      switchMode(m) {
+        if (m === this.mode) return;
+        if (this.mode === 'camera') this.stopCamera();
+        this.mode            = m;
+        this.capturedDataUrl = null;
+        this.capturedBlob    = null;
+        if (m === 'camera') {
+          this.$nextTick(() => this.startCamera());
+        }
+      },
+
+      startCamera() {
+        const video = document.getElementById('saso-camera-preview');
+        if (!video) return;
+        navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
+          .then((stream) => {
+            this.stream    = stream;
+            video.srcObject = stream;
+            video.play();
+          })
+          .catch(() => {
+            this.mode = 'file';
+          });
+      },
+
+      stopCamera() {
+        if (this.stream) {
+          this.stream.getTracks().forEach(t => t.stop());
+          this.stream = null;
+        }
+        const video = document.getElementById('saso-camera-preview');
+        if (video) {
+          video.srcObject = null;
+        }
+      },
+
+      capture() {
+        const video = document.getElementById('saso-camera-preview');
+        if (!video) return;
+        const canvas = document.createElement('canvas');
+        canvas.width  = video.videoWidth  || 640;
+        canvas.height = video.videoHeight || 480;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+        const dataUrl = canvas.toDataURL('image/jpeg', 0.9);
+        this.capturedDataUrl = dataUrl;
+        // Convert dataURL to blob
+        const byteString = atob(dataUrl.split(',')[1]);
+        const mime = 'image/jpeg';
+        const ab = new ArrayBuffer(byteString.length);
+        const ia = new Uint8Array(ab);
+        for (let i = 0; i < byteString.length; i++) ia[i] = byteString.charCodeAt(i);
+        this.capturedBlob = new Blob([ab], { type: mime });
+        this.$dispatch('photo-captured', { dataUrl: this.capturedDataUrl, blob: this.capturedBlob });
+      },
+
+      retake() {
+        this.capturedDataUrl = null;
+        this.capturedBlob    = null;
+      },
+
+      confirm() {
+        this.$dispatch('photo-confirmed', { dataUrl: this.capturedDataUrl, blob: this.capturedBlob });
+        this.close();
+      },
+
+      handleFile(event) {
+        const file = event.target.files && event.target.files[0];
+        if (!file) return;
+        this.capturedBlob = file;
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          this.capturedDataUrl = e.target.result;
+          this.$dispatch('photo-captured', { dataUrl: this.capturedDataUrl, blob: this.capturedBlob });
+        };
+        reader.readAsDataURL(file);
+      },
+    }));
+  });
+})();

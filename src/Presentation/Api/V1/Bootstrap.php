@@ -6,6 +6,7 @@ namespace Saso\Presentation\Api\V1;
 
 use PDO;
 use Saso\Domain\MobileConnect\Jwt\JwtService;
+use Saso\Infrastructure\Barcode\PdoBarcodeRepository;
 use Saso\Infrastructure\FeatureFlag\PdoFeatureFlagRepository;
 use Saso\Infrastructure\Logging\MonologFactory;
 use Saso\Infrastructure\MobileConnect\PdoDeviceTokenRepository;
@@ -13,6 +14,7 @@ use Saso\Infrastructure\MobileConnect\PdoPairingCodeRepository;
 use Saso\Infrastructure\MobileConnect\QrCodeRenderer;
 use Saso\Infrastructure\Translation\TranslatorFactory;
 use Saso\Infrastructure\Translation\TranslatorRegistry;
+use Saso\Presentation\Api\V1\Controller\Barcode\BarcodeGetController;
 use Saso\Presentation\Api\V1\Controller\FeatureFlag\FeatureFlagCreateController;
 use Saso\Presentation\Api\V1\Controller\FeatureFlag\FeatureFlagDeleteController;
 use Saso\Presentation\Api\V1\Controller\FeatureFlag\FeatureFlagGetController;
@@ -79,6 +81,9 @@ final class Bootstrap
         $pdo = self::createPdo();
         $jwt = new JwtService(self::jwtSecret());
 
+        $barcodeRepo = new PdoBarcodeRepository($pdo);
+        $barcodeGet  = new BarcodeGetController($barcodeRepo);
+
         $flagRepo   = new PdoFeatureFlagRepository($pdo);
         $codeRepo   = new PdoPairingCodeRepository($pdo);
         $tokenRepo  = new PdoDeviceTokenRepository($pdo);
@@ -102,11 +107,13 @@ final class Bootstrap
             'getOpenApiSpec'  => [$openApi, 'yaml'],
             'getSwaggerUi'    => [$swaggerUi, 'page'],
 
+            'getBarcode'      => [$barcodeGet, 'handle'],
+
             'listFeatureFlags'  => [$flagList, 'handle'],
-            'createFeatureFlag' => [$flagCreate, 'handle'],
+            'createFeatureFlag' => static function (HttpRequest $r) use ($flagCreate) { self::requireSessionAuth(); return $flagCreate->handle($r); },
             'getFeatureFlag'    => [$flagGet, 'handle'],
-            'updateFeatureFlag' => [$flagUpdate, 'handle'],
-            'deleteFeatureFlag' => [$flagDelete, 'handle'],
+            'updateFeatureFlag' => static function (HttpRequest $r) use ($flagUpdate) { self::requireSessionAuth(); return $flagUpdate->handle($r); },
+            'deleteFeatureFlag' => static function (HttpRequest $r) use ($flagDelete) { self::requireSessionAuth(); return $flagDelete->handle($r); },
 
             'createPairingCode' => [$qr, 'handle'],
             'mobileConnect'     => [$connect, 'handle'],
@@ -120,6 +127,20 @@ final class Bootstrap
     public static function specPath(): string
     {
         return dirname(__DIR__, 4).'/config/openapi.yaml';
+    }
+
+    private static function requireSessionAuth(): void
+    {
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+        $authed = isset($_SESSION['id'], $_SESSION['time']) && $_SESSION['time'] + 3600 > time();
+        if (!$authed) {
+            http_response_code(401);
+            header('Content-Type: application/problem+json; charset=utf-8');
+            echo json_encode(['status' => 401, 'title' => 'Unauthorized', 'detail' => 'Admin session required.']);
+            exit;
+        }
     }
 
     private static function createPdo(): PDO

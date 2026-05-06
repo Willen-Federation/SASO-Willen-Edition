@@ -1,0 +1,191 @@
+parameters:
+	ignoreErrors:
+		-
+			message: "#^Method Saso\\\\Application\\\\Mobile\\\\RedirectUriAllowlist\\:\\:fromConfig\\(\\) has parameter \\$config with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Application/Mobile/RedirectUriAllowlist.php
+
+		-
+			message: "#^Strict comparison using \\=\\=\\= between string and false will always evaluate to false\\.$#"
+			count: 1
+			path: src/Application/Mobile/RedirectUriAllowlist.php
+
+		-
+			message: "#^Access to an undefined property OpenAI\\\\Responses\\\\Embeddings\\\\CreateResponse\\:\\:\\$model\\.$#"
+			count: 1
+			path: src/Infrastructure/Ai/OpenAiAssistant.php
+
+		-
+			message: "#^Expression on left side of \\?\\? is not nullable\\.$#"
+			count: 4
+			path: src/Infrastructure/Ai/OpenAiAssistant.php
+
+		-
+			message: "#^Call to method getTargetingKey\\(\\) on an unknown class OpenFeature\\\\interfaces\\\\flags\\\\EvaluationContext\\.$#"
+			count: 1
+			path: src/Infrastructure/FeatureFlag/DbProvider.php
+
+		-
+			message: "#^Method Saso\\\\Infrastructure\\\\FeatureFlag\\\\DbProvider\\:\\:buildResolution\\(\\) has invalid return type OpenFeature\\\\interfaces\\\\provider\\\\ResolutionDetails\\.$#"
+			count: 1
+			path: src/Infrastructure/FeatureFlag/DbProvider.php
+
+		-
+			message: "#^Method Saso\\\\Infrastructure\\\\FeatureFlag\\\\DbProvider\\:\\:buildResolution\\(\\) should return OpenFeature\\\\interfaces\\\\provider\\\\ResolutionDetails but returns class@anonymous/src/Infrastructure/FeatureFlag/DbProvider\\.php\\:116\\.$#"
+			count: 1
+			path: src/Infrastructure/FeatureFlag/DbProvider.php
+
+		-
+			message: "#^Method Saso\\\\Infrastructure\\\\FeatureFlag\\\\DbProvider\\:\\:getHooks\\(\\) return type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Infrastructure/FeatureFlag/DbProvider.php
+
+		-
+			message: "#^Method Saso\\\\Infrastructure\\\\FeatureFlag\\\\DbProvider\\:\\:getMetadata\\(\\) has invalid return type OpenFeature\\\\interfaces\\\\common\\\\Metadata\\.$#"
+			count: 1
+			path: src/Infrastructure/FeatureFlag/DbProvider.php
+
+		-
+			message: "#^Method Saso\\\\Infrastructure\\\\FeatureFlag\\\\DbProvider\\:\\:getMetadata\\(\\) should return OpenFeature\\\\interfaces\\\\common\\\\Metadata but returns class@anonymous/src/Infrastructure/FeatureFlag/DbProvider\\.php\\:39\\.$#"
+			count: 1
+			path: src/Infrastructure/FeatureFlag/DbProvider.php
+
+		-
+			message: "#^Method Saso\\\\Infrastructure\\\\FeatureFlag\\\\DbProvider\\:\\:resolveBooleanValue\\(\\) has invalid return type OpenFeature\\\\interfaces\\\\provider\\\\ResolutionDetails\\.$#"
+			count: 1
+			path: src/Infrastructure/FeatureFlag/DbProvider.php
+
+		-
+			message: "#^Method Saso\\\\Infrastructure\\\\FeatureFlag\\\\DbProvider\\:\\:resolveFloatValue\\(\\) has invalid return type OpenFeature\\\\interfaces\\\\provider\\\\ResolutionDetails\\.$#"
+			count: 1
+			path: src/Infrastructure/FeatureFlag/DbProvider.php
+
+		-
+			message: "#^Method Saso\\\\Infrastructure\\\\FeatureFlag\\\\DbProvider\\:\\:resolveIntegerValue\\(\\) has invalid return type OpenFeature\\\\interfaces\\\\provider\\\\ResolutionDetails\\.$#"
+			count: 1
+			path: src/Infrastructure/FeatureFlag/DbProvider.php
+
+		-
+			message: "#^Method Saso\\\\Infrastructure\\\\FeatureFlag\\\\DbProvider\\:\\:resolveObjectValue\\(\\) has invalid return type OpenFeature\\\\interfaces\\\\provider\\\\ResolutionDetails\\.$#"
+			count: 1
+			path: src/Infrastructure/FeatureFlag/DbProvider.php
+
+		-
+			message: "#^Method Saso\\\\Infrastructure\\\\FeatureFlag\\\\DbProvider\\:\\:resolveObjectValue\\(\\) has parameter \\$defaultValue with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Infrastructure/FeatureFlag/DbProvider.php
+
+		-
+			message: "#^Method Saso\\\\Infrastructure\\\\FeatureFlag\\\\DbProvider\\:\\:resolveStringValue\\(\\) has invalid return type OpenFeature\\\\interfaces\\\\provider\\\\ResolutionDetails\\.$#"
+			count: 1
+			path: src/Infrastructure/FeatureFlag/DbProvider.php
+
+		-
+			message: "#^Method class@anonymous/src/Infrastructure/FeatureFlag/DbProvider\\.php\\:116\\:\\:getError\\(\\) has invalid return type OpenFeature\\\\interfaces\\\\provider\\\\ResolutionError\\.$#"
+			count: 1
+			path: src/Infrastructure/FeatureFlag/DbProvider.php
+
+		-
+			message: "#^Method class@anonymous/src/Infrastructure/FeatureFlag/DbProvider\\.php\\:116\\:\\:getValue\\(\\) return type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Infrastructure/FeatureFlag/DbProvider.php
+
+		-
+			message: "#^Parameter \\$context of method Saso\\\\Infrastructure\\\\FeatureFlag\\\\DbProvider\\:\\:resolveBooleanValue\\(\\) has invalid type OpenFeature\\\\interfaces\\\\flags\\\\EvaluationContext\\.$#"
+			count: 1
+			path: src/Infrastructure/FeatureFlag/DbProvider.php
+
+		-
+			message: "#^Parameter \\$context of method Saso\\\\Infrastructure\\\\FeatureFlag\\\\DbProvider\\:\\:resolveFloatValue\\(\\) has invalid type OpenFeature\\\\interfaces\\\\flags\\\\EvaluationContext\\.$#"
+			count: 1
+			path: src/Infrastructure/FeatureFlag/DbProvider.php
+
+		-
+			message: "#^Parameter \\$context of method Saso\\\\Infrastructure\\\\FeatureFlag\\\\DbProvider\\:\\:resolveIntegerValue\\(\\) has invalid type OpenFeature\\\\interfaces\\\\flags\\\\EvaluationContext\\.$#"
+			count: 1
+			path: src/Infrastructure/FeatureFlag/DbProvider.php
+
+		-
+			message: "#^Parameter \\$context of method Saso\\\\Infrastructure\\\\FeatureFlag\\\\DbProvider\\:\\:resolveObjectValue\\(\\) has invalid type OpenFeature\\\\interfaces\\\\flags\\\\EvaluationContext\\.$#"
+			count: 1
+			path: src/Infrastructure/FeatureFlag/DbProvider.php
+
+		-
+			message: "#^Parameter \\$context of method Saso\\\\Infrastructure\\\\FeatureFlag\\\\DbProvider\\:\\:resolveStringValue\\(\\) has invalid type OpenFeature\\\\interfaces\\\\flags\\\\EvaluationContext\\.$#"
+			count: 1
+			path: src/Infrastructure/FeatureFlag/DbProvider.php
+
+		-
+			message: "#^Call to static method getConnection\\(\\) on an unknown class Doctrine\\\\DBAL\\\\DriverManager\\.$#"
+			count: 1
+			path: src/Infrastructure/Messaging/Transport/TransportFactory.php
+
+		-
+			message: "#^Instantiated class Symfony\\\\Component\\\\Messenger\\\\Bridge\\\\Doctrine\\\\Transport\\\\Connection not found\\.$#"
+			count: 1
+			path: src/Infrastructure/Messaging/Transport/TransportFactory.php
+
+		-
+			message: "#^Instantiated class Symfony\\\\Component\\\\Messenger\\\\Bridge\\\\Doctrine\\\\Transport\\\\DoctrineTransport not found\\.$#"
+			count: 1
+			path: src/Infrastructure/Messaging/Transport/TransportFactory.php
+
+		-
+			message: "#^Method Saso\\\\Infrastructure\\\\Messaging\\\\Transport\\\\TransportFactory\\:\\:create\\(\\) should return Symfony\\\\Component\\\\Messenger\\\\Transport\\\\TransportInterface but returns Symfony\\\\Component\\\\Messenger\\\\Bridge\\\\Doctrine\\\\Transport\\\\DoctrineTransport\\.$#"
+			count: 1
+			path: src/Infrastructure/Messaging/Transport/TransportFactory.php
+
+		-
+			message: "#^Method Saso\\\\Infrastructure\\\\Messaging\\\\Transport\\\\TransportFactory\\:\\:createDoctrineTransport\\(\\) has invalid return type Symfony\\\\Component\\\\Messenger\\\\Bridge\\\\Doctrine\\\\Transport\\\\DoctrineTransport\\.$#"
+			count: 1
+			path: src/Infrastructure/Messaging/Transport/TransportFactory.php
+
+		-
+			message: "#^Access to undefined constant Saso\\\\Domain\\\\Shared\\\\ErrorCode\\:\\:ItemNotFound\\.$#"
+			count: 1
+			path: src/Presentation/Api/V1/Controller/Item/GetItemController.php
+
+		-
+			message: "#^Method Saso\\\\Presentation\\\\Api\\\\V1\\\\Controller\\\\Item\\\\GetItemController\\:\\:serialize\\(\\) return type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Presentation/Api/V1/Controller/Item/GetItemController.php
+
+		-
+			message: "#^Method Saso\\\\Presentation\\\\Api\\\\V1\\\\Controller\\\\Item\\\\GetItemController\\:\\:serializeAttr\\(\\) return type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Presentation/Api/V1/Controller/Item/GetItemController.php
+
+		-
+			message: "#^Method Saso\\\\Presentation\\\\Api\\\\V1\\\\Controller\\\\Item\\\\ListItemsController\\:\\:serialize\\(\\) return type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Presentation/Api/V1/Controller/Item/ListItemsController.php
+
+		-
+			message: "#^Access to undefined constant Saso\\\\Domain\\\\Shared\\\\ErrorCode\\:\\:ItemNotFound\\.$#"
+			count: 1
+			path: src/Presentation/Api/V1/Controller/Item/UpdateItemController.php
+
+		-
+			message: "#^Method Saso\\\\Presentation\\\\Api\\\\V1\\\\Controller\\\\Item\\\\UpdateItemController\\:\\:serialize\\(\\) return type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Presentation/Api/V1/Controller/Item/UpdateItemController.php
+
+		-
+			message: "#^Call to an undefined method Saso\\\\Domain\\\\Auth\\\\AuthProviderId\\:\\:value\\(\\)\\.$#"
+			count: 1
+			path: src/Presentation/Api/V1/Controller/Mobile/DiscoveryController.php
+
+		-
+			message: "#^Access to undefined constant Saso\\\\Domain\\\\Shared\\\\ErrorCode\\:\\:LocationNotFound\\.$#"
+			count: 1
+			path: src/Presentation/Api/V1/Controller/StorageLocation/GetStorageLocationController.php
+
+		-
+			message: "#^Method Saso\\\\Presentation\\\\Api\\\\V1\\\\Controller\\\\StorageLocation\\\\StorageLocationItemsController\\:\\:serialize\\(\\) return type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Presentation/Api/V1/Controller/StorageLocation/StorageLocationItemsController.php
+
+		-
+			message: "#^Call to an undefined method Saso\\\\Domain\\\\Setting\\\\SystemSettingService\\:\\:method\\(\\)\\.$#"
+			count: 11
+			path: tests/Unit/Infrastructure/Ai/AiAssistantFactoryTest.php

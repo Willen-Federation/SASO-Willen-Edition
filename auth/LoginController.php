@@ -17,6 +17,6 @@ final class LoginController implements GettableController, DTO
     )
     {
         $this->id = Member::idConstraint($post['id']??'');
-        $this->password = Member::passwordConstraint($post['password']??'');
+        $this->password = Member::loginPasswordConstraint($post['password']??'');
     }
 }

@@ -12,10 +12,13 @@ namespace Saso\Presentation\Http\I18n;
  *   1. `?lang=` query parameter — explicit override, useful for sharing a
  *      link in a specific language.
  *   2. Authenticated member's `locale` preference — saved in their profile.
- *   3. `Accept-Language` header — primary subtag of the highest-quality
+ *   3. `saso_locale` cookie — set by the language-switcher endpoint
+ *      `/locale/set/{lc}`. Lets anonymous visitors stick to a chosen
+ *      language across the unauthenticated-then-authenticated boundary.
+ *   4. `Accept-Language` header — primary subtag of the highest-quality
  *      candidate that is in the supported list (e.g. `ja-JP` matches
  *      `ja`).
- *   4. Configured default.
+ *   5. Configured default.
  *
  * Anything not in the supported list is silently ignored — we never
  * surface a half-translated catalogue to a client.
@@ -35,6 +38,7 @@ final class LocaleResolver
         ?string $queryLang = null,
         ?string $memberLocale = null,
         ?string $acceptLanguage = null,
+        ?string $cookieLocale = null,
     ): string {
         if ($queryLang !== null && $this->isSupported($queryLang)) {
             return $queryLang;
@@ -42,6 +46,10 @@ final class LocaleResolver
 
         if ($memberLocale !== null && $this->isSupported($memberLocale)) {
             return $memberLocale;
+        }
+
+        if ($cookieLocale !== null && $this->isSupported($cookieLocale)) {
+            return $cookieLocale;
         }
 
         if ($acceptLanguage !== null && $acceptLanguage !== '') {

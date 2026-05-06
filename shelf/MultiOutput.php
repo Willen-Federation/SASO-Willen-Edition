@@ -13,6 +13,7 @@ final class MultiOutput implements DTO
         private int $page,
         private array $mins,
         private array $maxs,
+        private ?array $dimensionMetadata = null,
         )
     {
     }

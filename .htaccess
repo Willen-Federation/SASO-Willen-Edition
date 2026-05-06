@@ -37,6 +37,11 @@ RedirectMatch 404 (?i)/tests(/|$)
 RedirectMatch 404 (?i)/migrations(/|$)
 RedirectMatch 404 (?i)/docker(/|$)
 RedirectMatch 404 (?i)/docs(/|$)
+RedirectMatch 404 (?i)^/(pull\.sh|.*\.(sh|bash))$
+
+# Block PHP/script execution in user upload directories (defense-in-depth).
+# DirectoryMatch is not allowed in .htaccess, so keep this path-based.
+RedirectMatch 404 (?i)^/uploads/.*\.(php[0-9]?|phtml|phar|pl|py|cgi|sh|bash)$
 
 # -----------------------------------------------------------------------------
 # 2) Disable directory listing
@@ -81,9 +86,11 @@ AddDefaultCharset UTF-8
     # RewriteCond %{HTTP:X-Forwarded-Proto} !https
     # RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [R=301,L]
 
-    # Skip rewriting for real files and directories
-    RewriteCond %{REQUEST_FILENAME} -f [OR]
-    RewriteCond %{REQUEST_FILENAME} -d
+    # Skip rewriting only for real files (CSS/JS/images). Real directories
+    # whose name collides with routed URLs (/auth/, /item/, /shelf/, ...)
+    # must reach index.php instead of being served by Apache's directory
+    # handler — otherwise `Options -Indexes` returns 403 for them.
+    RewriteCond %{REQUEST_FILENAME} -f
     RewriteRule ^ - [L]
 
     # Everything else goes through the front controller

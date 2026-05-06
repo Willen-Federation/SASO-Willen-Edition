@@ -1,0 +1,106 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Saso\Tests\Unit;
+
+use PHPUnit\Framework\TestCase;
+use saso\util\EnvLoader;
+
+final class ConfigLoaderTest extends TestCase
+{
+    public function testEnvLoaderParsesBasicKeyValue(): void
+    {
+        $tempDir = sys_get_temp_dir().'/saso_test_'.uniqid();
+        mkdir($tempDir);
+
+        try {
+            $envPath = $tempDir.'/.env';
+            file_put_contents($envPath, "KEY=value\nFOO=bar\n");
+
+            $env = EnvLoader::loadFile($envPath);
+
+            $this->assertEquals('value', $env['KEY']);
+            $this->assertEquals('bar', $env['FOO']);
+        } finally {
+            @unlink($tempDir.'/.env');
+            @rmdir($tempDir);
+        }
+    }
+
+    public function testEnvLoaderIgnoresComments(): void
+    {
+        $tempDir = sys_get_temp_dir().'/saso_test_'.uniqid();
+        mkdir($tempDir);
+
+        try {
+            $envPath = $tempDir.'/.env';
+            file_put_contents($envPath, "# Comment\nKEY=value\n# Another comment\nFOO=bar\n");
+
+            $env = EnvLoader::loadFile($envPath);
+
+            $this->assertCount(2, $env);
+            $this->assertEquals('value', $env['KEY']);
+        } finally {
+            @unlink($tempDir.'/.env');
+            @rmdir($tempDir);
+        }
+    }
+
+    public function testEnvLoaderStripsQuotes(): void
+    {
+        $tempDir = sys_get_temp_dir().'/saso_test_'.uniqid();
+        mkdir($tempDir);
+
+        try {
+            $envPath = $tempDir.'/.env';
+            file_put_contents($envPath, "KEY=\"double quoted\"\nFOO='single quoted'");
+
+            $env = EnvLoader::loadFile($envPath);
+
+            $this->assertEquals('double quoted', $env['KEY']);
+            $this->assertEquals('single quoted', $env['FOO']);
+        } finally {
+            @unlink($tempDir.'/.env');
+            @rmdir($tempDir);
+        }
+    }
+
+    public function testEnvLoaderReturnsEmptyArrayForMissingFile(): void
+    {
+        $env = EnvLoader::loadFile('/nonexistent/path/.env');
+        $this->assertEquals([], $env);
+    }
+
+    public function testEnvLoaderGetMethodWithFallbacks(): void
+    {
+        $env = ['EXPLICIT' => 'from_array'];
+
+        // Test with value in array
+        $result = EnvLoader::get($env, 'EXPLICIT');
+        $this->assertEquals('from_array', $result);
+
+        // Test with missing value and no default
+        $result = EnvLoader::get($env, 'MISSING');
+        $this->assertNull($result);
+
+        // Test with missing value and default
+        $result = EnvLoader::get($env, 'MISSING', 'default_value');
+        $this->assertEquals('default_value', $result);
+    }
+
+    public function testEnvFileIsLoaded(): void
+    {
+        $projectRoot = dirname(dirname(dirname(__DIR__)));
+        $envPath = $projectRoot.'/.env';
+
+        if (file_exists($envPath)) {
+            $env = EnvLoader::loadFile($envPath);
+            $this->assertIsArray($env);
+        } else {
+            // If .env doesn't exist, loadFile should return empty array
+            $env = EnvLoader::loadFile($envPath);
+            $this->assertSame([], $env);
+        }
+    }
+}

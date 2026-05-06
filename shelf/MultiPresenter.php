@@ -26,6 +26,8 @@ final class MultiPresenter implements Presenter
         )->flatMap(
             $this->success->maxs(fn($v)=>$v->maxs)
         )->flatMap(
+            $this->success->dimensionMetadata(fn($v)=>$v->dimensionMetadata)
+        )->flatMap(
             fn($v)=>$this->success
         )->orElse(
             fn($v)=>Either::left($this->failure->errorMessage(fn($e)=>$e)($v))

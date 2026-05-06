@@ -17,10 +17,11 @@ export default class Barcode {
             );
             submit?.focus();
         });
-        input?.addEventListener('keypress', e=>{
+        input?.addEventListener('keydown', e=>{
             if(e.key === 'Enter') {
                 let href = submit?.getAttribute('href');
                 if(href && href !== '') {
+                    e.preventDefault();
                     location.href = href;
                 }
             }
@@ -36,8 +37,9 @@ export default class Barcode {
             }
         };
         keywordSubmit?.addEventListener('click', performKeywordSearch);
-        keywordInput?.addEventListener('keypress', e=>{
+        keywordInput?.addEventListener('keydown', e=>{
             if(e.key === 'Enter') {
+                e.preventDefault();
                 performKeywordSearch();
             }
         });

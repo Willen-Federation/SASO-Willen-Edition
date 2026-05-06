@@ -9,8 +9,9 @@ export default class List {
         let jump = e=>{
             location.href = './'+current.textContent+'/search/'+encodeURIComponent(search.value.replace(/\//g, ''))
         };
-        search?.addEventListener('keypress', e=>{
+        search?.addEventListener('keydown', e=>{
             if(e.key === 'Enter') {
+                e.preventDefault();
                 jump(e);
             }
         });

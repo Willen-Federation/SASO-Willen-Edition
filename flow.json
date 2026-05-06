@@ -28,9 +28,9 @@
     },
     "role": {
         "start": "\\saso\\role\\StartDIContainer",
-        "add":   "\\saso\\role\\AddDIContainer",
-        "edit":  "\\saso\\role\\EditDIContainer",
-        "delete":"\\saso\\role\\DeleteDIContainer"
+        "add": "\\saso\\role\\AddDIContainer",
+        "edit": "\\saso\\role\\EditDIContainer",
+        "delete": "\\saso\\role\\DeleteDIContainer"
     },
     "search": {
         "start": "\\saso\\search\\StartDIContainer"
@@ -144,7 +144,7 @@
         "list": "\\saso\\item\\ArchiveListDIContainer"
     },
     "verify": {
-        "start":  "\\saso\\verify\\StartDIContainer",
+        "start": "\\saso\\verify\\StartDIContainer",
         "create": "\\saso\\verify\\CreateDIContainer"
     },
     "featureAdmin": {
@@ -158,6 +158,9 @@
         "shelf": "\\saso\\settingAdmin\\ShelfSettingsDIContainer"
     },
     "admin": {
+        "flags": "\\saso\\admin\\FlagsDIContainer",
+        "auth": "\\saso\\admin\\AuthDIContainer",
+        "mobile": "\\saso\\admin\\MobileDIContainer",
         "feature-flags": "\\saso\\admin\\FeatureFlagsDIContainer",
         "aiSettings": "\\saso\\admin\\AiSettingsDIContainer",
         "auth-providers": "\\saso\\authExt\\ProvidersDIContainer"

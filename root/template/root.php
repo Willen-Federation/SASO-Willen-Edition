@@ -94,9 +94,19 @@
                 <a class="dropdown-item" href="./admin/feature-flags/">
                   <i class="bi bi-flag me-1"></i>機能フラグ
                 </a>
+                <a class="dropdown-item" href="./admin/flags/">
+                  <i class="bi bi-toggles me-1"></i>機能フラグ管理
+                </a>
                 <div class="dropdown-divider"></div>
                 <a class="dropdown-item" href="./auth/providerNew/">認証プロバイダーの追加</a>
                 <a class="dropdown-item" href="./auth/providers/">認証プロバイダー一覧</a>
+                <a class="dropdown-item" href="./admin/auth/">
+                  <i class="bi bi-shield-lock me-1"></i>認証プロバイダ管理
+                </a>
+                <div class="dropdown-divider"></div>
+                <a class="dropdown-item" href="./admin/mobile/">
+                  <i class="bi bi-phone me-1"></i>モバイルデバイス管理
+                </a>
                 <div class="dropdown-divider"></div>
                 <a class="dropdown-item" href="./start/password/">パスワード変更</a>
               </div>

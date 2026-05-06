@@ -1,150 +1,388 @@
 {
     "auth": {
-        "start":       { "matter": "auth", "action": "start" },
-        "provider":    { "matter": "auth", "action": "provider" },
-        "providers":   { "matter": "auth", "action": "providers" },
-        "providerNew": { "matter": "auth", "action": "providerNew" }
+        "start": {
+            "matter": "auth",
+            "action": "start"
+        }
     },
     "js": {
-        "main.js":       { "matter": "js", "action": "main" },
-        "label.js":      { "matter": "js", "action": "label" },
-        "category.js":   { "matter": "js", "action": "category" },
-        "item.js":       { "matter": "js", "action": "item" },
-        "itemEdit.js":   { "matter": "js", "action": "itemEdit" },
-        "list.js":       { "matter": "js", "action": "list" },
-        "feature.js":    { "matter": "js", "action": "feature" },
-        "barcode.js":    { "matter": "js", "action": "barcode" },
-        "csrf.js":       { "matter": "js", "action": "csrf" },
-        "shelf.js":      { "matter": "js", "action": "shelf" },
-        "password.js":   { "matter": "js", "action": "password" },
-        "archiveAll.js": { "matter": "js", "action": "archiveAll" }
+        "main.js": {
+            "matter": "js",
+            "action": "main"
+        },
+        "label.js": {
+            "matter": "js",
+            "action": "label"
+        },
+        "category.js": {
+            "matter": "js",
+            "action": "category"
+        },
+        "item.js": {
+            "matter": "js",
+            "action": "item"
+        },
+        "itemEdit.js": {
+            "matter": "js",
+            "action": "itemEdit"
+        },
+        "list.js": {
+            "matter": "js",
+            "action": "list"
+        },
+        "feature.js": {
+            "matter": "js",
+            "action": "feature"
+        },
+        "barcode.js": {
+            "matter": "js",
+            "action": "barcode"
+        },
+        "csrf.js": {
+            "matter": "js",
+            "action": "csrf"
+        },
+        "shelf.js": {
+            "matter": "js",
+            "action": "shelf"
+        },
+        "password.js": {
+            "matter": "js",
+            "action": "password"
+        },
+        "archiveAll.js": {
+            "matter": "js",
+            "action": "archiveAll"
+        }
     },
     "start": {
-        "start":    { "matter": "start", "action": "start" },
-        "menu":     { "matter": "start", "action": "menu" },
-        "logout":   { "matter": "auth",  "action": "logout" },
-        "password": { "matter": "auth",  "action": "password" }
+        "start": {
+            "matter": "start",
+            "action": "start"
+        },
+        "logout": {
+            "matter": "auth",
+            "action": "logout"
+        },
+        "password": {
+            "matter": "auth",
+            "action": "password"
+        }
     },
     "image": {
-        "start":   { "matter": "image", "action": "start" },
-        "add":     { "matter": "image", "action": "add" },
-        "display": { "matter": "image", "action": "display" }
+        "start": {
+            "matter": "image",
+            "action": "start"
+        },
+        "add": {
+            "matter": "image",
+            "action": "add"
+        },
+        "display": {
+            "matter": "image",
+            "action": "display"
+        }
     },
     "category": {
-        "start":     { "matter": "category", "action": "edit" },
-        "list.json": { "matter": "category", "action": "list" },
-        "add":       { "matter": "category", "action": "add" },
-        "replace":   { "matter": "category", "action": "replace" },
-        "delete":    { "matter": "category", "action": "delete" },
-        "path.json": { "matter": "category", "action": "path" }
+        "start": {
+            "matter": "category",
+            "action": "edit"
+        },
+        "list.json": {
+            "matter": "category",
+            "action": "list"
+        },
+        "add": {
+            "matter": "category",
+            "action": "add"
+        },
+        "replace": {
+            "matter": "category",
+            "action": "replace"
+        },
+        "delete": {
+            "matter": "category",
+            "action": "delete"
+        },
+        "path.json": {
+            "matter": "category",
+            "action": "path"
+        }
     },
     "archive": {
-        "list": { "matter": "item", "action": "archiveList" }
+        "list": {
+            "matter": "item",
+            "action": "archiveList"
+        }
     },
     "item": {
-        "start":              { "matter": "item",    "action": "one" },
-        "one":                { "matter": "item",    "action": "one" },
-        "add":                { "matter": "item",    "action": "register" },
-        "edit":               { "matter": "item",    "action": "edit" },
-        "changePrice":        { "matter": "item",    "action": "changePrice" },
-        "changeCategory":     { "matter": "item",    "action": "changeCategory" },
-        "changeSizeOrder":    { "matter": "item",    "action": "changeSizeOrder" },
-        "addFeature":         { "matter": "item",    "action": "addFeature" },
-        "archive":            { "matter": "item",    "action": "archive" },
-        "archivingAll":       { "matter": "item",    "action": "archiveAllFrame" },
-        "archiveAll":         { "matter": "item",    "action": "archivedAll" },
-        "archiveList":        { "matter": "item",    "action": "archiveList" },
-        "reproduction":       { "matter": "item",    "action": "reproduction" },
-        "fromBarcode":        { "matter": "item",    "action": "fromBarcode" },
-        "registerFromBarcode":{ "matter": "item",    "action": "registerFromBarcode" },
-        "registerFromImage":  { "matter": "item",    "action": "registerFromImage" },
-        "addFromImage":       { "matter": "item",    "action": "registerFromImage" },
-        "draftList":          { "matter": "item",    "action": "draftList" },
-        "drafts":             { "matter": "item",    "action": "draftList" },
-        "draftConfirm":       { "matter": "item",    "action": "draftConfirm" },
-        "draftSave":          { "matter": "item",    "action": "draftSave" },
-        "draftDiscard":       { "matter": "item",    "action": "draftDiscard" },
-        "draftRetry":         { "matter": "item",    "action": "draftRetry" },
-        "list":               { "matter": "item",    "action": "listPage" },
-        "listFrame":          { "matter": "item",    "action": "listFrame" },
-        "listContents":       { "matter": "item",    "action": "listContents" },
-        "head":               { "matter": "item",    "action": "head" },
-        "row":                { "matter": "item",    "action": "row" },
-        "pagination":         { "matter": "item",    "action": "pagination" },
-        "inventory":          { "matter": "feature", "action": "inventory" },
-        "stock":              { "matter": "feature", "action": "stock" },
-        "shipment":           { "matter": "feature", "action": "shipment" },
-        "history":            { "matter": "feature", "action": "history" }
+        "start": {
+            "matter": "item",
+            "action": "one"
+        },
+        "add": {
+            "matter": "item",
+            "action": "register"
+        },
+        "edit": {
+            "matter": "item",
+            "action": "edit"
+        },
+        "changePrice": {
+            "matter": "item",
+            "action": "changePrice"
+        },
+        "changeCategory": {
+            "matter": "item",
+            "action": "changeCategory"
+        },
+        "changeSizeOrder": {
+            "matter": "item",
+            "action": "changeSizeOrder"
+        },
+        "addFeature": {
+            "matter": "item",
+            "action": "addFeature"
+        },
+        "archive": {
+            "matter": "item",
+            "action": "archive"
+        },
+        "archivingAll": {
+            "matter": "item",
+            "action": "archiveAllFrame"
+        },
+        "archiveAll": {
+            "matter": "item",
+            "action": "archivedAll"
+        },
+        "reproduction": {
+            "matter": "item",
+            "action": "reproduction"
+        },
+        "inventory": {
+            "matter": "feature",
+            "action": "inventory"
+        },
+        "stock": {
+            "matter": "feature",
+            "action": "stock"
+        },
+        "shipment": {
+            "matter": "feature",
+            "action": "shipment"
+        },
+        "history": {
+            "matter": "feature",
+            "action": "history"
+        }
     },
     "label": {
-        "start":        { "matter": "label",   "action": "edit" },
-        "list":         { "matter": "label",   "action": "list" },
-        "size.json":    { "matter": "label",   "action": "size" },
-        "add":          { "matter": "label",   "action": "register" },
-        "delete":       { "matter": "label",   "action": "delete" },
-        "features":     { "matter": "label",   "action": "features" },
-        "select":       { "matter": "feature", "action": "label" },
-        "deleteAll":    { "matter": "label",   "action": "deleteAll" },
-        "shortName.json":{ "matter": "label",  "action": "shortName" },
-        "outputPdf":    { "matter": "label",   "action": "pdf" },
-        "svg":          { "matter": "label",   "action": "svg" },
-        "wizard":       { "matter": "label",   "action": "wizard" },
-        "mint":         { "matter": "label",   "action": "mint" },
-        "pending":      { "matter": "label",   "action": "pending" }
+        "start": {
+            "matter": "label",
+            "action": "edit"
+        },
+        "list": {
+            "matter": "label",
+            "action": "list"
+        },
+        "size.json": {
+            "matter": "label",
+            "action": "size"
+        },
+        "add": {
+            "matter": "label",
+            "action": "register"
+        },
+        "delete": {
+            "matter": "label",
+            "action": "delete"
+        },
+        "features": {
+            "matter": "label",
+            "action": "features"
+        },
+        "select": {
+            "matter": "feature",
+            "action": "label"
+        },
+        "deleteAll": {
+            "matter": "label",
+            "action": "deleteAll"
+        },
+        "shortName.json": {
+            "matter": "label",
+            "action": "shortName"
+        },
+        "outputPdf": {
+            "matter": "label",
+            "action": "pdf"
+        }
     },
     "shelf": {
-        "put":       { "matter": "feature", "action": "shelf" },
-        "start":     { "matter": "shelf",   "action": "menu" },
-        "multi":     { "matter": "shelf",   "action": "multi" },
-        "single":    { "matter": "shelf",   "action": "single" },
-        "outputPdf": { "matter": "shelf",   "action": "pdf" },
-        "simple":    { "matter": "shelf",   "action": "simple" },
-        "simpleSave":{ "matter": "shelf",   "action": "simpleSave" },
-        "map":       { "matter": "shelf",   "action": "map" },
-        "shelves":   { "matter": "shelf",   "action": "shelves" },
-        "label":     { "matter": "feature", "action": "label" }
-    },
-    "barcode": {
-        "start":      { "matter": "barcode", "action": "start" },
-        "sheet":      { "matter": "barcode", "action": "sheet" },
-        "printSheet": { "matter": "barcode", "action": "printSheet" }
-    },
-    "member": {
-        "start":  { "matter": "member", "action": "start" },
-        "add":    { "matter": "member", "action": "add" },
-        "edit":   { "matter": "member", "action": "edit" },
-        "delete": { "matter": "member", "action": "delete" }
-    },
-    "role": {
-        "start":  { "matter": "role", "action": "start" },
-        "add":    { "matter": "role", "action": "add" },
-        "edit":   { "matter": "role", "action": "edit" },
-        "delete": { "matter": "role", "action": "delete" }
-    },
-    "scanStock": {
-        "start": { "matter": "scanStock", "action": "start" }
-    },
-    "settingAdmin": {
-        "start": { "matter": "settingAdmin", "action": "start" },
-        "shelf": { "matter": "settingAdmin", "action": "shelf" }
-    },
-    "mypage": {
-        "start":       { "matter": "mypage", "action": "start" },
-        "editProfile": { "matter": "mypage", "action": "editProfile" }
+        "put": {
+            "matter": "feature",
+            "action": "shelf"
+        },
+        "start": {
+            "matter": "shelf",
+            "action": "menu"
+        },
+        "multi": {
+            "matter": "shelf",
+            "action": "multi"
+        },
+        "single": {
+            "matter": "shelf",
+            "action": "single"
+        },
+        "outputPdf": {
+            "matter": "shelf",
+            "action": "pdf"
+        },
+        "simple": {
+            "matter": "shelf",
+            "action": "simple"
+        },
+        "simpleSave": {
+            "matter": "shelf",
+            "action": "simpleSave"
+        },
+        "map": {
+            "matter": "shelf",
+            "action": "map"
+        },
+        "shelves": {
+            "matter": "shelf",
+            "action": "shelves"
+        },
+        "label": {
+            "matter": "feature",
+            "action": "label"
+        }
     },
     "admin": {
-        "feature-flags":  { "matter": "admin", "action": "feature-flags" },
-        "aiSettings":     { "matter": "admin", "action": "aiSettings" },
-        "auth-providers": { "matter": "admin", "action": "auth-providers" }
+        "flags": {
+            "matter": "admin",
+            "action": "flags"
+        },
+        "auth": {
+            "matter": "admin",
+            "action": "auth"
+        },
+        "mobile": {
+            "matter": "admin",
+            "action": "mobile"
+        },
+        "feature-flags": {
+            "matter": "admin",
+            "action": "feature-flags"
+        },
+        "aiSettings": {
+            "matter": "admin",
+            "action": "aiSettings"
+        },
+        "auth-providers": {
+            "matter": "admin",
+            "action": "auth-providers"
+        }
+    },
+    "barcode": {
+        "start": {
+            "matter": "barcode",
+            "action": "start"
+        },
+        "sheet": {
+            "matter": "barcode",
+            "action": "sheet"
+        },
+        "printSheet": {
+            "matter": "barcode",
+            "action": "printSheet"
+        }
+    },
+    "member": {
+        "start": {
+            "matter": "member",
+            "action": "start"
+        },
+        "add": {
+            "matter": "member",
+            "action": "add"
+        },
+        "edit": {
+            "matter": "member",
+            "action": "edit"
+        },
+        "delete": {
+            "matter": "member",
+            "action": "delete"
+        }
+    },
+    "role": {
+        "start": {
+            "matter": "role",
+            "action": "start"
+        },
+        "add": {
+            "matter": "role",
+            "action": "add"
+        },
+        "edit": {
+            "matter": "role",
+            "action": "edit"
+        },
+        "delete": {
+            "matter": "role",
+            "action": "delete"
+        }
+    },
+    "scanStock": {
+        "start": {
+            "matter": "scanStock",
+            "action": "start"
+        }
+    },
+    "settingAdmin": {
+        "start": {
+            "matter": "settingAdmin",
+            "action": "start"
+        },
+        "shelf": {
+            "matter": "settingAdmin",
+            "action": "shelf"
+        }
+    },
+    "mypage": {
+        "start": {
+            "matter": "mypage",
+            "action": "start"
+        },
+        "editProfile": {
+            "matter": "mypage",
+            "action": "editProfile"
+        }
     },
     "verify": {
-        "start":  { "matter": "verify", "action": "start" },
-        "create": { "matter": "verify", "action": "create" }
+        "start": {
+            "matter": "verify",
+            "action": "start"
+        },
+        "create": {
+            "matter": "verify",
+            "action": "create"
+        }
     },
     "featureAdmin": {
-        "list": { "matter": "featureAdmin", "action": "list" }
+        "list": {
+            "matter": "featureAdmin",
+            "action": "list"
+        }
     },
     "search": {
-        "start": { "matter": "search", "action": "start" }
+        "start": {
+            "matter": "search",
+            "action": "start"
+        }
     }
 }

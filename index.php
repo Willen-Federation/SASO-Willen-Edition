@@ -553,6 +553,17 @@ if(file_exists($installerRoute)) {
     $installer = [];
 }
 
+// Redirect the bare root to the installer when installer.json is present.
+if (!empty($installer)) {
+    $programDir = trim($config['programDir'] ?? '', '/');
+    $basePath   = $programDir !== '' ? "/{$programDir}/" : '/';
+    if ($requestPath === $basePath || $requestPath === rtrim($basePath, '/') || $requestPath === '') {
+        $proto = !empty($config['https']) ? 'https' : 'http';
+        header("Location: {$proto}://{$_SERVER['HTTP_HOST']}{$basePath}installer/start", true, 302);
+        exit;
+    }
+}
+
 $input = new UserCompiler(
     $requestPath,
     json_decode(file_get_contents('php://input'), true)??$_POST,

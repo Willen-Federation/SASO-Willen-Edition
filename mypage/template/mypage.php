@@ -54,7 +54,7 @@
                                 </dl>
 
                                 <div class="mt-3">
-                                    <a href="/mypage/editProfile/" class="btn btn-primary btn-sm">
+                                    <a href="./mypage/editProfile/" class="btn btn-primary btn-sm">
                                         <?php echo htmlspecialchars(__('Edit Profile')); ?>
                                     </a>
                                 </div>
@@ -76,7 +76,7 @@
                         <div class="mt-3">
                             <h5><?php echo htmlspecialchars(__('Local Authentication')); ?></h5>
                             <p><?php echo htmlspecialchars(__('Manage your password')); ?></p>
-                            <a href="/auth/password/" class="btn btn-outline-primary btn-sm">
+                            <a href="./start/password/" class="btn btn-outline-primary btn-sm">
                                 <?php echo htmlspecialchars(__('Change Password')); ?>
                             </a>
                         </div>
@@ -97,10 +97,10 @@
                     <h5><?php echo htmlspecialchars(__('Quick Links')); ?></h5>
                 </div>
                 <div class="list-group list-group-flush">
-                    <a href="/mypage/editProfile/" class="list-group-item list-group-item-action">
+                    <a href="./mypage/editProfile/" class="list-group-item list-group-item-action">
                         <i class="bi bi-pencil"></i> <?php echo htmlspecialchars(__('Edit Profile')); ?>
                     </a>
-                    <a href="/auth/password/" class="list-group-item list-group-item-action">
+                    <a href="./start/password/" class="list-group-item list-group-item-action">
                         <i class="bi bi-key"></i> <?php echo htmlspecialchars(__('Change Password')); ?>
                     </a>
                 </div>

@@ -131,6 +131,63 @@ if ($requestPath === '/mcp') {
     exit;
 }
 
+// --- Server-side git fetch webhook ------------------------------------------
+// POST /webhock or /webhook
+// Executes one fixed command path (`pull.sh` -> `git fetch origin`) only after
+// validating WEBHOOK_SECRET from X-Webhook-Token. Do not accept command names,
+// branch names, or other request-controlled shell input here.
+if ($requestPath === '/webhock' || $requestPath === '/webhook') {
+    header('Content-Type: application/json; charset=utf-8');
+    header('Cache-Control: no-store');
+
+    if (($_SERVER['REQUEST_METHOD'] ?? 'GET') !== 'POST') {
+        http_response_code(405);
+        header('Allow: POST');
+        echo json_encode(['ok' => false, 'error' => 'Method not allowed; use POST']);
+        exit;
+    }
+
+    $expectedToken = (string) (getenv('WEBHOOK_SECRET') ?: '');
+    $providedToken = (string) ($_SERVER['HTTP_X_WEBHOOK_TOKEN'] ?? '');
+
+    if (strlen($expectedToken) < 32) {
+        http_response_code(503);
+        echo json_encode(['ok' => false, 'error' => 'Webhook secret is not configured']);
+        exit;
+    }
+
+    if ($providedToken === '' || !hash_equals($expectedToken, $providedToken)) {
+        http_response_code(403);
+        echo json_encode(['ok' => false, 'error' => 'Forbidden']);
+        exit;
+    }
+
+    $lock = fopen(sys_get_temp_dir() . '/saso-git-fetch-webhook.lock', 'c');
+    if ($lock === false || !flock($lock, LOCK_EX | LOCK_NB)) {
+        http_response_code(409);
+        echo json_encode(['ok' => false, 'error' => 'Fetch already in progress']);
+        exit;
+    }
+
+    $script = __DIR__ . '/pull.sh';
+    if (!is_file($script) || !is_readable($script)) {
+        http_response_code(500);
+        echo json_encode(['ok' => false, 'error' => 'Webhook script is unavailable']);
+        exit;
+    }
+
+    $output = [];
+    $exitCode = 0;
+    exec('/bin/bash ' . escapeshellarg($script) . ' 2>&1', $output, $exitCode);
+
+    http_response_code($exitCode === 0 ? 200 : 500);
+    echo json_encode([
+        'ok' => $exitCode === 0,
+        'exitCode' => $exitCode,
+    ]);
+    exit;
+}
+
 // --- Debug endpoints (GET /debug/ai-status, POST /debug/ai-probe) ----------
 // Local-only AI debugging endpoints. Requires APP_DEBUG=true or .ENV file.
 // GET /debug/ai-status — returns AI provider, key config, assistant class.

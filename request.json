@@ -125,7 +125,12 @@
         "start": { "matter": "scanStock", "action": "start" }
     },
     "settingAdmin": {
-        "start": { "matter": "settingAdmin", "action": "start" }
+        "start": { "matter": "settingAdmin", "action": "start" },
+        "shelf": { "matter": "settingAdmin", "action": "shelf" }
+    },
+    "mypage": {
+        "start":       { "matter": "mypage", "action": "start" },
+        "editProfile": { "matter": "mypage", "action": "editProfile" }
     },
     "admin": {
         "feature-flags":  { "matter": "admin", "action": "feature-flags" },

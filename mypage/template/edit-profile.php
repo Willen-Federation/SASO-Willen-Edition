@@ -12,7 +12,7 @@
                 </div>
                 <div class="card-body">
                     <?php if ($v->member): ?>
-                    <form method="POST" action="/mypage/editProfile/">
+                    <form method="POST" action="./mypage/editProfile/">
                         <div class="mb-3">
                             <label for="display_name" class="form-label">
                                 <?php echo htmlspecialchars(__('Display Name')); ?>
@@ -66,7 +66,7 @@
                             <button type="submit" class="btn btn-primary">
                                 <?php echo htmlspecialchars(__('Save')); ?>
                             </button>
-                            <a href="/mypage/start/" class="btn btn-secondary">
+                            <a href="./mypage/start/" class="btn btn-secondary">
                                 <?php echo htmlspecialchars(__('Cancel')); ?>
                             </a>
                         </div>

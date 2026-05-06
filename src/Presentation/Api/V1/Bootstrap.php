@@ -6,6 +6,7 @@ namespace Saso\Presentation\Api\V1;
 
 use PDO;
 use Saso\Domain\MobileConnect\Jwt\JwtService;
+use Saso\Infrastructure\Barcode\PdoBarcodeRepository;
 use Saso\Infrastructure\FeatureFlag\PdoFeatureFlagRepository;
 use Saso\Infrastructure\Logging\MonologFactory;
 use Saso\Infrastructure\MobileConnect\PdoDeviceTokenRepository;
@@ -18,6 +19,7 @@ use Saso\Presentation\Api\V1\Controller\FeatureFlag\FeatureFlagDeleteController;
 use Saso\Presentation\Api\V1\Controller\FeatureFlag\FeatureFlagGetController;
 use Saso\Presentation\Api\V1\Controller\FeatureFlag\FeatureFlagListController;
 use Saso\Presentation\Api\V1\Controller\FeatureFlag\FeatureFlagUpdateController;
+use Saso\Presentation\Api\V1\Controller\Barcode\BarcodeGetController;
 use Saso\Presentation\Api\V1\Controller\HealthController;
 use Saso\Presentation\Api\V1\Controller\Mobile\ConfigBundleController;
 use Saso\Presentation\Api\V1\Controller\Mobile\ConnectController;
@@ -79,6 +81,9 @@ final class Bootstrap
         $pdo = self::createPdo();
         $jwt = new JwtService(self::jwtSecret());
 
+        $barcodeRepo = new PdoBarcodeRepository($pdo);
+        $barcodeGet  = new BarcodeGetController($barcodeRepo);
+
         $flagRepo   = new PdoFeatureFlagRepository($pdo);
         $codeRepo   = new PdoPairingCodeRepository($pdo);
         $tokenRepo  = new PdoDeviceTokenRepository($pdo);
@@ -101,6 +106,8 @@ final class Bootstrap
             'getHealth'       => [$health, 'handle'],
             'getOpenApiSpec'  => [$openApi, 'yaml'],
             'getSwaggerUi'    => [$swaggerUi, 'page'],
+
+            'getBarcode'      => [$barcodeGet, 'handle'],
 
             'listFeatureFlags'  => [$flagList, 'handle'],
             'createFeatureFlag' => static function (HttpRequest $r) use ($flagCreate) {

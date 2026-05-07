@@ -7,6 +7,7 @@
 <head>
 <base href="<?php echo $v->baseUrl; ?>">
 <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
 <link href="https://cdn.jsdelivr.net/npm/@tabler/core@1.0.0/dist/css/tabler.min.css" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
@@ -111,8 +112,8 @@
                   <i class="bi bi-flag me-1" aria-hidden="true"></i><?php echo ui_text($lang === 'ja' ? '機能フラグ' : 'Feature Flags'); ?>
                 </a>
                 <div class="dropdown-divider"></div>
-                <a class="dropdown-item" href="./auth/providerNew/"><?php echo ui_text($lang === 'ja' ? '認証プロバイダーの追加' : 'Add Auth Provider'); ?></a>
-                <a class="dropdown-item" href="./auth/providers/"><?php echo ui_text($lang === 'ja' ? '認証プロバイダー一覧' : 'Auth Providers'); ?></a>
+                <a class="dropdown-item" href="./auth/provider/new/"><?php echo ui_text($lang === 'ja' ? '認証プロバイダーの追加' : 'Add Auth Provider'); ?></a>
+                <a class="dropdown-item" href="./admin/auth-providers/"><?php echo ui_text($lang === 'ja' ? '認証プロバイダー一覧' : 'Auth Providers'); ?></a>
                 <div class="dropdown-divider"></div>
                 <a class="dropdown-item" href="./start/password/"><?php echo ui_text($lang === 'ja' ? 'パスワード変更' : 'Change Password'); ?></a>
               </div>

@@ -34,13 +34,7 @@ $t = static fn(string $ja, string $en): string => $lang === 'ja' ? $ja : $en;
       <div class="card-body">
         <div class="row g-3 align-items-center">
           <div class="col-auto">
-            <?php if ($v->member->avatarUrl): ?>
-              <img src="<?php echo ui_attr($v->member->avatarUrl); ?>"
-                   alt="<?php echo ui_attr($v->member->name); ?>"
-                   class="rounded-circle border" width="96" height="96">
-            <?php else: ?>
-              <span class="avatar avatar-xl bg-azure text-white" aria-hidden="true"><i class="bi bi-person fs-1"></i></span>
-            <?php endif; ?>
+            <?php echo \saso\util\AvatarHelper::render($v->member); ?>
           </div>
           <div class="col">
             <dl class="row mb-0">

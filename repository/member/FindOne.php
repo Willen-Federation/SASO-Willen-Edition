@@ -1,4 +1,5 @@
 <?php
+
 namespace saso\repository\member;
 
 use saso\entity;
@@ -16,11 +17,7 @@ final class FindOne implements DbPrepare
     public function getQuery(): string
     {
         return '
-            SELECT id, password, userName, role,
-                   NULL AS avatar_url,
-                   NULL AS display_name,
-                   NULL AS bio,
-                   NULL AS updated_at
+            SELECT *
                 FROM Member
                 WHERE id = :id
         ';
@@ -33,7 +30,7 @@ final class FindOne implements DbPrepare
 
     public function map(): \Closure
     {
-        return Each::tf(function($v) {
+        return Each::tf(function ($v) {
             $updatedAt = null;
             if (!empty($v->updated_at)) {
                 $updatedAt = new \DateTime($v->updated_at);

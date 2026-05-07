@@ -28,7 +28,8 @@ final class ProviderSavePresenter implements Presenter
         }
 
         $successView = new RegisterSuccessView();
-        $successView->to(fn () => './');
+        // Setter trait returns a closure; invoke it to actually assign $to.
+        ($successView->to(fn () => './'))(null);
         return $successView;
     }
 }

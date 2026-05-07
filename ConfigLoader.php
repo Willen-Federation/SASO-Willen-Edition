@@ -46,7 +46,8 @@ final class ConfigLoader
     public static function regularization(array $config): array
     {
         $config['documentRoot'] = '/'.trim($config['documentRoot'], '/').'/';
-        $config['programDir'] = trim($config['programDir'], '/').'/';
+        $programDirTrimmed = trim($config['programDir'], '/');
+        $config['programDir'] = $programDirTrimmed === '' ? '' : $programDirTrimmed.'/';
         $config['https'] = $config['https']===true?true:false;
         $config['logPath'] = '/'.trim($config['logPath'], '/').'/';
         return $config;

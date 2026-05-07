@@ -1,4 +1,5 @@
 <?php
+
 namespace saso\auth;
 
 use saso\framework\Presenter;
@@ -8,20 +9,19 @@ use saso\util\monad\Either;
 final class AuthPresenter implements Presenter
 {
     public function __construct(
-        private View $success,
-    )
-    {
+        private AuthView $success,
+    ) {
     }
     public function complete(Either $output): View
     {
-        return $output->flatMap(
-            $this->success->restoredPath(fn($v)=>$v->restoredPath)
+        $output->flatMap(
+            $this->success->restoredPath(fn ($v) => $v->restoredPath)
         )->flatMap(
-            $this->success->isError(fn($v)=>$v->isError)
+            $this->success->isError(fn ($v) => $v->isError)
         )->flatMap(
-            $this->success->providers(fn($v)=>$v->providers)
-        )->flatMap(
-            fn($v)=>$this->success
-        )->getOrElse($this->success);
+            $this->success->providers(fn ($v) => $v->providers)
+        );
+
+        return $this->success;
     }
 }

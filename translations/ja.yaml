@@ -85,14 +85,85 @@ error:
     title: 許可されていないメソッドです
     detail: このエンドポイントでは要求された HTTP メソッドはサポートされていません。
 ui:
-  a11y:
-    pagination: ページネーション
-    tabs: タブ
+  app:
+    title: 'SASO {version}'
+  sidebar:
+    home: ホーム
+    label_first: 印刷 → 登録
+    item: 商品
+    item_register: 商品登録
+    item_archive: アーカイブ一覧
+    item_archiveAll: 一括アーカイブ
+    shelf: 棚
+    shelf_create: 棚番作成
+    shelf_map: 棚マップ
+    verify: データ照合
+    label: ラベル
+    label_print: 印刷
+    label_size: サイズ管理
+    category: 分類管理
+    flags: フィーチャーフラグ
+    auth_providers: 認証プロバイダ
+    password: パスワード
+    barcode_sheet: バーコードシート
+    shelf_simple: 棚番設定
+    group:
+      main: メイン
+      inventory: 在庫管理
+      label: ラベル作成
+      master: マスタ管理
+      system: システム設定
+      admin: 管理
+  dashboard:
+    quick_links: クイックリンク
+    item_register_help: 新しい商品をカタログに追加します。
+    barcode_sheet_help: ユニークなバーコードのシートを印刷します。
+    shelf_simple_help: 棚番の範囲を素早く設定します。
+    verify_help: 棚卸や個別照合を実行します。
+    shelf_help: 詳細な棚番管理とシール印刷を行います。
+    label_help: 商品用のバーコードラベルを生成します。
+    archive_help: アーカイブされた商品を閲覧します。
+    archive_all_help: すべてのアクティブな商品を一括でアーカイブします。
+    category_help: 分類ツリーを管理します。
+    label_size_help: A4ラベルシートのレイアウトを構成します。
+    password_help: サインイン用のパスワードを変更します。
+  header:
+    search_placeholder: 商品を検索...
+  nav:
+    home: ホーム
   button:
+    save: 保存
     cancel: キャンセル
+    delete: 削除
+    submit: 送信
+    back: 戻る
     close: 閉じる
     dismiss: 閉じる
-    save: 保存
+    edit: 編集
+  user_menu:
+    change_password: パスワード変更
+    logout: ログアウト
+  installer:
+    unfinished: 'まだインストールが済んでいないなら、「'
+    link: installer/start
+    unfinished_tail: '」にアクセスしてください。すでにインストール済みなら、フォルダ「installer」を削除してください。'
+  footer:
+    copyright: '© {year} SASO — Willen Edition'
+    version: 'バージョン {version}'
+  pagination:
+    summary: 'ページ {current} / {last}'
+    prev: 前へ
+    next: 次へ
+  table:
+    empty: 'データがありません'
+  a11y:
+    skip_to_main: メインコンテンツへスキップ
+    search: 検索
+    sidebar: メイン
+    main_nav: メインナビゲーション
+    breadcrumb: パンくずリスト
+    pagination: ページネーション
+    tabs: タブ
   scanner:
     open: バーコード / QR をスキャン
     close: 閉じる
@@ -127,6 +198,94 @@ ui:
     status:
       active: 有効
       disabled: 無効
+    help:
+      title: この画面について
+      body: '本リリースでは閲覧専用です。Phinx マイグレーション M4/20260426120002_create_auth_provider.php で行を投入してください。作成/編集フォームは次リリースで提供します。'
+  password:
+    title: パスワード変更
+    subtitle: パスワードはどこかに書き留めておいてください。忘れると復元できません。
+    changed: パスワードが変更されました。
+    wrong_current: 現在のパスワードが正しくありません。
+    help: '半角英数、8〜20文字。'
+    mismatch: パスワードが一致しません。
+    field:
+      now: 現在のパスワード
+      new: 新しいパスワード
+      confirm: 新しいパスワード確認
+    submit: パスワード変更
+  category:
+    title: 分類ツリー
+    add_root: ルート分類を追加
+    help: '分類の追加・名称変更・並び替えができます。ドラッグは未対応のため、各行のインライン操作をご利用ください。'
+    empty: '読み込み中…'
+  item:
+    add_from_image:
+      title: 画像から商品登録
+    draft_confirm:
+      title: 下書き確認
+    draft_list:
+      title: 商品下書き
+    register:
+      image_drop: 画像をここにドロップするか、ファイルを選択してください。
+      take_photo: 写真を撮影
+      title: 商品の新規登録
+      submit: 商品を登録
+    field:
+      name: 商品名
+      name_help: 50字以内。
+      name_ph: コットンTシャツ
+      category: 分類
+      selected_category: '選択中の分類：'
+      deselect_category: 選択解除
+      price: 価格
+      price_help: '9桁まで、カンマ区切り可。'
+      colors: 色
+      colors_help: 複数入力する場合は半角カンマで区切ります。
+      sizes: サイズ
+      sizes_help: '複数入力する場合は半角カンマで区切ります。色数×サイズ数 ≤ 100。'
+      packaging: 梱包
+      plastic: プラ
+      plastic_note: 付記（任意）
+      paper: 紙
+      paper_note: 付記（任意）
+  not_found:
+    title: ページが見つかりません
+    body: お探しのページは存在しません。
+  label_wizard:
+    title: '印刷→登録（ラベル先行）'
+    step1: ラベルシートの選択
+    step1_help: プリンターにセットするシートを選んでください。選んだシートに合わせてコードを発行します。
+    step2: 発行 & 印刷
+    step2_help: 数量を選んで PDF をダウンロードし、プリンターにセットします。
+    sheet_type: シート種別
+    count: ラベル枚数
+    print: '発行して PDF を取得'
+    step3: 商品にひも付け
+    step3_help: 印刷したラベルをスキャンして、商品情報に関連付けます。
+    step3_note: '発行後、サイドバーの「保留中のラベル」から確認できます。'
+    go_to_pending: 保留中のラベルを開く
+    no_sheets: ラベルシートは登録されていません。
+    requirements_title: マイグレーションの実行が必要です
+    requirements_body: 'barcode_pool / barcode_batch / label_sheet_layout / location_map テーブルを作成するため、M6 マイグレーション 20260428120000–20260428120004 を実行してください。'
+  verify:
+    title: データ照合
+    start_title: 照合セッションを開始
+    start_help: 'モードと範囲を選択してから、スキャンを開始します。セッションが active のうちは /verify/{id} で再開できます。'
+    mode: モード
+    area: エリアコード
+    area_help: 特定の棚エリアに限定する場合に指定します。空欄の場合は倉庫全体が対象になります。
+    begin: セッション開始
+    recent: 最近のセッション
+    recent_caption: 直近の照合セッション
+    no_recent: まだ照合セッションが記録されていません。
+    mode.stocktake: 棚卸（全数）
+    mode.spot: 個別照合
+    mcp_title: モバイル / MCP
+    mcp_body: 'モバイル端末は MCP ツール start_verification_session / record_verification_scan / complete_verification_session / get_verification_summary でフロー全体を操作できます。'
+    col:
+      mode: モード
+      started: 開始
+      status: 状態
   feature_flags:
     title: 機能フラグ
     refresh: 更新

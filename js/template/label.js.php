@@ -5,8 +5,13 @@ export default class Label {
     {
         document.getElementById('labelSizeDeleteDisplay')?.addEventListener(
             'click',
-            () => {
-                document.getElementById('labelSizeDeleteButton')?.classList.toggle('d-none');
+            e=>{
+                let button = document.getElementById('labelSizeDeleteButton');
+                if(button.getAttribute('class') === 'hidden') {
+                    button.setAttribute('class', '');
+                } else {
+                    button.setAttribute('class', 'hidden');
+                }
             }
         );
         document.getElementById('labelSizeDelete')?.addEventListener(
@@ -54,7 +59,7 @@ export default class Label {
             'change',
             e=>{
                 if(document.querySelector('input[name="labelName"]:checked').value === '(new)') {
-                    document.getElementById('newLabelSizeForm').classList.remove('d-none');
+                    document.getElementById('newLabelSizeForm').setAttribute('class', '');
                     sizeElements.forEach(name=>{
                         document.querySelector('input[name="'+name+'"]')?.dispatchEvent(new Event('input'));
                         document.querySelector('input[name="'+name+'"]')?.addEventListener(
@@ -67,7 +72,7 @@ export default class Label {
                         );
                     });
                 } else {
-                    document.getElementById('newLabelSizeForm').classList.add('d-none');
+                    document.getElementById('newLabelSizeForm').setAttribute('class', 'hidden');
                     displaySizeToSvg();
                 }
             }

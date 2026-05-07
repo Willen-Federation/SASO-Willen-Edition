@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Saso\Tests\Integration\Ai;
 
+use DateTimeImmutable;
 use PHPUnit\Framework\TestCase;
 use Saso\Application\Enrichment\Step\AiVisionStep;
 use Saso\Domain\Feature\FeatureFlag;
@@ -144,8 +145,8 @@ final class AiPipelineIntegrationTest extends TestCase
                     errorWindowMinutes: 1,
                     autoDisabledAt: null,
                     autoDisableReason: null,
-                    createdAt: new \DateTimeImmutable(),
-                    updatedAt: new \DateTimeImmutable(),
+                    createdAt: new DateTimeImmutable(),
+                    updatedAt: new DateTimeImmutable(),
                 );
             }
 

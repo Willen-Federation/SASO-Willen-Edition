@@ -30,10 +30,6 @@ final class DraftRetryDIContainer implements DIContainer
 
     public function flow(): View
     {
-        if (empty($this->post)) {
-            return new \saso\common\FailView();
-        }
-
         $pdo = DBConnection::pdo();
 
         $draftId = (int) ($this->query['id'] ?? $this->post['id'] ?? 0);
@@ -60,13 +56,8 @@ final class DraftRetryDIContainer implements DIContainer
 
         // Re-dispatch
         try {
-            $appKeyRaw   = (string) (getenv('APP_KEY') ?: '');
-            $appKeyBytes = $appKeyRaw !== '' ? base64_decode($appKeyRaw, true) : false;
-            if ($appKeyBytes === false || strlen($appKeyBytes) !== 32) {
-                throw new \RuntimeException('APP_KEY not configured or invalid; cannot dispatch draft processing.');
-            }
             $draftRepository = new PdoItemDraftRepository($pdo);
-            $settingService = new PdoSystemSettingService($pdo, new SecretEncryptor($appKeyBytes));
+            $settingService = new PdoSystemSettingService($pdo, new SecretEncryptor());
             $flagRepository = new PdoFeatureFlagRepository($pdo);
             $handler = ProcessItemDraftDIContainer::createHandler($draftRepository, $settingService, $flagRepository);
 

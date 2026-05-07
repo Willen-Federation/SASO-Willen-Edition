@@ -9,7 +9,7 @@ final class SvgDIContainer implements DIContainer
     private View $view;
     public function isTopLevel(): bool
     {
-        return true;
+        return false;
     }
     public function di(\Closure $inside, array $query, array $post, array $config, \DateTime $now): void
     {

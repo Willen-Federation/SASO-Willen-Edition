@@ -14,10 +14,10 @@ $lang = $_SESSION['lang'] ?? ($_COOKIE['saso_locale'] ?? 'ja');
   <div class="card-header">
     <h3 class="card-title"><?php echo ui_text($lang === 'ja' ? 'ユーザー情報' : 'User Details'); ?></h3>
   </div>
-  <div class="card-body">
-    <form action="./member/add/" method="post">
+  <form action="./member/add/" method="POST">
+    <div class="p-6.5">
       <?php if (!empty($v->error)): ?>
-        <div class="alert alert-danger mb-3" role="alert"><?php echo htmlspecialchars($v->error); ?></div>
+        <div class="mb-5 text-error-500 font-medium"><?php echo htmlspecialchars($v->error); ?></div>
       <?php endif; ?>
 
       <div class="mb-3">

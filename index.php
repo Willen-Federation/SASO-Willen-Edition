@@ -7,36 +7,7 @@ use saso\framework\UserCompiler;
 mb_internal_encoding('UTF-8');
 const ENV = null;
 require_once 'ConfigLoader.php';
-require_once 'util/EnvLoader.php';
-require_once 'util/EnvWriter.php';
 $config = ConfigLoader::load();
-
-// --- First-run secret bootstrap ---------------------------------------------
-// While the installer marker file is present (i.e. setup hasn't completed),
-// auto-generate a secure APP_KEY into `.env` if it's missing or blank. This
-// matches what `make up` / docker/entrypoint.sh do for the Docker stack, and
-// gives the standard PHP install path the same zero-touch experience: the
-// user uploads the project, hits /installer/start, and gets a working
-// SecretEncryptor without ever editing `.env` by hand.
-//
-// Only runs when `.env` is writable AND `installer/installer.json` exists,
-// so production deployments (where setup is already complete) never see
-// runtime mutations to their environment file.
-if (file_exists(__DIR__.'/installer/installer.json')) {
-    $envPath = __DIR__.'/.env';
-    if (!is_file($envPath) && is_file(__DIR__.'/.env.example') && is_writable(__DIR__)) {
-        @copy(__DIR__.'/.env.example', $envPath);
-    }
-    if (is_file($envPath) && is_writable($envPath)) {
-        $bag = util\EnvLoader::loadFile($envPath);
-        if (empty($bag['APP_KEY']) && empty(getenv('APP_KEY'))) {
-            $generated = base64_encode(random_bytes(32));
-            if (util\EnvWriter::set($envPath, 'APP_KEY', $generated)) {
-                putenv('APP_KEY='.$generated);
-            }
-        }
-    }
-}
 
 // --- M1 security hotfix: HTTPS enforcement -----------------------------------
 // When config.https is true, redirect plain-HTTP requests to https:// and emit
@@ -66,36 +37,12 @@ if (is_file(__DIR__.'/vendor/autoload.php')) {
 require_once 'ClassLoader.php';
 spl_autoload_register(ClassLoader::load($config));
 
-// --- Helper safety net -------------------------------------------------------
-// `ui()` and `__()` are normally registered via Composer's `files` autoload
-// (composer.json: "files": ["framework/ui/helpers.php",
-// "src/Infrastructure/Translation/functions.php"]). When `vendor/` is missing
-// — typical on hosts that haven't run `composer install --no-dev` yet — that
-// autoload never fires and any template calling `ui('card', …)` or
-// `__('foo', [], null, 'Fallback')` would emit a fatal "undefined function"
-// error and the page renders blank. We require the helper file directly
-// (idempotent, has its own `function_exists` guard) and provide a stub `__()`
-// that just returns the fallback. The translator-backed `__()` from
-// functions.php — when present — is loaded BEFORE this block by the autoload
-// above, so this branch only fires when the real helper truly isn't there.
-require_once __DIR__ . '/framework/ui/helpers.php';
-if (!function_exists('__')) {
-    function __(string $key, array $params = [], ?string $locale = null, ?string $fallback = null): string {
-        return $fallback ?? $key;
-    }
-}
-
 // --- M3 REST API surface ----------------------------------------------------
 // Requests under /api/v1/* are handled by the schema-first router declared
 // in config/openapi.yaml (cf. ADR 0002). Legacy screens, the installer, and
 // every existing PHP page continue to fall through to the request.json
 // router below.
-$rawUri      = (string) ($_SERVER['REQUEST_URI'] ?? '/');
-// Normalize consecutive slashes (e.g. //auth/providers/ → /auth/providers/).
-// parse_url('//foo/bar', PHP_URL_PATH) treats 'foo' as hostname and returns
-// '/bar', causing mis-routing. Collapse them before parsing.
-$rawUri      = preg_replace('#/{2,}#', '/', $rawUri) ?? $rawUri;
-$requestPath = (string) (parse_url($rawUri, PHP_URL_PATH) ?? '/');
+$requestPath = (string) (parse_url((string) ($_SERVER['REQUEST_URI'] ?? '/'), PHP_URL_PATH) ?? '/');
 
 // Automatic fallback redirect for users accessing the old /saso/ path
 if (str_starts_with($requestPath, '/saso/')) {
@@ -128,73 +75,6 @@ if ($requestPath === '/mcp') {
         exit;
     }
     \Saso\Presentation\Mcp\Bootstrap::dispatch();
-    exit;
-}
-
-// --- Server-side git fetch webhook ------------------------------------------
-// POST /webhock or /webhook
-// Executes one fixed command path (`pull.sh` -> `git fetch origin`) only after
-// validating WEBHOOK_SECRET from X-Webhook-Token. Do not accept command names,
-// branch names, or other request-controlled shell input here.
-if ($requestPath === '/webhock' || $requestPath === '/webhook') {
-    header('Content-Type: application/json; charset=utf-8');
-    header('Cache-Control: no-store');
-
-    if (($_SERVER['REQUEST_METHOD'] ?? 'GET') !== 'POST') {
-        http_response_code(405);
-        header('Allow: POST');
-        echo json_encode(['ok' => false, 'error' => 'Method not allowed; use POST']);
-        exit;
-    }
-
-    $expectedToken = (string) (
-        getenv('WEBHOOK_SECRET')
-        ?: getenv('WEBHOCK_TOKEN')
-        ?: 'e94536e31eae15e3beb91a6723390df920533127f8f8d0c0c00a91207d9a461e'
-    );
-    $providedToken = (string) ($_SERVER['HTTP_X_WEBHOOK_TOKEN'] ?? '');
-
-    if (strlen($expectedToken) < 32) {
-        http_response_code(503);
-        echo json_encode(['ok' => false, 'error' => 'Webhook secret is not configured']);
-        exit;
-    }
-
-    if ($providedToken === '' || !hash_equals($expectedToken, $providedToken)) {
-        http_response_code(403);
-        echo json_encode(['ok' => false, 'error' => 'Forbidden']);
-        exit;
-    }
-
-    $lock = fopen(sys_get_temp_dir() . '/saso-git-fetch-webhook.lock', 'c');
-    if ($lock === false || !flock($lock, LOCK_EX | LOCK_NB)) {
-        http_response_code(409);
-        echo json_encode(['ok' => false, 'error' => 'Fetch already in progress']);
-        exit;
-    }
-
-    $script = __DIR__ . '/pull.sh';
-    if (!is_file($script) || !is_readable($script)) {
-        http_response_code(500);
-        echo json_encode(['ok' => false, 'error' => 'Webhook script is unavailable']);
-        exit;
-    }
-
-    $output = [];
-    $exitCode = 0;
-    exec('/bin/bash ' . escapeshellarg($script) . ' 2>&1', $output, $exitCode);
-
-    $opcacheReset = false;
-    if (function_exists('opcache_reset')) {
-        $opcacheReset = (bool) @opcache_reset();
-    }
-
-    http_response_code($exitCode === 0 ? 200 : 500);
-    echo json_encode([
-        'ok' => $exitCode === 0,
-        'exitCode' => $exitCode,
-        'opcacheReset' => $opcacheReset,
-    ]);
     exit;
 }
 
@@ -353,9 +233,9 @@ if (preg_match('#^/auth/(?:start/(\d+)|callback|saml/acs|saml/sls)/?$#', $reques
         $providerId = new \Saso\Domain\Auth\AuthProviderId($providerIdInt);
 
         if ($authAction === 'start') {
-            $returnTo = (string) ($_GET['return'] ?? '/');
-            if ($returnTo !== '/' && preg_match('#^/[^/\\\\]#', $returnTo) !== 1) {
-                $returnTo = '/';
+            $returnTo = (string) ($_GET['return'] ?? './');
+            if (preg_match('#^/[^/\\\\]#', $returnTo) !== 1) {
+                $returnTo = './';
             }
             $redirect = $orch->beginLogin($providerId, $returnTo);
             header('Location: '.$redirect->url, true, $redirect->status);

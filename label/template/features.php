@@ -1,10 +1,12 @@
 <?php $this->title = '商品ラベル印刷'; ?>
 <?php $this->content = function($v) { ?>
 
-<ol class="breadcrumb mb-3" aria-label="breadcrumbs">
-  <li class="breadcrumb-item"><a href="./">ホーム</a></li>
-  <li class="breadcrumb-item active" aria-current="page">商品ラベル印刷</li>
+<nav aria-label="breadcrumb">
+<ol class="breadcrumb">
+<li class="breadcrumb-item"><a href="./">ホーム</a></li>
+<li class="breadcrumb-item active">商品ラベル印刷</li>
 </ol>
+</nav>
 
 <div class="card mb-3">
   <div class="card-header">

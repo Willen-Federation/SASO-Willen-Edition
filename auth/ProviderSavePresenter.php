@@ -28,7 +28,7 @@ final class ProviderSavePresenter implements Presenter
         }
 
         $successView = new RegisterSuccessView();
-        $successView->to(fn () => './auth/providers/?saved=1');
+        $successView->to(fn () => './');
         return $successView;
     }
 }

@@ -14,7 +14,7 @@ final class RootPresenter implements Presenter
     }
     public function complete(Either $output): View
     {
-        return $output->flatMap(
+        $output->flatMap(
             $this->success->baseUrl(fn($v)=>$v->url)
         )->flatMap(
             $this->success->version(fn($v)=>$v->version)
@@ -25,7 +25,11 @@ final class RootPresenter implements Presenter
         )->flatMap(
             $this->success->action(fn($v)=>$v->action)
         )->flatMap(
-            fn($v)=>$this->success
-        )->getOrElse($this->success);
+            $this->success->currentLocale(fn($v)=>$v->currentLocale)
+        )->flatMap(
+            $this->success->supportedLocales(fn($v)=>$v->supportedLocales)
+        );
+
+        return $this->success;
     }
 }

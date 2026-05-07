@@ -4,9 +4,9 @@
 <h2>インストール成功</h2>
 <p>おめでとうございます！<br>インストールに成功しました。</p>
 
-<div class="alert alert-warning" role="note">
+<p style="color: orange; background-color: #ffe0e0; padding: 10px; border-left: 4px solid orange;">
   ご利用の前に、まず、「installer」フォルダを削除して下さい。
-</div>
+</p>
 
 <p>それではお楽しみ下さい。</p>
 

@@ -5,10 +5,12 @@ $this->title = $lang === 'ja' ? 'パスワード変更' : 'Change Password';
 <?php $this->content = function ($v) { ?>
 <?php $lang = $_SESSION['lang'] ?? ($_COOKIE['saso_locale'] ?? 'ja'); ?>
 
-<ol class="breadcrumb mb-3" aria-label="breadcrumbs">
-  <li class="breadcrumb-item"><a href="/">ホーム</a></li>
-  <li class="breadcrumb-item active" aria-current="page">パスワード変更</li>
+<nav aria-label="breadcrumb">
+<ol class="breadcrumb">
+<li class="breadcrumb-item"><a href="/">ホーム</a></li>
+<li class="breadcrumb-item active">パスワード変更</li>
 </ol>
+</nav>
 
 <div class="row justify-content-center">
   <div class="col-md-8 col-lg-6">

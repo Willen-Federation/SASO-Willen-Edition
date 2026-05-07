@@ -26,7 +26,7 @@ final class DeleteAllDIContainer implements DIContainer
             new DbTransaction(),
             new common\RedirectOrErrorPresenter(
                 new common\RegisterSuccessView(),
-                new common\RegisterFailView('label/features')
+                new common\RegisterFailView('')
 ,            )
         );
     }

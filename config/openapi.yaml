@@ -390,36 +390,6 @@ paths:
         '500':
           $ref: '#/components/responses/ProblemInternalError'
 
-  /barcode/{code}:
-    parameters:
-      - name: code
-        in: path
-        required: true
-        description: The barcode code string (e.g. `000000001`).
-        schema:
-          type: string
-
-    get:
-      tags: [barcode]
-      summary: Look up a barcode.
-      description: |
-        Returns the barcode record and, if the barcode is linked to an item,
-        a brief item summary (`id` + `name`). Used by the scan-to-stock and
-        from-barcode registration screens.
-      operationId: getBarcode
-      x-handler: 'Saso\Presentation\Api\V1\Controller\Barcode\BarcodeGetController::handle'
-      responses:
-        '200':
-          description: Barcode found.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/BarcodeResource'
-        '404':
-          $ref: '#/components/responses/ProblemNotFound'
-        '500':
-          $ref: '#/components/responses/ProblemInternalError'
-
   /mobile/tokens/{id}:
     parameters:
       - name: id
@@ -466,45 +436,6 @@ components:
           format: date-time
           description: Server time at response generation, UTC, RFC 3339.
           example: '2026-04-26T12:34:56Z'
-
-    # -------------------------------------------------------------------------
-    # Barcode
-    # -------------------------------------------------------------------------
-
-    BarcodeResource:
-      type: object
-      required: [code, status]
-      properties:
-        code:
-          type: string
-          description: The barcode string.
-          example: '000000001'
-        status:
-          type: string
-          description: Barcode lifecycle status (pending, linked, voided).
-          example: linked
-        item:
-          nullable: true
-          description: Brief item summary when the barcode is linked; null otherwise.
-          type: object
-          required: [id, name]
-          properties:
-            id:
-              type: integer
-              description: Item ID.
-            name:
-              type: string
-              description: Item name.
-            colorCode:
-              type: string
-              nullable: true
-              description: First available color code (2-digit zero-padded); null if none.
-              example: '01'
-            sizeCode:
-              type: string
-              nullable: true
-              description: First available size code (2-digit zero-padded); null if none.
-              example: '01'
 
     # -------------------------------------------------------------------------
     # Feature Flags

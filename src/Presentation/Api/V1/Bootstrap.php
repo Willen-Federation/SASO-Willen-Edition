@@ -138,20 +138,6 @@ final class Bootstrap
         return dirname(__DIR__, 4).'/config/openapi.yaml';
     }
 
-    private static function requireSessionAuth(): void
-    {
-        if (session_status() === PHP_SESSION_NONE) {
-            session_start();
-        }
-        $authed = isset($_SESSION['id'], $_SESSION['time']) && $_SESSION['time'] + 3600 > time();
-        if (!$authed) {
-            http_response_code(401);
-            header('Content-Type: application/problem+json; charset=utf-8');
-            echo json_encode(['status' => 401, 'title' => 'Unauthorized', 'detail' => 'Admin session required.']);
-            exit;
-        }
-    }
-
     private static function createPdo(): PDO
     {
         if (class_exists(\saso\repository\DBConnection::class)) {
@@ -196,5 +182,19 @@ final class Bootstrap
         $dsn    = (string) ($config['database']['dsn'] ?? 'saso-fallback');
 
         return hash('sha256', 'saso-jwt-'.$dsn, binary: true);
+    }
+
+    private static function requireSessionAuth(): void
+    {
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+        $authed = isset($_SESSION['id'], $_SESSION['time']) && $_SESSION['time'] + 3600 > time();
+        if (!$authed) {
+            http_response_code(401);
+            header('Content-Type: application/problem+json; charset=utf-8');
+            echo json_encode(['status' => 401, 'title' => 'Unauthorized', 'detail' => 'Admin session required.']);
+            exit;
+        }
     }
 }

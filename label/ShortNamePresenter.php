@@ -15,10 +15,10 @@ final class ShortNamePresenter implements Presenter
     }
     public function complete(Either $output): View
     {
-        return $output->flatMap(
-            $this->success->shortName(fn($v)=>$v)
-        )->flatMap(
-            fn($v)=>$this->success
-        )->getOrElse($this->failure);
+        $result = $output->flatMap(
+            $this->success->shortName(fn($v) => $v)
+        );
+
+        return $result->isRight() ? $this->success : $this->failure;
     }
 }

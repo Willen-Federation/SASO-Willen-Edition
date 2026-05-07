@@ -11,29 +11,12 @@
         "start": "\\saso\\auth\\AuthDIContainer",
         "logout": "\\saso\\auth\\LogoutDIContainer",
         "password": "\\saso\\auth\\PasswordDIContainer",
-        "providerNew": "\\saso\\auth\\ProviderNewDIContainer",
-        "providers": "\\saso\\authExt\\ProvidersDIContainer",
-        "provider": "\\saso\\authExt\\ProviderDIContainer"
+        "providerNew": "\\saso\\auth\\ProviderNewDIContainer"
     },
     "image": {
         "start": "\\saso\\image\\StartDIContainer",
         "add": "\\saso\\image\\AddDIContainer",
         "display": "\\saso\\image\\DisplayDIContainer"
-    },
-    "member": {
-        "start": "\\saso\\member\\StartDIContainer",
-        "add": "\\saso\\member\\AddDIContainer",
-        "edit": "\\saso\\member\\EditDIContainer",
-        "delete": "\\saso\\member\\DeleteDIContainer"
-    },
-    "role": {
-        "start": "\\saso\\role\\StartDIContainer",
-        "add":   "\\saso\\role\\AddDIContainer",
-        "edit":  "\\saso\\role\\EditDIContainer",
-        "delete":"\\saso\\role\\DeleteDIContainer"
-    },
-    "search": {
-        "start": "\\saso\\search\\StartDIContainer"
     },
     "js": {
         "main": "\\saso\\js\\JSDIContainer",
@@ -65,30 +48,18 @@
     "category": {
         "edit": "\\saso\\category\\EditDIContainer",
         "list": "\\saso\\category\\ListDIContainer",
-        "start": "\\saso\\category\\EditDIContainer",
         "add": "\\saso\\category\\AddDIContainer",
         "replace": "\\saso\\category\\ReplaceDIContainer",
         "delete": "\\saso\\category\\DeleteDIContainer",
         "path": "\\saso\\category\\PathDIContainer"
     },
     "item": {
-        "fromBarcode": "\\saso\\item\\FromBarcodeDIContainer",
-        "registerFromBarcode": "\\saso\\item\\RegisterFromBarcodeDIContainer",
-        "registerFromImage": "\\saso\\item\\AddFromImageDIContainer",
-        "draftList": "\\saso\\item\\DraftListDIContainer",
-        "drafts": "\\saso\\item\\DraftListDIContainer",
-        "draftConfirm": "\\saso\\item\\DraftConfirmDIContainer",
-        "draftSave": "\\saso\\item\\DraftConfirmSaveDIContainer",
-        "draftDiscard": "\\saso\\item\\DraftDiscardDIContainer",
-        "draftRetry": "\\saso\\item\\DraftRetryDIContainer",
         "archiveList": "\\saso\\item\\ArchiveListDIContainer",
         "archiveAllFrame": "\\saso\\item\\ArchiveAllFrameDIContainer",
         "archiveAll": "\\saso\\item\\ArchiveAllDIContainer",
-        "archivingAll": "\\saso\\item\\ArchiveAllFrameDIContainer",
         "archivedAll": "\\saso\\item\\ArchivedAllDIContainer",
-        "listPage": "\\saso\\item\\ListPageDIContainer",
         "listFrame": "\\saso\\item\\ListFrameDIContainer",
-        "listContents": "\\saso\\item\\ListContentsDIContainer",
+        "listContents": "saso\\item\\ListContentsDIContainer",
         "head": "\\saso\\item\\HeadDIContainer",
         "row": "\\saso\\item\\RowDIContainer",
         "pagination": "\\saso\\item\\PaginationDIContainer",
@@ -99,7 +70,6 @@
         "changeCategory": "\\saso\\item\\ChangeCategoryDIContainer",
         "changeSizeOrder": "\\saso\\item\\ChangeSizeOrderDIContainer",
         "addFeature": "\\saso\\item\\AddFeatureDIContainer",
-        "add": "\\saso\\item\\RegisterDIContainer",
         "archive": "\\saso\\item\\ArchiveDIContainer",
         "reproduction": "\\saso\\item\\ReproductionDIContainer"
     },
@@ -113,11 +83,7 @@
         "labelAmountFeatures": "\\saso\\feature\\LabelAmountFeaturesDIContainer"
     },
     "shelf": {
-        "simple": "\\saso\\shelf\\SimpleDIContainer",
         "menu": "\\saso\\shelf\\MenuDIContainer",
-        "start": "\\saso\\shelf\\MenuDIContainer",
-        "map": "\\saso\\shelf\\MapDIContainer",
-        "simpleSave": "\\saso\\shelf\\SimpleSaveDIContainer",
         "multi": "\\saso\\shelf\\MultiDIContainer",
         "single": "\\saso\\shelf\\SingleDIContainer",
         "shelves": "\\saso\\shelf\\ShelvesDIContainer",
@@ -126,7 +92,6 @@
     "label": {
         "edit": "\\saso\\label\\EditDIContainer",
         "list": "\\saso\\label\\ListDIContainer",
-        "start": "\\saso\\label\\ListDIContainer",
         "svg": "\\saso\\label\\SvgDIContainer",
         "size": "\\saso\\label\\SizeDIContainer",
         "register": "\\saso\\label\\RegisterDIContainer",
@@ -134,36 +99,9 @@
         "features": "\\saso\\label\\FeaturesDIContainer",
         "deleteAll": "\\saso\\label\\DeleteAllDIContainer",
         "shortName": "\\saso\\label\\ShortNameDIContainer",
-        "pdf": "\\saso\\label\\PdfDIContainer",
-        "wizard": "\\saso\\label\\WizardDIContainer",
-        "mint": "\\saso\\label\\MintDIContainer",
-        "pending": "\\saso\\label\\PendingDIContainer"
+        "pdf": "\\saso\\label\\PdfDIContainer"
     },
     "barcode": {
-        "start": "\\saso\\barcode\\StartDIContainer",
-        "sheet": "\\saso\\barcode\\SheetDIContainer",
-        "printSheet": "\\saso\\barcode\\PrintSheetDIContainer"
-    },
-    "archive": {
-        "list": "\\saso\\item\\ArchiveListDIContainer"
-    },
-    "verify": {
-        "start":  "\\saso\\verify\\StartDIContainer",
-        "create": "\\saso\\verify\\CreateDIContainer"
-    },
-    "featureAdmin": {
-        "list": "\\saso\\featureAdmin\\ListDIContainer"
-    },
-    "scanStock": {
-        "start": "\\saso\\scanStock\\StartDIContainer"
-    },
-    "settingAdmin": {
-        "start": "\\saso\\settingAdmin\\StartDIContainer",
-        "shelf": "\\saso\\settingAdmin\\ShelfSettingsDIContainer"
-    },
-    "admin": {
-        "feature-flags": "\\saso\\admin\\FeatureFlagsDIContainer",
-        "aiSettings": "\\saso\\admin\\AiSettingsDIContainer",
-        "auth-providers": "\\saso\\authExt\\ProvidersDIContainer"
+        "start": "\\saso\\barcode\\StartDIContainer"
     }
 }

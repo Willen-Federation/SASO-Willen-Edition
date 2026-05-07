@@ -16,7 +16,7 @@ final class JSView implements View
     }
     public function display(): void
     {
-        header('Content-Type: application/javascript; charset=UTF-8');
+        header('Content-Type: text/javascript');
         require_once 'js/template/'.$this->action.'.js.php';
     }
     public function onRoot(): bool
@@ -32,3 +32,4 @@ final class JSView implements View
         return $this->content;
     }
 }
+

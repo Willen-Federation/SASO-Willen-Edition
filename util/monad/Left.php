@@ -27,6 +27,14 @@ class Left extends Either
     {
         return $this;
     }
+    public function isRight(): bool
+    {
+        return false;
+    }
+    public function isLeft(): bool
+    {
+        return true;
+    }
     public function join()
     {
         return $this;

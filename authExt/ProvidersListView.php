@@ -20,9 +20,6 @@ final class ProvidersListView implements View
     public array $providers = [];
     public bool $authorized = false;
     public string $title = '';
-    public bool $saved = false;
-    public bool $deleted = false;
-    public bool $forbidden = false;
 
     public function __construct()
     {
@@ -30,10 +27,6 @@ final class ProvidersListView implements View
         $this->authorized = (new AdminGuard(DBConnection::getPdo()))->isAdmin(
             isset($_SESSION['id']) && is_string($_SESSION['id']) ? $_SESSION['id'] : null,
         );
-
-        $this->saved      = isset($_GET['saved']);
-        $this->deleted    = isset($_GET['deleted']);
-        $this->forbidden  = isset($_GET['forbidden']);
     }
 
     public function display(): void

@@ -33,26 +33,22 @@ A leaked `.env` cannot silently change application paths or feature toggles — 
 | `https` | Boolean toggle for in-app HTTPS redirect + HSTS. Overridden by `APP_HTTPS`. |
 | `sheetAmount` | Maximum label sheets per print job (1–9999). |
 | `logPath` | Directory for application logs (default `/tmp/log/`). |
+| `csrftokensalt` | **Deprecated** since M1-B; ignored at runtime. Will be removed in M4. |
 
 ## Examples
 
 ### Local development (Docker compose)
 
-`make up` auto-generates `.env` on first run with secure random secrets.
-The result looks like:
+`.env`:
 
 ```env
 DB_DSN=mysql:host=db;dbname=saso_db;charset=utf8mb4
 DB_USER=saso_user
-DB_PASSWORD=<openssl rand -hex 16>
+DB_PASSWORD=saso_dev_password
 APP_HTTPS=false
-APP_KEY=<openssl rand -base64 32>
-MARIADB_ROOT_PASSWORD=<openssl rand -hex 16>
 ```
 
-`docker-compose.yml` reads each value from `.env` via `${VAR:?...}` and
-fails Compose with a clear message if the file is missing — there are no
-hardcoded fallbacks.
+(`docker-compose.yml` already exports these values; overriding via `.env` is optional unless you change defaults.)
 
 ### Production behind a reverse proxy
 

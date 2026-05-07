@@ -57,76 +57,39 @@ final class StartView implements View
 
     private function handlePost(PdoSystemSettingService $settingService, string $memberId): void
     {
-        // Field type: 'int', 'string', or 'secret'. Secrets are encrypted at
-        // rest by SettingValue::secret(). For the password we additionally
-        // skip the update when the input was left blank so that the operator
-        // can re-save other fields without re-typing the password every
-        // time.
         $fields = [
-            'default_locale'         => 'string',
-            'mail.smtp_host'         => 'string',
-            'mail.smtp_port'         => 'int',
-            'mail.smtp_username'     => 'string',
-            'mail.smtp_password'     => 'secret',
-            'mail.smtp_encryption'   => 'string',
-            'mail.smtp_auth'         => 'string',
-            'mail.smtp_from_address' => 'string',
-            'mail.smtp_from_name'    => 'string',
-            'outputRow'              => 'int',
-            'sheetAmount'            => 'int',
-            'auth.mode'              => 'string',
+            'default_locale' => 'string',
+            'mail.smtp_host' => 'string',
+            'mail.smtp_port' => 'int',
+            'outputRow'      => 'int',
+            'sheetAmount'    => 'int',
+            'auth.mode'      => 'string',
         ];
 
         foreach ($fields as $keyStr => $type) {
-            if (!isset($this->post[$keyStr])) {
-                continue;
+            if (isset($this->post[$keyStr])) {
+                $val = $this->post[$keyStr];
+                $settingValue = $type === 'int'
+                    ? SettingValue::int((int) $val)
+                    : SettingValue::string((string) $val);
+                $settingService->set(new SettingKey($keyStr), $settingValue, $memberId, 'Updated via Web UI');
             }
-            $val = (string) $this->post[$keyStr];
-            // Don't overwrite an existing password when the field was left
-            // blank — that's the standard "leave blank to keep current" UX.
-            if ($type === 'secret' && $val === '') {
-                continue;
-            }
-            $settingValue = match ($type) {
-                'int'    => SettingValue::int((int) $val),
-                'secret' => SettingValue::secret($val),
-                default  => SettingValue::string($val),
-            };
-            $settingService->set(new SettingKey($keyStr), $settingValue, $memberId, 'Updated via Web UI');
         }
     }
 
     private function loadSettings(PdoSystemSettingService $settingService): void
     {
-        // [type, default]. The 'secret' type is loaded for round-trip but its
-        // plaintext is replaced with a masked indicator before being exposed
-        // to the template — see below.
         $defaults = [
-            'default_locale'         => ['string', 'en'],
-            'mail.smtp_host'         => ['string', ''],
-            'mail.smtp_port'         => ['int',    25],
-            'mail.smtp_username'     => ['string', ''],
-            'mail.smtp_password'     => ['secret', ''],
-            'mail.smtp_encryption'   => ['string', 'none'],
-            'mail.smtp_auth'         => ['string', 'none'],
-            'mail.smtp_from_address' => ['string', ''],
-            'mail.smtp_from_name'    => ['string', ''],
-            'outputRow'              => ['int',    2],
-            'sheetAmount'            => ['int',    10],
-            'auth.mode'              => ['string', 'local'],
+            'default_locale' => ['string', 'en'],
+            'mail.smtp_host' => ['string', ''],
+            'mail.smtp_port' => ['int',    25],
+            'outputRow'      => ['int',    2],
+            'sheetAmount'    => ['int',    10],
+            'auth.mode'      => ['string', 'local'],
         ];
 
         foreach ($defaults as $keyStr => [$type, $default]) {
             $val = $settingService->get(new SettingKey($keyStr));
-            if ($type === 'secret') {
-                // Never echo the plaintext back to the form. The template
-                // shows a "(unchanged — leave blank to keep)" placeholder
-                // when this flag is true; submitting a non-empty value
-                // overwrites it.
-                $this->settings[$keyStr]            = '';
-                $this->settings[$keyStr.'.is_set']  = $val !== null && $val->asString() !== '';
-                continue;
-            }
             $this->settings[$keyStr] = $val !== null
                 ? ($type === 'int' ? $val->asInt() : $val->asString())
                 : $default;

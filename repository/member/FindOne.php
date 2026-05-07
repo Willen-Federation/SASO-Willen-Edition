@@ -3,6 +3,7 @@
 namespace saso\repository\member;
 
 use saso\entity;
+use saso\repository\DBConnection;
 use saso\repository\DbPrepare;
 use saso\util\Each;
 
@@ -11,8 +12,22 @@ use saso\util\Each;
  */
 final class FindOne implements DbPrepare
 {
+    private static ?bool $hasProfileColumns = null;
+
     public function getQuery(): string
     {
+        if (self::profileColumnsExist()) {
+            return '
+                SELECT id, password, userName, role,
+                       avatar_url,
+                       display_name,
+                       bio,
+                       updated_at
+                    FROM Member
+                    WHERE id = :id
+            ';
+        }
+
         return '
             SELECT id, password, userName, role,
                    avatar_url,
@@ -24,6 +39,23 @@ final class FindOne implements DbPrepare
         ';
     }
 
+    private static function profileColumnsExist(): bool
+    {
+        if (self::$hasProfileColumns !== null) {
+            return self::$hasProfileColumns;
+        }
+
+        try {
+            $stmt = DBConnection::pdo()->query("SHOW COLUMNS FROM Member LIKE 'display_name'");
+            self::$hasProfileColumns = $stmt !== false && $stmt->fetch(\PDO::FETCH_ASSOC) !== false;
+        } catch (\Throwable) {
+            self::$hasProfileColumns = false;
+        }
+
+        return self::$hasProfileColumns;
+    }
+
+    /** @param array<string, mixed> $input */
     public function bind(\PDOStatement $stmt, array $input): void
     {
         $stmt->bindValue(':id', $input['id']);

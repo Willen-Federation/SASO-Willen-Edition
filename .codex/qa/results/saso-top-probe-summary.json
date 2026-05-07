@@ -1,0 +1,77 @@
+{
+  "totalRuns": 100,
+  "successfulLoads": 100,
+  "loginAttempts": 100,
+  "topTitle": "在庫管理システム「SASO2.4.0」 - ログイン",
+  "links": [
+    {
+      "text": "在庫管理 SASO2.4.0",
+      "href": "https://saso.sksl.jp/",
+      "target": ""
+    },
+    {
+      "text": "Local Login でログイン",
+      "href": "https://saso.sksl.jp/auth/start/1",
+      "target": ""
+    },
+    {
+      "text": "Auth0 でログイン",
+      "href": "https://saso.sksl.jp/auth/start/7",
+      "target": ""
+    },
+    {
+      "text": "Auth0 でログイン",
+      "href": "https://saso.sksl.jp/auth/start/8",
+      "target": ""
+    }
+  ],
+  "forms": [
+    {
+      "method": "post",
+      "action": "https://saso.sksl.jp/start/start/",
+      "inputs": [
+        {
+          "tag": "input",
+          "type": "text",
+          "name": "id",
+          "id": "login-id",
+          "placeholder": "",
+          "required": true
+        },
+        {
+          "tag": "input",
+          "type": "password",
+          "name": "password",
+          "id": "login-password",
+          "placeholder": "",
+          "required": true
+        }
+      ]
+    }
+  ],
+  "issueCandidates": [
+    {
+      "key": "duplicate-auth0-login-buttons",
+      "title": "[bug]: Login page renders duplicate indistinguishable Auth0 buttons",
+      "summary": "トップ画面の外部ログイン欄に、同じ文言の「Auth0 でログイン」ボタンが複数表示されます。",
+      "actual": "Auth0 でログイン -> https://saso.sksl.jp/auth/start/7\nAuth0 でログイン -> https://saso.sksl.jp/auth/start/8",
+      "expected": "ユーザーが選択先を判断できるよう、プロバイダ名や説明が一意に表示されること。"
+    },
+    {
+      "key": "top-search-not-available-without-auth",
+      "title": "[bug]: Top page has no searchable UI for unauthenticated functional testing",
+      "summary": "依頼された「トップ画面からアクセスや検索できる情報」のうち、検索入力欄は未認証トップ画面には表示されませんでした。",
+      "actual": "トップ画面はログイン画面で、検索候補のinput/textareaは0件でした。認証情報なしでは検索機能の動作確認に進めません。",
+      "expected": "未認証で検索を提供しない設計であれば仕様として明記されること。検索試験が必要な場合はテスト用アカウントでログイン後の導線を確認できること。"
+    },
+    {
+      "key": "local-login-provider-redirects-to-auth-start",
+      "title": "[bug]: Local Login provider button redirects back to generic auth start",
+      "summary": "トップ画面の「Local Login でログイン」ボタンは、専用ログイン処理ではなく `/auth/start` へ302リダイレクトします。",
+      "actual": "https://saso.sksl.jp/auth/start/1 -> 302 /auth/start",
+      "expected": "ローカルログインボタンを表示する場合は、クリック後に利用者が明確にログインを継続できる画面または処理へ遷移すること。既存フォームと重複するだけなら非表示にすること。"
+    }
+  ],
+  "requestFailureCount": 0,
+  "consoleErrorCount": 0
+}

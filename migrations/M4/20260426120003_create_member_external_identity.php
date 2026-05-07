@@ -37,7 +37,7 @@ final class CreateMemberExternalIdentity extends AbstractMigration
                 'limit'  => 20,
                 'null'   => false,
             ])
-            ->addColumn('auth_provider_id', 'integer', [
+            ->addColumn('auth_provider_id', 'biginteger', [
                 'signed' => false,
                 'null'   => false,
             ])

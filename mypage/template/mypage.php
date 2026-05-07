@@ -5,9 +5,9 @@ $lang = $_SESSION['lang'] ?? ($_COOKIE['saso_locale'] ?? 'ja');
 <?php $this->title = $lang === 'ja' ? 'マイページ' : 'My Page'; ?>
 <?php $this->content = function ($v) { ?>
 <?php
-$lang = $_SESSION['lang'] ?? ($_COOKIE['saso_locale'] ?? 'ja');
-$t = static fn(string $ja, string $en): string => $lang === 'ja' ? $ja : $en;
-?>
+    $lang = $_SESSION['lang'] ?? ($_COOKIE['saso_locale'] ?? 'ja');
+    $t = static fn (string $ja, string $en): string => $lang === 'ja' ? $ja : $en;
+    ?>
 
 <ol class="breadcrumb mb-3" aria-label="<?php echo ui_attr($t('パンくずリスト', 'Breadcrumbs')); ?>">
   <li class="breadcrumb-item"><a href="./"><?php echo ui_text($t('ホーム', 'Home')); ?></a></li>
@@ -34,7 +34,7 @@ $t = static fn(string $ja, string $en): string => $lang === 'ja' ? $ja : $en;
       <div class="card-body">
         <div class="row g-3 align-items-center">
           <div class="col-auto">
-            <?php echo \saso\util\AvatarHelper::render($v->member); ?>
+            <?php echo \saso\util\AvatarHelper::render($v->member->avatarUrl, $v->member->displayName ?: $v->member->name, 96); ?>
           </div>
           <div class="col">
             <dl class="row mb-0">

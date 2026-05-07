@@ -7,17 +7,18 @@ use saso\repository\DbPrepare;
 use saso\util\Each;
 
 /**
- * Look up a Member row by its id.
- *
- * Profile columns were added after the base Member table and may not exist on
- * older production databases yet, so this query keeps those fields nullable.
+ * Look up a Member row by its id, including profile fields shown on My Page.
  */
 final class FindOne implements DbPrepare
 {
     public function getQuery(): string
     {
         return '
-            SELECT *
+            SELECT id, password, userName, role,
+                   avatar_url,
+                   display_name,
+                   bio,
+                   updated_at
                 FROM Member
                 WHERE id = :id
         ';

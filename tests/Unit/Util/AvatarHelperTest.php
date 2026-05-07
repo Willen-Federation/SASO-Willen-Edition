@@ -12,31 +12,44 @@ use saso\util\AvatarHelper;
 #[CoversClass(AvatarHelper::class)]
 final class AvatarHelperTest extends TestCase
 {
-    public function testExternalUrlAcceptsHttpAndHttpsUrls(): void
+    public function testValidExternalImageUrlAllowsHttpImagesWithQueryStrings(): void
     {
-        self::assertSame('https://example.com/avatar.png', AvatarHelper::externalUrl(' https://example.com/avatar.png '));
-        self::assertSame('http://example.com/avatar.png', AvatarHelper::externalUrl('http://example.com/avatar.png'));
+        self::assertSame(
+            'https://cdn.example.test/avatar.png?v=2',
+            AvatarHelper::validExternalImageUrl('https://cdn.example.test/avatar.png?v=2'),
+        );
     }
 
-    public function testExternalUrlRejectsUnsafeOrInvalidUrls(): void
+    public function testValidExternalImageUrlRejectsUnsafeOrNonImageUrls(): void
     {
-        self::assertNull(AvatarHelper::externalUrl(null));
-        self::assertNull(AvatarHelper::externalUrl(''));
-        self::assertNull(AvatarHelper::externalUrl('javascript:alert(1)'));
-        self::assertNull(AvatarHelper::externalUrl('not a url'));
+        self::assertNull(AvatarHelper::validExternalImageUrl('javascript:alert(1)'));
+        self::assertNull(AvatarHelper::validExternalImageUrl('https://example.test/avatar.svg'));
     }
 
-    public function testDisplayNamePrefersProfileDisplayName(): void
+    public function testRenderFallsBackToAccessibleIcon(): void
     {
-        $member = new Member('alice_99', 'Alice Login', 'hash', 'operator', displayName: 'Alice Profile');
+        $member = new Member('alice_99', 'Alice', 'stored-password-hash');
 
-        self::assertSame('Alice Profile', AvatarHelper::displayName($member));
+        $html = AvatarHelper::render($member);
+
+        self::assertStringContainsString('bi-person-circle', $html);
+        self::assertStringContainsString('role="img"', $html);
+        self::assertStringContainsString('Alice avatar', $html);
     }
 
-    public function testDisplayNameFallsBackToMemberName(): void
+    public function testRenderEscapesExternalAvatarMarkup(): void
     {
-        $member = new Member('alice_99', 'Alice Login', 'hash');
+        $member = new Member(
+            'alice_99',
+            'Alice <Admin>',
+            'stored-password-hash',
+            'operator',
+            'https://cdn.example.test/avatar.webp?x=<bad>',
+        );
 
-        self::assertSame('Alice Login', AvatarHelper::displayName($member));
+        $html = AvatarHelper::render($member);
+
+        self::assertStringContainsString('&lt;bad&gt;', $html);
+        self::assertStringContainsString('Alice &lt;Admin&gt; avatar', $html);
     }
 }

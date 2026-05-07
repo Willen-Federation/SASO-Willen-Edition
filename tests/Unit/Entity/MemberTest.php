@@ -132,6 +132,19 @@ final class MemberTest extends TestCase
         self::assertSame('admin', $admin->__get('role'));
     }
 
+    public function testAvatarUrlConstraintAcceptsImageUrlsWithQueryStrings(): void
+    {
+        self::assertSame(
+            'https://cdn.example.test/avatar.jpg?v=2',
+            Member::avatarUrlConstraint('https://cdn.example.test/avatar.jpg?v=2')->getOrElse(null),
+        );
+    }
+
+    public function testAvatarUrlConstraintRejectsUnsafeSchemes(): void
+    {
+        self::assertNull(Member::avatarUrlConstraint('javascript:alert(1)')->getOrElse(null));
+    }
+
     /**
      * Reproduces entity\Member::legacyHashed (private) so tests can construct
      * legacy-format digests without reflection. Mirrors the exact SHA256 chain

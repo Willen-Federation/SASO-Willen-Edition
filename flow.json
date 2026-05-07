@@ -14,7 +14,11 @@
         "providerNew": "\\saso\\auth\\ProviderNewDIContainer"
     },
     "admin": {
-        "auth-providers": "\\saso\\authExt\\ProvidersDIContainer"
+        "auth-providers": "\\saso\\authExt\\ProvidersDIContainer",
+        "aiSettings": "\\saso\\admin\\AiSettingsDIContainer"
+    },
+    "featureAdmin": {
+        "list": "\\saso\\featureAdmin\\ListDIContainer"
     },
     "image": {
         "start": "\\saso\\image\\StartDIContainer",

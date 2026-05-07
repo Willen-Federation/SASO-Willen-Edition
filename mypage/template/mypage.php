@@ -7,6 +7,9 @@ $lang = $_SESSION['lang'] ?? ($_COOKIE['saso_locale'] ?? 'ja');
 <?php
 $lang = $_SESSION['lang'] ?? ($_COOKIE['saso_locale'] ?? 'ja');
 $t = static fn(string $ja, string $en): string => $lang === 'ja' ? $ja : $en;
+$avatarUrl = \saso\util\AvatarHelper::imageUrl($v->member?->avatarUrl);
+$avatarLabel = (string) ($v->member?->displayName ?: $v->member?->name ?: $t('ユーザー', 'User'));
+$avatarTone = \saso\util\AvatarHelper::fallbackTone($avatarLabel);
 ?>
 
 <ol class="breadcrumb mb-3" aria-label="<?php echo ui_attr($t('パンくずリスト', 'Breadcrumbs')); ?>">
@@ -34,12 +37,18 @@ $t = static fn(string $ja, string $en): string => $lang === 'ja' ? $ja : $en;
       <div class="card-body">
         <div class="row g-3 align-items-center">
           <div class="col-auto">
-            <?php if ($v->member->avatarUrl): ?>
-              <img src="<?php echo ui_attr($v->member->avatarUrl); ?>"
-                   alt="<?php echo ui_attr($v->member->name); ?>"
-                   class="rounded-circle border" width="96" height="96">
+            <?php if ($avatarUrl !== null): ?>
+              <img src="<?php echo ui_attr($avatarUrl); ?>"
+                   alt="<?php echo ui_attr($avatarLabel); ?>"
+                   class="rounded-circle border saso-avatar-image" width="96" height="96"
+                   onerror="this.classList.add('d-none');this.nextElementSibling.classList.remove('d-none');">
+              <span class="avatar avatar-xl <?php echo ui_attr($avatarTone); ?> text-white d-none" aria-hidden="true">
+                <i class="<?php echo ui_attr(\saso\util\AvatarHelper::fallbackIconClass()); ?>"></i>
+              </span>
             <?php else: ?>
-              <span class="avatar avatar-xl bg-azure text-white" aria-hidden="true"><i class="bi bi-person fs-1"></i></span>
+              <span class="avatar avatar-xl <?php echo ui_attr($avatarTone); ?> text-white" aria-hidden="true">
+                <i class="<?php echo ui_attr(\saso\util\AvatarHelper::fallbackIconClass()); ?>"></i>
+              </span>
             <?php endif; ?>
           </div>
           <div class="col">

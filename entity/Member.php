@@ -61,8 +61,7 @@ final class Member
             return Either::of(null);
         }
         return Either::of($url)
-            ->filter(fn($v) => filter_var($v, FILTER_VALIDATE_URL) !== false)
-            ->filter(fn($v) => preg_match('/\.(jpg|jpeg|png|webp)$/i', $v) === 1);
+            ->filter(fn ($v) => \saso\util\AvatarHelper::validExternalImageUrl($v) !== null);
     }
 
     public static function displayNameConstraint(?string $name): Either

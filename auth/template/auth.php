@@ -72,6 +72,11 @@ $this->title = $lang === 'ja' ? 'ログイン' : 'Login';
         <?php } ?>
       </div>
     </div>
+    <p class="text-muted small mt-3 text-center">
+      <?php echo ui_text($lang === 'ja'
+          ? '検索・在庫管理などの機能はログイン後にご利用いただけます。'
+          : 'Search and inventory features are available after login.'); ?>
+    </p>
   </div>
 </div>
 

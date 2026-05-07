@@ -5,9 +5,9 @@ $lang = $_SESSION['lang'] ?? ($_COOKIE['saso_locale'] ?? 'ja');
 <?php $this->title = $lang === 'ja' ? 'マイページ' : 'My Page'; ?>
 <?php $this->content = function ($v) { ?>
 <?php
-$lang = $_SESSION['lang'] ?? ($_COOKIE['saso_locale'] ?? 'ja');
-$t = static fn(string $ja, string $en): string => $lang === 'ja' ? $ja : $en;
-?>
+    $lang = $_SESSION['lang'] ?? ($_COOKIE['saso_locale'] ?? 'ja');
+    $t = static fn (string $ja, string $en): string => $lang === 'ja' ? $ja : $en;
+    ?>
 
 <ol class="breadcrumb mb-3" aria-label="<?php echo ui_attr($t('パンくずリスト', 'Breadcrumbs')); ?>">
   <li class="breadcrumb-item"><a href="./"><?php echo ui_text($t('ホーム', 'Home')); ?></a></li>
@@ -19,6 +19,11 @@ $t = static fn(string $ja, string $en): string => $lang === 'ja' ? $ja : $en;
     <?php echo ui_text($t('メンバー情報が見つかりません。もう一度ログインしてください。', 'Member data was not found. Please sign in again.')); ?>
   </div>
 <?php return; endif; ?>
+
+<?php
+    $avatarUrl = \saso\util\AvatarHelper::externalUrl($v->member->avatarUrl ?? null);
+    $displayName = \saso\util\AvatarHelper::displayName($v->member);
+    ?>
 
 <div class="row g-3">
   <div class="col-lg-8">
@@ -34,12 +39,14 @@ $t = static fn(string $ja, string $en): string => $lang === 'ja' ? $ja : $en;
       <div class="card-body">
         <div class="row g-3 align-items-center">
           <div class="col-auto">
-            <?php if ($v->member->avatarUrl): ?>
-              <img src="<?php echo ui_attr($v->member->avatarUrl); ?>"
-                   alt="<?php echo ui_attr($v->member->name); ?>"
-                   class="rounded-circle border" width="96" height="96">
+            <?php if ($avatarUrl !== null): ?>
+              <img src="<?php echo ui_attr($avatarUrl); ?>"
+                   alt="<?php echo ui_attr($displayName); ?>"
+                   class="rounded-circle border" width="96" height="96" loading="lazy" referrerpolicy="no-referrer">
             <?php else: ?>
-              <span class="avatar avatar-xl bg-azure text-white" aria-hidden="true"><i class="bi bi-person fs-1"></i></span>
+              <span class="avatar avatar-xl bg-azure text-white" title="<?php echo ui_attr($displayName); ?>" aria-hidden="true">
+                <i class="bi bi-person-circle fs-1"></i>
+              </span>
             <?php endif; ?>
           </div>
           <div class="col">
@@ -47,7 +54,7 @@ $t = static fn(string $ja, string $en): string => $lang === 'ja' ? $ja : $en;
               <dt class="col-sm-4"><?php echo ui_text($t('ユーザーID', 'User ID')); ?></dt>
               <dd class="col-sm-8 font-monospace"><?php echo ui_text($v->member->id); ?></dd>
               <dt class="col-sm-4"><?php echo ui_text($t('表示名', 'Display Name')); ?></dt>
-              <dd class="col-sm-8"><?php echo ui_text($v->member->displayName ?: $v->member->name); ?></dd>
+              <dd class="col-sm-8"><?php echo ui_text($displayName); ?></dd>
               <dt class="col-sm-4"><?php echo ui_text($t('ロール', 'Role')); ?></dt>
               <dd class="col-sm-8"><span class="badge bg-primary"><?php echo ui_text($v->member->role); ?></span></dd>
               <?php if ($v->member->bio): ?>

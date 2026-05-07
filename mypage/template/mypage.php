@@ -23,6 +23,11 @@ $avatarTone = \saso\util\AvatarHelper::fallbackTone($avatarLabel);
   </div>
 <?php return; endif; ?>
 
+<?php
+    $avatarUrl = \saso\util\AvatarHelper::externalUrl($v->member->avatarUrl ?? null);
+    $displayName = \saso\util\AvatarHelper::displayName($v->member);
+    ?>
+
 <div class="row g-3">
   <div class="col-lg-8">
     <div class="card mb-3">
@@ -56,7 +61,7 @@ $avatarTone = \saso\util\AvatarHelper::fallbackTone($avatarLabel);
               <dt class="col-sm-4"><?php echo ui_text($t('ユーザーID', 'User ID')); ?></dt>
               <dd class="col-sm-8 font-monospace"><?php echo ui_text($v->member->id); ?></dd>
               <dt class="col-sm-4"><?php echo ui_text($t('表示名', 'Display Name')); ?></dt>
-              <dd class="col-sm-8"><?php echo ui_text($v->member->displayName ?: $v->member->name); ?></dd>
+              <dd class="col-sm-8"><?php echo ui_text($displayName); ?></dd>
               <dt class="col-sm-4"><?php echo ui_text($t('ロール', 'Role')); ?></dt>
               <dd class="col-sm-8"><span class="badge bg-primary"><?php echo ui_text($v->member->role); ?></span></dd>
               <?php if ($v->member->bio): ?>

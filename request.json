@@ -275,6 +275,10 @@
         "auth-providers": {
            "matter": "admin",
            "action": "auth-providers"
+        },
+        "aiSettings": {
+           "matter": "admin",
+           "action": "aiSettings"
         }
     },
     "shelf": {

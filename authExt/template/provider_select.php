@@ -16,7 +16,7 @@
     'actions' => function () use ($lang) {
         ui('button', [
             'label'   => $lang === 'ja' ? '一覧に戻る' : 'Back to list',
-            'href'    => './auth/providers/',
+            'href'    => './admin/auth-providers/',
             'type'    => 'link',
             'variant' => 'secondary',
         ]);

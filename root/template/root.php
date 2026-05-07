@@ -8,6 +8,7 @@
 <base href="<?php echo $v->baseUrl; ?>">
 <meta charset="utf-8">
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+<link href="https://cdn.jsdelivr.net/npm/@tabler/core@1.0.0/dist/css/tabler.min.css" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
 <link href="./css/style.css" rel="stylesheet">
 <link rel="shortcut icon" href="./favicon.ico" type="image/vnd.microsoft.icon">
@@ -22,9 +23,11 @@
 <div class="page">
   <header class="navbar navbar-expand-md navbar-dark d-print-none bg-azure">
     <div class="container-xl">
+      <?php if($v->authed) { ?>
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar-menu" aria-controls="navbar-menu" aria-expanded="false" aria-label="<?php echo ui_attr($lang === 'ja' ? 'ナビゲーションを開閉' : 'Toggle navigation'); ?>">
         <span class="navbar-toggler-icon"></span>
       </button>
+      <?php } ?>
       <h1 class="navbar-brand navbar-brand-autodark d-none-navbar-horizontal pe-0 pe-md-3 mb-0">
         <a href="./" class="text-white text-decoration-none">
           <i class="bi bi-box2 me-2" aria-hidden="true"></i><?php echo ui_text($lang === 'ja' ? '在庫管理' : 'Inventory'); ?> SASO<?php echo htmlspecialchars($v->version, ENT_QUOTES, 'UTF-8'); ?>
@@ -115,47 +118,35 @@
               </div>
             </li>
           </ul>
-        </li>
-        <li class="nav-item dropdown">
-          <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownAdmin" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-            管理
+        </div>
+    <?php } ?>
+    </div>
+</header>
+<div class="page-wrapper">
+  <div class="container-xl py-3">
+    <?php if($v->authed) { ?>
+    <div class="row align-items-center mb-3">
+      <div class="col">
+        <h1 class="page-title m-0"><?php echo ui_text($v->insideView->getTitle()); ?></h1>
+      </div>
+      <div class="col-auto">
+        <p class="text-success m-0">
+          <?php echo ui_text(($_SESSION['userName'] ?? '') . ($lang === 'ja' ? '様ログイン中。' : ' is signed in.')); ?>
+          <a class="btn btn-secondary btn-sm ms-2" href="./start/logout/">
+            <i class="bi bi-box-arrow-right me-1" aria-hidden="true"></i><?php echo ui_text($lang === 'ja' ? 'ログアウト' : 'Logout'); ?>
           </a>
-          <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-            <li><a class="dropdown-item" href="./label/start/">ラベル寸法管理</a></li>
-            <li><a class="dropdown-item" href="./category/start/">分類管理</a></li>
-            <li><hr class="dropdown-divider"></li>
-            <li><a class="dropdown-item" href="./auth/provider/new/">認証プロバイダーの追加</a></li>
-            <li><hr class="dropdown-divider"></li>
-            <li><a class="dropdown-item" href="./start/password/">パスワード変更</a></li>
-          </ul>
-        </li>
-      </ul>
-      <?php if(false) { ?>
-      <!--<form class="d-flex">
-        <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
-        <button class="btn btn-outline-success" type="submit">Search</button>
-      </form>-->
-      <?php } ?>
+        </p>
+      </div>
     </div>
     <?php } ?>
-  </div>
-</nav>
-<div class="container-fluid">
-  <div class="row">
-      <h1 class="col-8"><?php echo $v->insideView->getTitle(); ?></h1>
-      <?php if($v->authed) { ?>
-      <div class="col-4">
-      <p class="text-success"><?php echo $_SESSION['userName'] . '様ログイン中。' ?>
-        <a class="btn btn-secondary" href="./start/logout/">ログアウト</a></p>
+    <div class="row">
+      <div class="col-12">
+        <?php $v->insideView->getContent()($v->insideView); ?>
       </div>
-      <?php } ?>
-  </div>
-  <div class="row">
-    <div class="col-12">
-      <?php $v->insideView->getContent()($v->insideView); ?>
     </div>
   </div>
 </div>
+</div><!-- /.page -->
 <script type="module">import "./js/main.js";</script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
 </body>

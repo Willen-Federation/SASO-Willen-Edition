@@ -2,6 +2,7 @@
 
 namespace saso\entity;
 
+use saso\util\AvatarHelper;
 use saso\util\monad\Either;
 
 final class Member
@@ -61,7 +62,8 @@ final class Member
             return Either::of(null);
         }
         return Either::of($url)
-            ->filter(fn ($v) => \saso\util\AvatarHelper::validExternalImageUrl($v) !== null);
+            ->map(fn($v) => AvatarHelper::imageUrl($v))
+            ->filter(fn($v) => $v !== null);
     }
 
     public static function displayNameConstraint(?string $name): Either

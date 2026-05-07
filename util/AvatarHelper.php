@@ -48,16 +48,27 @@ final class AvatarHelper
         }
 
         $path = (string) ($parts['path'] ?? '');
-        if (preg_match('/\.(jpe?g|png|webp)$/i', $path) !== 1) {
+        $extension = strtolower(pathinfo($path, PATHINFO_EXTENSION));
+        if (!in_array($extension, self::ALLOWED_EXTENSIONS, true)) {
             return null;
         }
 
-        return $url;
+        return $candidate;
     }
 
-    private static function label(Member $member): string
+    public static function fallbackTone(?string $seed): string
     {
-        $label = $member->__get('displayName') ?: $member->__get('name') ?: $member->__get('id');
-        return $label.' avatar';
+        $normalized = trim((string) $seed);
+        if ($normalized === '') {
+            return self::FALLBACK_TONES[0];
+        }
+
+        $index = abs(crc32($normalized)) % count(self::FALLBACK_TONES);
+        return self::FALLBACK_TONES[$index];
+    }
+
+    public static function fallbackIconClass(): string
+    {
+        return 'bi bi-person-circle fs-1';
     }
 }

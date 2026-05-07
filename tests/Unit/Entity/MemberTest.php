@@ -123,6 +123,21 @@ final class MemberTest extends TestCase
         self::assertNull(Member::loginPasswordConstraint('passwd!!')->getOrElse(null));
     }
 
+    public function testAvatarUrlConstraintAcceptsHttpImageUrls(): void
+    {
+        self::assertSame(
+            'https://cdn.example.com/avatar/me.png?version=2',
+            Member::avatarUrlConstraint('https://cdn.example.com/avatar/me.png?version=2')->getOrElse(null),
+        );
+    }
+
+    public function testAvatarUrlConstraintRejectsUnsafeOrUnsupportedUrls(): void
+    {
+        self::assertNull(Member::avatarUrlConstraint('javascript:alert(1)')->getOrElse(null));
+        self::assertNull(Member::avatarUrlConstraint('ftp://example.com/avatar.png')->getOrElse(null));
+        self::assertNull(Member::avatarUrlConstraint('https://example.com/avatar.svg')->getOrElse(null));
+    }
+
     public function testRoleDefaultsToOperatorAndCanBeMappedFromDatabaseRows(): void
     {
         $operator = new Member('aioperation', 'AI Operation', Member::hashPassword('ai'));

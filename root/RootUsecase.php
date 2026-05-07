@@ -26,6 +26,8 @@ final class RootUsecase implements Usecase
             $data->authed,
             $data->matter,
             $data->action,
+            $_SESSION['lang'] ?? ($_COOKIE['saso_locale'] ?? 'ja'),
+            ['en', 'ja'],
         );
     }
 }

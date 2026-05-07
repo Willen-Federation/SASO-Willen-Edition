@@ -44,15 +44,28 @@ $this->title = $lang === 'ja' ? 'ログイン' : 'Login';
               $v->providers,
               fn($p) => ($p->type->value ?? '') !== 'local'
           ));
+          $providerNameCounts = [];
+          foreach ($externalProviders as $p) {
+              $providerNameCounts[$p->name] = ($providerNameCounts[$p->name] ?? 0) + 1;
+          }
         ?>
         <?php if ($externalProviders !== []) { ?>
           <div class="hr-text mt-4"><?php echo ui_text($lang === 'ja' ? '外部サービスでログイン' : 'Sign in with an external service'); ?></div>
           <div class="d-flex flex-column gap-2 mt-3">
             <?php foreach ($externalProviders as $p) { ?>
+              <?php
+                $providerLabel = $p->name;
+                if (($providerNameCounts[$p->name] ?? 0) > 1) {
+                    $providerLabel = sprintf(
+                        $lang === 'ja' ? '%s（プロバイダー #%d）' : '%s (provider #%d)',
+                        $p->name,
+                        (int) $p->id->value
+                    );
+                }
+              ?>
               <a href="/auth/start/<?php echo htmlspecialchars($p->id->value, ENT_QUOTES, 'UTF-8'); ?>" class="btn btn-outline-secondary">
                 <i class="bi bi-key me-2" aria-hidden="true"></i>
-                <?php echo ui_text($p->name . ($lang === 'ja' ? ' でログイン' : ' login')); ?>
-                <span class="visually-hidden"> provider #<?php echo (int) $p->id->value; ?></span>
+                <?php echo ui_text($providerLabel . ($lang === 'ja' ? ' でログイン' : ' login')); ?>
               </a>
             <?php } ?>
           </div>

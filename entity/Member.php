@@ -16,8 +16,7 @@ final class Member
         private ?string $displayName = null,
         private ?string $bio = null,
         private ?\DateTime $updatedAt = null,
-    )
-    {
+    ) {
     }
     public function __get($name)
     {
@@ -29,10 +28,10 @@ final class Member
             $id,
             \FILTER_VALIDATE_REGEXP,
             [
-                'options'=>[
-                    'default'=>false,
-                    'regexp'=>'/^[0-9a-zA-Z-_]{8,20}$/'
-                ]
+                'options' => [
+                    'default' => false,
+                    'regexp' => '/^[0-9a-zA-Z-_]{8,20}$/',
+                ],
             ]
         ));
     }
@@ -43,17 +42,17 @@ final class Member
     public static function passwordConstraint(string $password): Either
     {
         return Either::of($password)
-            ->filter(fn($v)=>!empty($v))
-            ->filter(fn($v)=>mb_strlen($v)<=64&&mb_strlen($v)>=8)
-            ->filter(fn($v)=>preg_match('/[^0-9a-zA-Z_-]/', $v)===0);
+            ->filter(fn ($v) => !empty($v))
+            ->filter(fn ($v) => mb_strlen($v) <= 64 && mb_strlen($v) >= 8)
+            ->filter(fn ($v) => preg_match('/[^0-9a-zA-Z_-]/', $v) === 0);
     }
 
     public static function loginPasswordConstraint(string $password): Either
     {
         return Either::of($password)
-            ->filter(fn($v)=>!empty($v))
-            ->filter(fn($v)=>mb_strlen($v)<=64)
-            ->filter(fn($v)=>preg_match('/[^0-9a-zA-Z_-]/', $v)===0);
+            ->filter(fn ($v) => !empty($v))
+            ->filter(fn ($v) => mb_strlen($v) <= 64)
+            ->filter(fn ($v) => preg_match('/[^0-9a-zA-Z_-]/', $v) === 0);
     }
 
     public static function avatarUrlConstraint(?string $url): Either
@@ -62,8 +61,8 @@ final class Member
             return Either::of(null);
         }
         return Either::of($url)
-            ->map(fn($v) => AvatarHelper::imageUrl($v))
-            ->filter(fn($v) => $v !== null);
+            ->map(fn ($v) => AvatarHelper::imageUrl($v))
+            ->filter(fn ($v) => $v !== null);
     }
 
     public static function displayNameConstraint(?string $name): Either
@@ -80,7 +79,7 @@ final class Member
             return Either::of(null);
         }
         return Either::of($bio)
-            ->filter(fn($v) => mb_strlen($v) <= 500);
+            ->filter(fn ($v) => mb_strlen($v) <= 500);
     }
 
     /**
@@ -131,7 +130,7 @@ final class Member
         $salted = 'stok-administra_sistemo'.$hashed.'plej_simpla';
         return array_reduce(
             range(1, 1000),
-            fn($carry, $item) => hash('sha256', $carry),
+            fn ($carry, $item) => hash('sha256', $carry),
             $salted,
         );
     }

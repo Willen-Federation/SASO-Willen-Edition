@@ -18,7 +18,7 @@ DB_NAME ?= saso_db
 
 # Run a command inside the app container. -T disables a TTY so it works inside
 # Make's piped output (composer install logs, phpunit, etc.).
-EXEC_APP := $(DC) exec -T $(APP)
+EXEC_APP := $(DC) exec -T -w /var/www/html/saso $(APP)
 EXEC_DB := $(DC) exec -T $(DB)
 
 .PHONY: help up up-sso down restart logs ps shell composer install update \

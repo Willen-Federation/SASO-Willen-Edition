@@ -79,6 +79,14 @@ final class ConfigLoader
         if ($https !== null) {
             $config['https'] = filter_var($https, FILTER_VALIDATE_BOOLEAN);
         }
+        $documentRoot = EnvLoader::get($env, 'APP_DOCUMENT_ROOT');
+        if ($documentRoot !== null) {
+            $config['documentRoot'] = $documentRoot;
+        }
+        $programDir = EnvLoader::get($env, 'APP_PROGRAM_DIR');
+        if ($programDir !== null) {
+            $config['programDir'] = $programDir;
+        }
         return $config;
     }
 

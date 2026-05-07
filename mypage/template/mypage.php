@@ -5,12 +5,9 @@ $lang = $_SESSION['lang'] ?? ($_COOKIE['saso_locale'] ?? 'ja');
 <?php $this->title = $lang === 'ja' ? 'マイページ' : 'My Page'; ?>
 <?php $this->content = function ($v) { ?>
 <?php
-$lang = $_SESSION['lang'] ?? ($_COOKIE['saso_locale'] ?? 'ja');
-$t = static fn(string $ja, string $en): string => $lang === 'ja' ? $ja : $en;
-$avatarUrl = \saso\util\AvatarHelper::imageUrl($v->member?->avatarUrl);
-$avatarLabel = (string) ($v->member?->displayName ?: $v->member?->name ?: $t('ユーザー', 'User'));
-$avatarTone = \saso\util\AvatarHelper::fallbackTone($avatarLabel);
-?>
+    $lang = $_SESSION['lang'] ?? ($_COOKIE['saso_locale'] ?? 'ja');
+    $t = static fn (string $ja, string $en): string => $lang === 'ja' ? $ja : $en;
+    ?>
 
 <ol class="breadcrumb mb-3" aria-label="<?php echo ui_attr($t('パンくずリスト', 'Breadcrumbs')); ?>">
   <li class="breadcrumb-item"><a href="./"><?php echo ui_text($t('ホーム', 'Home')); ?></a></li>
@@ -26,6 +23,8 @@ $avatarTone = \saso\util\AvatarHelper::fallbackTone($avatarLabel);
 <?php
     $avatarUrl = \saso\util\AvatarHelper::externalUrl($v->member->avatarUrl ?? null);
     $displayName = \saso\util\AvatarHelper::displayName($v->member);
+    $avatarLabel = $displayName !== '' ? $displayName : $t('ユーザー', 'User');
+    $avatarTone = \saso\util\AvatarHelper::fallbackTone($avatarLabel);
     ?>
 
 <div class="row g-3">
@@ -113,9 +112,12 @@ $avatarTone = \saso\util\AvatarHelper::fallbackTone($avatarLabel);
             <h3 class="h4"><?php echo ui_text($t('外部認証を追加', 'Add External Authentication')); ?></h3>
             <div class="saso-action-row">
               <?php foreach ($v->availableProviders as $provider): ?>
-                <a class="btn btn-outline-secondary btn-sm" href="./mypage/linkProvider/id/<?php echo (int) $provider['id']; ?>/">
-                  <i class="bi bi-plus-circle me-1" aria-hidden="true"></i><?php echo ui_text((string) $provider['name']); ?>
-                </a>
+                <form method="post" action="./mypage/linkProvider/id/<?php echo (int) $provider['id']; ?>/" class="d-inline">
+                  <input type="hidden" name="csrftoken" value="<?php echo ui_attr(\saso\util\CSRFtoken::current()); ?>">
+                  <button type="submit" class="btn btn-outline-secondary btn-sm">
+                    <i class="bi bi-plus-circle me-1" aria-hidden="true"></i><?php echo ui_text((string) $provider['name']); ?>
+                  </button>
+                </form>
               <?php endforeach; ?>
             </div>
           </div>
@@ -131,7 +133,7 @@ $avatarTone = \saso\util\AvatarHelper::fallbackTone($avatarLabel);
       </div>
       <div class="card-body vstack gap-3">
         <p class="text-muted mb-0"><?php echo ui_text($t('Windows Hello、Touch ID、Face ID などでログインできます。', 'Sign in with Windows Hello, Touch ID, Face ID, or a security key.')); ?></p>
-        <button type="button" class="btn btn-primary w-100" id="register-passkey-btn">
+        <button type="button" class="btn btn-primary w-100" id="register-passkey-btn" data-csrftoken="<?php echo ui_attr(\saso\util\CSRFtoken::current()); ?>">
           <i class="bi bi-fingerprint me-2" aria-hidden="true"></i><?php echo ui_text($t('新しいパスキーを登録', 'Register New Passkey')); ?>
         </button>
         <?php if ($v->passkeys === []): ?>

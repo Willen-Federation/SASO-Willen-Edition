@@ -6,6 +6,7 @@ use saso\common\EmptyView;
 use saso\framework\DIContainer;
 use saso\framework\View;
 use saso\repository\DBConnection;
+use saso\util\CSRFtoken;
 
 final class PasskeyBeginDIContainer implements DIContainer
 {
@@ -18,6 +19,12 @@ final class PasskeyBeginDIContainer implements DIContainer
             http_response_code(401);
             header('Content-Type: application/json');
             echo json_encode(['error' => 'auth_required']);
+            return new EmptyView();
+        }
+        if (!CSRFtoken::verify((string) ($_SERVER['HTTP_X_CSRF_TOKEN'] ?? ''))) {
+            http_response_code(400);
+            header('Content-Type: application/json');
+            echo json_encode(['error' => 'invalid_csrf']);
             return new EmptyView();
         }
         $challenge = rtrim(strtr(base64_encode(random_bytes(32)), '+/', '-_'), '=');

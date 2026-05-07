@@ -6,6 +6,7 @@ use saso\common\EmptyView;
 use saso\framework\DIContainer;
 use saso\framework\View;
 use saso\repository\DBConnection;
+use saso\util\CSRFtoken;
 
 final class PasskeyCompleteDIContainer implements DIContainer
 {
@@ -22,6 +23,11 @@ final class PasskeyCompleteDIContainer implements DIContainer
         if ($memberId === '' || $challenge === '' || $credentialId === '') {
             http_response_code(400);
             echo json_encode(['error' => 'bad_request']);
+            return new EmptyView();
+        }
+        if (!CSRFtoken::verify((string) ($_SERVER['HTTP_X_CSRF_TOKEN'] ?? ''))) {
+            http_response_code(400);
+            echo json_encode(['error' => 'invalid_csrf']);
             return new EmptyView();
         }
         $pdo = DBConnection::getPdo();

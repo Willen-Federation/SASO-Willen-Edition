@@ -15,7 +15,12 @@
       alert(document.documentElement.lang === 'ja' ? 'このブラウザはパスキーに対応していません。' : 'This browser does not support passkeys.');
       return;
     }
-    const begin = await fetch('./mypage/passkeyBegin/', { method: 'POST', credentials: 'same-origin' });
+    const token = document.getElementById('register-passkey-btn')?.dataset.csrftoken || '';
+    const begin = await fetch('./mypage/passkeyBegin/', {
+      method: 'POST',
+      credentials: 'same-origin',
+      headers: { 'X-CSRF-Token': token }
+    });
     const options = await begin.json();
     if (!begin.ok) throw new Error(options.error || 'begin failed');
     const credential = await navigator.credentials.create({
@@ -33,7 +38,7 @@
     const complete = await fetch('./mypage/passkeyComplete/', {
       method: 'POST',
       credentials: 'same-origin',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': token },
       body: JSON.stringify({
         challenge: options.challenge,
         credentialId: bufToB64(credential.rawId),

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Saso\Tests\Unit;
 
 use PHPUnit\Framework\TestCase;
+use saso\ConfigLoader;
 use saso\util\EnvLoader;
 
 final class ConfigLoaderTest extends TestCase
@@ -102,5 +103,44 @@ final class ConfigLoaderTest extends TestCase
             $env = EnvLoader::loadFile($envPath);
             $this->assertSame([], $env);
         }
+    }
+
+    public function testConfigLoaderOverlaysDocumentRootAndProgramDirFromEnv(): void
+    {
+        $tempDir = sys_get_temp_dir().'/saso_config_test_'.uniqid();
+        mkdir($tempDir);
+        $this->resetConfigLoaderState();
+
+        try {
+            file_put_contents($tempDir.'/config.json', json_encode([
+                'documentRoot' => '/production/root',
+                'programDir' => '',
+                'database' => [
+                    'dsn' => '',
+                    'user' => '',
+                    'password' => '',
+                ],
+                'https' => false,
+                'logPath' => '/tmp/log',
+            ], JSON_THROW_ON_ERROR));
+            file_put_contents($tempDir.'/.env', "APP_DOCUMENT_ROOT=/var/www/html\nAPP_PROGRAM_DIR=/saso/\n");
+
+            $config = ConfigLoader::load($tempDir.'/');
+
+            self::assertSame('/var/www/html/', $config['documentRoot']);
+            self::assertSame('saso/', $config['programDir']);
+        } finally {
+            $this->resetConfigLoaderState();
+            @unlink($tempDir.'/config.json');
+            @unlink($tempDir.'/.env');
+            @rmdir($tempDir);
+        }
+    }
+
+    private function resetConfigLoaderState(): void
+    {
+        $property = new \ReflectionProperty(ConfigLoader::class, 'configFile');
+        $property->setAccessible(true);
+        $property->setValue(null, null);
     }
 }

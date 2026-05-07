@@ -34,6 +34,7 @@ $fullPath = $config['documentRoot'].$config['programDir'];
 if (is_file(__DIR__.'/vendor/autoload.php')) {
     require_once __DIR__.'/vendor/autoload.php';
 }
+require_once __DIR__.'/framework/ui/helpers.php';
 require_once 'ClassLoader.php';
 spl_autoload_register(ClassLoader::load($config));
 
@@ -143,6 +144,12 @@ if (class_exists(\Saso\Infrastructure\Translation\TranslatorFactory::class)) {
 if (preg_match('#^/mypage/linkProvider/id/(\d+)/?$#', $requestPath, $linkMatch) === 1) {
     if (!isset($_SESSION['id'])) {
         header('Location: /auth/start/?error=auth_required', true, 303);
+        exit;
+    }
+    if (($_SERVER['REQUEST_METHOD'] ?? 'GET') !== 'POST'
+        || !\saso\util\CSRFtoken::verify((string) ($_POST['csrftoken'] ?? ''))
+    ) {
+        header('Location: /mypage/start/?authLink=invalid_csrf', true, 303);
         exit;
     }
     try {

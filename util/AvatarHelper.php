@@ -2,33 +2,48 @@
 
 namespace saso\util;
 
-/**
- * Helpers for rendering externally hosted member avatars safely.
- */
+use saso\entity\Member;
+
 final class AvatarHelper
 {
-    private const ALLOWED_SCHEMES = ['http', 'https'];
-    private const ALLOWED_EXTENSIONS = ['jpg', 'jpeg', 'png', 'webp'];
-    private const FALLBACK_TONES = ['bg-azure', 'bg-blue', 'bg-indigo', 'bg-purple', 'bg-pink', 'bg-red', 'bg-orange', 'bg-green'];
+    private const SIZE_CLASS = 'avatar avatar-xl bg-azure text-white';
 
-    private function __construct()
+    public static function render(Member $member, int $size = 96): string
     {
+        $label = self::label($member);
+        $url = self::validExternalImageUrl($member->__get('avatarUrl'));
+
+        if ($url !== null) {
+            return sprintf(
+                '<img src="%s" alt="%s" class="rounded-circle border object-fit-cover" width="%d" height="%d" loading="lazy" referrerpolicy="no-referrer">',
+                htmlspecialchars($url, ENT_QUOTES, 'UTF-8'),
+                htmlspecialchars($label, ENT_QUOTES, 'UTF-8'),
+                $size,
+                $size,
+            );
+        }
+
+        return sprintf(
+            '<span class="%s" role="img" aria-label="%s"><i class="bi bi-person-circle fs-1" aria-hidden="true"></i></span>',
+            self::SIZE_CLASS,
+            htmlspecialchars($label, ENT_QUOTES, 'UTF-8'),
+        );
     }
 
-    public static function imageUrl(?string $url): ?string
+    public static function validExternalImageUrl(?string $url): ?string
     {
-        $candidate = trim((string) $url);
-        if ($candidate === '') {
+        if ($url === null || trim($url) === '') {
             return null;
         }
 
-        if (filter_var($candidate, \FILTER_VALIDATE_URL) === false) {
+        $url = trim($url);
+        if (filter_var($url, FILTER_VALIDATE_URL) === false) {
             return null;
         }
 
-        $parts = parse_url($candidate);
+        $parts = parse_url($url);
         $scheme = strtolower((string) ($parts['scheme'] ?? ''));
-        if (!in_array($scheme, self::ALLOWED_SCHEMES, true)) {
+        if (!in_array($scheme, ['http', 'https'], true)) {
             return null;
         }
 

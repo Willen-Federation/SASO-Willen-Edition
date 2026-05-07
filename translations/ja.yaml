@@ -169,6 +169,12 @@ ui:
     close: 閉じる
     scanning: 読み取り中...
     camera_denied: カメラへのアクセスが拒否されました。ブラウザでカメラを許可してからもう一度お試しください。
+  table:
+    empty: 表示する行はありません。
+  pagination:
+    prev: 前へ
+    next: 次へ
+    summary: "{total} 件中 {from}-{to} 件を表示"
   auth_providers:
     title: 認証プロバイダー
     add: プロバイダーを追加
@@ -297,6 +303,30 @@ ui:
       active: 有効
       disabled: 無効
       tripped: サーキットブレーカー作動
+  item:
+    add_from_image:
+      title: 画像から商品登録
+    draft_confirm:
+      title: 下書き確認
+    draft_list:
+      title: 商品下書き
+    register:
+      image_drop: 画像をここにドロップするか、ファイルを選択してください。
+      take_photo: 写真を撮影
+  label_wizard:
+    title: ラベルウィザード
+    step1: シート選択
+    step1_help: ラベルシートのレイアウトを選択してください。
+    step2: 枚数設定
+    step2_help: 作成するラベル枚数を入力してください。
+    step3: 印刷
+    step3_help: 設定を確認して印刷します。
+    step3_note: 印刷前にプリンター設定を確認してください。
+    sheet_type: シート種別
+    count: 枚数
+    print: 印刷
+    no_sheets: ラベルシートは登録されていません。
+    go_to_pending: 未紐づけバーコードを見る
   label_pending:
     title: 未紐づけバーコード
     count: 件数
@@ -306,3 +336,22 @@ ui:
     col_batch: バッチ
     col_code: コード
     col_created: 作成日時
+  verify:
+    title: 検証
+    start_title: 検証を開始
+    start_help: 棚または在庫確認の検証セッションを作成します。
+    begin: 開始
+    area: エリア
+    area_help: 任意の棚または倉庫エリアです。
+    mode: モード
+    mode.spot: スポット確認
+    mode.stocktake: 棚卸し
+    recent: 最近のセッション
+    recent_caption: 最近の検証セッション
+    no_recent: 最近のセッションはありません。
+    mcp_title: モバイル / MCP
+    mcp_body: スキャナーから検証を続けるにはデバイスをペアリングしてください。
+    col:
+      mode: モード
+      started: 開始日時
+      status: 状態

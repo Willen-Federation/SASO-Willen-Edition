@@ -172,6 +172,12 @@ ui:
     close: Close
     scanning: Scanning...
     camera_denied: Camera access denied. Please allow camera access and try again.
+  table:
+    empty: No rows to display.
+  pagination:
+    prev: Previous
+    next: Next
+    summary: Showing {from}-{to} of {total}
   auth_providers:
     title: Authentication Providers
     add: Add Provider
@@ -300,6 +306,30 @@ ui:
       active: Active
       disabled: Disabled
       tripped: Circuit breaker tripped
+  item:
+    add_from_image:
+      title: Register Item from Image
+    draft_confirm:
+      title: Confirm Draft
+    draft_list:
+      title: Item Drafts
+    register:
+      image_drop: Drop an image here or choose a file.
+      take_photo: Take Photo
+  label_wizard:
+    title: Label Wizard
+    step1: Select sheet
+    step1_help: Choose a label sheet layout.
+    step2: Configure count
+    step2_help: Enter how many labels to create.
+    step3: Print
+    step3_help: Review settings and print.
+    step3_note: Confirm printer settings before printing.
+    sheet_type: Sheet type
+    count: Count
+    print: Print
+    no_sheets: No label sheets are registered.
+    go_to_pending: View Pending Barcodes
   label_pending:
     title: Pending Barcodes
     count: Count
@@ -309,3 +339,22 @@ ui:
     col_batch: Batch
     col_code: Code
     col_created: Created
+  verify:
+    title: Verification
+    start_title: Start Verification
+    start_help: Create a verification session for shelf or stock checks.
+    begin: Begin
+    area: Area
+    area_help: Optional shelf or warehouse area.
+    mode: Mode
+    mode.spot: Spot Check
+    mode.stocktake: Stocktake
+    recent: Recent Sessions
+    recent_caption: Recent verification sessions
+    no_recent: No recent sessions.
+    mcp_title: Mobile / MCP
+    mcp_body: Pair a device to continue verification from a scanner.
+    col:
+      mode: Mode
+      started: Started
+      status: Status

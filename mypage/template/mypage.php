@@ -5,9 +5,9 @@ $lang = $_SESSION['lang'] ?? ($_COOKIE['saso_locale'] ?? 'ja');
 <?php $this->title = $lang === 'ja' ? 'マイページ' : 'My Page'; ?>
 <?php $this->content = function ($v) { ?>
 <?php
-    $lang = $_SESSION['lang'] ?? ($_COOKIE['saso_locale'] ?? 'ja');
-    $t = static fn (string $ja, string $en): string => $lang === 'ja' ? $ja : $en;
-    ?>
+$lang = $_SESSION['lang'] ?? ($_COOKIE['saso_locale'] ?? 'ja');
+$t = static fn(string $ja, string $en): string => $lang === 'ja' ? $ja : $en;
+?>
 
 <ol class="breadcrumb mb-3" aria-label="<?php echo ui_attr($t('パンくずリスト', 'Breadcrumbs')); ?>">
   <li class="breadcrumb-item"><a href="./"><?php echo ui_text($t('ホーム', 'Home')); ?></a></li>
@@ -34,7 +34,13 @@ $lang = $_SESSION['lang'] ?? ($_COOKIE['saso_locale'] ?? 'ja');
       <div class="card-body">
         <div class="row g-3 align-items-center">
           <div class="col-auto">
-            <?php echo \saso\util\AvatarHelper::render($v->member->avatarUrl, $v->member->displayName ?: $v->member->name, 96); ?>
+            <?php if ($v->member->avatarUrl): ?>
+              <img src="<?php echo ui_attr($v->member->avatarUrl); ?>"
+                   alt="<?php echo ui_attr($v->member->name); ?>"
+                   class="rounded-circle border" width="96" height="96">
+            <?php else: ?>
+              <span class="avatar avatar-xl bg-azure text-white" aria-hidden="true"><i class="bi bi-person fs-1"></i></span>
+            <?php endif; ?>
           </div>
           <div class="col">
             <dl class="row mb-0">

@@ -112,6 +112,15 @@
   </a>
 </div>
 
+<div class="saso-action-row mb-3">
+  <a href="./shelf/simple/" class="btn btn-outline-primary">
+    <i class="bi bi-grid-3x3-gap me-2" aria-hidden="true"></i>棚番号ラベルシートを作成
+  </a>
+  <a href="./label/start/" class="btn btn-outline-secondary">
+    <i class="bi bi-rulers me-2" aria-hidden="true"></i>ラベル寸法管理
+  </a>
+</div>
+
 <!-- ── 単一作成（最も多いユースケース → 上に配置） ───────────────────── -->
 <div class="card mb-3">
   <div class="card-header">

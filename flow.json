@@ -13,6 +13,9 @@
         "password": "\\saso\\auth\\PasswordDIContainer",
         "providerNew": "\\saso\\auth\\ProviderNewDIContainer"
     },
+    "admin": {
+        "auth-providers": "\\saso\\authExt\\ProvidersDIContainer"
+    },
     "image": {
         "start": "\\saso\\image\\StartDIContainer",
         "add": "\\saso\\image\\AddDIContainer",

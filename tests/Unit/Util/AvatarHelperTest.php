@@ -11,30 +11,34 @@ use saso\util\AvatarHelper;
 #[CoversClass(AvatarHelper::class)]
 final class AvatarHelperTest extends TestCase
 {
-    public function testImageUrlAcceptsHttpsImageWithQueryString(): void
+    public function testTrustedImageUrlAcceptsHttpImagesOnly(): void
     {
-        self::assertSame(
-            'https://cdn.example.com/avatar/profile.webp?size=96',
-            AvatarHelper::imageUrl(' https://cdn.example.com/avatar/profile.webp?size=96 '),
-        );
+        self::assertSame('https://example.com/avatar.webp', AvatarHelper::trustedImageUrl('https://example.com/avatar.webp'));
+        self::assertSame('http://example.com/avatar.png', AvatarHelper::trustedImageUrl('http://example.com/avatar.png'));
     }
 
-    public function testImageUrlRejectsUnsupportedSchemesAndFileTypes(): void
+    public function testTrustedImageUrlRejectsUnsafeOrUnsupportedUrls(): void
     {
-        self::assertNull(AvatarHelper::imageUrl('javascript:alert(1)'));
-        self::assertNull(AvatarHelper::imageUrl('ftp://example.com/avatar.png'));
-        self::assertNull(AvatarHelper::imageUrl('https://example.com/avatar.svg'));
-        self::assertNull(AvatarHelper::imageUrl('not-a-url'));
+        self::assertNull(AvatarHelper::trustedImageUrl('javascript:alert(1)'));
+        self::assertNull(AvatarHelper::trustedImageUrl('https://example.com/avatar.svg'));
+        self::assertNull(AvatarHelper::trustedImageUrl('not-a-url'));
+        self::assertNull(AvatarHelper::trustedImageUrl(''));
     }
 
-    public function testFallbackToneIsStableForSameSeed(): void
+    public function testRenderEscapesUserControlledValues(): void
     {
-        self::assertSame(AvatarHelper::fallbackTone('Alice'), AvatarHelper::fallbackTone('Alice'));
-        self::assertMatchesRegularExpression('/^bg-[a-z]+$/', AvatarHelper::fallbackTone('Alice'));
+        $html = AvatarHelper::render('https://example.com/a.png', 'Alice "Admin" <script>', 48);
+
+        self::assertStringContainsString('https://example.com/a.png', $html);
+        self::assertStringContainsString('Alice &quot;Admin&quot; &lt;script&gt;', $html);
+        self::assertStringNotContainsString('<script>', $html);
     }
 
-    public function testFallbackIconClassUsesPersonCircleIcon(): void
+    public function testRenderFallsBackWhenUrlIsMissingOrInvalid(): void
     {
-        self::assertStringContainsString('bi-person-circle', AvatarHelper::fallbackIconClass());
+        $html = AvatarHelper::render('https://example.com/a.svg', 'Alice', 48);
+
+        self::assertStringContainsString('bi-person-circle', $html);
+        self::assertStringNotContainsString('<img ', $html);
     }
 }

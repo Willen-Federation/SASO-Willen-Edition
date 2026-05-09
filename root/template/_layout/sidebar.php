@@ -11,7 +11,7 @@ if (!$authed) {
 }
 ?>
 <aside id="sidebar"
-       class="sidebar fixed left-0 top-0 z-9999 flex h-screen w-[290px] flex-col overflow-y-hidden border-r border-gray-200 bg-white px-5 transition-transform duration-200 ease-linear dark:border-gray-800 dark:bg-gray-dark lg:static lg:translate-x-0"
+       class="sidebar fixed left-0 top-0 z-9999 flex h-screen w-[290px] flex-col overflow-y-hidden border-r border-gray-300 bg-white px-5 transition-transform duration-200 ease-linear dark:border-gray-700 dark:bg-gray-dark lg:static lg:translate-x-0"
        :class="mobileOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'"
        aria-label="<?php echo ui_attr(__('ui.a11y.sidebar', [], null, 'Primary')); ?>">
 

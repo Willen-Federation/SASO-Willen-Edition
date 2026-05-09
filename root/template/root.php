@@ -23,6 +23,7 @@
 <!-- Primary CSS -->
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
 <link href="./css/app.css" rel="stylesheet">
+<link href="./css/tailadmin.css" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
 
 <!-- Favicon -->
@@ -40,6 +41,7 @@
 <title><?php echo ui_text($lang === 'ja' ? '在庫管理システム' : 'Inventory Management'); ?>「SASO<?php echo htmlspecialchars($v->version, ENT_QUOTES, 'UTF-8'); ?>」 - <?php echo htmlspecialchars($title, ENT_QUOTES, 'UTF-8'); ?></title>
 </head>
 <body class="bg-whiter text-black dark:bg-boxdark-2 dark:text-bodydark" x-data="{ mobileOpen: false }">
+  <?php require __DIR__ . '/_layout/skip_link.php'; ?>
 
   <!-- ===== Page Wrapper Start ===== -->
   <div class="flex h-screen overflow-hidden">
@@ -56,7 +58,7 @@
       <!-- ===== Header End ===== -->
 
       <!-- ===== Main Content Start ===== -->
-      <main class="mx-auto w-full max-w-(--breakpoint-2xl) p-4 md:p-6 2xl:p-10">
+      <main id="main-content" class="mx-auto w-full max-w-(--breakpoint-2xl) p-4 md:p-6 2xl:p-10">
         
         <!-- Breadcrumb -->
         <?php if ($authed && !empty($breadcrumb)): ?>

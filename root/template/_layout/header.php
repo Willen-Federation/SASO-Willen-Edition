@@ -9,14 +9,14 @@
  */
 ?>
 <header role="banner"
-        class="sticky top-0 z-9999 flex w-full border-b border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-dark">
+        class="sticky top-0 z-9999 flex w-full border-b border-gray-300 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-dark dark:shadow-none">
   <div class="flex grow items-center justify-between px-4 py-3 lg:px-6">
     <!-- Hamburger / sidebar toggle -->
     <div class="flex items-center gap-3">
       <?php if ($authed): ?>
         <button type="button"
                 @click="mobileOpen = !mobileOpen"
-                class="flex h-10 w-10 items-center justify-center rounded-lg border border-gray-200 hover:bg-gray-100 lg:hidden dark:border-gray-700 dark:hover:bg-white/[0.05]"
+                class="flex h-10 w-10 items-center justify-center rounded-lg border border-gray-300 hover:bg-gray-100 lg:hidden dark:border-gray-600 dark:hover:bg-white/[0.05]"
                 aria-label="<?php echo ui_attr(__('ui.a11y.toggle_sidebar', [], null, 'Toggle sidebar')); ?>">
           <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" aria-hidden="true">
             <path d="M3 6h18M3 12h18M3 18h18" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
@@ -52,7 +52,7 @@
       <!-- Theme toggle -->
       <button type="button"
               @click="toggle()"
-              class="flex h-10 w-10 items-center justify-center rounded-lg border border-gray-200 hover:bg-gray-100 dark:border-gray-700 dark:hover:bg-white/[0.05]"
+              class="flex h-10 w-10 items-center justify-center rounded-lg border border-gray-300 hover:bg-gray-100 dark:border-gray-600 dark:hover:bg-white/[0.05]"
               :aria-label="theme === 'dark' ? '<?php echo ui_attr(__('ui.a11y.switch_to_light', [], null, 'Switch to light mode')); ?>' : '<?php echo ui_attr(__('ui.a11y.switch_to_dark', [], null, 'Switch to dark mode')); ?>'">
         <svg x-show="theme === 'light'" class="h-5 w-5" viewBox="0 0 24 24" fill="none" aria-hidden="true">
           <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
@@ -71,7 +71,7 @@
         <div class="relative" x-data="taDropdown()" @click.outside="close()">
           <button type="button"
                   @click="toggle()"
-                  class="flex items-center gap-2 rounded-lg border border-gray-200 px-3 py-2 hover:bg-gray-100 dark:border-gray-700 dark:hover:bg-white/[0.05]"
+                  class="flex items-center gap-2 rounded-lg border border-gray-300 px-3 py-2 hover:bg-gray-100 dark:border-gray-600 dark:hover:bg-white/[0.05]"
                   :aria-expanded="open ? 'true' : 'false'">
             <span class="inline-flex h-7 w-7 items-center justify-center rounded-full bg-brand-50 text-brand-600 dark:bg-brand-500/15 dark:text-brand-400">
               <?php echo ui_text(mb_substr((string) ($userName ?? '?'), 0, 1)); ?>

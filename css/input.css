@@ -17,6 +17,12 @@
   *::after {
     box-sizing: border-box;
   }
+
+  /* Global keyboard focus ring — WCAG 2.1 SC 2.4.7 */
+  :focus-visible {
+    outline: 2px solid #3c50e0;
+    outline-offset: 2px;
+  }
 }
 
 @layer components {
@@ -154,13 +160,6 @@
   }
 }
 
-/* Print styles */
-@media print {
-  .no-print { display: none !important; }
-  .sidebar, header, nav { display: none !important; }
-  main { margin: 0 !important; padding: 0 !important; }
-}
-
 /* Scrollbar */
 ::-webkit-scrollbar {
   width: 6px;
@@ -262,6 +261,7 @@ body { background-color: var(--saso-body) !important; }
   display:         flex;
   align-items:     center;
   justify-content: center;
+  flex-shrink:     0;
   border-radius:   0.5rem;
   border:          1.5px solid var(--saso-ctrl-bdr);
   color:           var(--saso-ctrl-text);
@@ -269,6 +269,11 @@ body { background-color: var(--saso-body) !important; }
   transition:      background-color 150ms, border-color 150ms;
 }
 .saso-header-btn:hover { background-color: var(--saso-ctrl-hover); }
+/* Icon-only square variant */
+.saso-header-btn.saso-icon-btn {
+  width:  2.5rem;
+  height: 2.5rem;
+}
 
 /* ─── Header search ─── */
 .saso-header-search {
@@ -321,3 +326,76 @@ body { background-color: var(--saso-body) !important; }
 .saso-tile-accent-success  { border-top: 3px solid #219653; }
 .saso-tile-accent-warning  { border-top: 3px solid #ffa70b; }
 .saso-tile-accent-gray     { border-top: 3px solid #94a3b8; }
+
+/* ─── TailAdmin component token overrides ────────────────────────────────
+   tailadmin.css uses hardcoded Tailwind colors; these !important overrides
+   inject the SASO token system so both light/dark themes work correctly.   */
+
+/* Card surfaces — respect SASO dark panel color */
+.ta-card {
+  background-color: var(--saso-card) !important;
+  border-color:     var(--saso-card-bdr) !important;
+}
+
+/* Form inputs use SASO control tokens */
+.form-input,
+.form-select,
+.form-textarea {
+  background-color: var(--saso-ctrl-bg) !important;
+  border-color:     var(--saso-ctrl-bdr) !important;
+  color:            var(--saso-text)     !important;
+}
+.form-input::placeholder,
+.form-textarea::placeholder { color: var(--saso-text-sub) !important; }
+.form-input:focus,
+.form-select:focus,
+.form-textarea:focus {
+  border-color: var(--saso-ctrl-focus) !important;
+  box-shadow:   0 0 0 3px rgba(60,80,224,0.18) !important;
+  outline:      none;
+}
+.dark .form-input:focus,
+.dark .form-select:focus,
+.dark .form-textarea:focus {
+  box-shadow: 0 0 0 3px rgba(107,124,240,0.28) !important;
+}
+
+/* Buttons — use SASO brand color */
+.btn-primary {
+  background-color: #3c50e0 !important;
+  color: #ffffff !important;
+}
+.btn-primary:hover { background-color: #2a3ccc !important; }
+
+.btn-secondary {
+  background-color: var(--saso-ctrl-bg)  !important;
+  border-color:     var(--saso-ctrl-bdr) !important;
+  color:            var(--saso-text)     !important;
+}
+.btn-secondary:hover { background-color: var(--saso-ctrl-hover) !important; }
+
+/* Skip-link: keep visible above all overlays when focused */
+a[href="#main-content"]:focus {
+  position: fixed !important;
+  z-index:  99999 !important;
+}
+
+/* High-contrast focus ring for saso-header controls */
+.saso-header-btn:focus-visible {
+  outline:        2px solid var(--saso-ctrl-focus);
+  outline-offset: 2px;
+  box-shadow:     none;
+}
+
+/* Reduced-motion: disable tile hover transform */
+@media (prefers-reduced-motion: reduce) {
+  .saso-tile,
+  .saso-tile:hover { transform: none !important; transition: none !important; }
+  * { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+}
+
+/* ─── Print ─── */
+@media print {
+  .saso-header, .saso-sidebar, .ta-sidebar-overlay, footer { display: none !important; }
+  main { margin: 0 !important; padding: 0 !important; }
+}

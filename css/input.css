@@ -181,69 +181,143 @@
 /* Hidden utility (legacy compat) */
 .hidden { display: none; }
 
-/* ─── SASO Layout overrides ─── */
+/* ═══════════════════════════════════════════════════════════════════
+   SASO Design System — Integrated Color Token System
+   All values verified against WCAG 2.1 AA / AA-Large targets.
 
-/* Dark header bar */
+   Light:  body #c4d4e4  |  panels #ffffff  |  border #5a7090
+           border-vs-panel 5.1:1 (AA)  border-vs-body 3.3:1 (AA-L)
+           primary text 9.7:1 AAA  secondary text 3.1:1 AA-L
+
+   Dark:   body #08111f  |  panels #1a2b40  |  border #5a7d9f
+           border-vs-panel 3.3:1 (AA-L)  border-vs-body 4.4:1 (AA-L)
+           primary text 13–17:1 AAA  secondary text 5.6:1 AA
+   ═══════════════════════════════════════════════════════════════════ */
+
+:root {
+  /* ── Light surfaces ── */
+  --saso-body:         #c4d4e4;   /* blue-gray backdrop; clearly ≠ white panels */
+  --saso-sidebar:      #ffffff;
+  --saso-sidebar-bdr:  #5a7090;   /* 5.1:1 vs white, 3.3:1 vs body → AA/AA-L  */
+  --saso-header:       #ffffff;
+  --saso-header-bdr:   #3c50e0;   /* brand accent underline (3 px)              */
+  --saso-card:         #ffffff;
+  --saso-card-bdr:     #5a7090;
+  --saso-footer:       #d8e4ef;   /* slightly lighter than body                 */
+  --saso-footer-bdr:   #5a7090;
+  /* ── Light text ── */
+  --saso-text:         #1e293b;   /* 9.7:1 on body  — AAA                      */
+  --saso-text-sub:     #64748b;   /* 3.1:1 on body  — AA-Large                 */
+  /* ── Light controls ── */
+  --saso-ctrl-bg:      #f4f8fc;
+  --saso-ctrl-bdr:     #7a90a8;   /* 3.1:1 vs ctrl-bg — AA-Large               */
+  --saso-ctrl-text:    #1e3a5a;
+  --saso-ctrl-hover:   #dde8f4;
+  --saso-ctrl-focus:   #3c50e0;
+}
+
+.dark {
+  /* ── Dark surfaces ── */
+  --saso-body:         #08111f;   /* near-black navy                            */
+  --saso-sidebar:      #1a2b40;   /* distinctly lighter panel                   */
+  --saso-sidebar-bdr:  #5a7d9f;   /* 3.3:1 vs panel, 4.4:1 vs body → AA-L     */
+  --saso-header:       #1a2b40;
+  --saso-header-bdr:   #6b7cf0;   /* 3.9:1 vs panel — AA-Large                 */
+  --saso-card:         #1a2b40;
+  --saso-card-bdr:     #5a7d9f;
+  --saso-footer:       #1a2b40;
+  --saso-footer-bdr:   #5a7d9f;
+  /* ── Dark text ── */
+  --saso-text:         #f0f4f9;   /* 17:1 on body, 13:1 on panel — AAA         */
+  --saso-text-sub:     #8ba4be;   /* 5.6:1 on panel — AA                       */
+  /* ── Dark controls ── */
+  --saso-ctrl-bg:      rgba(255,255,255,0.06);
+  --saso-ctrl-bdr:     #5a7d9f;   /* reuse panel border — 3.3:1 on panel       */
+  --saso-ctrl-text:    #c0d4e8;   /* 9.4:1 on panel — AAA                      */
+  --saso-ctrl-hover:   rgba(255,255,255,0.11);
+  --saso-ctrl-focus:   #6b7cf0;
+}
+
+/* ─── Body background — token wins over utility classes ─── */
+body { background-color: var(--saso-body) !important; }
+
+/* ─── Sidebar ─── */
+.saso-sidebar {
+  background-color: var(--saso-sidebar) !important;
+  border-right: 2px solid var(--saso-sidebar-bdr) !important;
+}
+
+/* ─── Header ─── */
 .saso-header {
-  background-color: #24303f;
-  border-bottom-color: rgba(255,255,255,0.08);
+  background-color: var(--saso-header) !important;
+  border-bottom: 3px solid var(--saso-header-bdr) !important;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.07);
 }
 .dark .saso-header {
-  background-color: rgb(26 34 49);
-  border-bottom-color: rgba(255,255,255,0.06);
+  box-shadow: 0 2px 10px rgba(0,0,0,0.4);
 }
 
-/* Icon buttons on the dark header */
+/* ─── Header control buttons (hamburger, theme, lang, user) ─── */
 .saso-header-btn {
-  display: flex;
-  align-items: center;
+  display:         flex;
+  align-items:     center;
   justify-content: center;
-  border-radius: 0.5rem;
-  border: 1px solid rgba(255,255,255,0.22);
-  color: #e5e7eb;
-  transition: background-color 150ms;
+  border-radius:   0.5rem;
+  border:          1.5px solid var(--saso-ctrl-bdr);
+  color:           var(--saso-ctrl-text);
+  background-color:var(--saso-ctrl-bg);
+  transition:      background-color 150ms, border-color 150ms;
 }
-.saso-header-btn:hover {
-  background-color: rgba(255,255,255,0.1);
-}
+.saso-header-btn:hover { background-color: var(--saso-ctrl-hover); }
 
-/* Search input on dark header */
+/* ─── Header search ─── */
 .saso-header-search {
-  background-color: rgba(255,255,255,0.09);
-  border: 1px solid rgba(255,255,255,0.18);
-  color: #f3f4f6;
-  border-radius: 0.75rem;
+  background-color: var(--saso-ctrl-bg);
+  border:           1.5px solid var(--saso-ctrl-bdr);
+  color:            var(--saso-text);
+  border-radius:    0.75rem;
+  transition:       background-color 150ms, border-color 150ms, box-shadow 150ms;
 }
-.saso-header-search::placeholder {
-  color: rgba(255,255,255,0.38);
-}
+.saso-header-search::placeholder { color: var(--saso-text-sub); }
 .saso-header-search:focus {
-  outline: none;
-  background-color: rgba(255,255,255,0.15);
-  border-color: #6366f1;
-  box-shadow: 0 0 0 1px #6366f1;
+  outline:          none;
+  background-color: #ffffff;
+  border-color:     var(--saso-ctrl-focus);
+  box-shadow:       0 0 0 3px rgba(60,80,224,0.18);
+}
+.dark .saso-header-search:focus {
+  background-color: rgba(255,255,255,0.12);
+  box-shadow:       0 0 0 3px rgba(79,70,229,0.28);
 }
 
-/* Dashboard tiles */
+/* ─── Footer ─── */
+.saso-footer {
+  background-color: var(--saso-footer) !important;
+  border-top:       1.5px solid var(--saso-footer-bdr) !important;
+}
+
+/* ─── Dashboard tiles ─── */
 .saso-tile {
-  display: block;
-  border-radius: 0.75rem;
-  border: 1px solid #e5e7eb;
-  background: #fff;
-  padding: 1.25rem;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
-  transition: box-shadow 200ms, transform 200ms;
+  display:          block;
+  border-radius:    0.875rem;
+  border:           1.5px solid var(--saso-card-bdr);
+  background-color: var(--saso-card);
+  padding:          1.25rem;
+  box-shadow:       0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04);
+  transition:       box-shadow 220ms cubic-bezier(.4,0,.2,1),
+                    transform  220ms cubic-bezier(.4,0,.2,1);
   text-decoration: none;
 }
 .saso-tile:hover {
-  box-shadow: 0 8px 24px rgba(0,0,0,0.12);
-  transform: translateY(-2px);
+  box-shadow:       0 12px 32px rgba(0,0,0,0.16);
+  transform:        translateY(-3px);
+  text-decoration: none;
 }
-.dark .saso-tile {
-  border-color: rgba(255,255,255,0.07);
-  background: rgba(255,255,255,0.03);
-}
-.saso-tile-accent-primary { border-top: 3px solid #3C50E0; }
+.dark .saso-tile         { box-shadow: 0 1px 3px rgba(0,0,0,0.45); }
+.dark .saso-tile:hover   { box-shadow: 0 12px 32px rgba(0,0,0,0.6); }
+
+/* Tile tone accent bars */
+.saso-tile-accent-primary { border-top: 3px solid #3c50e0; }
 .saso-tile-accent-success  { border-top: 3px solid #219653; }
-.saso-tile-accent-warning  { border-top: 3px solid #FFA70B; }
+.saso-tile-accent-warning  { border-top: 3px solid #ffa70b; }
 .saso-tile-accent-gray     { border-top: 3px solid #94a3b8; }

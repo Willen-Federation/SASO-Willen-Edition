@@ -23,7 +23,7 @@ $returnTo = $_SERVER['REQUEST_URI'] ?? './';
       <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.5"/>
       <path d="M3 12h18M12 3a14.5 14.5 0 0 1 0 18M12 3a14.5 14.5 0 0 0 0 18" stroke="currentColor" stroke-width="1.5"/>
     </svg>
-    <span class="hidden text-xs uppercase text-gray-200 sm:inline">
+    <span class="hidden text-xs uppercase sm:inline" style="color:var(--saso-ctrl-text)">
       <?php echo ui_text($currentLocale); ?>
     </span>
   </button>

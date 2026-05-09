@@ -34,14 +34,15 @@
   <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
 
     <!-- Step 1: Barcode entry -->
-    <div class="card">
-      <div class="card-header">
-        <h2 class="font-semibold text-black dark:text-white">
-          <span class="inline-flex h-6 w-6 items-center justify-center rounded-full bg-brand-500 text-white text-xs mr-2">1</span>
+    <div class="rounded-2xl border overflow-hidden"
+         style="background:var(--saso-card);border-color:var(--saso-card-bdr)">
+      <div class="border-b px-5 py-4" style="border-color:var(--saso-card-bdr)">
+        <h2 class="flex items-center gap-2 font-semibold" style="color:var(--saso-text)">
+          <span class="inline-flex h-6 w-6 items-center justify-center rounded-full text-white text-xs" style="background:#3c50e0">1</span>
           <?php echo $lang === 'ja' ? 'バーコードを入力・スキャン' : 'Enter or Scan Barcode'; ?>
         </h2>
       </div>
-      <div class="card-body">
+      <div class="px-5 py-5">
         <p class="mb-4 text-sm text-gray-600 dark:text-gray-400">
           <?php echo $lang === 'ja'
             ? 'バーコードシートから印刷したバーコードをスキャンするか、番号を直接入力してください。'
@@ -82,7 +83,7 @@
         </div>
 
         <!-- Lookup result: already registered -->
-        <div x-show="lookupResult && lookupResult.item && lookupResult.item.id" class="alert alert-success mt-4">
+        <div x-show="lookupResult && lookupResult.item && lookupResult.item.id" class="ta-alert ta-alert-success mt-4">
           <?php ui('iconHeroicon', ['name' => 'check-square', 'class' => 'h-5 w-5 shrink-0']); ?>
           <div>
             <p class="font-medium"><?php echo $lang === 'ja' ? '商品登録済み' : 'Already Registered'; ?></p>
@@ -96,15 +97,15 @@
     </div>
 
     <!-- Step 2: Register product info -->
-    <div class="col-lg-6">
-      <div class="card h-100">
-        <div class="card-header">
-          <h3 class="card-title">
-            <span class="badge bg-primary rounded-circle me-2">2</span>
-            <?php echo $lang === 'ja' ? '商品情報を入力' : 'Enter Product Info'; ?>
-          </h3>
-        </div>
-        <div class="card-body">
+    <div class="rounded-2xl border overflow-hidden"
+         style="background:var(--saso-card);border-color:var(--saso-card-bdr)">
+      <div class="border-b px-5 py-4" style="border-color:var(--saso-card-bdr)">
+        <h3 class="flex items-center gap-2 font-semibold" style="color:var(--saso-text)">
+          <span class="inline-flex h-6 w-6 items-center justify-center rounded-full text-white text-xs" style="background:#3c50e0">2</span>
+          <?php echo $lang === 'ja' ? '商品情報を入力' : 'Enter Product Info'; ?>
+        </h3>
+      </div>
+      <div class="px-5 py-5">
           <form method="post" action="./item/registerFromBarcode/" novalidate>
             <input type="hidden" name="csrftoken" value="<?php echo ui_attr(\saso\util\CSRFtoken::current()); ?>">
             <input type="hidden" name="barcodeId" :value="barcodeInput">
@@ -121,11 +122,11 @@
 
           <div class="mb-4 grid grid-cols-2 gap-3">
             <div>
-              <label for="fb-color" class="form-label"><?php echo $lang === 'ja' ? '色' : 'Color'; ?> <span class="text-danger">*</span></label>
+              <label for="fb-color" class="form-label"><?php echo $lang === 'ja' ? '色' : 'Color'; ?> <span class="text-error-500">*</span></label>
               <input id="fb-color" type="text" name="colorName" class="form-input" required aria-required="true" placeholder="<?php echo $lang === 'ja' ? '赤, 青' : 'Red, Blue'; ?>">
             </div>
             <div>
-              <label for="fb-size" class="form-label"><?php echo $lang === 'ja' ? 'サイズ' : 'Size'; ?> <span class="text-danger">*</span></label>
+              <label for="fb-size" class="form-label"><?php echo $lang === 'ja' ? 'サイズ' : 'Size'; ?> <span class="text-error-500">*</span></label>
               <input id="fb-size" type="text" name="sizeName" class="form-input" required aria-required="true" placeholder="S, M, L">
             </div>
           </div>
@@ -156,7 +157,7 @@
       </div>
     </div>
 
-  </div>
+  </div><!-- /grid -->
 
 </div>
 

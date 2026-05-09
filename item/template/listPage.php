@@ -1,10 +1,13 @@
 <?php $this->title = '商品一覧'; ?>
 <?php $this->content = function($v) { ?>
 
-<ol class="breadcrumb mb-3" aria-label="breadcrumbs">
-  <li class="breadcrumb-item"><a href="./">ホーム</a></li>
-  <li class="breadcrumb-item active" aria-current="page">商品一覧</li>
-</ol>
+<nav aria-label="パンくずリスト">
+  <ol class="mb-5 flex items-center gap-1.5 text-sm" style="color:var(--saso-text-sub)">
+    <li><a href="./" class="hover:underline" style="color:var(--saso-text-sub)">ホーム</a></li>
+    <li aria-hidden="true">/</li>
+    <li aria-current="page" style="color:var(--saso-text)">商品一覧</li>
+  </ol>
+</nav>
 
 <?php ($v->inside)('item', 'listFrame', $v->isArchive); ?>
 

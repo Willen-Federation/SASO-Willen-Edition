@@ -201,10 +201,10 @@ $this->content = function ($v) {
       </div>
 
       {{-- Success / error messages --}}
-      <div x-show="submitSuccess" class="alert alert-success mb-4" role="status">
+      <div x-show="submitSuccess" class="ta-alert ta-alert-success mb-4" role="status">
         <?php echo ui_text($lang === 'ja' ? '登録しました' : 'Registered successfully'); ?>
       </div>
-      <div x-show="submitError" x-text="submitError" class="alert alert-danger mb-4" role="alert"></div>
+      <div x-show="submitError" x-text="submitError" class="ta-alert ta-alert-danger mb-4" role="alert"></div>
 
       {{-- Submit --}}
       <button

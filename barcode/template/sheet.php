@@ -16,8 +16,8 @@
   ];
 ?>
 
-<div class="mb-6 alert alert-success">
-  <?php ui('iconHeroicon', ['name' => 'shield', 'class' => 'h-5 w-5 shrink-0']); ?>
+<div class="ta-alert ta-alert-info mb-6">
+  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true" focusable="false"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
   <div class="text-sm">
     <strong><?php echo $lang === 'ja' ? 'バーコードファースト方式' : 'Barcode-First Workflow'; ?></strong><br>
     <?php echo $lang === 'ja'
@@ -25,8 +25,6 @@
       : 'Print management barcode sheets first, then attach product information later via "Register from Barcode".'; ?>
   </div>
 </div>
-
-<script src="https://cdn.tailwindcss.com"></script>
 <div
   class="p-6 max-w-7xl mx-auto"
   x-data='{
@@ -195,90 +193,65 @@
           <p x-text="(selectedLayout && selectedLayout.id === 'custom' ? customW : (selectedLayout ? selectedLayout.w_mm : 0)) + 'mm × ' + (selectedLayout && selectedLayout.id === 'custom' ? customH : (selectedLayout ? selectedLayout.h_mm : 0)) + 'mm'"></p>
         </div>
 
-          <div>
-            <label class="form-label"><?php echo $lang === 'ja' ? '開始番号' : 'Start Number'; ?></label>
-            <input x-model.number="startNo" type="number" min="1" max="99999" class="form-control" aria-label="開始番号">
-          </div>
-
-          <div>
-            <label class="form-label"><?php echo $lang === 'ja' ? '枚数' : 'Count'; ?></label>
-            <input x-model.number="count" type="number" min="1" max="999" class="form-control" :max="labelsPerSheet * 10" aria-label="枚数">
-            <div class="form-text">
-              <?php echo $lang === 'ja' ? '1シートあたり ' : 'Per sheet: '; ?>
-              <strong x-text="labelsPerSheet"></strong>
-              <?php echo $lang === 'ja' ? ' 面' : ' labels'; ?>
-              （<span x-text="Math.ceil(count / labelsPerSheet)"></span>
-              <?php echo $lang === 'ja' ? ' ページ）' : ' page(s)）'; ?>
-            </div>
-          </div>
-
-          <!-- Selected layout summary -->
-          <div x-show="selectedLayout" class="border rounded p-3 small text-muted">
-            <div class="fw-semibold text-body mb-1" x-text="selectedLayout && selectedLayout.name ? selectedLayout.name : ''"></div>
-            <div x-text="selectedLayout && selectedLayout.desc ? selectedLayout.desc : ''"></div>
-            <div x-text="(selectedLayout && selectedLayout.id === 'custom' ? customW : (selectedLayout ? selectedLayout.w_mm : 0)) + 'mm × ' + (selectedLayout && selectedLayout.id === 'custom' ? customH : (selectedLayout ? selectedLayout.h_mm : 0)) + 'mm'"></div>
-          </div>
-
-          <form method="post" action="./barcode/printSheet/" target="_blank">
-            <input type="hidden" name="csrftoken" value="<?php echo ui_attr(\saso\util\CSRFtoken::current()); ?>">
-            <input type="hidden" name="layoutId" :value="selectedLayout && selectedLayout.id ? selectedLayout.id : ''">
-            <input type="hidden" name="cols"     :value="selectedLayout && selectedLayout.id === 'custom' ? customCols : (selectedLayout ? selectedLayout.cols : 0)">
-            <input type="hidden" name="rows"     :value="selectedLayout && selectedLayout.id === 'custom' ? customRows : (selectedLayout ? selectedLayout.rows : 0)">
-            <input type="hidden" name="wMm"      :value="selectedLayout && selectedLayout.id === 'custom' ? customW : (selectedLayout ? selectedLayout.w_mm : 0)">
-            <input type="hidden" name="hMm"      :value="selectedLayout && selectedLayout.id === 'custom' ? customH : (selectedLayout ? selectedLayout.h_mm : 0)">
-            <input type="hidden" name="prefix"   :value="prefix">
-            <input type="hidden" name="startNo"  :value="startNo">
-            <input type="hidden" name="count"    :value="count">
-            <button type="submit" class="btn btn-primary w-100" :disabled="!selectedLayout">
-              <i class="bi bi-printer me-2" aria-hidden="true"></i>
-              <?php echo $lang === 'ja' ? 'バーコードシートを印刷' : 'Print Barcode Sheet'; ?>
-            </span>
+        <form method="post" action="./barcode/printSheet/" target="_blank">
+          <input type="hidden" name="csrftoken" value="<?php echo ui_attr(\saso\util\CSRFtoken::current()); ?>">
+          <input type="hidden" name="layoutId" :value="selectedLayout && selectedLayout.id ? selectedLayout.id : ''">
+          <input type="hidden" name="cols"     :value="selectedLayout && selectedLayout.id === 'custom' ? customCols : (selectedLayout ? selectedLayout.cols : 0)">
+          <input type="hidden" name="rows"     :value="selectedLayout && selectedLayout.id === 'custom' ? customRows : (selectedLayout ? selectedLayout.rows : 0)">
+          <input type="hidden" name="wMm"      :value="selectedLayout && selectedLayout.id === 'custom' ? customW : (selectedLayout ? selectedLayout.w_mm : 0)">
+          <input type="hidden" name="hMm"      :value="selectedLayout && selectedLayout.id === 'custom' ? customH : (selectedLayout ? selectedLayout.h_mm : 0)">
+          <input type="hidden" name="prefix"   :value="prefix">
+          <input type="hidden" name="startNo"  :value="startNo">
+          <input type="hidden" name="count"    :value="count">
+          <button type="submit" class="btn btn-primary w-full" :disabled="!selectedLayout">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true" focusable="false"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
+            <?php echo $lang === 'ja' ? 'バーコードシートを印刷' : 'Print Barcode Sheet'; ?>
           </button>
         </form>
 
-          <a href="./item/fromBarcode/" class="btn btn-outline-secondary w-100">
-            <i class="bi bi-barcode me-2" aria-hidden="true"></i>
-            <?php echo $lang === 'ja' ? 'バーコードから商品登録 →' : 'Register from Barcode →'; ?>
-          </a>
+        <a href="./item/fromBarcode/" class="btn btn-secondary w-full">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true" focusable="false"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"/></svg>
+          <?php echo $lang === 'ja' ? 'バーコードから商品登録 →' : 'Register from Barcode →'; ?>
+        </a>
 
-          <!-- ── Save layout to label database ───────────────────────── -->
-          <div x-show="selectedLayout && selectedLayout.id !== 'custom'" x-transition>
-            <hr class="my-2">
-            <p class="small text-muted mb-2">
-              <i class="bi bi-floppy me-1" aria-hidden="true"></i>
-              <?php echo $lang === 'ja' ? 'このレイアウトをラベル寸法に登録' : 'Save layout as label size'; ?>
-            </p>
-            <form method="post" action="./label/add/">
-              <input type="hidden" name="csrftoken" value="<?php echo ui_attr(\saso\util\CSRFtoken::current()); ?>">
-              <div class="mb-2">
-                <input
-                  type="text"
-                  name="labelName"
-                  x-model="saveLabelName"
-                  class="form-control form-control-sm"
-                  maxlength="50"
-                  pattern="^[0-9A-Za-z_-]{1,50}$"
-                  placeholder="<?php echo $lang === 'ja' ? 'ラベル名（半角英数・ハイフン）' : 'Label name (alphanumeric/-)'; ?>"
-                  required
-                >
-              </div>
-              <input type="hidden" name="width"          :value="selectedLayout ? selectedLayout.w_mm : 0">
-              <input type="hidden" name="height"         :value="selectedLayout ? selectedLayout.h_mm : 0">
-              <input type="hidden" name="marginLeft"     :value="selectedLayout ? selectedLayout.margin_left : 0">
-              <input type="hidden" name="marginTop"      :value="selectedLayout ? selectedLayout.margin_top : 0">
-              <input type="hidden" name="intervalColumn" value="0">
-              <input type="hidden" name="intervalRow"    value="0">
-              <button type="submit" class="btn btn-outline-success btn-sm w-100"
-                      :disabled="!selectedLayout || !saveLabelName">
-                <i class="bi bi-plus me-1" aria-hidden="true"></i>
-                <?php echo $lang === 'ja' ? 'ラベル寸法として保存' : 'Save as label size'; ?>
-              </button>
-            </form>
-          </div>
-
+        <!-- ── Save layout to label database ───────────────────────── -->
+        <div x-show="selectedLayout && selectedLayout.id !== 'custom'" x-transition>
+          <hr class="my-3" style="border-color:var(--saso-card-bdr)">
+          <p class="text-xs mb-2 flex items-center gap-1" style="color:var(--saso-text-sub)">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true" focusable="false"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"/></svg>
+            <?php echo $lang === 'ja' ? 'このレイアウトをラベル寸法に登録' : 'Save layout as label size'; ?>
+          </p>
+          <form method="post" action="./label/add/">
+            <input type="hidden" name="csrftoken" value="<?php echo ui_attr(\saso\util\CSRFtoken::current()); ?>">
+            <div class="mb-2">
+              <input
+                type="text"
+                name="labelName"
+                x-model="saveLabelName"
+                class="form-input text-sm py-2 w-full"
+                maxlength="50"
+                pattern="^[0-9A-Za-z_-]{1,50}$"
+                placeholder="<?php echo $lang === 'ja' ? 'ラベル名（半角英数・ハイフン）' : 'Label name (alphanumeric/-)'; ?>"
+                required
+              >
+            </div>
+            <input type="hidden" name="width"          :value="selectedLayout ? selectedLayout.w_mm : 0">
+            <input type="hidden" name="height"         :value="selectedLayout ? selectedLayout.h_mm : 0">
+            <input type="hidden" name="marginLeft"     :value="selectedLayout ? selectedLayout.margin_left : 0">
+            <input type="hidden" name="marginTop"      :value="selectedLayout ? selectedLayout.margin_top : 0">
+            <input type="hidden" name="intervalColumn" value="0">
+            <input type="hidden" name="intervalRow"    value="0">
+            <button type="submit" class="btn btn-secondary btn-sm w-full"
+                    :disabled="!selectedLayout || !saveLabelName">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true" focusable="false"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+              <?php echo $lang === 'ja' ? 'ラベル寸法として保存' : 'Save as label size'; ?>
+            </button>
+          </form>
         </div>
+
       </div>
     </div>
+  </div>
 
   </div>
 

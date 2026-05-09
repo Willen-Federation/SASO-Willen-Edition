@@ -5,103 +5,63 @@ $this->title = $lang === 'ja' ? 'パスワード変更' : 'Change Password';
 <?php $this->content = function ($v) { ?>
 <?php $lang = $_SESSION['lang'] ?? ($_COOKIE['saso_locale'] ?? 'ja'); ?>
 
-<div class="flex justify-center px-4 py-6">
+<nav aria-label="breadcrumb" class="mb-4">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="/">ホーム</a></li>
+    <li class="breadcrumb-item active" aria-current="page">パスワード変更</li>
+  </ol>
+</nav>
+
+<div class="flex justify-center">
   <div class="w-full max-w-lg">
+    <div class="rounded-2xl border shadow-sm" style="background:var(--saso-card);border-color:var(--saso-card-bdr)">
+      <div class="px-6 py-5">
 
-    <?php if ($v->changed) { ?>
-      <div class="ta-alert ta-alert-success mb-5" role="status">
-        <svg class="mt-0.5 h-4 w-4 shrink-0" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-          <path fill-rule="evenodd" d="M10 18a8 8 0 1 0 0-16 8 8 0 0 0 0 16zm3.707-9.293a1 1 0 0 0-1.414-1.414L9 10.586 7.707 9.293a1 1 0 0 0-1.414 1.414l2 2a1 1 0 0 0 1.414 0l4-4z" clip-rule="evenodd"/>
-        </svg>
-        <span><?php echo ui_text($lang === 'ja' ? 'パスワードが変更されました。' : 'Password changed successfully.'); ?></span>
-      </div>
-    <?php } ?>
+        <?php if ($v->changed) { ?>
+          <div class="ta-alert ta-alert-success mb-4" role="alert">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true" focusable="false"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            パスワードが変更されました。
+          </div>
+        <?php } ?>
+        <?php if ($v->errorNow) { ?>
+          <div class="ta-alert ta-alert-danger mb-4" role="alert">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true" focusable="false"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/></svg>
+            現在のパスワードが正しくありません。
+          </div>
+        <?php } ?>
 
-    <?php if ($v->errorNow) { ?>
-      <div class="ta-alert ta-alert-danger mb-5" role="alert">
-        <svg class="mt-0.5 h-4 w-4 shrink-0" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-          <path fill-rule="evenodd" d="M10 18a8 8 0 1 0 0-16 8 8 0 0 0 0 16zm-.75-5.25a.75.75 0 0 0 1.5 0V10a.75.75 0 0 0-1.5 0v2.75zm0-5.5a.75.75 0 0 0 1.5 0v-.25a.75.75 0 0 0-1.5 0v.25z" clip-rule="evenodd"/>
-        </svg>
-        <span><?php echo ui_text($lang === 'ja' ? '現在のパスワードが正しくありません。' : 'The current password is incorrect.'); ?></span>
-      </div>
-    <?php } ?>
+        <p class="text-sm mb-5" style="color:var(--saso-text-sub)">パスワードはどこかに書き留めておいて下さい。忘れると、復元できません。</p>
 
-    <div class="rounded-2xl border"
-         style="background:var(--saso-card);border-color:var(--saso-card-bdr);box-shadow:0 2px 12px rgba(0,0,0,0.08)">
-      <div class="border-b px-6 py-4" style="border-color:var(--saso-card-bdr)">
-        <h2 class="text-base font-semibold" style="color:var(--saso-text)">
-          <?php echo ui_text($lang === 'ja' ? 'パスワード変更' : 'Change Password'); ?>
-        </h2>
-        <p class="mt-1 text-sm" style="color:var(--saso-text-sub)">
-          <?php echo ui_text($lang === 'ja'
-            ? 'パスワードはどこかに書き留めておいて下さい。忘れると、復元できません。'
-            : 'Write your password down somewhere safe — it cannot be recovered if forgotten.'); ?>
-        </p>
-      </div>
-
-      <div class="px-6 py-6">
-        <form method="post" action="/start/password/" novalidate>
-
+        <form method="post" action="/start/password/">
           <div class="mb-4">
-            <label for="nowPassword" class="form-label">
-              <?php echo ui_text($lang === 'ja' ? '現在のパスワード' : 'Current Password'); ?>
-            </label>
-            <input id="nowPassword" type="password" name="now"
-                   class="form-input"
-                   pattern="^[0-9a-zA-Z_-]{8,64}$"
-                   maxlength="64"
-                   required
-                   aria-required="true"
-                   autocomplete="current-password">
+            <label for="nowPassword" class="mb-1.5 block text-sm font-medium" style="color:var(--saso-text)">現在のパスワード</label>
+            <input id="nowPassword" type="password" name="now" class="form-input w-full"
+                   pattern="^[0-9a-zA-Z_-]{8,64}$" maxlength="64" required autocomplete="current-password"
+                   aria-required="true">
           </div>
-
           <div class="mb-4">
-            <label for="newPassword" class="form-label">
-              <?php echo ui_text($lang === 'ja' ? '新しいパスワード' : 'New Password'); ?>
-            </label>
-            <input id="newPassword" type="password" name="new"
-                   class="form-input"
-                   pattern="^[0-9a-zA-Z_-]{8,64}$"
-                   maxlength="64"
-                   required
-                   aria-required="true"
-                   aria-describedby="newPasswordHint"
-                   autocomplete="new-password">
-            <p id="newPasswordHint" class="mt-1 text-xs" style="color:var(--saso-text-sub)">
-              <?php echo ui_text($lang === 'ja' ? '半角英数字・ハイフン・アンダーバー、8〜64文字' : '8–64 characters: letters, numbers, hyphens, or underscores'); ?>
-            </p>
+            <label for="newPassword" class="mb-1.5 block text-sm font-medium" style="color:var(--saso-text)">新しいパスワード</label>
+            <input id="newPassword" type="password" name="new" class="form-input w-full"
+                   pattern="^[0-9a-zA-Z_-]{8,64}$" maxlength="64" required autocomplete="new-password"
+                   aria-required="true">
+            <p class="mt-1 text-xs" style="color:var(--saso-text-sub)"><?php echo ui_text($lang === 'ja' ? '半角英数字・ハイフン・アンダーバー、8〜64文字' : '8-64 letters, numbers, hyphen, or underscore'); ?></p>
           </div>
-
-          <div class="mb-6">
-            <label for="confirmPassword" class="form-label">
-              <?php echo ui_text($lang === 'ja' ? '新しいパスワード確認' : 'Confirm New Password'); ?>
-            </label>
-            <input id="confirmPassword" type="password" name="confirm"
-                   class="form-input"
-                   pattern="^[0-9a-zA-Z_-]{8,64}$"
-                   maxlength="64"
-                   required
-                   aria-required="true"
-                   aria-describedby="confirmPasswordError"
-                   autocomplete="new-password">
-            <p id="confirmPasswordError" class="mt-1 hidden text-xs text-red-600 dark:text-red-400" role="alert">
-              <?php echo ui_text($lang === 'ja' ? 'パスワードが一致しません。' : 'Passwords do not match.'); ?>
-            </p>
+          <div class="mb-5">
+            <label for="confirmPassword" class="mb-1.5 block text-sm font-medium" style="color:var(--saso-text)">新しいパスワード確認</label>
+            <input id="confirmPassword" type="password" name="confirm" class="form-input w-full"
+                   pattern="^[0-9a-zA-Z_-]{8,64}$" maxlength="64" required autocomplete="new-password"
+                   aria-required="true">
+            <p id="confirmPasswordError" class="mt-1 text-xs text-error-500 hidden" role="alert">パスワードが一致しません。</p>
           </div>
-
-          <button id="changePasswordSubmit" type="submit"
-                  class="btn btn-primary w-full"
-                  disabled>
-            <svg class="h-4 w-4 shrink-0" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-              <path d="M15 7a2 2 0 0 1 2 2m4 0a6 6 0 0 1-7.743 5.743L11 17H9v2H7v2H4a1 1 0 0 1-1-1v-2.586a1 1 0 0 1 .293-.707l5.964-5.964A6 6 0 1 1 21 9z"
-                    stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-            <span><?php echo ui_text($lang === 'ja' ? 'パスワード変更' : 'Change Password'); ?></span>
+          <button id="changePasswordSubmit" type="submit" class="btn btn-primary" disabled>
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true" focusable="false"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"/></svg>
+            パスワード変更
           </button>
         </form>
+
       </div>
     </div>
-
   </div>
 </div>
-<?php }; ?>
+
+<?php } ?>

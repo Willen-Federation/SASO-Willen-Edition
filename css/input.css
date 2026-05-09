@@ -180,3 +180,70 @@
 
 /* Hidden utility (legacy compat) */
 .hidden { display: none; }
+
+/* ─── SASO Layout overrides ─── */
+
+/* Dark header bar */
+.saso-header {
+  background-color: #24303f;
+  border-bottom-color: rgba(255,255,255,0.08);
+}
+.dark .saso-header {
+  background-color: rgb(26 34 49);
+  border-bottom-color: rgba(255,255,255,0.06);
+}
+
+/* Icon buttons on the dark header */
+.saso-header-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.5rem;
+  border: 1px solid rgba(255,255,255,0.22);
+  color: #e5e7eb;
+  transition: background-color 150ms;
+}
+.saso-header-btn:hover {
+  background-color: rgba(255,255,255,0.1);
+}
+
+/* Search input on dark header */
+.saso-header-search {
+  background-color: rgba(255,255,255,0.09);
+  border: 1px solid rgba(255,255,255,0.18);
+  color: #f3f4f6;
+  border-radius: 0.75rem;
+}
+.saso-header-search::placeholder {
+  color: rgba(255,255,255,0.38);
+}
+.saso-header-search:focus {
+  outline: none;
+  background-color: rgba(255,255,255,0.15);
+  border-color: #6366f1;
+  box-shadow: 0 0 0 1px #6366f1;
+}
+
+/* Dashboard tiles */
+.saso-tile {
+  display: block;
+  border-radius: 0.75rem;
+  border: 1px solid #e5e7eb;
+  background: #fff;
+  padding: 1.25rem;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+  transition: box-shadow 200ms, transform 200ms;
+  text-decoration: none;
+}
+.saso-tile:hover {
+  box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+  transform: translateY(-2px);
+}
+.dark .saso-tile {
+  border-color: rgba(255,255,255,0.07);
+  background: rgba(255,255,255,0.03);
+}
+.saso-tile-accent-primary { border-top: 3px solid #3C50E0; }
+.saso-tile-accent-success  { border-top: 3px solid #219653; }
+.saso-tile-accent-warning  { border-top: 3px solid #FFA70B; }
+.saso-tile-accent-gray     { border-top: 3px solid #94a3b8; }

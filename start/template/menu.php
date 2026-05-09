@@ -92,38 +92,49 @@
         ],
     ];
 
-    $toneToBadge = [
-        'primary' => 'ta-badge ta-badge-primary',
-        'success' => 'ta-badge ta-badge-success',
-        'warning' => 'ta-badge ta-badge-warning',
-        'gray'    => 'ta-badge ta-badge-gray',
+    $toneIcon = [
+        'primary' => 'text-primary bg-primary bg-opacity-10',
+        'success' => 'text-success bg-success bg-opacity-10',
+        'warning' => 'text-warning bg-warning bg-opacity-10',
+        'gray'    => 'text-body bg-stroke bg-opacity-50',
+    ];
+    $toneAccent = [
+        'primary' => 'saso-tile-accent-primary',
+        'success' => 'saso-tile-accent-success',
+        'warning' => 'saso-tile-accent-warning',
+        'gray'    => 'saso-tile-accent-gray',
     ];
 ?>
 
-<div class="space-y-8">
+<div class="space-y-10">
   <?php foreach ($groups as $group): ?>
-    <section aria-labelledby="dashboard-group-<?php echo ui_attr(strtolower($group['label'])); ?>">
-      <h2 id="dashboard-group-<?php echo ui_attr(strtolower($group['label'])); ?>" 
-          class="mb-4 text-theme-sm font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">
+    <section aria-labelledby="dashboard-group-<?php echo ui_attr(strtolower((string)$group['label'])); ?>">
+      <h2 id="dashboard-group-<?php echo ui_attr(strtolower((string)$group['label'])); ?>"
+          class="mb-4 text-xs font-bold uppercase tracking-widest text-body dark:text-bodydark2">
         <?php echo ui_text($group['label']); ?>
       </h2>
-      <ul class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <ul class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
         <?php foreach ($group['tiles'] as $tile): ?>
           <li>
             <a href="<?php echo ui_attr($tile['href']); ?>"
-               class="block rounded-2xl border border-gray-200 bg-white p-5 shadow-theme-sm transition-shadow hover:shadow-theme-md dark:border-gray-800 dark:bg-white/[0.03]">
-              <div class="mb-3 flex items-center justify-between">
-                <span class="<?php echo ui_attr($toneToBadge[$tile['tone']] ?? 'ta-badge ta-badge-gray'); ?>">
-                  <?php ui('iconHeroicon', ['name' => $tile['icon'], 'class' => 'h-3.5 w-3.5']); ?>
-                </span>
+               class="saso-tile <?php echo ui_attr($toneAccent[$tile['tone']] ?? 'saso-tile-accent-gray'); ?>">
+              <!-- Icon badge -->
+              <div class="mb-4 inline-flex h-11 w-11 items-center justify-center rounded-xl <?php echo ui_attr($toneIcon[$tile['tone']] ?? $toneIcon['gray']); ?>">
+                <?php ui('iconHeroicon', ['name' => $tile['icon'], 'class' => 'h-5 w-5']); ?>
               </div>
-              <p class="text-base font-semibold text-gray-800 dark:text-white/90"><?php echo ui_text($tile['label']); ?></p>
-              <p class="mt-1 text-theme-xs text-gray-500 dark:text-gray-400"><?php echo ui_text($tile['help']); ?></p>
+              <!-- Label -->
+              <p class="text-base font-semibold text-black dark:text-white">
+                <?php echo ui_text($tile['label']); ?>
+              </p>
+              <!-- Description -->
+              <p class="mt-1 text-sm text-body dark:text-bodydark2">
+                <?php echo ui_text($tile['help']); ?>
+              </p>
             </a>
           </li>
         <?php endforeach; ?>
       </ul>
     </section>
   <?php endforeach; ?>
-  </div>
-  <?php }; ?>
+</div>
+<?php }; ?>

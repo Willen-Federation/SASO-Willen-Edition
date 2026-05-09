@@ -16,14 +16,14 @@ $returnTo = $_SERVER['REQUEST_URI'] ?? './';
 <div class="relative" x-data="taLang()" @click.outside="close()">
   <button type="button"
           @click="toggle()"
-          class="flex h-10 items-center gap-2 rounded-lg border border-gray-200 px-3 hover:bg-gray-100 dark:border-gray-700 dark:hover:bg-white/[0.05]"
+          class="saso-header-btn flex h-10 items-center gap-2 px-3"
           :aria-expanded="open ? 'true' : 'false'"
           aria-label="<?php echo ui_attr(__('ui.a11y.lang_switcher', [], null, 'Change language')); ?>">
     <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" aria-hidden="true">
       <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.5"/>
       <path d="M3 12h18M12 3a14.5 14.5 0 0 1 0 18M12 3a14.5 14.5 0 0 0 0 18" stroke="currentColor" stroke-width="1.5"/>
     </svg>
-    <span class="hidden text-theme-xs uppercase text-gray-700 sm:inline dark:text-gray-200">
+    <span class="hidden text-xs uppercase text-gray-200 sm:inline">
       <?php echo ui_text($currentLocale); ?>
     </span>
   </button>

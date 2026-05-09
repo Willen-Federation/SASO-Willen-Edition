@@ -20,7 +20,7 @@ final class PasskeyDeleteDIContainer implements DIContainer
             $stmt = DBConnection::getPdo()->prepare('DELETE FROM webauthn_credential WHERE id = :id AND member_id = :m');
             $stmt->execute(['id' => (int) ($this->post['id'] ?? 0), 'm' => $memberId]);
         }
-        header('Location: ./mypage/start/?passkey=deleted', true, 303);
+        \saso\util\Redirect::redirect('mypage/start/?passkey=deleted');
         return new EmptyView();
     }
 }

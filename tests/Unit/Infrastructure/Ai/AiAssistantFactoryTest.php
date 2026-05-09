@@ -28,6 +28,8 @@ final class AiAssistantFactoryTest extends TestCase
     public function testForVisionResolvesProviderFromEnvironment(): void
     {
         putenv('AI_PROVIDER=gemini');
+        putenv('GEMINI_API_KEY=');
+        putenv('LOCAL_GEMINI_KEY=');
         $this->settingService->method('get')->willReturn(null);
 
         $assistant = AiAssistantFactory::forVision($this->settingService);

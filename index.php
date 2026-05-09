@@ -369,7 +369,9 @@ if (preg_match('#^/auth/(?:start/(\d+)|callback|saml/acs|saml/sls)/?$#', $reques
         if (function_exists('error_log')) {
             error_log('[saso-auth] '.$e->getMessage());
         }
-        header('Location: ./auth/start?error=auth_unavailable', true, 303);
+        $programDir = trim((string) ($config['programDir'] ?? ''), '/');
+        $base = '/' . ($programDir !== '' ? $programDir . '/' : '');
+        header('Location: ' . $base . 'auth/start?error=auth_unavailable', true, 303);
         exit;
     }
 }

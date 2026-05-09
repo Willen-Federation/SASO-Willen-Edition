@@ -20,16 +20,6 @@
     $key === '' ? '' : str_repeat('•', max(0, strlen($key) - 4)) . substr($key, -4);
 ?>
 
-<div class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-  <h2 class="text-title-md2 font-semibold text-black dark:text-white"><?php echo $lang === 'ja' ? 'AI設定' : 'AI Settings'; ?></h2>
-  <nav aria-label="<?php echo $lang === 'ja' ? 'パンくず' : 'breadcrumb'; ?>">
-    <ol class="flex items-center gap-2">
-      <li><a class="font-medium hover:text-brand-500" href="./"><?php echo $lang === 'ja' ? 'ホーム' : 'Home'; ?></a></li>
-      <li class="font-medium text-brand-500"><?php echo $lang === 'ja' ? 'AI設定' : 'AI Settings'; ?></li>
-    </ol>
-  </nav>
-</div>
-
 <?php if (!$authorized): ?>
 <div class="rounded-sm border border-error-500 bg-error-500 bg-opacity-10 p-4 text-error-500">
   <?php echo $lang === 'ja' ? 'このページへのアクセス権限がありません。' : 'You do not have permission to access this page.'; ?>
@@ -57,6 +47,7 @@
   },
   removeKey(list, idx) { this[list].splice(idx, 1); }
 }">
+  <input type="hidden" name="csrftoken" value="<?php echo htmlspecialchars(\saso\util\CSRFtoken::current(), ENT_QUOTES, 'UTF-8'); ?>">
 
   <!-- ===== Section 1: AI Provider ===== -->
   <div class="mb-6 rounded-sm border border-gray-200 bg-white shadow-default dark:border-gray-800 dark:bg-boxdark">

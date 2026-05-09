@@ -51,7 +51,6 @@
     <div class="flex items-center gap-2">
       <!-- Theme toggle -->
       <button type="button"
-              x-data="taTheme()"
               @click="toggle()"
               class="flex h-10 w-10 items-center justify-center rounded-lg border border-gray-200 hover:bg-gray-100 dark:border-gray-700 dark:hover:bg-white/[0.05]"
               :aria-label="theme === 'dark' ? '<?php echo ui_attr(__('ui.a11y.switch_to_light', [], null, 'Switch to light mode')); ?>' : '<?php echo ui_attr(__('ui.a11y.switch_to_dark', [], null, 'Switch to dark mode')); ?>'">

@@ -64,7 +64,7 @@ final class AddShelfDimensionConfig extends AbstractMigration
                     'value_type' => 'json',
                     'encrypted' => 0,
                     'updated_at' => date('Y-m-d H:i:s'),
-                    'updated_by' => null,
+                    'updated_by' => 'system',
                 ],
             ])
             ->saveData();

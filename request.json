@@ -276,39 +276,17 @@
            "matter": "admin",
            "action": "auth-providers"
         },
-        "aiSettings": {
+        "ai-settings": {
            "matter": "admin",
-           "action": "aiSettings"
+           "action": "ai-settings"
+        },
+        "firebase-settings": {
+           "matter": "admin",
+           "action": "firebase-settings"
         }
     },
-    "shelf": {
-        "put": {
-            "matter": "feature",
-            "action": "shelf"
-        },
-        "start": {
-            "matter": "shelf",
-            "action": "menu"
-        },
-        "map": {
-            "matter": "shelf",
-            "action": "menu"
-        },
-        "simple": {
-            "matter": "shelf",
-            "action": "simple"
-        },
-        "multi": {
-            "matter": "shelf",
-            "action": "multi"
-        },
-        "single": {
-            "matter": "shelf",
-            "action": "single"
-        },
-        "outputPdf": {
-            "matter": "shelf",
-            "action": "pdf"
-        }
+    "verify": {
+        "start":  { "matter": "verify", "action": "start" },
+        "create": { "matter": "verify", "action": "create" }
     }
 }

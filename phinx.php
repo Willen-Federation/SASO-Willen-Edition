@@ -50,6 +50,7 @@ return [
             __DIR__.'/migrations/M1',
             __DIR__.'/migrations/M4',
             __DIR__.'/migrations/M6',
+            __DIR__.'/migrations/M7',
         ],
         'seeds' => [
             __DIR__.'/seeds',

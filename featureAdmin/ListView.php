@@ -79,7 +79,7 @@ final class ListView implements View
                     'reason' => "Toggled via Web UI",
                 ]);
             }
-            header('Location: ./admin/feature-flags/');
+            header('Location: /admin/feature-flags/', true, 303);
             exit;
         }
     }

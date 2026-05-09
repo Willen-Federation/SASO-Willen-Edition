@@ -7,8 +7,9 @@ final class Redirect
     {
         $config = \saso\ConfigLoader::load();
         $protocol = $config['https']?'https://':'http://';
-        if($isRelative) return $config['programDir'].ltrim($to, '/');
-        return $protocol.$_SERVER['HTTP_HOST'].'/'.$config['programDir'].ltrim($to, '/');
+        $programDir = '/' . ltrim($config['programDir'], '/');
+        if($isRelative) return $programDir . ltrim($to, '/');
+        return $protocol . $_SERVER['HTTP_HOST'] . $programDir . ltrim($to, '/');
     }
     public static function redirect(string $to=''): void
     {

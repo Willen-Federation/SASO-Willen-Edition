@@ -15,7 +15,7 @@
           ui('button', [
             'label'   => __('ui.feature_flags.refresh', [], null, 'Refresh'),
             'type'    => 'link',
-            'href'    => './admin/feature-flags/',
+            'href'    => '/admin/feature-flags/',
             'variant' => 'secondary',
           ]);
       },

@@ -7,20 +7,20 @@ use saso\framework\View;
 final class RootView implements View
 {
     use Setter;
-    protected \Closure $content;
-    protected View $insideView;
-    protected string $baseUrl;
-    protected string $version;
-    protected bool $authed;
-    protected string $matter;
-    protected string $action;
-    protected string $currentLocale;
+    public \Closure $content;
+    public View $insideView;
+    public string $baseUrl;
+    public string $version;
+    public bool $authed;
+    public string $matter;
+    public string $action;
+    public string $currentLocale;
     /** @var list<string> */
-    protected array $supportedLocales;
+    public array $supportedLocales;
     /** @var list<array{type:string,label:string,items:array}> */
-    protected array $sidebar = [];
+    public array $sidebar = [];
     /** @var list<array{label:string,href?:string}> */
-    protected array $breadcrumb = [];
+    public array $breadcrumb = [];
 
     public function __construct(
         private \Closure $inside,
@@ -31,6 +31,8 @@ final class RootView implements View
     {
         $this->insideView = ($this->inside)($this->matter, $this->action);
         $this->insideView->display();
+        $this->sidebar = $this->buildSidebar();
+        $this->breadcrumb = $this->buildBreadcrumb();
         require_once 'root/template/root.php';
     }
     public function onRoot(): bool
@@ -98,11 +100,15 @@ final class RootView implements View
             ],
             [
                 'type'  => 'group',
-                'label' => $t('ui.sidebar.group.system', 'System'),
+                'label' => $t('ui.sidebar.group.admin', 'Administration'),
                 'items' => [
-                    ['key' => 'flags',    'label' => $t('ui.sidebar.flags',           'Feature flags'), 'href' => './admin/feature-flags/', 'icon' => $svg('toggle')],
-                    ['key' => 'auth',     'label' => $t('ui.sidebar.auth_providers', 'Auth providers'),'href' => './admin/auth-providers/',     'icon' => $svg('shield')],
-                    ['key' => 'password', 'label' => $t('ui.sidebar.password',        'Password'),      'href' => './start/password/',      'icon' => $svg('key')],
+                    ['key' => 'member',   'label' => $t('ui.sidebar.member',          'Members'),        'href' => './member/start/',          'icon' => $svg('users')],
+                    ['key' => 'role',     'label' => $t('ui.sidebar.role',            'Roles'),          'href' => './role/start/',            'icon' => $svg('shield')],
+                    ['key' => 'flags',    'label' => $t('ui.sidebar.flags',           'Feature flags'),  'href' => './admin/feature-flags/',   'icon' => $svg('toggle')],
+                    ['key' => 'auth',     'label' => $t('ui.sidebar.auth_providers',  'Auth providers'), 'href' => './admin/auth-providers/',  'icon' => $svg('key')],
+                    ['key' => 'ai',       'label' => $t('ui.sidebar.ai_settings',     'AI settings'),   'href' => './admin/ai-settings/',     'icon' => $svg('sparkles')],
+                    ['key' => 'firebase', 'label' => $t('ui.sidebar.firebase_settings','Firebase'),     'href' => './admin/firebase-settings/','icon' => $svg('cog')],
+                    ['key' => 'password', 'label' => $t('ui.sidebar.password',        'Password'),      'href' => './start/password/',        'icon' => $svg('key')],
                 ],
             ],
         ];

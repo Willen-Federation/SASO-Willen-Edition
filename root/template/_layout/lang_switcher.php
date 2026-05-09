@@ -29,17 +29,25 @@ $returnTo = $_SERVER['REQUEST_URI'] ?? './';
   </button>
 
   <ul x-show="open" x-cloak
-      class="absolute right-0 mt-2 w-40 rounded-xl border border-gray-200 bg-white py-1 shadow-theme-md dark:border-gray-800 dark:bg-gray-dark">
+      class="absolute right-0 mt-2 w-44 rounded-xl border py-1"
+      style="background:var(--saso-card);
+             border-color:var(--saso-card-bdr);
+             box-shadow:0 8px 24px rgba(0,0,0,0.22),0 2px 6px rgba(0,0,0,0.14)">
     <?php foreach ($supportedLocales as $lc): ?>
       <li>
         <form method="POST" action="./locale/set/<?php echo ui_attr($lc); ?>" class="block">
           <input type="hidden" name="return" value="<?php echo ui_attr($returnTo); ?>">
           <button type="submit"
-                  class="flex w-full items-center justify-between px-3 py-2 text-theme-sm text-gray-700 hover:bg-gray-50 dark:text-gray-200 dark:hover:bg-white/[0.05] <?php echo $lc === $currentLocale ? 'font-semibold text-brand-600 dark:text-brand-400' : ''; ?>">
+                  class="flex w-full items-center justify-between px-3 py-2 text-sm rounded-lg mx-auto"
+                  style="width:calc(100% - 8px);margin:0 4px;
+                         color:<?php echo $lc === $currentLocale ? '#3c50e0' : 'var(--saso-text)'; ?>;
+                         font-weight:<?php echo $lc === $currentLocale ? '600' : '400'; ?>"
+                  onmouseover="this.style.background='var(--saso-ctrl-hover)'"
+                  onmouseout="this.style.background='transparent'">
             <span><?php echo ui_text($labels[$lc] ?? $lc); ?></span>
             <?php if ($lc === $currentLocale): ?>
-              <svg class="h-4 w-4" viewBox="0 0 20 20" fill="none" aria-hidden="true">
-                <path d="m4 10 4 4 8-8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              <svg class="h-4 w-4 flex-shrink-0" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                <path d="m4 10 4 4 8-8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
               </svg>
             <?php endif; ?>
           </button>

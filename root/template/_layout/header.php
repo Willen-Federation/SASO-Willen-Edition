@@ -93,19 +93,25 @@
 
           <!-- Dropdown -->
           <ul x-show="open" x-cloak
-              class="absolute right-0 mt-2 w-48 rounded-xl border py-1 shadow-lg"
-              style="background:var(--saso-card);border-color:var(--saso-card-bdr)">
+              class="absolute right-0 mt-2 w-48 rounded-xl border py-1"
+              style="background:var(--saso-card);
+                     border-color:var(--saso-card-bdr);
+                     box-shadow:0 8px 24px rgba(0,0,0,0.22),0 2px 6px rgba(0,0,0,0.14)"
             <li>
               <a href="/start/password/"
-                 class="block px-3 py-2 text-sm hover:underline"
-                 style="color:var(--saso-text)">
+                 class="block rounded-lg text-sm px-3 py-2 mx-1"
+                 style="color:var(--saso-text)"
+                 onmouseover="this.style.background='var(--saso-ctrl-hover)'"
+                 onmouseout="this.style.background='transparent'">
                 <?php echo ui_text(__('ui.user_menu.change_password', [], null, 'Change password')); ?>
               </a>
             </li>
             <li>
               <a href="/start/logout/"
-                 class="block px-3 py-2 text-sm"
-                 style="color:#dc2626">
+                 class="block rounded-lg text-sm px-3 py-2 mx-1"
+                 style="color:#dc2626"
+                 onmouseover="this.style.background='rgba(220,38,38,0.08)'"
+                 onmouseout="this.style.background='transparent'">
                 <?php echo ui_text(__('ui.user_menu.logout', [], null, 'Sign out')); ?>
               </a>
             </li>

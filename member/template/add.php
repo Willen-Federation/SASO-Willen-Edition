@@ -3,45 +3,74 @@ $lang = $_SESSION['lang'] ?? ($_COOKIE['saso_locale'] ?? 'ja');
 $this->title = $lang === 'ja' ? '新規ユーザー登録' : 'Register New User';
 $this->content = function ($v) {
 $lang = $_SESSION['lang'] ?? ($_COOKIE['saso_locale'] ?? 'ja');
+$t = static fn (string $ja, string $en): string => $lang === 'ja' ? $ja : $en;
 ?>
-<ol class="breadcrumb mb-3">
-  <li class="breadcrumb-item"><a href="./"><?php echo ui_text($lang === 'ja' ? 'ホーム' : 'Home'); ?></a></li>
-  <li class="breadcrumb-item"><a href="./member/start/"><?php echo ui_text($lang === 'ja' ? 'ユーザー' : 'Users'); ?></a></li>
-  <li class="breadcrumb-item active" aria-current="page"><?php echo ui_text($lang === 'ja' ? '登録' : 'Register'); ?></li>
-</ol>
 
-<div class="card" style="max-width:36rem;">
-  <div class="card-header">
-    <h3 class="card-title"><?php echo ui_text($lang === 'ja' ? 'ユーザー情報' : 'User Details'); ?></h3>
-  </div>
-  <form action="./member/add/" method="POST">
-    <div class="p-6.5">
-      <?php if (!empty($v->error)): ?>
-        <div class="mb-5 text-error-500 font-medium"><?php echo htmlspecialchars($v->error); ?></div>
-      <?php endif; ?>
+<nav aria-label="<?php echo ui_attr($t('パンくずリスト', 'Breadcrumbs')); ?>">
+  <ol class="mb-5 flex items-center gap-1.5 text-sm" style="color:var(--saso-text-sub)">
+    <li><a href="./" class="hover:underline" style="color:var(--saso-text-sub)"><?php echo ui_text($t('ホーム', 'Home')); ?></a></li>
+    <li aria-hidden="true">/</li>
+    <li><a href="./member/start/" class="hover:underline" style="color:var(--saso-text-sub)"><?php echo ui_text($t('ユーザー', 'Users')); ?></a></li>
+    <li aria-hidden="true">/</li>
+    <li aria-current="page" style="color:var(--saso-text)"><?php echo ui_text($t('登録', 'Register')); ?></li>
+  </ol>
+</nav>
 
-      <div class="mb-3">
-        <label for="m-id" class="form-label"><?php echo ui_text($lang === 'ja' ? 'ユーザーID' : 'User ID'); ?></label>
-        <input id="m-id" type="text" name="id" class="form-control"
-               placeholder="<?php echo ui_attr($lang === 'ja' ? '8〜20文字の英数字ID' : 'Enter alphanumeric User ID (8-20 chars)'); ?>"
-               required minlength="8" maxlength="20" pattern="[a-zA-Z0-9_-]+">
-      </div>
+<div class="mx-auto max-w-md">
+  <div class="rounded-2xl border overflow-hidden"
+       style="background:var(--saso-card);border-color:var(--saso-card-bdr)">
+    <div class="border-b px-5 py-4" style="border-color:var(--saso-card-bdr)">
+      <h3 class="font-semibold" style="color:var(--saso-text)"><?php echo ui_text($t('ユーザー情報', 'User Details')); ?></h3>
+    </div>
+    <div class="px-5 py-5">
+      <form action="./member/add/" method="POST" novalidate>
+        <?php if (!empty($v->error)): ?>
+          <div class="ta-alert ta-alert-danger mb-4" role="alert" aria-live="assertive">
+            <svg class="h-4 w-4 shrink-0" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.5"/>
+              <path d="M12 8v5M12 16h.01" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+            <?php echo htmlspecialchars($v->error, ENT_QUOTES, 'UTF-8'); ?>
+          </div>
+        <?php endif; ?>
 
-      <div class="mb-3">
-        <label for="m-name" class="form-label"><?php echo ui_text($lang === 'ja' ? '名前' : 'Name'); ?></label>
-        <input id="m-name" type="text" name="userName" class="form-control"
-               placeholder="<?php echo ui_attr($lang === 'ja' ? '表示名を入力' : 'Enter display name'); ?>" required>
-      </div>
+        <div class="mb-4">
+          <label for="m-id" class="mb-1.5 block text-sm font-medium" style="color:var(--saso-text)">
+            <?php echo ui_text($t('ユーザーID', 'User ID')); ?>
+            <span class="text-red-500" aria-hidden="true">*</span>
+          </label>
+          <input id="m-id" type="text" name="id" class="form-input w-full"
+                 placeholder="<?php echo ui_attr($t('8〜20文字の英数字ID', 'Enter alphanumeric User ID (8-20 chars)')); ?>"
+                 required aria-required="true"
+                 minlength="8" maxlength="20" pattern="[a-zA-Z0-9_-]+">
+        </div>
 
-      <div class="mb-3">
-        <label for="m-pw" class="form-label"><?php echo ui_text($lang === 'ja' ? 'パスワード' : 'Password'); ?></label>
-        <input id="m-pw" type="password" name="password" class="form-control"
-               placeholder="<?php echo ui_attr($lang === 'ja' ? '8〜64文字、英数字・ハイフン・アンダーバー' : '8-64 letters, numbers, hyphen, or underscore'); ?>"
-               minlength="8" maxlength="64" pattern="[a-zA-Z0-9_-]+" required autocomplete="new-password">
-      </div>
+        <div class="mb-4">
+          <label for="m-name" class="mb-1.5 block text-sm font-medium" style="color:var(--saso-text)">
+            <?php echo ui_text($t('名前', 'Name')); ?>
+            <span class="text-red-500" aria-hidden="true">*</span>
+          </label>
+          <input id="m-name" type="text" name="userName" class="form-input w-full"
+                 placeholder="<?php echo ui_attr($t('表示名を入力', 'Enter display name')); ?>"
+                 required aria-required="true">
+        </div>
 
-      <button type="submit" class="btn btn-primary w-100"><?php echo ui_text($lang === 'ja' ? 'ユーザーを登録' : 'Register User'); ?></button>
-    </form>
+        <div class="mb-5">
+          <label for="m-pw" class="mb-1.5 block text-sm font-medium" style="color:var(--saso-text)">
+            <?php echo ui_text($t('パスワード', 'Password')); ?>
+            <span class="text-red-500" aria-hidden="true">*</span>
+          </label>
+          <input id="m-pw" type="password" name="password" class="form-input w-full"
+                 placeholder="<?php echo ui_attr($t('8〜64文字、英数字・ハイフン・アンダーバー', '8-64 letters, numbers, hyphen, or underscore')); ?>"
+                 minlength="8" maxlength="64" pattern="[a-zA-Z0-9_-]+"
+                 required aria-required="true" autocomplete="new-password">
+        </div>
+
+        <button type="submit" class="btn btn-primary w-full">
+          <?php echo ui_text($t('ユーザーを登録', 'Register User')); ?>
+        </button>
+      </form>
+    </div>
   </div>
 </div>
 <?php }; ?>

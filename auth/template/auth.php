@@ -5,39 +5,7 @@ $this->title = $lang === 'ja' ? 'ログイン' : 'Login';
 <?php $this->content = function ($v) { ?>
 <?php $lang = $_SESSION['lang'] ?? ($_COOKIE['saso_locale'] ?? 'ja'); ?>
 
-<div class="flex justify-center">
-  <div class="w-full max-w-md">
-
-    <!-- Theme toggle -->
-    <div class="flex justify-end mb-3">
-      <button type="button"
-              @click="toggle()"
-              class="flex items-center gap-2 px-3 py-2 rounded-xl border text-sm"
-              style="background:var(--saso-card);
-                     border-color:var(--saso-card-bdr);
-                     color:var(--saso-text);
-                     cursor:pointer;
-                     box-shadow:0 1px 4px rgba(0,0,0,0.1);
-                     transition:background 150ms"
-              onmouseover="this.style.background='var(--saso-ctrl-hover)'"
-              onmouseout="this.style.background='var(--saso-card)'"
-              :aria-label="theme==='dark'
-                ? '<?php echo ui_attr(__('ui.a11y.switch_to_light', [], null, 'Switch to light mode')); ?>'
-                : '<?php echo ui_attr(__('ui.a11y.switch_to_dark',  [], null, 'Switch to dark mode')); ?>'">
-        <svg x-show="theme==='dark'" class="shrink-0" width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-          <circle cx="12" cy="12" r="4" stroke="currentColor" stroke-width="1.5"/>
-          <path d="M12 2v2m0 16v2M4.93 4.93l1.41 1.41m11.32 11.32 1.41 1.41M2 12h2m16 0h2M4.93 19.07l1.41-1.41m11.32-11.32 1.41-1.41"
-                stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-        </svg>
-        <svg x-show="theme!='dark'" x-cloak class="shrink-0" width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79Z"
-                stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-        <span x-text="theme==='dark'
-          ? '<?php echo ui_attr($lang === 'ja' ? 'ライトモード' : 'Light mode'); ?>'
-          : '<?php echo ui_attr($lang === 'ja' ? 'ダークモード' : 'Dark mode'); ?>'"></span>
-      </button>
-    </div>
+<div class="w-full max-w-md">
 
     <!-- Login card -->
     <div class="rounded-2xl border shadow-lg"
@@ -122,7 +90,6 @@ $this->title = $lang === 'ja' ? 'ログイン' : 'Login';
           ? '検索・在庫管理などの機能はログイン後にご利用いただけます。'
           : 'Search and inventory features are available after login.'); ?>
     </p>
-  </div>
 </div>
 
 <script defer src="./js/passkey-login.js"></script>

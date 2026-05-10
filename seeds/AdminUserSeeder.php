@@ -28,22 +28,21 @@ class AdminUserSeeder extends AbstractSeed
         require_once __DIR__.'/../entity/Member.php';
         $passwordHash = \saso\entity\Member::hashPassword($adminPassword);
 
-        $table = $this->table('member');
+        $table = $this->table('Member');
 
         // Check if admin user already exists (idempotency)
-        $exists = $this->fetchRow(sprintf("SELECT id FROM member WHERE id = '%s'", addslashes($adminId)));
+        $exists = $this->fetchRow(sprintf("SELECT id FROM Member WHERE id = '%s'", addslashes($adminId)));
 
         if (!$exists) {
             $table->insert([
-                'id'         => $adminId,
-                'name'       => 'Administrator',
-                'password'   => $passwordHash,
-                'role'       => 'admin',
-                'avatar_url' => null,
+                'id'           => $adminId,
+                'userName'     => 'Administrator',
+                'password'     => $passwordHash,
+                'role'         => 'admin',
+                'avatar_url'   => null,
                 'display_name' => 'Admin User',
-                'bio'        => null,
-                'created_at' => date('Y-m-d H:i:s'),
-                'updated_at' => date('Y-m-d H:i:s'),
+                'bio'          => null,
+                'updated_at'   => date('Y-m-d H:i:s'),
             ])->saveData();
         }
     }

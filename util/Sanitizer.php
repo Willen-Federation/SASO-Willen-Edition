@@ -18,7 +18,13 @@ final class Sanitizer
     {
         $sanitized = [];
         foreach($map as $key=>$value) {
-            $sanitized[htmlspecialchars($key, ENT_QUOTES, 'UTF-8')] = htmlspecialchars($value, ENT_QUOTES, 'UTF-8');
+            $sanitizedKey = htmlspecialchars((string) $key, ENT_QUOTES, 'UTF-8');
+            if (is_array($value)) {
+                // Recurse into nested arrays (e.g. POST values like ai_gemini_api_keys[])
+                $sanitized[$sanitizedKey] = self::execMap($value);
+            } else {
+                $sanitized[$sanitizedKey] = htmlspecialchars((string) $value, ENT_QUOTES, 'UTF-8');
+            }
         }
         return $sanitized;
     }

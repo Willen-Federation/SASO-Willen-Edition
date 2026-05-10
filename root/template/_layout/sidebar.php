@@ -25,18 +25,26 @@ if (!$authed) {
   <nav class="flex flex-col overflow-y-auto no-scrollbar"
        aria-label="<?php echo ui_attr(__('ui.a11y.main_nav', [], null, 'Main navigation')); ?>"
        x-data="{ selected: $persist(null).as('saso.sidebar.selected') }">
+    <?php
+      // TailAdmin sidebar utility class strings (uses pre-compiled tailadmin.css).
+      $menuGroupTitle = 'mb-3 px-2 text-xs font-bold uppercase tracking-widest text-gray-500 dark:text-gray-400';
+      $menuItemBase   = 'flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors';
+      $menuItemActive = 'bg-brand-50 text-brand-600 dark:bg-white/[0.05] dark:text-white';
+      $menuItemIdle   = 'text-gray-700 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-white/[0.05] dark:hover:text-white';
+    ?>
     <?php foreach ($sidebar as $group): ?>
       <div class="mb-4">
-        <h3 class="menu-group-title">
+        <h3 class="<?php echo $menuGroupTitle; ?>">
           <?php echo ui_text($group['label']); ?>
         </h3>
         <ul class="flex flex-col gap-1.5">
           <?php foreach ($group['items'] as $item): ?>
+            <?php $isActive = isset($activeKey) && $activeKey === ($item['key'] ?? ''); ?>
             <?php if (empty($item['children'])): ?>
               <li>
                 <a href="<?php echo ui_attr($item['href']); ?>"
-                   class="menu-item <?php echo (isset($activeKey) && $activeKey === ($item['key'] ?? '')) ? 'menu-item-active' : 'menu-item-inactive'; ?>"
-                   <?php if (isset($activeKey) && $activeKey === ($item['key'] ?? '')): ?>aria-current="page"<?php endif; ?>>
+                   class="<?php echo $menuItemBase . ' ' . ($isActive ? $menuItemActive : $menuItemIdle); ?>"
+                   <?php if ($isActive): ?>aria-current="page"<?php endif; ?>>
                   <?php echo $item['icon'] ?? ''; ?>
                   <span class="grow"><?php echo ui_text($item['label']); ?></span>
                   <?php if (!empty($item['new'])): ?>
@@ -48,11 +56,11 @@ if (!$authed) {
               <li x-data="{ groupKey: '<?php echo ui_attr($item['key'] ?? $item['label']); ?>' }">
                 <button type="button"
                         @click="selected = (selected === groupKey ? null : groupKey)"
-                        class="menu-item menu-item-inactive w-full text-left"
+                        class="<?php echo $menuItemBase . ' ' . $menuItemIdle; ?> w-full text-left"
                         :aria-expanded="selected === groupKey ? 'true' : 'false'">
                   <?php echo $item['icon'] ?? ''; ?>
                   <span class="grow"><?php echo ui_text($item['label']); ?></span>
-                  <svg class="h-4 w-4 transition-transform"
+                  <svg class="h-4 w-4 shrink-0 transition-transform"
                        :class="selected === groupKey ? 'rotate-180' : ''"
                        viewBox="0 0 20 20" fill="none" aria-hidden="true">
                     <path d="M4.79 7.4 10 12.6l5.21-5.2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>

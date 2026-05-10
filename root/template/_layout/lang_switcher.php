@@ -28,6 +28,10 @@ $returnTo = $_SERVER['REQUEST_URI'] ?? './';
     </span>
   </button>
 
+  <!-- Hidden via `x-cloak` until Alpine binds `x-show`; the global
+       `[x-cloak] { display: none !important }` rule in `css/input.css`
+       guarantees the dropdown stays hidden during the brief pre-init
+       window even on slow connections. -->
   <ul x-show="open" x-cloak
       class="absolute right-0 mt-2 w-44 rounded-xl border py-1"
       style="background:var(--saso-card);

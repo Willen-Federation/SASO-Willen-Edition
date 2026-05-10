@@ -10,8 +10,8 @@ $this->title = $lang === 'ja' ? 'ログイン' : 'Login';
     <!-- Login card -->
     <div class="rounded-2xl border shadow-lg"
          style="background:var(--saso-card);border-color:var(--saso-card-bdr);box-shadow:0 4px 24px rgba(0,0,0,0.14)">
-      <div class="px-8 py-7">
-        <h2 class="text-2xl font-semibold text-center mb-6" style="color:var(--saso-text)"><?php echo ui_text($lang === 'ja' ? 'ログイン' : 'Login'); ?></h2>
+      <div class="px-10 py-10 sm:px-12 sm:py-12">
+        <h2 class="text-2xl font-semibold text-center mb-8" style="color:var(--saso-text)"><?php echo ui_text($lang === 'ja' ? 'ログイン' : 'Login'); ?></h2>
 
         <?php if ($v->isError) { ?>
           <div class="ta-alert ta-alert-danger mb-4" role="alert">

@@ -71,7 +71,15 @@
     <?php require __DIR__ . '/_layout/auth_controls.php'; ?>
 
     <div class="min-h-screen flex flex-col">
-      <main id="main-content" class="flex-1 flex items-center justify-center p-4">
+      <main id="main-content" class="flex-1 flex flex-col items-center justify-center gap-6 p-4">
+        <!-- Brand mark — single visual anchor on the chromeless login screen. -->
+        <a href="./" class="flex items-center gap-3" aria-label="SASO">
+          <span class="inline-flex h-12 w-12 items-center justify-center rounded-xl bg-brand-500 text-white text-xl font-bold shadow-md">S</span>
+          <span class="text-2xl font-semibold tracking-tight text-gray-800 dark:text-white/90">
+            SASO <span class="text-base font-medium text-gray-500 dark:text-gray-400">v<?php echo ui_text((string) $version); ?></span>
+          </span>
+        </a>
+
         <?php $v->insideView->getContent()($v->insideView); ?>
       </main>
 

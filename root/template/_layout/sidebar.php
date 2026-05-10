@@ -35,7 +35,8 @@ if (!$authed) {
             <?php if (empty($item['children'])): ?>
               <li>
                 <a href="<?php echo ui_attr($item['href']); ?>"
-                   class="menu-item <?php echo (isset($activeKey) && $activeKey === ($item['key'] ?? '')) ? 'menu-item-active' : 'menu-item-inactive'; ?>">
+                   class="menu-item <?php echo (isset($activeKey) && $activeKey === ($item['key'] ?? '')) ? 'menu-item-active' : 'menu-item-inactive'; ?>"
+                   <?php if (isset($activeKey) && $activeKey === ($item['key'] ?? '')): ?>aria-current="page"<?php endif; ?>>
                   <?php echo $item['icon'] ?? ''; ?>
                   <span class="grow"><?php echo ui_text($item['label']); ?></span>
                   <?php if (!empty($item['new'])): ?>
@@ -83,5 +84,6 @@ if (!$authed) {
 <div x-show="mobileOpen"
      x-cloak
      @click="mobileOpen = false"
+     @keydown.escape.window="mobileOpen = false"
      class="ta-sidebar-overlay"
      aria-hidden="true"></div>

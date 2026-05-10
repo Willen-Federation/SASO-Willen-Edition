@@ -46,6 +46,17 @@ final class ConfigLoader
     public static function regularization(array $config): array
     {
         $config['documentRoot'] = '/'.trim($config['documentRoot'], '/').'/';
+
+        // Fallback for hardcoded production path: if documentRoot is unreachable or is the
+        // production server path, use __DIR__ (project root). APP_DOCUMENT_ROOT env override
+        // takes precedence via overlayEnv(), but this fallback ensures dev environments work
+        // out-of-box without manual config.json edits.
+        $productionPath = '/home/schicksal/domains/saso.sksl.jp/public_html/';
+        $rootPath = rtrim($config['documentRoot'], '/');
+        if ($config['documentRoot'] === $productionPath || ($rootPath !== '' && !is_dir($rootPath))) {
+            $config['documentRoot'] = __DIR__.'/';
+        }
+
         $programDirTrimmed = trim($config['programDir'], '/');
         $config['programDir'] = $programDirTrimmed === '' ? '' : $programDirTrimmed.'/';
         $config['https'] = $config['https']===true?true:false;

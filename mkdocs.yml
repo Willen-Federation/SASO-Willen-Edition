@@ -111,6 +111,12 @@ plugins:
             Configuration: 設定
             Architecture: アーキテクチャ
             Development: 開発
+            Admin Console: 管理コンソール
+            Components: コンポーネント
+            Styling Guide: スタイリング ガイド
+            Dark Mode: ダークモード
+            Migration Guide: マイグレーション ガイド
+            Accessibility: アクセシビリティ
             Security: セキュリティ
             API Reference: API リファレンス
             Authentication Providers: 認証プロバイダー
@@ -181,6 +187,13 @@ nav:
       - development/index.md
       - Workflow: development/workflow.md
       - Testing: development/testing.md
+  - Admin Console:
+      - admin/index.md
+      - Components: admin/components.md
+      - Styling Guide: admin/styling-guide.md
+      - Dark Mode: admin/dark-mode.md
+      - Migration Guide: admin/migration-guide.md
+      - Accessibility: admin/accessibility.md
   - Security: security.md
   - API Reference: api.md
   - Authentication Providers: auth-providers/index.md

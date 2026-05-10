@@ -58,6 +58,16 @@
   .btn-sm {
     @apply px-4 py-2 text-sm;
   }
+  /* Outline button variants */
+  .btn-outline-warning {
+    @apply flex justify-center rounded border border-warning p-3 font-medium text-warning hover:bg-warning hover:text-black dark:hover:text-black transition;
+  }
+  .btn-outline-danger {
+    @apply flex justify-center rounded border border-danger p-3 font-medium text-danger hover:bg-danger hover:text-white dark:text-danger dark:hover:text-white transition;
+  }
+  .btn-outline-primary {
+    @apply flex justify-center rounded border border-primary p-3 font-medium text-primary hover:bg-primary hover:text-white transition;
+  }
 
   /* Cards */
   .card {
@@ -71,6 +81,35 @@
   }
 
   /* Tables */
+  .table {
+    @apply w-full border-collapse;
+  }
+  .table thead tr {
+    @apply border-b border-stroke dark:border-strokedark;
+  }
+  .table thead th {
+    @apply py-4 px-4 font-medium text-left text-black dark:text-white;
+  }
+  .table tbody tr {
+    @apply border-b border-stroke dark:border-strokedark;
+  }
+  .table tbody td {
+    @apply py-3 px-4 text-black dark:text-bodydark;
+  }
+  /* Table variants */
+  .table-striped tbody tr:nth-child(odd) {
+    @apply bg-gray-1 dark:bg-meta-9;
+  }
+  .table-hover tbody tr:hover {
+    @apply bg-gray-2 dark:bg-meta-4;
+  }
+  .table-dark thead tr {
+    @apply bg-gray-2 dark:bg-meta-4;
+  }
+  .table-responsive {
+    @apply overflow-x-auto;
+  }
+
   .data-table {
     @apply w-full table-auto;
   }
@@ -89,7 +128,7 @@
 
   /* Badges */
   .badge {
-    @apply inline-flex rounded-full px-3 py-1 text-sm font-medium;
+    @apply inline-flex rounded px-2.5 py-1 text-xs font-semibold;
   }
   .badge-success {
     @apply bg-success bg-opacity-10 text-success;
@@ -102,6 +141,28 @@
   }
   .badge-primary {
     @apply bg-primary bg-opacity-10 text-primary;
+  }
+  /* Badge color variants (Bootstrap-style: .badge.bg-* pattern) */
+  .badge.bg-primary {
+    @apply bg-primary text-white dark:bg-primary dark:text-white;
+  }
+  .badge.bg-secondary {
+    @apply bg-gray-400 text-white dark:bg-gray-600 dark:text-white;
+  }
+  .badge.bg-success {
+    @apply bg-success text-white dark:bg-success dark:text-white;
+  }
+  .badge.bg-danger {
+    @apply bg-danger text-white dark:bg-danger dark:text-white;
+  }
+  .badge.bg-warning {
+    @apply bg-warning text-black dark:bg-warning dark:text-black;
+  }
+  .badge.bg-info {
+    @apply bg-blue-500 text-white dark:bg-blue-600 dark:text-white;
+  }
+  .badge.text-dark {
+    @apply text-black dark:text-white;
   }
 
   /* Breadcrumbs */
@@ -152,6 +213,115 @@
   .toggle input:checked ~ .toggle-slider:before {
     @apply translate-x-5;
   }
+
+  /* Utility classes for Bootstrap compatibility */
+  .text-muted {
+    @apply text-bodydark1 dark:text-bodydark2;
+  }
+  .text-dark {
+    @apply text-black dark:text-white;
+  }
+  .text-truncate {
+    @apply truncate;
+  }
+  .small {
+    @apply text-sm;
+  }
+  .fw-bold {
+    @apply font-bold;
+  }
+  .d-inline {
+    @apply inline;
+  }
+  /* Form control alias */
+  .form-control {
+    @apply w-full rounded border border-stroke bg-transparent py-3 pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary;
+  }
+  /* Close button */
+  .btn-close {
+    @apply relative inline-flex items-center justify-center h-6 w-6 text-bodydark1 hover:text-black dark:text-bodydark2 dark:hover:text-white transition;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='%23000' d='M.293.293a1 1 0 0 1 1.414 0L8 6.586 14.293.293a1 1 0 1 1 1.414 1.414L9.414 8l6.293 6.293a1 1 0 0 1-1.414 1.414L8 9.414l-6.293 6.293a1 1 0 0 1-1.414-1.414L6.586 8 .293 1.707a1 1 0 0 1 0-1.414z'/%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 1em 1em;
+  }
+  .btn-close:hover {
+    opacity: 0.7;
+  }
+
+  /* Form utilities */
+  .form-text {
+    @apply block text-sm text-bodydark1 dark:text-bodydark2;
+  }
+  .form-check {
+    @apply flex items-center gap-2;
+  }
+  .form-check-input {
+    @apply h-5 w-5 rounded border border-stroke accent-primary dark:border-strokedark;
+  }
+  .form-check-label {
+    @apply font-medium text-black dark:text-white cursor-pointer;
+  }
+  .text-danger {
+    @apply text-danger;
+  }
+  .text-success {
+    @apply text-success;
+  }
+
+  /* Card text utilities */
+  .card-title {
+    @apply text-lg font-semibold text-black dark:text-white mb-3;
+  }
+  .card-text {
+    @apply text-base text-black dark:text-bodydark;
+  }
+
+  /* Table row background styles */
+  .table-secondary {
+    @apply bg-gray-100 dark:bg-meta-9;
+  }
+  .table-warning {
+    @apply bg-warning/10 dark:bg-warning/5;
+  }
+
+  /* Flexbox utilities */
+  .justify-content-between { @apply justify-between; }
+  .justify-content-center { @apply justify-center; }
+  .justify-content-start { @apply justify-start; }
+  .justify-content-end { @apply justify-end; }
+
+  /* Bootstrap grid compatibility - 12 column layout */
+  .row {
+    @apply grid grid-cols-12 gap-4;
+  }
+  .col-md-1 { @apply col-span-12 md:col-span-1; }
+  .col-md-2 { @apply col-span-12 md:col-span-2; }
+  .col-md-3 { @apply col-span-12 md:col-span-3; }
+  .col-md-4 { @apply col-span-12 md:col-span-4; }
+  .col-md-5 { @apply col-span-12 md:col-span-5; }
+  .col-md-6 { @apply col-span-12 md:col-span-6; }
+  .col-md-7 { @apply col-span-12 md:col-span-7; }
+  .col-md-8 { @apply col-span-12 md:col-span-8; }
+  .col-md-9 { @apply col-span-12 md:col-span-9; }
+  .col-md-10 { @apply col-span-12 md:col-span-10; }
+  .col-md-11 { @apply col-span-12 md:col-span-11; }
+  .col-md-12 { @apply col-span-12; }
+  .col-12 { @apply col-span-12; }
+  .g-3 { @apply gap-3; }
+  .g-4 { @apply gap-4; }
+
+  /* Spacing utilities */
+  .ms-auto { @apply ml-auto; }
+  .gap-4 { @apply gap-4; }
+  .align-items-center { @apply items-center; }
+  .d-flex { @apply flex; }
+  .w-100 { @apply w-full; }
+  .mb-2 { @apply mb-2; }
+
+  /* Fade and show transitions */
+  .fade { @apply transition-opacity; }
+  .show { @apply opacity-100; }
 }
 
 /* Print styles */

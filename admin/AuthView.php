@@ -127,9 +127,11 @@ final class AuthView implements View
 <?php endif; ?>
 
 <?php if ($flashMsg !== null): ?>
-<div class="alert alert-<?php echo $flashType; ?> alert-dismissible fade show" role="alert">
-  <?php echo $flashMsg; ?>
-  <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="閉じる"></button>
+<div class="alert alert-<?php echo $flashType; ?> fade show mb-4" role="alert" x-data="{ show: true }" x-show="show">
+  <div class="flex items-start justify-between gap-3">
+    <span><?php echo $flashMsg; ?></span>
+    <button type="button" class="btn-close" @click="show = false" aria-label="閉じる"></button>
+  </div>
 </div>
 <?php endif; ?>
 

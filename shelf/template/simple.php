@@ -5,7 +5,6 @@
 
 
 
-<script src="https://cdn.tailwindcss.com"></script>
 <div
   class="p-6 max-w-7xl mx-auto"
   x-data="{

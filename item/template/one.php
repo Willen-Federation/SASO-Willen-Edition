@@ -1,166 +1,190 @@
 <?php $this->title = '商品情報'; ?>
 <?php $this->content = function($v) { ?>
 
-<nav aria-label="breadcrumb">
-<ol class="breadcrumb">
-<li class="breadcrumb-item"><a href="./">ホーム</a></li>
-<?php if($v->archive->archive) { ?>
-<li class="breadcrumb-item"><a href="./archive/list/">アーカイブ一覧</a></li>
-<?php } ?>
-<li class="breadcrumb-item active">商品情報</li>
-</ol>
+<nav aria-label="パンくずリスト">
+  <ol class="mb-5 flex items-center gap-1.5 text-sm" style="color:var(--saso-text-sub)">
+    <li><a href="./" class="hover:underline" style="color:var(--saso-text-sub)">ホーム</a></li>
+    <?php if($v->archive->archive): ?>
+    <li aria-hidden="true">/</li>
+    <li><a href="./archive/list/" class="hover:underline" style="color:var(--saso-text-sub)">アーカイブ一覧</a></li>
+    <?php endif; ?>
+    <li aria-hidden="true">/</li>
+    <li aria-current="page" style="color:var(--saso-text)">商品情報</li>
+  </ol>
 </nav>
 
-<table class="table table-striped">
-<?php ($v->inside)('item', 'head'); ?>
-<?php ($v->inside)('item', 'row', $v->item); ?>
-</table>
+<div class="mb-4 overflow-x-auto rounded-2xl border" style="border-color:var(--saso-card-bdr)">
+  <table class="ta-table">
+    <?php ($v->inside)('item', 'head'); ?>
+    <?php ($v->inside)('item', 'row', $v->item); ?>
+  </table>
+</div>
 
-<?php if(!$v->archive->archive) { ?>
-<p>
-<a href="./item/edit/item/<?php echo $v->item->id; ?>">商品情報編集</a>
-|
-<a href="./item/addFeature/item/<?php echo $v->item->id; ?>">色・サイズ追加</a>
-</p>
-<?php } else { ?>
-<dl>
-    <dt>アーカイブ理由</dt>
-    <dd><?php echo $v->archive->archiveNote ?></dd>
-    <dt>アーカイブ日時</dt>
-    <dd><?php echo $v->archive->archiveAt->format('Y年m月d日 H時i分') ?></dd>
-</dl>
-<form method="post" action="<?php echo './item/reproduction/item/' . $v->item->id; ?>">
-<input type="hidden" name="isPost" value="true">
-<button>復刻</button>
-</form>
-<?php } ?>
+<?php if(!$v->archive->archive): ?>
+<div class="mb-5 flex flex-wrap gap-3">
+  <a href="./item/edit/item/<?php echo (int)$v->item->id; ?>/" class="btn btn-secondary btn-sm">商品情報編集</a>
+  <a href="./item/addFeature/item/<?php echo (int)$v->item->id; ?>/" class="btn btn-secondary btn-sm">色・サイズ追加</a>
+</div>
+<?php else: ?>
+<div class="mb-5 rounded-2xl border overflow-hidden"
+     style="background:var(--saso-card);border-color:var(--saso-card-bdr)">
+  <div class="px-5 py-4">
+    <dl class="grid grid-cols-[auto_1fr] gap-x-4 gap-y-2 text-sm">
+      <dt class="font-medium" style="color:var(--saso-text)">アーカイブ理由</dt>
+      <dd style="color:var(--saso-text-sub)"><?php echo htmlspecialchars($v->archive->archiveNote, ENT_QUOTES, 'UTF-8'); ?></dd>
+      <dt class="font-medium" style="color:var(--saso-text)">アーカイブ日時</dt>
+      <dd style="color:var(--saso-text-sub)"><?php echo htmlspecialchars($v->archive->archiveAt->format('Y年m月d日 H時i分'), ENT_QUOTES, 'UTF-8'); ?></dd>
+    </dl>
+    <form method="post" action="<?php echo './item/reproduction/item/' . (int)$v->item->id; ?>" class="mt-3">
+      <input type="hidden" name="isPost" value="true">
+      <button type="submit" class="btn btn-primary btn-sm">復刻</button>
+    </form>
+  </div>
+</div>
+<?php endif; ?>
 
-<h2>数量・棚番管理</h2>
-<table class="table table-striped table-hover">
-<tr>
-<th>商品詳細番号</th>
-<th>色</th>
-<th>サイズ</th>
-<th>数量</th>
-<?php if(!$v->archive->archive) { ?>
-<th>入庫</th>
-<th>出庫</th>
-<th>棚卸
-<div class="form-check form-switch">
-    <input type="checkbox" class="form-check-input" id="inventoryButtonDisplayButton">
-    <label class="form-check-label" for="inventoryButtonDisplayButton">許可</label>
-</div>
-</th>
-<?php } ?>
-<th>棚番</th>
-<th>ラベル枚数</th>
-</tr>
-<?php
-foreach($v->quantityLogsGen as $quantityLogs) {
-    $feature = $quantityLogs->feature;
-?>
-<tr>
-<td class="featureCode">
-<?php if($quantityLogs->isInventoried()){ ?>
-<a href="<?php echo './item/history/item/'.$feature->item->id.'/color/'.$feature->color->code.'/size/'.$feature->size->code; ?>">
-<?php echo $feature->getFullCode(); ?>
-</a>
-<?php }else{ echo $feature->getFullCode(); } ?>
-</td>
-<td><a href="<?php echo './image/start/item/' . $feature->item->id . '/color/' . $feature->color->code; ?>"><?php echo $feature->color->name . '(' . $feature->color->code . ')'; ?></a></td>
-<td><?php echo $feature->size->name; ?></td>
-<td class="number featureSum" id="sumof<?php echo $feature->getFullCode(); ?>">
-<?php if($quantityLogs->isInventoried()){ echo $quantityLogs->sum() ;} ?>
-</td>
-<?php if(!$v->archive->archive) { ?>
-<?php if($quantityLogs->isInventoried()){ ?>
-<td>
-<form method="post" action="<?php echo './item/stock/item/'.$feature->item->id.'/color/'.$feature->color->code.'/size/'.$feature->size->code; ?>">
-<div class="input-group mb-3">
-    <input
-        type="number" name="amount"
-        class="form-control <?php echo ($feature->color->code===$v->color &&$feature->size->code===$v->size &&$v->action==='stock')?'focused':''; ?>"
-        aria-describedby="stockButton" max="9999" min="1" required
-    > 
-    <input type="hidden" name="kind" value="stock">
-    <button type="submit" class="btn btn-outline-primary stockButton" id="stockButton">入庫</button>
-</div>
-</form>
-</td>
-<td>
-<form method="post" action="<?php echo './item/shipment/item/'.$feature->item->id.'/color/'.$feature->color->code.'/size/'.$feature->size->code; ?>">
-<div class="input-group mb-3">
-    <input
-        id="shipmentof<?php echo $feature->getFullCode(); ?>" type="number" name="amount"
-        class="form-control <?php echo ($feature->color->code===$v->color &&$feature->size->code===$v->size &&$v->action==='shipment')?'focused':''; ?>"
-        aria-describedby="shipmentButton" max="9999" min="1" required
-    > 
-    <input type="hidden" name="kind" value="shipment">
-    <button type="submit" class="btn btn-outline-primary shipmentButton" id="shipmentButton">出庫</button>
-</div>
-</form>
-</form>
-</td>
-<td>
-<form method="post" action="<?php echo './item/inventory/item/'.$feature->item->id.'/color/'.$feature->color->code.'/size/'.$feature->size->code; ?>">
-<div class="input-group mb-3">
-    <input
-        type="number" name="amount"
-        class="form-control <?php echo ($feature->color->code===$v->color &&$feature->size->code===$v->size &&$v->action==='inventory')?'focused':''; ?>"
-        aria-describedby="inventoryButton" max="9999" min="0" required
-    > 
-    <input type="hidden" name="kind" value="inventory">
-    <button type="submit" class="btn btn-outline-primary inventoryButton" id="inventoryButton" disabled>棚卸</button>
-</div>
-</form>
-</td>
-<?php }else{ ?>
-<td></td>
-<td></td>
-<td>
-<form method="post" action="<?php echo './item/inventory/item/'.$feature->item->id.'/color/'.$feature->color->code.'/size/'.$feature->size->code; ?>">
-<div class="input-group mb-3">
-    <input
-        type="number" name="amount"
-        class="form-control <?php echo ($feature->color->code===$v->color &&$feature->size->code===$v->size &&$v->action==='inventory')?'focused':''; ?>"
-        aria-describedby="inventoryButton" max="9999" min="0" required
-    > 
-    <input type="hidden" name="kind" value="inventory">
-    <button type="submit" class="btn btn-outline-primary inventoryButton" id="inventoryButton">棚卸</button>
-</div>
-</form>
-</td>
-<?php } ?>
-<?php } ?>
-<td>
-<form method="post" action="<?php echo './shelf/put/item/'.$feature->item->id.'/color/'.$feature->color->code.'/size/'.$feature->size->code; ?>">
-<div class="input-group mb-3">
-    <input
-        type="text" name="number" value="<?php echo $feature->shelf?->number; ?>"
-        class="form-control <?php echo ($feature->color->code===$v->color &&$feature->size->code===$v->size &&$v->action==='shelf')?'focused':''; ?>"
-        aria-describedby="putShelfButton" pattern="^[0-9A-Za-z\-]+$" maxlength="15" required
-    >
-    <button type="submit" class="btn btn-outline-primary" id="putShelfButton">棚置</button>
-</form>
-</td>
-<td>
-<form method="post" action="<?php echo './label/select/item/'.$feature->item->id.'/color/'.$feature->color->code.'/size/'.$feature->size->code; ?>">
-<div class="input-group mb-3">
-    <input
-        type="number" name="amount" value="<?php echo $feature->labelAmount===0?'':$feature->labelAmount; ?>"
-        class="form-control labelSheetsInput <?php echo ($feature->color->code===$v->color &&$feature->size->code===$v->size &&$v->action==='label')?'focused':''; ?>"
-        aria-describedby="putShelfButton" min="0" max="100" range="1"
-    >
-    <button type="submit" class="btn btn-outline-primary" id="">追加</button>
-</form>
-</td>
-</tr>
-<?php
-}
-?>
-</table>
+<div class="rounded-2xl border overflow-hidden" style="border-color:var(--saso-card-bdr)">
+  <div class="flex items-center justify-between gap-3 border-b px-5 py-4"
+       style="background:var(--saso-card);border-color:var(--saso-card-bdr)">
+    <h2 class="font-semibold" style="color:var(--saso-text)">数量・棚番管理</h2>
+    <?php if(!$v->archive->archive): ?>
+    <label class="flex cursor-pointer items-center gap-2 text-sm" style="color:var(--saso-text-sub)">
+      <span>棚卸を許可</span>
+      <button role="switch" type="button" id="inventoryButtonDisplayButton"
+              aria-checked="false"
+              class="relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#3c50e0] bg-gray-200 dark:bg-gray-700"
+              onclick="this.setAttribute('aria-checked', this.getAttribute('aria-checked')==='false'?'true':'false'); this.classList.toggle('bg-[#3c50e0]'); this.classList.toggle('bg-gray-200');">
+        <span class="pointer-events-none inline-block h-4 w-4 translate-x-0 rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out"></span>
+      </button>
+    </label>
+    <?php endif; ?>
+  </div>
+  <div class="overflow-x-auto">
+    <table class="ta-table" aria-label="数量・棚番一覧">
+      <thead>
+        <tr>
+          <th scope="col">商品詳細番号</th>
+          <th scope="col">色</th>
+          <th scope="col">サイズ</th>
+          <th scope="col">数量</th>
+          <?php if(!$v->archive->archive): ?>
+          <th scope="col">入庫</th>
+          <th scope="col">出庫</th>
+          <th scope="col">棚卸</th>
+          <?php endif; ?>
+          <th scope="col">棚番</th>
+          <th scope="col">ラベル枚数</th>
+        </tr>
+      </thead>
+      <tbody>
+      <?php foreach($v->quantityLogsGen as $quantityLogs):
+        $feature = $quantityLogs->feature;
+        $isFocused = fn(string $action) => $feature->color->code === $v->color && $feature->size->code === $v->size && $v->action === $action;
+      ?>
+      <tr>
+        <td class="featureCode font-mono text-sm">
+          <?php if($quantityLogs->isInventoried()): ?>
+            <a href="<?php echo './item/history/item/'.(int)$feature->item->id.'/color/'.rawurlencode($feature->color->code).'/size/'.rawurlencode($feature->size->code); ?>"
+               style="color:#3c50e0" class="hover:underline">
+              <?php echo htmlspecialchars($feature->getFullCode(), ENT_QUOTES, 'UTF-8'); ?>
+            </a>
+          <?php else: ?>
+            <?php echo htmlspecialchars($feature->getFullCode(), ENT_QUOTES, 'UTF-8'); ?>
+          <?php endif; ?>
+        </td>
+        <td>
+          <a href="<?php echo './image/start/item/'.(int)$feature->item->id.'/color/'.rawurlencode($feature->color->code); ?>"
+             style="color:#3c50e0" class="hover:underline">
+            <?php echo htmlspecialchars($feature->color->name.'('.$feature->color->code.')', ENT_QUOTES, 'UTF-8'); ?>
+          </a>
+        </td>
+        <td><?php echo htmlspecialchars($feature->size->name, ENT_QUOTES, 'UTF-8'); ?></td>
+        <td class="number featureSum" id="sumof<?php echo htmlspecialchars($feature->getFullCode(), ENT_QUOTES, 'UTF-8'); ?>">
+          <?php if($quantityLogs->isInventoried()){ echo (int)$quantityLogs->sum(); } ?>
+        </td>
 
-<div id="labelSheetsAmount" class="hidden"><?php echo $v->labelSheetsAmount; ?></div>
-<div id="labelSheetsAmountMax" class="hidden"><?php echo $v->labelSheetsAmountMax; ?></div>
+        <?php if(!$v->archive->archive): ?>
+          <?php if($quantityLogs->isInventoried()): ?>
+            <td>
+              <form method="post" action="<?php echo './item/stock/item/'.(int)$feature->item->id.'/color/'.rawurlencode($feature->color->code).'/size/'.rawurlencode($feature->size->code); ?>">
+                <div class="flex">
+                  <input type="number" name="amount"
+                         class="form-input w-20 rounded-r-none <?php echo $isFocused('stock') ? 'ring-2 ring-[#3c50e0]' : ''; ?>"
+                         aria-label="入庫数量" max="9999" min="1" required>
+                  <input type="hidden" name="kind" value="stock">
+                  <button type="submit" class="btn btn-secondary rounded-l-none stockButton">入庫</button>
+                </div>
+              </form>
+            </td>
+            <td>
+              <form method="post" action="<?php echo './item/shipment/item/'.(int)$feature->item->id.'/color/'.rawurlencode($feature->color->code).'/size/'.rawurlencode($feature->size->code); ?>">
+                <div class="flex">
+                  <input id="shipmentof<?php echo htmlspecialchars($feature->getFullCode(), ENT_QUOTES, 'UTF-8'); ?>"
+                         type="number" name="amount"
+                         class="form-input w-20 rounded-r-none <?php echo $isFocused('shipment') ? 'ring-2 ring-[#3c50e0]' : ''; ?>"
+                         aria-label="出庫数量" max="9999" min="1" required>
+                  <input type="hidden" name="kind" value="shipment">
+                  <button type="submit" class="btn btn-secondary rounded-l-none shipmentButton">出庫</button>
+                </div>
+              </form>
+            </td>
+            <td>
+              <form method="post" action="<?php echo './item/inventory/item/'.(int)$feature->item->id.'/color/'.rawurlencode($feature->color->code).'/size/'.rawurlencode($feature->size->code); ?>">
+                <div class="flex">
+                  <input type="number" name="amount"
+                         class="form-input w-20 rounded-r-none <?php echo $isFocused('inventory') ? 'ring-2 ring-[#3c50e0]' : ''; ?>"
+                         aria-label="棚卸数量" max="9999" min="0" required>
+                  <input type="hidden" name="kind" value="inventory">
+                  <button type="submit" class="btn btn-secondary rounded-l-none inventoryButton" disabled>棚卸</button>
+                </div>
+              </form>
+            </td>
+          <?php else: ?>
+            <td></td>
+            <td></td>
+            <td>
+              <form method="post" action="<?php echo './item/inventory/item/'.(int)$feature->item->id.'/color/'.rawurlencode($feature->color->code).'/size/'.rawurlencode($feature->size->code); ?>">
+                <div class="flex">
+                  <input type="number" name="amount"
+                         class="form-input w-20 rounded-r-none <?php echo $isFocused('inventory') ? 'ring-2 ring-[#3c50e0]' : ''; ?>"
+                         aria-label="棚卸数量" max="9999" min="0" required>
+                  <input type="hidden" name="kind" value="inventory">
+                  <button type="submit" class="btn btn-secondary rounded-l-none inventoryButton">棚卸</button>
+                </div>
+              </form>
+            </td>
+          <?php endif; ?>
+        <?php endif; ?>
+
+        <td>
+          <form method="post" action="<?php echo './shelf/put/item/'.(int)$feature->item->id.'/color/'.rawurlencode($feature->color->code).'/size/'.rawurlencode($feature->size->code); ?>">
+            <div class="flex">
+              <input type="text" name="number" value="<?php echo htmlspecialchars($feature->shelf?->number ?? '', ENT_QUOTES, 'UTF-8'); ?>"
+                     class="form-input w-24 rounded-r-none <?php echo $isFocused('shelf') ? 'ring-2 ring-[#3c50e0]' : ''; ?>"
+                     aria-label="棚番号" pattern="^[0-9A-Za-z\-]+$" maxlength="15" required>
+              <button type="submit" class="btn btn-secondary rounded-l-none">棚置</button>
+            </div>
+          </form>
+        </td>
+        <td>
+          <form method="post" action="<?php echo './label/select/item/'.(int)$feature->item->id.'/color/'.rawurlencode($feature->color->code).'/size/'.rawurlencode($feature->size->code); ?>">
+            <div class="flex">
+              <input type="number" name="amount"
+                     value="<?php echo $feature->labelAmount === 0 ? '' : (int)$feature->labelAmount; ?>"
+                     class="form-input w-20 rounded-r-none labelSheetsInput <?php echo $isFocused('label') ? 'ring-2 ring-[#3c50e0]' : ''; ?>"
+                     aria-label="ラベル枚数" min="0" max="100">
+              <button type="submit" class="btn btn-secondary rounded-l-none">追加</button>
+            </div>
+          </form>
+        </td>
+      </tr>
+      <?php endforeach; ?>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div id="labelSheetsAmount" class="hidden"><?php echo (int)$v->labelSheetsAmount; ?></div>
+<div id="labelSheetsAmountMax" class="hidden"><?php echo (int)$v->labelSheetsAmountMax; ?></div>
 
 <?php }; ?>

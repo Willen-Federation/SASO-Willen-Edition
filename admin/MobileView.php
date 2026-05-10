@@ -43,34 +43,35 @@ final class MobileView implements View
         $this->content = function ($v) use ($tokens, $flashMsg, $flashType, $now): void {
             $h = fn (string $s) => htmlspecialchars($s, ENT_QUOTES, 'UTF-8');
             ?>
-<nav aria-label="breadcrumb">
-<ol class="breadcrumb">
-<li class="breadcrumb-item"><a href="./">ホーム</a></li>
-<li class="breadcrumb-item active" aria-current="page">モバイルデバイス管理</li>
-</ol>
+<nav aria-label="breadcrumb" class="mb-4">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="./">ホーム</a></li>
+    <li class="breadcrumb-item active" aria-current="page">モバイルデバイス管理</li>
+  </ol>
 </nav>
 
 <?php if ($flashMsg !== null): ?>
-<div class="alert alert-<?php echo $flashType; ?> fade show mb-4" role="alert" x-data="{ show: true }" x-show="show">
-  <div class="flex items-start justify-between gap-3">
-    <span><?php echo $flashMsg; ?></span>
-    <button type="button" class="btn-close" @click="show = false" aria-label="閉じる"></button>
-  </div>
+<div class="ta-alert ta-alert-<?php echo htmlspecialchars($flashType, ENT_QUOTES, 'UTF-8'); ?> mb-4"
+     x-data="{ open: true }" x-show="open" role="alert">
+  <div class="flex-1"><?php echo $flashMsg; ?></div>
+  <button type="button" @click="open = false" class="ml-auto shrink-0 p-1 rounded hover:bg-black/10 dark:hover:bg-white/10" aria-label="閉じる">
+    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true" focusable="false"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+  </button>
 </div>
 <?php endif; ?>
 
-<div class="card mb-3">
-  <div class="card-header fw-bold d-flex justify-content-between align-items-center">
-    <span>ペアリング済みデバイス一覧</span>
-    <span class="badge bg-secondary"><?php echo count($tokens); ?> 件</span>
+<div class="rounded-2xl border shadow-sm mb-4 overflow-hidden" style="background:var(--saso-card);border-color:var(--saso-card-bdr)">
+  <div class="flex items-center justify-between px-6 py-4 border-b" style="border-color:var(--saso-card-bdr)">
+    <h3 class="font-semibold text-base" style="color:var(--saso-text)">ペアリング済みデバイス一覧</h3>
+    <span class="ta-badge ta-badge-secondary"><?php echo count($tokens); ?> 件</span>
   </div>
-  <div class="card-body p-0">
+  <div>
     <?php if (empty($tokens)): ?>
-    <p class="text-muted p-3 mb-0">ペアリング済みのデバイスはありません。</p>
+    <p class="text-sm p-4" style="color:var(--saso-text-sub)">ペアリング済みのデバイスはありません。</p>
     <?php else: ?>
-    <div class="table-responsive">
-    <table class="table table-striped table-hover mb-0" aria-label="デバイス一覧">
-      <thead class="table-dark">
+    <div class="overflow-x-auto">
+    <table class="ta-table" aria-label="デバイス一覧">
+      <thead>
         <tr>
           <th scope="col">デバイス名</th>
           <th scope="col">状態</th>
@@ -85,40 +86,40 @@ final class MobileView implements View
         <?php
             $expired  = $token->isExpired($now);
             $active   = !$token->revoked && !$expired;
-            $rowClass = $token->revoked ? 'table-secondary' : ($expired ? 'table-warning' : '');
+            $rowBg    = $token->revoked ? 'bg-gray-50 dark:bg-gray-800/50' : ($expired ? 'bg-amber-50 dark:bg-amber-900/20' : '');
         ?>
-        <tr class="<?php echo $rowClass; ?>">
+        <tr class="<?php echo $rowBg; ?>">
           <td><?php echo $h($token->deviceName); ?></td>
           <td>
             <?php if ($token->revoked): ?>
-              <span class="badge bg-secondary">失効済み</span>
+              <span class="ta-badge ta-badge-secondary">失効済み</span>
             <?php elseif ($expired): ?>
-              <span class="badge bg-warning text-dark">期限切れ</span>
+              <span class="ta-badge ta-badge-warning">期限切れ</span>
             <?php else: ?>
-              <span class="badge bg-success">有効</span>
+              <span class="ta-badge ta-badge-primary">有効</span>
             <?php endif; ?>
           </td>
-          <td class="small">
+          <td class="text-sm" style="color:var(--saso-text-sub)">
             <?php echo $token->lastUsedAt !== null
                 ? $h($token->lastUsedAt->format('Y-m-d H:i'))
-                : '<span class="text-muted">未使用</span>'; ?>
+                : '<span style="color:var(--saso-text-sub)">未使用</span>'; ?>
           </td>
-          <td class="small <?php echo $expired ? 'text-danger fw-bold' : ''; ?>">
+          <td class="text-sm <?php echo $expired ? 'text-error-500 font-semibold' : ''; ?>" style="<?php echo $expired ? '' : 'color:var(--saso-text-sub)'; ?>">
             <?php echo $h($token->expiresAt->format('Y-m-d H:i')); ?>
           </td>
-          <td class="small text-muted">
+          <td class="text-sm" style="color:var(--saso-text-sub)">
             <?php echo $h($token->createdAt->format('Y-m-d H:i')); ?>
           </td>
           <td>
             <?php if ($active): ?>
-            <form method="post" action="./admin/mobile/" class="d-inline"
+            <form method="post" action="./admin/mobile/" style="display:inline"
               onsubmit="return confirm('デバイス「<?php echo $h($token->deviceName); ?>」のトークンを失効させますか？\nこのデバイスは再ペアリングが必要になります。')">
               <input type="hidden" name="action" value="revoke">
               <input type="hidden" name="id" value="<?php echo $token->id; ?>">
-              <button type="submit" class="btn btn-sm btn-outline-danger">失効</button>
+              <button type="submit" class="btn btn-danger btn-sm">失効</button>
             </form>
             <?php else: ?>
-              <span class="text-muted small">—</span>
+              <span class="text-sm" style="color:var(--saso-text-sub)">—</span>
             <?php endif; ?>
           </td>
         </tr>
@@ -130,10 +131,10 @@ final class MobileView implements View
   </div>
 </div>
 
-<div class="card">
-  <div class="card-body">
-    <h6 class="card-title">モバイルペアリングについて</h6>
-    <p class="card-text small text-muted mb-0">
+<div class="rounded-2xl border shadow-sm" style="background:var(--saso-card);border-color:var(--saso-card-bdr)">
+  <div class="px-6 py-5">
+    <p class="font-semibold text-sm mb-2" style="color:var(--saso-text)">モバイルペアリングについて</p>
+    <p class="text-xs" style="color:var(--saso-text-sub)">
       新しいデバイスのペアリングは、モバイルアプリから QR コードをスキャンして行います。
       ペアリングコードは API エンドポイント <code>POST /api/v1/mobile/pair/qr</code> で発行されます。
       デバイストークンの有効期限は 365 日です。失効したデバイスは再度 QR ペアリングが必要です。

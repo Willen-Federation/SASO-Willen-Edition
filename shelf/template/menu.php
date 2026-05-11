@@ -1,13 +1,6 @@
 <?php $this->title = '棚番作成'; ?>
 <?php $this->content = function($v) { ?>
 
-<nav aria-label="breadcrumb" class="mb-4">
-  <ol class="breadcrumb">
-    <li class="breadcrumb-item"><a href="./">ホーム</a></li>
-    <li class="breadcrumb-item active" aria-current="page">棚番作成</li>
-  </ol>
-</nav>
-
 <p class="mb-4 text-sm" style="color:var(--saso-text-sub)">
   ラベルは<a href="./label/start/" class="underline">ラベル寸法管理</a>で予め登録して下さい。
 </p>

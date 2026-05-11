@@ -4,14 +4,6 @@
 <?php $this->title = __('Edit Profile'); ?>
 <?php $this->content = function ($v) { ?>
 
-<nav aria-label="breadcrumb" class="mb-4">
-  <ol class="breadcrumb">
-    <li class="breadcrumb-item"><a href="./">Home</a></li>
-    <li class="breadcrumb-item"><a href="./mypage/start/">My Page</a></li>
-    <li class="breadcrumb-item active" aria-current="page">Edit Profile</li>
-  </ol>
-</nav>
-
 <div class="flex justify-center">
   <div class="w-full max-w-xl">
     <div class="rounded-2xl border shadow-sm overflow-hidden" style="background:var(--saso-card);border-color:var(--saso-card-bdr)">

@@ -5,13 +5,6 @@ $this->title = $lang === 'ja' ? 'パスワード変更' : 'Change Password';
 <?php $this->content = function ($v) { ?>
 <?php $lang = $_SESSION['lang'] ?? ($_COOKIE['saso_locale'] ?? 'ja'); ?>
 
-<nav aria-label="breadcrumb" class="mb-4">
-  <ol class="breadcrumb">
-    <li class="breadcrumb-item"><a href="/">ホーム</a></li>
-    <li class="breadcrumb-item active" aria-current="page">パスワード変更</li>
-  </ol>
-</nav>
-
 <div class="flex justify-center">
   <div class="w-full max-w-lg">
     <div class="rounded-2xl border shadow-sm" style="background:var(--saso-card);border-color:var(--saso-card-bdr)">

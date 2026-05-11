@@ -9,13 +9,6 @@ $lang = $_SESSION['lang'] ?? ($_COOKIE['saso_locale'] ?? 'ja');
     $t = static fn (string $ja, string $en): string => $lang === 'ja' ? $ja : $en;
     ?>
 
-<nav aria-label="<?php echo ui_attr($t('パンくずリスト', 'Breadcrumbs')); ?>" class="mb-4">
-  <ol class="breadcrumb">
-    <li class="breadcrumb-item"><a href="./"><?php echo ui_text($t('ホーム', 'Home')); ?></a></li>
-    <li class="breadcrumb-item active" aria-current="page"><?php echo ui_text($t('マイページ', 'My Page')); ?></li>
-  </ol>
-</nav>
-
 <?php if (!$v->member): ?>
   <div class="ta-alert ta-alert-danger" role="alert">
     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true" focusable="false"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/></svg>

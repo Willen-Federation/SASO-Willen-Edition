@@ -60,9 +60,11 @@ final class ProviderSaveUsecase implements Usecase
             // every wizard-saved row silently falls back to GenericOidcProvider
             // and login surfaces SASO-AUTH-1006.
             claimMapping: self::buildClaimMapping($data),
-            // Half-configured shells (no secret yet) stay disabled so they
-            // do not appear as a clickable button on the login screen.
-            enabled: $secret !== null,
+            // Validation above enforces the per-template required fields
+            // (Auth0 requires clientSecret, etc.), so reaching this point
+            // means the provider has enough config to attempt sign-in.
+            // Admins can still toggle the row off via ./admin/auth/.
+            enabled: true,
             isDefault: false,
             createdAt: new DateTimeImmutable(),
             updatedAt: new DateTimeImmutable(),

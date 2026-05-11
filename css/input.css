@@ -23,6 +23,13 @@
     outline: 2px solid #3c50e0;
     outline-offset: 2px;
   }
+
+  /* Alpine.js cloak: elements stay hidden until Alpine processes them.
+     Without this rule, dropdowns and conditional UI flash visible during
+     the brief window before Alpine boots. */
+  [x-cloak] {
+    display: none !important;
+  }
 }
 
 @layer components {
@@ -104,7 +111,7 @@
   }
   /* Table variants */
   .table-striped tbody tr:nth-child(odd) {
-    @apply bg-gray-1 dark:bg-meta-9;
+    @apply bg-gray dark:bg-meta-9;
   }
   .table-hover tbody tr:hover {
     @apply bg-gray-2 dark:bg-meta-4;
@@ -148,24 +155,16 @@
   .badge-primary {
     @apply bg-primary bg-opacity-10 text-primary;
   }
-  /* Badge color variants (Bootstrap-style: .badge.bg-* pattern) */
-  .badge.bg-primary {
-    @apply bg-primary text-white dark:bg-primary dark:text-white;
-  }
-  .badge.bg-secondary {
-    @apply bg-gray-400 text-white dark:bg-gray-600 dark:text-white;
-  }
-  .badge.bg-success {
-    @apply bg-success text-white dark:bg-success dark:text-white;
-  }
-  .badge.bg-danger {
-    @apply bg-danger text-white dark:bg-danger dark:text-white;
+  /* Badge color text overrides (used together with bg-* utility on the same element) */
+  .badge.bg-primary,
+  .badge.bg-secondary,
+  .badge.bg-success,
+  .badge.bg-danger,
+  .badge.bg-info {
+    @apply text-white;
   }
   .badge.bg-warning {
-    @apply bg-warning text-black dark:bg-warning dark:text-black;
-  }
-  .badge.bg-info {
-    @apply bg-blue-500 text-white dark:bg-blue-600 dark:text-white;
+    @apply text-black;
   }
   .badge.text-dark {
     @apply text-black dark:text-white;
@@ -268,12 +267,6 @@
   .form-check-label {
     @apply font-medium text-black dark:text-white cursor-pointer;
   }
-  .text-danger {
-    @apply text-danger;
-  }
-  .text-success {
-    @apply text-success;
-  }
 
   /* Card text utilities */
   .card-title {
@@ -285,7 +278,7 @@
 
   /* Table row background styles */
   .table-secondary {
-    @apply bg-gray-100 dark:bg-meta-9;
+    @apply bg-gray dark:bg-meta-9;
   }
   .table-warning {
     @apply bg-warning/10 dark:bg-warning/5;
@@ -317,13 +310,12 @@
   .g-3 { @apply gap-3; }
   .g-4 { @apply gap-4; }
 
-  /* Spacing utilities */
+  /* Spacing utilities (Bootstrap aliases — utilities like .gap-4/.mb-2 are
+     already provided by Tailwind itself, so no alias rule is needed). */
   .ms-auto { @apply ml-auto; }
-  .gap-4 { @apply gap-4; }
   .align-items-center { @apply items-center; }
   .d-flex { @apply flex; }
   .w-100 { @apply w-full; }
-  .mb-2 { @apply mb-2; }
 
   /* Fade and show transitions */
   .fade { @apply transition-opacity; }

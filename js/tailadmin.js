@@ -29,9 +29,10 @@
   // Apply theme synchronously before paint to avoid flash-of-light-mode.
   applyTheme(readPersistedTheme());
 
-  document.addEventListener('alpine:init', () => {
+  function registerComponents() {
     const Alpine = window.Alpine;
-    if (!Alpine) return;
+    if (!Alpine || Alpine.__saso_registered__) return;
+    Alpine.__saso_registered__ = true;
 
     Alpine.data('taSidebar', () => ({
       sidebarToggle: false,
@@ -68,5 +69,15 @@
       show() { this.open = true; },
       hide() { this.open = false; },
     }));
-  });
+  }
+
+  // Alpine v3 fires `alpine:init` once, before walking the DOM. When tailadmin.js
+  // is loaded via `defer` after alpine.min.js, that event has typically already
+  // fired by the time this listener runs, so the data factories never register.
+  // Cover both orderings: register on the event when it fires, and also try
+  // immediately in case Alpine is already started.
+  document.addEventListener('alpine:init', registerComponents);
+  if (window.Alpine) {
+    registerComponents();
+  }
 })();

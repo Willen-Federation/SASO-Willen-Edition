@@ -1,4 +1,17 @@
-<?php $this->content = function($v) { ?>
+<?php $this->content = function($v) {
+  $sortLink = static function (string $col) use ($v): array {
+    $base = './'.$v->request.'/sortby/'.$col.'/direction/';
+    return [
+      'desc' => $base.'desc/'.$v->searchUrl,
+      'asc'  => $base.'asc/'.$v->searchUrl,
+    ];
+  };
+  $sortConcatId = $sortLink('concatId');
+  $sortCategory = $sortLink('categoryId');
+  $sortPrice    = $sortLink('price');
+  $sortCreate   = $sortLink('createAt');
+  $sortUpdate   = $sortLink('updateAt');
+?>
 
 <div class="hidden" id="current"><?php echo $v->request; ?></div>
 <div class="flex items-center gap-2 mb-4">

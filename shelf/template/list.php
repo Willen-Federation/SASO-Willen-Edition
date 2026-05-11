@@ -1,14 +1,6 @@
 <?php $this->title = '棚番ラベル印刷'; ?>
 <?php $this->content = function($v) { ?>
 
-<nav aria-label="breadcrumb" class="mb-4">
-  <ol class="breadcrumb">
-    <li class="breadcrumb-item"><a href="./">ホーム</a></li>
-    <li class="breadcrumb-item"><a href="./shelf/start/">棚番作成</a></li>
-    <li class="breadcrumb-item active" aria-current="page">棚番ラベル印刷</li>
-  </ol>
-</nav>
-
 <p class="mb-4 text-sm" style="color:var(--saso-text-sub)">以下の番号を印刷します：</p>
 
 <?php if($v->pagesAmount != 1) { ?>

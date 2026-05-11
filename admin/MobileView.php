@@ -43,13 +43,6 @@ final class MobileView implements View
         $this->content = function ($v) use ($tokens, $flashMsg, $flashType, $now): void {
             $h = fn (string $s) => htmlspecialchars($s, ENT_QUOTES, 'UTF-8');
             ?>
-<nav aria-label="breadcrumb" class="mb-4">
-  <ol class="breadcrumb">
-    <li class="breadcrumb-item"><a href="./">ホーム</a></li>
-    <li class="breadcrumb-item active" aria-current="page">モバイルデバイス管理</li>
-  </ol>
-</nav>
-
 <?php if ($flashMsg !== null): ?>
 <div class="ta-alert ta-alert-<?php echo htmlspecialchars($flashType, ENT_QUOTES, 'UTF-8'); ?> mb-4"
      x-data="{ open: true }" x-show="open" role="alert">

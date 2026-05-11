@@ -48,11 +48,17 @@ final class RootView implements View
         return $this->content;
     }
 
+    private function basePath(): string
+    {
+        return parse_url($this->baseUrl, PHP_URL_PATH) ?? '/';
+    }
+
     /**
      * @return list<array{type:string,label:string,items:array}>
      */
     private function buildSidebar(): array
     {
+        $base = $this->basePath();
         $t = static fn (string $k, string $fallback): string => __($k, [], null, $fallback);
         $svg = static function (string $name): string {
             ob_start();
@@ -65,19 +71,19 @@ final class RootView implements View
                 'type'  => 'group',
                 'label' => $t('ui.sidebar.group.inventory', 'Inventory'),
                 'items' => [
-                    ['key' => 'home',         'label' => $t('ui.sidebar.home',         'Home'),           'href' => './',              'icon' => $svg('home')],
-                    ['key' => 'item_add',     'label' => $t('ui.sidebar.item_register', 'Register'),       'href' => './item/add/',      'icon' => $svg('plus-circle')],
-                    ['key' => 'verify',       'label' => $t('ui.sidebar.verify',        'Verification'),   'href' => './verify/start/', 'icon' => $svg('check-circle')],
-                    ['key' => 'item_archive', 'label' => $t('ui.sidebar.item_archive',  'Archive list'),   'href' => './archive/list/',  'icon' => $svg('archive')],
+                    ['key' => 'home',         'label' => $t('ui.sidebar.home',         'Home'),           'href' => $base.'start/start/',      'icon' => $svg('home')],
+                    ['key' => 'item_add',     'label' => $t('ui.sidebar.item_register', 'Register'),       'href' => $base.'item/add/',          'icon' => $svg('plus-circle')],
+                    ['key' => 'verify',       'label' => $t('ui.sidebar.verify',        'Verification'),   'href' => $base.'verify/start/',      'icon' => $svg('check-circle')],
+                    ['key' => 'item_archive', 'label' => $t('ui.sidebar.item_archive',  'Archive list'),   'href' => $base.'archive/list/',      'icon' => $svg('archive')],
                 ],
             ],
             [
                 'type'  => 'group',
                 'label' => $t('ui.sidebar.group.label', 'Labels'),
                 'items' => [
-                    ['key' => 'label_print',  'label' => $t('ui.sidebar.label_print',   'Print labels'),   'href' => './label/features/', 'icon' => $svg('printer')],
-                    ['key' => 'label_first',  'label' => $t('ui.sidebar.label_first',   'Print → register'),'href' => './label/wizard/',   'icon' => $svg('sparkles')],
-                    ['key' => 'barcode_sheet','label' => $t('ui.sidebar.barcode_sheet', 'Barcode sheet'),  'href' => './barcode/sheet/',  'icon' => $svg('qr')],
+                    ['key' => 'label_print',  'label' => $t('ui.sidebar.label_print',   'Print labels'),    'href' => $base.'label/features/',   'icon' => $svg('printer')],
+                    ['key' => 'label_first',  'label' => $t('ui.sidebar.label_first',   'Print → register'),'href' => $base.'label/wizard/',     'icon' => $svg('sparkles')],
+                    ['key' => 'barcode_sheet','label' => $t('ui.sidebar.barcode_sheet', 'Barcode sheet'),   'href' => $base.'barcode/sheet/',    'icon' => $svg('qr')],
                 ],
             ],
             [
@@ -89,26 +95,26 @@ final class RootView implements View
                         'label'    => $t('ui.sidebar.shelf', 'Shelves'),
                         'icon'     => $svg('grid'),
                         'children' => [
-                            ['label' => $t('ui.sidebar.shelf_create', 'Create'), 'href' => './shelf/start/'],
-                            ['label' => $t('ui.sidebar.shelf_map',    'Map'),    'href' => './shelf/map/'],
-                            ['label' => $t('ui.sidebar.shelf_simple', 'Simple setup'), 'href' => './shelf/simple/'],
+                            ['label' => $t('ui.sidebar.shelf_create', 'Create'),       'href' => $base.'shelf/start/'],
+                            ['label' => $t('ui.sidebar.shelf_map',    'Map'),           'href' => $base.'shelf/map/'],
+                            ['label' => $t('ui.sidebar.shelf_simple', 'Simple setup'),  'href' => $base.'shelf/simple/'],
                         ],
                     ],
-                    ['key' => 'category', 'label' => $t('ui.sidebar.category',   'Categories'),  'href' => './category/start/', 'icon' => $svg('tag')],
-                    ['key' => 'label_size', 'label' => $t('ui.sidebar.label_size', 'Label sizes'), 'href' => './label/start/',    'icon' => $svg('list')],
+                    ['key' => 'category',   'label' => $t('ui.sidebar.category',   'Categories'),  'href' => $base.'category/start/', 'icon' => $svg('tag')],
+                    ['key' => 'label_size', 'label' => $t('ui.sidebar.label_size', 'Label sizes'), 'href' => $base.'label/start/',    'icon' => $svg('list')],
                 ],
             ],
             [
                 'type'  => 'group',
                 'label' => $t('ui.sidebar.group.admin', 'Administration'),
                 'items' => [
-                    ['key' => 'member',   'label' => $t('ui.sidebar.member',          'Members'),        'href' => './member/start/',          'icon' => $svg('users')],
-                    ['key' => 'role',     'label' => $t('ui.sidebar.role',            'Roles'),          'href' => './role/start/',            'icon' => $svg('shield')],
-                    ['key' => 'flags',    'label' => $t('ui.sidebar.flags',           'Feature flags'),  'href' => './admin/feature-flags/',   'icon' => $svg('toggle')],
-                    ['key' => 'auth',     'label' => $t('ui.sidebar.auth_providers',  'Auth providers'), 'href' => './admin/auth-providers/',  'icon' => $svg('key')],
-                    ['key' => 'ai',       'label' => $t('ui.sidebar.ai_settings',     'AI settings'),   'href' => './admin/ai-settings/',     'icon' => $svg('sparkles')],
-                    ['key' => 'firebase', 'label' => $t('ui.sidebar.firebase_settings','Firebase'),     'href' => './admin/firebase-settings/','icon' => $svg('cog')],
-                    ['key' => 'password', 'label' => $t('ui.sidebar.password',        'Password'),      'href' => './start/password/',        'icon' => $svg('key')],
+                    ['key' => 'member',   'label' => $t('ui.sidebar.member',           'Members'),        'href' => $base.'member/start/',           'icon' => $svg('users')],
+                    ['key' => 'role',     'label' => $t('ui.sidebar.role',             'Roles'),          'href' => $base.'role/start/',             'icon' => $svg('shield')],
+                    ['key' => 'flags',    'label' => $t('ui.sidebar.flags',            'Feature flags'),  'href' => $base.'admin/feature-flags/',    'icon' => $svg('toggle')],
+                    ['key' => 'auth',     'label' => $t('ui.sidebar.auth_providers',   'Auth providers'), 'href' => $base.'admin/auth-providers/',   'icon' => $svg('key')],
+                    ['key' => 'ai',       'label' => $t('ui.sidebar.ai_settings',      'AI settings'),    'href' => $base.'admin/ai-settings/',      'icon' => $svg('sparkles')],
+                    ['key' => 'firebase', 'label' => $t('ui.sidebar.firebase_settings','Firebase'),       'href' => $base.'admin/firebase-settings/','icon' => $svg('cog')],
+                    ['key' => 'password', 'label' => $t('ui.sidebar.password',         'Password'),       'href' => $base.'start/password/',         'icon' => $svg('key')],
                 ],
             ],
         ];
@@ -124,7 +130,7 @@ final class RootView implements View
             return [];
         }
         $crumbs = [
-            ['label' => __('ui.nav.home', [], null, 'Home'), 'href' => './'],
+            ['label' => __('ui.nav.home', [], null, 'Home'), 'href' => $this->basePath().'start/start/'],
         ];
         if ($this->matter !== '' && $this->matter !== 'start') {
             $crumbs[] = ['label' => $title];

@@ -1,13 +1,6 @@
 <?php $this->title = '一括アーカイブ'; ?>
 <?php $this->content = function($v) { ?>
 
-<nav aria-label="パンくずリスト">
-  <ol class="mb-5 flex items-center gap-1.5 text-sm" style="color:var(--saso-text-sub)">
-    <li><a href="./" class="hover:underline" style="color:var(--saso-text-sub)">ホーム</a></li>
-    <li aria-hidden="true">/</li>
-    <li aria-current="page" style="color:var(--saso-text)">一括アーカイブ</li>
-  </ol>
-</nav>
 
 <div class="hidden" id="current"><?php echo htmlspecialchars($v->request, ENT_QUOTES, 'UTF-8'); ?></div>
 

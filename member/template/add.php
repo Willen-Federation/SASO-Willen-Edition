@@ -6,15 +6,6 @@ $lang = $_SESSION['lang'] ?? ($_COOKIE['saso_locale'] ?? 'ja');
 $t = static fn (string $ja, string $en): string => $lang === 'ja' ? $ja : $en;
 ?>
 
-<nav aria-label="<?php echo ui_attr($t('パンくずリスト', 'Breadcrumbs')); ?>">
-  <ol class="mb-5 flex items-center gap-1.5 text-sm" style="color:var(--saso-text-sub)">
-    <li><a href="./" class="hover:underline" style="color:var(--saso-text-sub)"><?php echo ui_text($t('ホーム', 'Home')); ?></a></li>
-    <li aria-hidden="true">/</li>
-    <li><a href="./member/start/" class="hover:underline" style="color:var(--saso-text-sub)"><?php echo ui_text($t('ユーザー', 'Users')); ?></a></li>
-    <li aria-hidden="true">/</li>
-    <li aria-current="page" style="color:var(--saso-text)"><?php echo ui_text($t('登録', 'Register')); ?></li>
-  </ol>
-</nav>
 
 <div class="mx-auto max-w-md">
   <div class="rounded-2xl border overflow-hidden"

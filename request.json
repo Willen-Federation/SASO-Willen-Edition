@@ -164,6 +164,14 @@
             "matter": "item",
             "action": "reproduction"
         },
+        "bulkAdd": {
+            "matter": "item",
+            "action": "bulkAdd"
+        },
+        "bulkTemplate": {
+            "matter": "item",
+            "action": "bulkTemplate"
+        },
         "inventory": {
            "matter": "feature",
            "action": "inventory"

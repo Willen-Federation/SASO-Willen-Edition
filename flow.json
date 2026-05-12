@@ -79,7 +79,9 @@
         "changeSizeOrder": "\\saso\\item\\ChangeSizeOrderDIContainer",
         "addFeature": "\\saso\\item\\AddFeatureDIContainer",
         "archive": "\\saso\\item\\ArchiveDIContainer",
-        "reproduction": "\\saso\\item\\ReproductionDIContainer"
+        "reproduction": "\\saso\\item\\ReproductionDIContainer",
+        "bulkAdd": "\\saso\\item\\BulkAddDIContainer",
+        "bulkTemplate": "\\saso\\item\\BulkTemplateDIContainer"
     },
     "feature": {
         "inventory": "\\saso\\feature\\AmountDIContainer",

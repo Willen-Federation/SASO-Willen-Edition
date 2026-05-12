@@ -72,7 +72,8 @@ final class RootView implements View
                 'label' => $t('ui.sidebar.group.inventory', 'Inventory'),
                 'items' => [
                     ['key' => 'home',         'label' => $t('ui.sidebar.home',         'Home'),           'href' => $base.'start/start/',      'icon' => $svg('home')],
-                    ['key' => 'item_add',     'label' => $t('ui.sidebar.item_register', 'Register'),       'href' => $base.'item/add/',          'icon' => $svg('plus-circle')],
+                    ['key' => 'item_add',      'label' => $t('ui.sidebar.item_register',      'Register'),       'href' => $base.'item/add/',          'icon' => $svg('plus-circle')],
+                    ['key' => 'item_bulk_add', 'label' => $t('ui.sidebar.item_bulk_register', 'Bulk register'), 'href' => $base.'item/bulkAdd/',      'icon' => $svg('document-text')],
                     ['key' => 'verify',       'label' => $t('ui.sidebar.verify',        'Verification'),   'href' => $base.'verify/start/',      'icon' => $svg('check-circle')],
                     ['key' => 'item_archive', 'label' => $t('ui.sidebar.item_archive',  'Archive list'),   'href' => $base.'archive/list/',      'icon' => $svg('archive')],
                 ],

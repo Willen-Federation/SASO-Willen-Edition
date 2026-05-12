@@ -9,7 +9,7 @@
         <p class="font-semibold"><?php echo htmlspecialchars(__('Error')); ?></p>
         <p class="mt-1"><?php echo htmlspecialchars($v->message ?? __('An error occurred')); ?></p>
         <p class="mt-2">
-            <a href="/start/start/" class="underline">
+            <a href="/" class="underline">
                 <?php echo htmlspecialchars(__('Back to Home')); ?>
             </a>
         </p>

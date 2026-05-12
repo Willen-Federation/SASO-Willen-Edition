@@ -15,10 +15,10 @@ final class AuthControllerTest extends TestCase
         return [
             'relative path preserved'             => ['item/list/', 'item/list/'],
             'error marker stripped'               => ['item/list/error/1/', 'item/list/'],
-            'absolute https URL rejected'         => ['https://attacker.example/login', 'start/start/'],
-            'absolute custom scheme rejected'     => ['javascript:alert(1)', 'start/start/'],
-            'protocol-relative URL rejected'      => ['//attacker.example/login', 'start/start/'],
-            'protocol-relative after error strip' => ['//attacker.example/login/error/1/', 'start/start/'],
+            'absolute https URL rejected'         => ['https://attacker.example/login', ''],
+            'absolute custom scheme rejected'     => ['javascript:alert(1)', ''],
+            'protocol-relative URL rejected'      => ['//attacker.example/login', ''],
+            'protocol-relative after error strip' => ['//attacker.example/login/error/1/', ''],
         ];
     }
 
@@ -36,7 +36,7 @@ final class AuthControllerTest extends TestCase
     {
         $controller = new AuthController([]);
 
-        self::assertSame('start/start/', $this->readAuthInputProperty($controller, 'restoredPath'));
+        self::assertSame('', $this->readAuthInputProperty($controller, 'restoredPath'));
     }
 
     /** @return mixed */

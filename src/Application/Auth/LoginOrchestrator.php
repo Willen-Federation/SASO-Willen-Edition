@@ -90,7 +90,7 @@ final class LoginOrchestrator
 
         $this->externalIdentities->recordLogin($providerId, $identity->externalSubject);
 
-        $returnTo = (string) ($_SESSION['auth.return_to'] ?? '/start/start/');
+        $returnTo = (string) ($_SESSION['auth.return_to'] ?? '/');
         unset(
             $_SESSION['auth.state'],
             $_SESSION['auth.nonce'],
@@ -99,7 +99,7 @@ final class LoginOrchestrator
         );
         // Reject relative paths (e.g. './') that would resolve to /auth/ and 403
         if ($returnTo === '' || !str_starts_with($returnTo, '/')) {
-            $returnTo = '/start/start/';
+            $returnTo = '/';
         }
         return $returnTo;
     }

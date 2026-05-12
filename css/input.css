@@ -52,6 +52,11 @@
     @apply relative z-20 w-full appearance-none rounded border border-stroke bg-transparent py-3 pl-5 pr-12 outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white;
   }
 
+  /* Button base */
+  .btn {
+    @apply inline-flex items-center justify-center gap-1.5 rounded font-medium transition;
+  }
+
   /* Buttons */
   .btn-primary {
     @apply flex justify-center rounded bg-primary p-3 font-medium text-white hover:bg-opacity-90 transition;
@@ -70,6 +75,9 @@
   }
   .btn-sm {
     @apply px-4 py-2 text-sm;
+  }
+  .btn-xs {
+    @apply px-2 py-1 text-xs;
   }
   /* Outline button variants */
   .btn-outline-warning {
@@ -355,6 +363,10 @@
            primary text 13–17:1 AAA  secondary text 5.6:1 AA
    ═══════════════════════════════════════════════════════════════════ */
 
+/* color-scheme so browsers render native form elements correctly per theme */
+:root { color-scheme: light; }
+.dark  { color-scheme: dark; }
+
 :root {
   /* ── Light surfaces ── */
   --saso-body:         #c4d4e4;   /* blue-gray backdrop; clearly ≠ white panels */
@@ -507,6 +519,14 @@ body { background-color: var(--saso-body) !important; }
   border-color:     var(--saso-ctrl-bdr) !important;
   color:            var(--saso-text)     !important;
 }
+/* Dark mode: use an opaque background so browsers can't bleed their native
+   white default through the transparent rgba(255,255,255,0.06) token. */
+.dark .form-input,
+.dark .form-select,
+.dark .form-textarea {
+  background-color: #1d2a39 !important;
+  color:            var(--saso-text) !important;
+}
 .form-input::placeholder,
 .form-textarea::placeholder { color: var(--saso-text-sub) !important; }
 .form-input:focus,
@@ -521,6 +541,61 @@ body { background-color: var(--saso-body) !important; }
 .dark .form-textarea:focus {
   box-shadow: 0 0 0 3px rgba(107,124,240,0.28) !important;
 }
+/* Prevent browser autofill from overriding dark backgrounds */
+.dark .form-input:-webkit-autofill,
+.dark .form-input:-webkit-autofill:hover,
+.dark .form-input:-webkit-autofill:focus {
+  -webkit-box-shadow: 0 0 0px 1000px #1d2a39 inset !important;
+  -webkit-text-fill-color: var(--saso-text) !important;
+  caret-color: var(--saso-text);
+}
+
+/* ─── Category list items (rendered via JS — cannot rely on Tailwind dark: utilities) ─── */
+.category-list {
+  display:        flex;
+  flex-direction: column;
+  border-radius:  0.5rem;
+  border:         1px solid var(--saso-card-bdr);
+  overflow:       hidden;
+}
+.category-list > li + li {
+  border-top: 1px solid var(--saso-card-bdr);
+}
+.category-item {
+  display:          flex;
+  align-items:      center;
+  gap:              0.25rem;
+  padding:          0.5rem 0.75rem;
+  cursor:           pointer;
+  background-color: transparent;
+  transition:       background-color 120ms;
+}
+.category-item:hover {
+  background-color: var(--saso-ctrl-hover);
+}
+.category-item--selected {
+  background-color: var(--saso-ctrl-hover);
+  border-left:      3px solid var(--saso-ctrl-focus);
+  padding-left:     calc(0.75rem - 3px);
+}
+.category-item__text {
+  flex:      1;
+  font-size: 0.875rem;
+  color:     var(--saso-text);
+}
+.category-children {
+  margin-left:  1rem;
+  border-left:  2px solid var(--saso-card-bdr);
+  padding-left: 0.5rem;
+}
+
+/* ─── Admin data table rows ─── */
+.ia-row {
+  border-bottom: 1px solid var(--saso-card-bdr);
+  transition: background-color 120ms;
+}
+.ia-row:last-child { border-bottom: none; }
+.ia-row:hover { background-color: var(--saso-ctrl-hover); }
 
 /* Buttons — use SASO brand color */
 .btn-primary {

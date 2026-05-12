@@ -151,8 +151,8 @@ ui:
     link: installer/start
     unfinished_tail: '. If installation is already done, delete the "installer" directory.'
   footer:
-    copyright: '© {year} SASO — Willen Edition'
-    version: 'Version {version}'
+    copyright: '© %year% SASO — Willen Edition'
+    version: 'Version %version%'
   a11y:
     skip_to_main: Skip to main content
     search: Search

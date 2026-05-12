@@ -15,9 +15,9 @@ final class MapDIContainer implements DIContainer
 
     public function di(\Closure $inside, array $query, array $post, array $config, \DateTime $now): void
     {
-        $pdo = \saso\repository\DBConnection::getPdo();
-        $repo = new \Saso\Infrastructure\StorageLocation\PdoStorageLocationRepository($pdo);
-        $this->pins = $repo->listPinned();
+        // Map coordinates (mapXRatio/mapYRatio) are not yet stored in the DB.
+        // Pass an empty pin list until the feature is fully implemented.
+        $this->pins = [];
     }
 
     public function flow(): View

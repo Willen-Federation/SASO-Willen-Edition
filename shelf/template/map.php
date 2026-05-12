@@ -267,17 +267,17 @@ function shelfMap() {
     return {
         mapImage: null,
         zoomLevel: 1,
-        pins: <?php 
+        pins: <?php
             $data = array_map(fn($p) => [
                 'id' => $p->id,
                 'code' => $p->code->toString(),
                 'name' => $p->name,
-                'x' => $p->mapXRatio,
-                'y' => $p->mapYRatio,
+                'x' => property_exists($p, 'mapXRatio') ? $p->mapXRatio : null,
+                'y' => property_exists($p, 'mapYRatio') ? $p->mapYRatio : null,
                 'type' => $p->locationType->value,
                 'status' => $p->operationalStatus->value,
             ], $v->pins);
-            echo json_encode($data); 
+            echo json_encode($data);
         ?>,
         selectedPin: null,
         init() {

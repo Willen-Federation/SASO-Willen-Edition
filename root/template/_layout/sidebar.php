@@ -11,7 +11,7 @@ if (!$authed) {
 }
 ?>
 <aside id="sidebar"
-       class="saso-sidebar sidebar fixed left-0 top-0 z-9999 flex h-screen w-[290px] flex-col overflow-y-auto px-5 transition-transform duration-200 ease-linear lg:static lg:translate-x-0"
+       class="saso-sidebar sidebar fixed left-0 top-0 z-99999 flex h-screen w-[290px] flex-col overflow-y-auto px-5 transition-transform duration-200 ease-linear lg:static lg:translate-x-0"
        :class="mobileOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'"
        aria-label="<?php echo ui_attr(__('ui.a11y.sidebar', [], null, 'Primary')); ?>">
 

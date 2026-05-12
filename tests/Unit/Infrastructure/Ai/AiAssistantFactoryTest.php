@@ -19,23 +19,56 @@ final class AiAssistantFactoryTest extends TestCase
 {
     private SystemSettingService $settingService;
 
+    /** @var array<string, string|false> */
+    private array $savedEnv = [];
+
+    /** Keys that must be isolated across every test in this suite. */
+    private const ENV_KEYS = [
+        'AI_PROVIDER',
+        'GEMINI_API_KEY',
+        'LOCAL_GEMINI_KEY',
+        'OPENAI_API_KEY',
+        'ANTHROPIC_API_KEY',
+    ];
+
     protected function setUp(): void
     {
-        // Create a mock setting service
+        // Snapshot and unset all relevant env vars so tests are fully isolated.
+        // docker-compose.yml injects real API keys (e.g. LOCAL_GEMINI_KEY) into
+        // the container process; without this, leftover values survive across
+        // tests even after putenv("KEY=") because on some PHP/OS combinations
+        // getenv() returns the original process-env value instead of the
+        // overriding empty string.
+        foreach (self::ENV_KEYS as $key) {
+            $this->savedEnv[$key] = getenv($key);
+            putenv($key); // unset — getenv() will return false
+        }
+
         $this->settingService = $this->createMock(SystemSettingService::class);
+    }
+
+    protected function tearDown(): void
+    {
+        // Restore the original process environment so other test classes are
+        // not affected by env changes made inside individual test methods.
+        foreach ($this->savedEnv as $key => $value) {
+            if ($value === false) {
+                putenv($key);
+            } else {
+                putenv("$key=$value");
+            }
+        }
     }
 
     public function testForVisionResolvesProviderFromEnvironment(): void
     {
+        // AI_PROVIDER=gemini, but no API key configured → NullAssistant
         putenv('AI_PROVIDER=gemini');
-        putenv('GEMINI_API_KEY=');
-        putenv('LOCAL_GEMINI_KEY=');
         $this->settingService->method('get')->willReturn(null);
 
         $assistant = AiAssistantFactory::forVision($this->settingService);
 
         $this->assertInstanceOf(NullAssistant::class, $assistant);
-        putenv('AI_PROVIDER=');
     }
 
     public function testForVisionResolvesGeminiKeyFromLocalGeminiKey(): void
@@ -47,21 +80,16 @@ final class AiAssistantFactoryTest extends TestCase
         $assistant = AiAssistantFactory::forVision($this->settingService);
 
         $this->assertInstanceOf(GeminiAssistant::class, $assistant);
-        putenv('AI_PROVIDER=');
-        putenv('LOCAL_GEMINI_KEY=');
     }
 
     public function testForVisionReturnsNullAssistantWhenNoKeysConfigured(): void
     {
         putenv('AI_PROVIDER=gemini');
-        putenv('GEMINI_API_KEY=');
-        putenv('LOCAL_GEMINI_KEY=');
         $this->settingService->method('get')->willReturn(null);
 
         $assistant = AiAssistantFactory::forVision($this->settingService);
 
         $this->assertInstanceOf(NullAssistant::class, $assistant);
-        putenv('AI_PROVIDER=');
     }
 
     public function testForVisionResolvesOpenAiKeys(): void
@@ -73,8 +101,6 @@ final class AiAssistantFactoryTest extends TestCase
         $assistant = AiAssistantFactory::forVision($this->settingService);
 
         $this->assertInstanceOf(OpenAiAssistant::class, $assistant);
-        putenv('AI_PROVIDER=');
-        putenv('OPENAI_API_KEY=');
     }
 
     public function testForVisionResolvesClaudeKeys(): void
@@ -86,8 +112,6 @@ final class AiAssistantFactoryTest extends TestCase
         $assistant = AiAssistantFactory::forVision($this->settingService);
 
         $this->assertInstanceOf(ClaudeAssistant::class, $assistant);
-        putenv('AI_PROVIDER=');
-        putenv('ANTHROPIC_API_KEY=');
     }
 
     public function testForChatResolvesProviderFromEnvironment(): void
@@ -99,8 +123,6 @@ final class AiAssistantFactoryTest extends TestCase
         $assistant = AiAssistantFactory::forChat($this->settingService);
 
         $this->assertInstanceOf(GeminiAssistant::class, $assistant);
-        putenv('AI_PROVIDER=');
-        putenv('LOCAL_GEMINI_KEY=');
     }
 
     public function testPreferencesEnvironmentVarOverDatabase(): void
@@ -108,7 +130,7 @@ final class AiAssistantFactoryTest extends TestCase
         putenv('AI_PROVIDER=gemini');
         putenv('LOCAL_GEMINI_KEY=env-key');
 
-        // Even if database returns a different provider
+        // Even if database returns a different provider, env takes precedence.
         $dbSetting = SettingValue::string('openai');
         $this->settingService->method('get')->willReturnMap([
             [new SettingKey('ai.provider_vision'), $dbSetting],
@@ -116,18 +138,13 @@ final class AiAssistantFactoryTest extends TestCase
 
         $assistant = AiAssistantFactory::forVision($this->settingService);
 
-        // Should use gemini from environment, not openai from database
         $this->assertInstanceOf(GeminiAssistant::class, $assistant);
-        putenv('AI_PROVIDER=');
-        putenv('LOCAL_GEMINI_KEY=');
     }
 
     public function testHandlesMultipleApiKeys(): void
     {
         putenv('AI_PROVIDER=gemini');
-        // Clear environment keys so database keys take precedence
-        putenv('GEMINI_API_KEY=');
-        putenv('LOCAL_GEMINI_KEY=');
+        // No env keys; setUp() already unset them — database keys take precedence.
 
         $dbSetting = SettingValue::json(['key1', 'key2', 'key3']);
 
@@ -142,36 +159,26 @@ final class AiAssistantFactoryTest extends TestCase
 
         $assistant = AiAssistantFactory::forVision($this->settingService);
 
-        // Multiple keys should create a FallbackChainAssistant
         $this->assertInstanceOf(FallbackChainAssistant::class, $assistant);
-        putenv('AI_PROVIDER=');
     }
 
     public function testGeminiKeyLookupChain(): void
     {
-        // Test the precedence: GEMINI_API_KEY > LOCAL_GEMINI_KEY > database
-
-        // Test 1: GEMINI_API_KEY takes precedence
+        // GEMINI_API_KEY takes precedence over LOCAL_GEMINI_KEY
         putenv('AI_PROVIDER=gemini');
         putenv('GEMINI_API_KEY=prod-key');
         putenv('LOCAL_GEMINI_KEY=dev-key');
         $this->settingService->method('get')->willReturn(null);
 
         $assistant = AiAssistantFactory::forVision($this->settingService);
-        $this->assertInstanceOf(GeminiAssistant::class, $assistant);
 
-        // Clean up
-        putenv('AI_PROVIDER=');
-        putenv('GEMINI_API_KEY=');
-        putenv('LOCAL_GEMINI_KEY=');
+        $this->assertInstanceOf(GeminiAssistant::class, $assistant);
     }
 
     public function testHandlesEmptyKeyArrays(): void
     {
         putenv('AI_PROVIDER=gemini');
-        // Clear environment keys so database keys take precedence
-        putenv('GEMINI_API_KEY=');
-        putenv('LOCAL_GEMINI_KEY=');
+        // No env keys; setUp() already unset them. DB returns empty strings.
 
         $dbSetting = SettingValue::json(['', '']);
 
@@ -181,9 +188,8 @@ final class AiAssistantFactoryTest extends TestCase
 
         $assistant = AiAssistantFactory::forVision($this->settingService);
 
-        // Empty strings should be filtered out, resulting in NullAssistant
+        // Empty strings are filtered out → NullAssistant
         $this->assertInstanceOf(NullAssistant::class, $assistant);
-        putenv('AI_PROVIDER=');
     }
 
     public function testInvalidProviderReturnsNullAssistant(): void
@@ -194,6 +200,5 @@ final class AiAssistantFactoryTest extends TestCase
         $assistant = AiAssistantFactory::forVision($this->settingService);
 
         $this->assertInstanceOf(NullAssistant::class, $assistant);
-        putenv('AI_PROVIDER=');
     }
 }

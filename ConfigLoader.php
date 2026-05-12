@@ -47,13 +47,13 @@ final class ConfigLoader
     {
         $config['documentRoot'] = '/'.trim($config['documentRoot'], '/').'/';
 
-        // Fallback for hardcoded production path: if documentRoot is unreachable or is the
-        // production server path, use __DIR__ (project root). APP_DOCUMENT_ROOT env override
-        // takes precedence via overlayEnv(), but this fallback ensures dev environments work
-        // out-of-box without manual config.json edits.
+        // Fallback only for the hardcoded production path: if config.json was never edited
+        // from the default, silently replace it with the real project root so fresh clones
+        // and dev environments boot without manual edits. Any explicit value — whether from
+        // config.json or from the APP_DOCUMENT_ROOT env override — is kept as-is, even if
+        // the directory does not exist on this machine (e.g., a Docker path validated in CI).
         $productionPath = '/home/schicksal/domains/saso.sksl.jp/public_html/';
-        $rootPath = rtrim($config['documentRoot'], '/');
-        if ($config['documentRoot'] === $productionPath || ($rootPath !== '' && !is_dir($rootPath))) {
+        if ($config['documentRoot'] === $productionPath) {
             $config['documentRoot'] = __DIR__.'/';
         }
 

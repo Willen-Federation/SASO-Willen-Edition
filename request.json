@@ -168,6 +168,18 @@
             "matter": "item",
             "action": "attributeValues"
         },
+        "bulkImport": {
+            "matter": "item",
+            "action": "bulkImport"
+        },
+        "bulkExport": {
+            "matter": "item",
+            "action": "bulkExport"
+        },
+        "bulkTemplate": {
+            "matter": "item",
+            "action": "bulkTemplate"
+        },
         "inventory": {
            "matter": "feature",
            "action": "inventory"

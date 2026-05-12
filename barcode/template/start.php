@@ -79,17 +79,20 @@
           <button
             type="button"
             id="barcodeSubmit"
-            class="btn btn-primary shrink-0"
+            class="btn btn-primary shrink-0 flex items-center gap-2"
             @click="search()"
             :disabled="loading"
           >
-            <span x-show="!loading"><?php echo ui_text($labelSubmit); ?></span>
-            <span x-show="loading" class="flex items-center gap-1">
-              <svg class="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
+            <span x-show="loading" aria-hidden="true">
+              <svg class="animate-spin h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24">
                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                 <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
               </svg>
             </span>
+            <span x-show="!loading" aria-hidden="true">
+              <?php ui('iconHeroicon', ['name' => 'search', 'class' => 'h-4 w-4 shrink-0']); ?>
+            </span>
+            <?php echo ui_text($labelSubmit); ?>
           </button>
         </div>
 

@@ -61,7 +61,7 @@
         </h2>
         <div class="flex gap-3">
           <div class="relative grow">
-            <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
+            <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400 dark:text-gray-300">
               <?php ui('iconHeroicon', ['name' => 'qr', 'class' => 'h-5 w-5']); ?>
             </div>
             <input

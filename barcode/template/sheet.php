@@ -128,7 +128,7 @@
               </div>
             </button>
           </template>
-          <div x-show="filtered.length === 0" class="col-span-2 py-8 text-center text-sm text-gray-600">
+          <div x-show="filtered.length === 0" class="col-span-2 py-8 text-center text-sm text-gray-600 dark:text-gray-400">
             <?php echo $lang === 'ja' ? '一致するシートが見つかりません' : 'No matching sheets found'; ?>
           </div>
         </div>
@@ -168,7 +168,7 @@
         <div>
           <label class="form-label text-sm"><?php echo $lang === 'ja' ? 'バーコードプレフィックス' : 'Barcode Prefix'; ?></label>
           <input x-model="prefix" type="text" maxlength="5" class="form-input py-2 text-sm" placeholder="BC" aria-label="<?php echo $lang === 'ja' ? 'プレフィックス' : 'Prefix'; ?>">
-          <p class="mt-1 text-xs text-gray-600"><?php echo $lang === 'ja' ? '例: BC → BC00001, BC00002...' : 'e.g. BC → BC00001, BC00002...'; ?></p>
+          <p class="mt-1 text-xs text-gray-600 dark:text-gray-400"><?php echo $lang === 'ja' ? '例: BC → BC00001, BC00002...' : 'e.g. BC → BC00001, BC00002...'; ?></p>
         </div>
         <div>
           <label class="form-label text-sm"><?php echo $lang === 'ja' ? '開始番号' : 'Start Number'; ?></label>
@@ -177,7 +177,7 @@
         <div>
           <label class="form-label text-sm"><?php echo $lang === 'ja' ? '枚数' : 'Count'; ?></label>
           <input x-model.number="count" type="number" min="1" max="999" class="form-input py-2 text-sm" :max="labelsPerSheet * 10" aria-label="枚数">
-          <p class="mt-1 text-xs text-gray-600">
+          <p class="mt-1 text-xs text-gray-600 dark:text-gray-400">
             <?php echo $lang === 'ja' ? '1シートあたり ' : 'Per sheet: '; ?>
             <span x-text="labelsPerSheet" class="font-semibold"></span>
             <?php echo $lang === 'ja' ? ' 面' : ' labels'; ?>

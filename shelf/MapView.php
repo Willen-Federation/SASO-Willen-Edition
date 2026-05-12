@@ -8,7 +8,7 @@ final class MapView implements View
 {
     use Setter;
 
-    /** @var list<Saso\Domain\StorageLocation\StorageLocation> */
+    /** @var list<\Saso\Domain\StorageLocation\StorageLocation> */
     public array $pins = [];
 
     public \Closure $content;

@@ -47,6 +47,22 @@ final class PdoStorageLocationRepository implements StorageLocationRepository
         return $row === false ? null : $this->hydrate($row);
     }
 
+    /** @return list<StorageLocation> */
+    public function listPinned(): array
+    {
+        $stmt = $this->pdo->query(
+            'SELECT * FROM storage_location ORDER BY position ASC, id ASC',
+        );
+        if ($stmt === false) {
+            return [];
+        }
+
+        return array_map(
+            fn (array $row): StorageLocation => $this->hydrate($row),
+            $stmt->fetchAll(PDO::FETCH_ASSOC),
+        );
+    }
+
     public function listRoots(): array
     {
         $stmt = $this->pdo->query(
@@ -171,6 +187,10 @@ final class PdoStorageLocationRepository implements StorageLocationRepository
             capacity: $capacity,
             notes: isset($row['notes']) && is_string($row['notes']) ? $row['notes'] : null,
             operationalStatus: $operationalStatus,
+            areaCode: isset($row['area_code']) && is_string($row['area_code']) ? $row['area_code'] : null,
+            mapImageId: isset($row['map_image_id']) && $row['map_image_id'] !== null ? (int) $row['map_image_id'] : null,
+            mapXRatio: isset($row['map_x_ratio']) && $row['map_x_ratio'] !== null ? (float) $row['map_x_ratio'] : null,
+            mapYRatio: isset($row['map_y_ratio']) && $row['map_y_ratio'] !== null ? (float) $row['map_y_ratio'] : null,
         );
     }
 }

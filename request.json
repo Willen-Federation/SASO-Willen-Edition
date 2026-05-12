@@ -198,6 +198,14 @@
         "history": {
            "matter": "feature",
            "action": "history"
+        },
+        "fromBarcode": {
+            "matter": "item",
+            "action": "fromBarcode"
+        },
+        "registerFromBarcode": {
+            "matter": "item",
+            "action": "registerFromBarcode"
         }
     },
     "label": {

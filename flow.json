@@ -80,7 +80,10 @@
         "addFeature": "\\saso\\item\\AddFeatureDIContainer",
         "archive": "\\saso\\item\\ArchiveDIContainer",
         "reproduction": "\\saso\\item\\ReproductionDIContainer",
-        "attributeValues": "\\saso\\item\\AttributeValuesDIContainer"
+        "attributeValues": "\\saso\\item\\AttributeValuesDIContainer",
+        "bulkImport": "\\saso\\item\\BulkImportDIContainer",
+        "bulkExport": "\\saso\\item\\BulkExportDIContainer",
+        "bulkTemplate": "\\saso\\item\\BulkTemplateDIContainer"
     },
     "feature": {
         "inventory": "\\saso\\feature\\AmountDIContainer",

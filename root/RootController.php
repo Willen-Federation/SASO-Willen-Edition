@@ -13,7 +13,9 @@ final class RootController implements Controller
         array $config,
         bool $authed,
         string $matter,
-        string $action
+        string $action,
+        /** @var list<string> */
+        array $permissions = [],
     )
     {
         $protocol = filter_var($config['https']??'', \FILTER_VALIDATE_BOOL, [
@@ -39,6 +41,7 @@ final class RootController implements Controller
             $authed,
             $matter,
             $action,
+            $permissions,
         );
     }
 }

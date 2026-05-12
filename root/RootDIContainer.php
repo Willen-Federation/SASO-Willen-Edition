@@ -1,6 +1,7 @@
 <?php
 namespace saso\root;
 
+use Saso\Application\Auth\AdminGuard;
 use saso\framework\DIContainer;
 use saso\framework\Flow;
 
@@ -21,7 +22,17 @@ final class RootDIContainer implements DIContainer
     }
     public function di(\Closure $inside, array $query, array $post, array $config, \DateTime $now): void
     {
-        $this->ctrl = new RootController($config, $this->authed, $this->matter, $this->action);
+        $permissions = [];
+        if ($this->authed) {
+            try {
+                $pdo = \saso\repository\DBConnection::getPdo();
+                $guard = new AdminGuard($pdo);
+                $permissions = $guard->getPermissions($guard->currentMemberId());
+            } catch (\Throwable) {
+            }
+        }
+
+        $this->ctrl = new RootController($config, $this->authed, $this->matter, $this->action, $permissions);
         $this->usecase = new RootUsecase(
             new RootPresenter(
                 new RootView($inside),

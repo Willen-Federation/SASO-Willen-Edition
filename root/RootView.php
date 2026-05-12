@@ -78,7 +78,7 @@ final class RootView implements View
                 'type'  => 'group',
                 'label' => $t('ui.sidebar.group.inventory', 'Inventory'),
                 'items' => $filterItems([
-                    ['key' => 'home',         'label' => $t('ui.sidebar.home',          'Home'),            'href' => $base.'start/start/',      'icon' => $svg('home'),         'permission' => null],
+                    ['key' => 'home',         'label' => $t('ui.sidebar.home',          'Home'),            'href' => $base,                     'icon' => $svg('home'),         'permission' => null],
                     ['key' => 'item_add',     'label' => $t('ui.sidebar.item_register', 'Register'),        'href' => $base.'item/add/',          'icon' => $svg('plus-circle'), 'permission' => 'item'],
                     ['key' => 'bulk',         'label' => $t('ui.sidebar.bulk',          'Bulk operations'), 'href' => $base.'item/bulkImport/',   'icon' => $svg('box'),          'permission' => 'item'],
                     ['key' => 'verify',       'label' => $t('ui.sidebar.verify',        'Verification'),    'href' => $base.'verify/start/',      'icon' => $svg('check-circle'),'permission' => 'verify'],
@@ -141,7 +141,7 @@ final class RootView implements View
             return [];
         }
         $crumbs = [
-            ['label' => __('ui.nav.home', [], null, 'Home'), 'href' => $this->basePath().'start/start/'],
+            ['label' => __('ui.nav.home', [], null, 'Home'), 'href' => $this->basePath()],
         ];
         if ($this->matter !== '' && $this->matter !== 'start') {
             $crumbs[] = ['label' => $title];

@@ -15,10 +15,10 @@ final class AuthController implements Controller
         array $query,
         ?GettableController $anotherCtrl = null
     ) {
-        $rp = (string) ($query['restoredPath'] ?? 'start/start/');
-        $restoredPath = preg_replace('/error\/1\//', '', $rp) ?? 'start/start/';
+        $rp = (string) ($query['restoredPath'] ?? '');
+        $restoredPath = preg_replace('/error\/1\//', '', $rp) ?? '';
         if (preg_match('#^[a-z][a-z0-9+.-]*:#i', $restoredPath) === 1 || str_starts_with($restoredPath, '//')) {
-            $restoredPath = 'start/start/';
+            $restoredPath = '';
         }
         $isError = preg_match('/error\/1\//', $rp) === 1;
         $this->data = new AuthInput(

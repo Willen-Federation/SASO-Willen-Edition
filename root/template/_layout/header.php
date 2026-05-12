@@ -48,7 +48,7 @@
                    class="saso-header-search block w-full py-2 pl-9 pr-3 text-sm"
                    placeholder="<?php echo ui_attr(__('ui.header.search_placeholder', [], null, 'Search items...')); ?>"
                    aria-label="<?php echo ui_attr(__('ui.a11y.search', [], null, 'Search')); ?>"
-                   onkeypress="if(event.key==='Enter'){location.href='/start/start/search/'+encodeURI(this.value.replace(/\//g,''))}">
+                   onkeypress="if(event.key==='Enter'){location.href='/search/start/search/'+encodeURI(this.value.replace(/\//g,''))}">
           </div>
         </div>
       </div>

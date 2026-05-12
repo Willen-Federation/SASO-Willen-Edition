@@ -41,10 +41,15 @@
       <span>棚卸を許可</span>
       <button role="switch" type="button" id="inventoryButtonDisplayButton"
               aria-checked="false"
-              class="relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#3c50e0] bg-gray-200 dark:bg-gray-700"
-              onclick="this.setAttribute('aria-checked', this.getAttribute('aria-checked')==='false'?'true':'false'); this.classList.toggle('bg-[#3c50e0]'); this.classList.toggle('bg-gray-200');">
-        <span class="pointer-events-none inline-block h-4 w-4 translate-x-0 rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out"></span>
+              class="saso-toggle relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus-visible:outline focus-visible:outline-2 bg-gray-200 dark:bg-gray-700"
+              style="focus-visible:outline-color:var(--saso-ctrl-focus)"
+              onclick="this.setAttribute('aria-checked', this.getAttribute('aria-checked')==='false'?'true':'false')">
+        <span class="saso-toggle-thumb pointer-events-none inline-block h-4 w-4 translate-x-0 rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out"></span>
       </button>
+      <style>
+        .saso-toggle[aria-checked="true"] { background-color: var(--saso-ctrl-focus) !important; }
+        .saso-toggle[aria-checked="true"] .saso-toggle-thumb { transform: translateX(1rem); }
+      </style>
     </label>
     <?php endif; ?>
   </div>
@@ -74,7 +79,7 @@
         <td class="featureCode font-mono text-sm">
           <?php if($quantityLogs->isInventoried()): ?>
             <a href="<?php echo './item/history/item/'.(int)$feature->item->id.'/color/'.rawurlencode($feature->color->code).'/size/'.rawurlencode($feature->size->code); ?>"
-               style="color:#3c50e0" class="hover:underline">
+               style="color:var(--saso-ctrl-focus)" class="hover:underline">
               <?php echo htmlspecialchars($feature->getFullCode(), ENT_QUOTES, 'UTF-8'); ?>
             </a>
           <?php else: ?>
@@ -83,7 +88,7 @@
         </td>
         <td>
           <a href="<?php echo './image/start/item/'.(int)$feature->item->id.'/color/'.rawurlencode($feature->color->code); ?>"
-             style="color:#3c50e0" class="hover:underline">
+             style="color:var(--saso-ctrl-focus)" class="hover:underline">
             <?php echo htmlspecialchars($feature->color->name.'('.$feature->color->code.')', ENT_QUOTES, 'UTF-8'); ?>
           </a>
         </td>

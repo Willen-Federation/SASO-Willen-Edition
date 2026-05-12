@@ -29,7 +29,7 @@ export default class Category {
             }
             let parents = document.createElement('ul');
             parents.setAttribute('id', 'parents');
-            parents.setAttribute('class', 'list-group');
+            parents.setAttribute('class', 'flex flex-col divide-y divide-gray-100 dark:divide-gray-700 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden');
             this.nestChildren(data.children, parents);
             document.querySelector('#categoriesRoot').appendChild(parents);
             if(data.selected??false) {
@@ -37,20 +37,31 @@ export default class Category {
                 let appendingButton = document.createElement('button');
                 appendingButton.setAttribute('id', 'appendingButton');
                 appendingButton.setAttribute('title', data.selected);
+                appendingButton.setAttribute('class', 'inline-flex h-6 w-6 items-center justify-center rounded-full bg-brand-500 text-white text-xs font-bold hover:bg-brand-600 ml-2 shrink-0');
                 appendingButton.textContent = '+';
                 selected.appendChild(appendingButton);
                 let editButton = document.createElement('button');
                 editButton.setAttribute('id', 'editButton');
                 editButton.setAttribute('title', data.selected);
-                let editMark = document.createElement('i');
-                editMark.setAttribute('class', 'bi bi-pencil-square');
-                editMark.setAttribute('title', data.selected);
-                editButton.appendChild(editMark);
+                editButton.setAttribute('class', 'inline-flex h-6 w-6 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 ml-1 shrink-0');
+                let editSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+                editSvg.setAttribute('class', 'h-3.5 w-3.5 pointer-events-none');
+                editSvg.setAttribute('viewBox', '0 0 24 24');
+                editSvg.setAttribute('fill', 'none');
+                editSvg.setAttribute('stroke', 'currentColor');
+                editSvg.setAttribute('stroke-width', '1.5');
+                let editPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                editPath.setAttribute('stroke-linecap', 'round');
+                editPath.setAttribute('stroke-linejoin', 'round');
+                editPath.setAttribute('d', 'M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10');
+                editSvg.appendChild(editPath);
+                editButton.appendChild(editSvg);
                 selected.appendChild(editButton);
                 let deleteButton = document.createElement('button');
                 deleteButton.setAttribute('id', 'deleteButton');
                 deleteButton.setAttribute('title', data.selected);
-                deleteButton.textContent = '-';
+                deleteButton.setAttribute('class', 'inline-flex h-6 w-6 items-center justify-center rounded-full bg-error-100 dark:bg-error-900/30 text-error-600 dark:text-error-400 hover:bg-error-200 dark:hover:bg-error-900/60 ml-1 text-xs font-bold shrink-0');
+                deleteButton.textContent = '−';
                 selected.appendChild(deleteButton);
                 appendingButton.addEventListener('click', e=>{
                     this.showFormToAdd(e);
@@ -77,14 +88,14 @@ export default class Category {
                             elm.textContent = data.path;
                         });
                         let deselect = document.querySelector('#deselectCategory');
-                        deselect.setAttribute('class', '');
+                        deselect.classList.remove('hidden');
                         deselect.addEventListener('click', e=>{
                             document.querySelector('#categoryId').setAttribute('value', '');
                             this.showChildren(e);
                             document.querySelectorAll('.categoryPathChangable').forEach(elm=>{
                                 elm.textContent = '';
                             })
-                            e.target.setAttribute('class', 'hidden');
+                            e.target.classList.add('hidden');
                         });
                     });
                 }
@@ -95,16 +106,18 @@ export default class Category {
         children.forEach(aParent=>{
             let content = document.createElement('p');
             content.setAttribute('title', aParent.key);
+            content.setAttribute('class', 'flex-1 text-sm text-gray-700 dark:text-gray-300');
             content.textContent = aParent.name;
             let div = document.createElement('div');
             div.setAttribute('id', 'content'+aParent.key);
             div.setAttribute('title', aParent.key);
+            div.setAttribute('class', 'flex items-center gap-1 px-3 py-2 cursor-pointer hover:bg-gray-50 dark:hover:bg-white/[0.03]');
             div.appendChild(content);
             let li = document.createElement('li');
-            li.setAttribute('class', 'list-group-item list-group-item-action');
             li.appendChild(div);
             let children = document.createElement('ul');
             children.setAttribute('id', 'childrenOf'+aParent.key);
+            children.setAttribute('class', 'ml-4 border-l-2 border-gray-100 dark:border-gray-700 pl-2');
             this.nestChildren(aParent.children, children);
             li.appendChild(children);
             parents.appendChild(li);
@@ -129,7 +142,8 @@ export default class Category {
         newCategory.setAttribute('type', 'text');
         newCategory.setAttribute('name', 'categoryName');
         newCategory.setAttribute('required', '');
-        newCategory.setAttribute('maxlength', '50')
+        newCategory.setAttribute('maxlength', '50');
+        newCategory.setAttribute('class', 'form-input w-full');
         let parentId = document.createElement('input');
         parentId.setAttribute('type', 'hidden');
         parentId.setAttribute('name', 'parentId');
@@ -137,10 +151,12 @@ export default class Category {
         let submit = document.createElement('button');
         submit.setAttribute('id', 'newCategorySubmit');
         submit.setAttribute('type', 'submit');
+        submit.setAttribute('class', 'btn btn-sm btn-primary');
         submit.textContent = '登録';
         let form = document.createElement('form');
         form.setAttribute('id', 'newCategoryForm');
         form.setAttribute('title', selected??'');
+        form.setAttribute('class', 'mt-3 flex flex-col gap-2');
         form.appendChild(newCategory);
         form.appendChild(parentId);
         form.appendChild(submit);
@@ -178,7 +194,8 @@ export default class Category {
         editCategory.setAttribute('type', 'text');
         editCategory.setAttribute('required', '');
         editCategory.setAttribute('name', 'categoryName');
-        editCategory.setAttribute('maxlength', '50')
+        editCategory.setAttribute('maxlength', '50');
+        editCategory.setAttribute('class', 'form-input w-full');
         editCategory.setAttribute('value', document.querySelector('#content'+selected).firstChild.textContent);
         let selfId = document.createElement('input');
         selfId.setAttribute('type', 'hidden');
@@ -187,10 +204,12 @@ export default class Category {
         let submit = document.createElement('button');
         submit.setAttribute('id', 'editCategorySubmit');
         submit.setAttribute('type', 'submit');
+        submit.setAttribute('class', 'btn btn-sm btn-primary');
         submit.textContent = '変更';
         let form = document.createElement('form');
         form.setAttribute('id', 'newCategoryForm');
         form.setAttribute('title', selected);
+        form.setAttribute('class', 'mt-3 flex flex-col gap-2');
         form.appendChild(editCategory);
         form.appendChild(selfId);
         form.appendChild(submit);
@@ -225,6 +244,7 @@ export default class Category {
     deleteForm = selected=>{
         let deleteMethod = (value, name)=>{
             let div = document.createElement('div');
+            div.setAttribute('class', 'flex items-center gap-2');
             let radio = document.createElement('input');
             radio.setAttribute('id', value);
             radio.setAttribute('type', 'radio');
@@ -233,6 +253,7 @@ export default class Category {
             radio.setAttribute('required', '');
             let label = document.createElement('label');
             label.setAttribute('for', value);
+            label.setAttribute('class', 'text-sm text-gray-700 dark:text-gray-300 cursor-pointer');
             label.textContent = name;
             div.appendChild(radio);
             div.appendChild(label);
@@ -247,10 +268,12 @@ export default class Category {
         let submit = document.createElement('button');
         submit.setAttribute('id', 'deleteCategorySubmit');
         submit.setAttribute('type', 'submit');
+        submit.setAttribute('class', 'btn btn-sm bg-error-500 text-white hover:bg-error-600 mt-1');
         submit.textContent = '削除';
         let form = document.createElement('form');
         form.setAttribute('id', 'newCategoryForm');
         form.setAttribute('title', selected);
+        form.setAttribute('class', 'mt-3 flex flex-col gap-2');
         form.appendChild(childrenPromote);
         form.appendChild(withChildren);
         form.appendChild(selfId);

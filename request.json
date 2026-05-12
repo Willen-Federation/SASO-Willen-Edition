@@ -164,6 +164,10 @@
             "matter": "item",
             "action": "reproduction"
         },
+        "attributeValues": {
+            "matter": "item",
+            "action": "attributeValues"
+        },
         "inventory": {
            "matter": "feature",
            "action": "inventory"
@@ -299,5 +303,12 @@
     },
     "search": {
         "start": { "matter": "search", "action": "start" }
+    },
+    "itemAttribute": {
+        "start":      { "matter": "itemAttribute", "action": "edit" },
+        "list.json":  { "matter": "itemAttribute", "action": "list" },
+        "add":        { "matter": "itemAttribute", "action": "add" },
+        "update":     { "matter": "itemAttribute", "action": "update" },
+        "delete":     { "matter": "itemAttribute", "action": "delete" }
     }
 }

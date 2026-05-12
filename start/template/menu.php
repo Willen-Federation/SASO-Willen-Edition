@@ -76,6 +76,13 @@
                     'help'  => __('ui.dashboard.label_size_help', [], null, 'Configure A4 sheet layouts.'),
                     'tone'  => 'primary',
                 ],
+                [
+                    'href'  => './itemAttribute/start/',
+                    'icon'  => 'adjustments',
+                    'label' => __('ui.sidebar.item_attribute', [], null, 'Status columns'),
+                    'help'  => __('ui.dashboard.item_attribute_help', [], null, 'Add custom status columns to items.'),
+                    'tone'  => 'success',
+                ],
             ]
         ],
         [

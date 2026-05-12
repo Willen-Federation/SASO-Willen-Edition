@@ -292,5 +292,8 @@
     "verify": {
         "start":  { "matter": "verify", "action": "start" },
         "create": { "matter": "verify", "action": "create" }
+    },
+    "search": {
+        "start": { "matter": "search", "action": "start" }
     }
 }

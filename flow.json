@@ -140,5 +140,8 @@
     "settingAdmin": {
         "start": "\\saso\\settingAdmin\\StartDIContainer",
         "shelf": "\\saso\\settingAdmin\\ShelfSettingsDIContainer"
+    },
+    "search": {
+        "start": "\\saso\\search\\StartDIContainer"
     }
 }

@@ -3,15 +3,6 @@
     $allPermissions = \saso\entity\Role::PERMISSIONS;
 ?>
 
-<nav aria-label="パンくずリスト">
-  <ol class="mb-5 flex items-center gap-1.5 text-sm" style="color:var(--saso-text-sub)">
-    <li><a href="./" class="hover:underline" style="color:var(--saso-text-sub)">Dashboard</a></li>
-    <li aria-hidden="true">/</li>
-    <li><a href="./role/start/" class="hover:underline" style="color:var(--saso-text-sub)">ロール管理</a></li>
-    <li aria-hidden="true">/</li>
-    <li aria-current="page" style="color:var(--saso-text)">追加</li>
-  </ol>
-</nav>
 
 <div class="mx-auto max-w-lg">
   <div class="rounded-2xl border overflow-hidden"

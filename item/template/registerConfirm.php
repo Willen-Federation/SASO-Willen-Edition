@@ -1,13 +1,6 @@
 <?php $this->title = '商品登録確認'; ?>
 <?php $this->content = function($v) { ?>
 
-<nav aria-label="パンくずリスト">
-  <ol class="mb-5 flex items-center gap-1.5 text-sm" style="color:var(--saso-text-sub)">
-    <li><a href="./" class="hover:underline" style="color:var(--saso-text-sub)">ホーム</a></li>
-    <li aria-hidden="true">/</li>
-    <li aria-current="page" style="color:var(--saso-text)">商品登録</li>
-  </ol>
-</nav>
 
 <div class="mb-5 overflow-x-auto rounded-2xl border" style="border-color:var(--saso-card-bdr)">
   <table class="ta-table" aria-label="登録内容確認">

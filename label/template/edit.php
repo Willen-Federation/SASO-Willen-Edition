@@ -1,13 +1,6 @@
 <?php $this->title = 'ラベル寸法管理'; ?>
 <?php $this->content = function($v) { ?>
 
-<nav aria-label="パンくずリスト">
-  <ol class="mb-5 flex items-center gap-1.5 text-sm" style="color:var(--saso-text-sub)">
-    <li><a href="./" class="hover:underline" style="color:var(--saso-text-sub)">ホーム</a></li>
-    <li aria-hidden="true">/</li>
-    <li aria-current="page" style="color:var(--saso-text)">ラベル寸法管理</li>
-  </ol>
-</nav>
 
 <h2>ラベル寸法一覧</h2>
 <div id="labelSizeList">

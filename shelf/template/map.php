@@ -117,6 +117,251 @@
         color: #a7f3d0;
         border-color: #065f46;
     }
+
+    /* Header action button */
+    .map-header-btn {
+        background-color: white;
+        color: #4f46e5;
+        font-weight: 700;
+        padding: 0.75rem 1.5rem;
+        border-radius: 0.75rem;
+        display: inline-flex;
+        align-items: center;
+        text-decoration: none;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+    .dark .map-header-btn {
+        background-color: rgba(255,255,255,0.15);
+        color: #a5b4fc;
+    }
+    .map-header-btn svg {
+        width: 1.25rem;
+        height: 1.25rem;
+        margin-right: 0.5rem;
+    }
+
+    /* Empty state icon container */
+    .map-empty-icon-wrap {
+        width: 4rem;
+        height: 4rem;
+        background-color: #f1f5f9;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1.5rem auto;
+    }
+    .dark .map-empty-icon-wrap {
+        background-color: #334155;
+    }
+    .map-empty-icon-svg {
+        width: 2rem;
+        height: 2rem;
+        color: #94a3b8;
+    }
+    .dark .map-empty-icon-svg {
+        color: #64748b;
+    }
+
+    /* Empty state text / link */
+    .map-empty-body {
+        font-size: 0.875rem;
+        color: #64748b;
+        margin-bottom: 1.5rem;
+        line-height: 1.4;
+    }
+    .dark .map-empty-body {
+        color: #94a3b8;
+    }
+    .map-empty-link {
+        color: #4f46e5;
+        font-weight: 700;
+        text-decoration: underline;
+        font-size: 0.875rem;
+    }
+    .dark .map-empty-link {
+        color: #818cf8;
+    }
+
+    /* Close button */
+    .map-close-btn {
+        background-color: #f1f5f9;
+        color: #64748b;
+        border: none;
+        width: 1.5rem;
+        height: 1.5rem;
+        border-radius: 50%;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .dark .map-close-btn {
+        background-color: #334155;
+        color: #94a3b8;
+    }
+
+    /* Pin type badge */
+    .map-pin-type {
+        display: inline-block;
+        padding: 0.25rem 0.5rem;
+        background-color: #e0e7ff;
+        color: #3730a3;
+        font-size: 0.625rem;
+        font-weight: 700;
+        border-radius: 9999px;
+        text-transform: uppercase;
+        margin-bottom: 0.5rem;
+    }
+    .dark .map-pin-type {
+        background-color: #1e1b4b;
+        color: #c7d2fe;
+    }
+
+    /* Status badge */
+    .map-pin-status {
+        display: inline-block;
+        padding: 0.25rem 0.5rem;
+        border-radius: 0.5rem;
+        font-size: 0.75rem;
+        font-weight: 700;
+        background-color: #d1fae5;
+        color: #065f46;
+    }
+    .dark .map-pin-status {
+        background-color: #064e3b;
+        color: #a7f3d0;
+    }
+
+    /* Info rows inside pin detail card */
+    .map-info-row {
+        background-color: rgba(0,0,0,0.04);
+        padding: 0.75rem;
+        border-radius: 0.75rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .dark .map-info-row {
+        background-color: rgba(255,255,255,0.07);
+    }
+
+    /* Sub-label text (uppercase) */
+    .map-row-label {
+        font-size: 0.75rem;
+        font-weight: 700;
+        color: #94a3b8;
+        text-transform: uppercase;
+    }
+    .dark .map-row-label {
+        color: #64748b;
+    }
+
+    /* View Inventory CTA button */
+    .map-inventory-btn {
+        background-color: #1e293b;
+        color: white;
+        font-weight: 700;
+        padding: 1rem;
+        border-radius: 0.75rem;
+        text-align: center;
+        text-decoration: none;
+        display: block;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+    .dark .map-inventory-btn {
+        background-color: #4338ca;
+    }
+    .map-inventory-btn:hover {
+        opacity: 0.9;
+    }
+
+    /* Coverage Insights section label */
+    .map-section-label {
+        font-size: 0.75rem;
+        font-weight: 700;
+        color: #94a3b8;
+        text-transform: uppercase;
+        margin-bottom: 0.75rem;
+    }
+    .dark .map-section-label {
+        color: #64748b;
+    }
+
+    /* Progress bar track */
+    .map-progress-track {
+        height: 0.5rem;
+        background-color: #f1f5f9;
+        border-radius: 9999px;
+        overflow: hidden;
+        position: relative;
+    }
+    .dark .map-progress-track {
+        background-color: #334155;
+    }
+
+    /* Progress bar sub-text */
+    .map-progress-label {
+        font-size: 0.625rem;
+        font-weight: 700;
+        color: #64748b;
+        text-transform: uppercase;
+    }
+    .dark .map-progress-label {
+        color: #94a3b8;
+    }
+    .map-progress-accent {
+        font-size: 0.625rem;
+        font-weight: 700;
+        color: #4f46e5;
+        text-transform: uppercase;
+    }
+    .dark .map-progress-accent {
+        color: #818cf8;
+    }
+
+    /* Navigation tip chips */
+    .map-nav-label {
+        font-size: 0.625rem;
+        font-weight: 700;
+        color: #94a3b8;
+        text-transform: uppercase;
+        margin-bottom: 0.75rem;
+    }
+    .dark .map-nav-label {
+        color: #64748b;
+    }
+    .map-nav-chip {
+        font-size: 0.625rem;
+        padding: 0.25rem 0.5rem;
+        background-color: #f1f5f9;
+        color: #64748b;
+        border-radius: 9999px;
+    }
+    .dark .map-nav-chip {
+        background-color: #334155;
+        color: #94a3b8;
+    }
+
+    /* Pin tooltip */
+    .map-pin-tooltip {
+        position: absolute;
+        bottom: 100%;
+        left: 50%;
+        transform: translateX(-50%);
+        margin-bottom: 0.5rem;
+        background-color: #1e293b;
+        color: white;
+        font-size: 0.625rem;
+        padding: 0.25rem 0.75rem;
+        border-radius: 9999px;
+        white-space: nowrap;
+        box-shadow: 0 10px 15px rgba(0,0,0,0.3);
+        pointer-events: none;
+    }
+    .dark .map-pin-tooltip {
+        background-color: #312e81;
+    }
 </style>
 
 <div class="p-6 max-w-7xl mx-auto" x-data="shelfMap()" style="box-sizing: border-box;">
@@ -134,8 +379,8 @@
                 <p>Precision warehouse visualization & spatial inventory management.</p>
             </div>
             <div>
-                <a href="./shelf/simple/" style="background-color: white; color: #4f46e5; font-weight: 700; padding: 0.75rem 1.5rem; border-radius: 0.75rem; display: inline-flex; align-items: center; text-decoration: none; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
-                    <svg style="width: 1.25rem; height: 1.25rem; margin-right: 0.5rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <a href="./shelf/simple/" class="map-header-btn">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
                     </svg>
                     Configure Shelves
@@ -152,14 +397,14 @@
             
             <!-- Empty State -->
             <div class="map-empty-state" x-show="!mapImage">
-                <div style="width: 4rem; height: 4rem; background-color: #f1f5f9; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem auto;">
-                    <svg style="width: 2rem; height: 2rem; color: #94a3b8;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div class="map-empty-icon-wrap">
+                    <svg class="map-empty-icon-svg" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                     </svg>
                 </div>
                 <h3 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 0.5rem; color: inherit;">Visual Map Pending</h3>
-                <p style="font-size: 0.875rem; color: #64748b; margin-bottom: 1.5rem; line-height: 1.4;">Your warehouse layout isn't loaded yet. Upload a blueprint to start pinning locations.</p>
-                <a href="./shelf/simple/" style="color: #4f46e5; font-weight: 700; text-decoration: underline; font-size: 0.875rem;">
+                <p class="map-empty-body">Your warehouse layout isn't loaded yet. Upload a blueprint to start pinning locations.</p>
+                <a href="./shelf/simple/" class="map-empty-link">
                     Open Shelf Setup &rarr;
                 </a>
             </div>
@@ -180,7 +425,7 @@
                         <div style="position: relative; background-color: #4f46e5; color: white; width: 1.75rem; height: 1.75rem; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 6px rgba(0,0,0,0.2); border: 2px solid white; font-size: 0.625rem; font-weight: 900;" x-text="pin.code"></div>
                         
                         <!-- Mini Tooltip -->
-                        <div style="position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%); margin-bottom: 0.5rem; background-color: #1e293b; color: white; font-size: 0.625rem; padding: 0.25rem 0.75rem; border-radius: 9999px; white-space: nowrap; box-shadow: 0 10px 15px rgba(0,0,0,0.3); pointer-events: none;" class="tooltip-text">
+                        <div class="map-pin-tooltip tooltip-text">
                             <span x-text="pin.name"></span>
                         </div>
                     </div>
@@ -194,28 +439,28 @@
             <!-- Pin Details (Top Priority if selected) -->
             <div x-show="selectedPin" class="map-card" style="position: relative;">
                 <div style="position: absolute; top: 1rem; right: 1rem;">
-                    <button @click="selectedPin = null" style="background-color: #f1f5f9; color: #64748b; border: none; width: 1.5rem; height: 1.5rem; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center;">
+                    <button @click="selectedPin = null" class="map-close-btn">
                         &times;
                     </button>
                 </div>
 
                 <div style="margin-bottom: 1.5rem;">
-                    <span style="display: inline-block; padding: 0.25rem 0.5rem; background-color: #e0e7ff; color: #3730a3; font-size: 0.625rem; font-weight: 700; border-radius: 9999px; text-transform: uppercase; margin-bottom: 0.5rem;" x-text="selectedPin?.type"></span>
+                    <span class="map-pin-type" x-text="selectedPin?.type"></span>
                     <h4 style="font-size: 1.5rem; font-weight: 900; line-height: 1.2; margin: 0; color: inherit;" x-text="selectedPin?.name"></h4>
                 </div>
                 
                 <div style="display: flex; flex-direction: column; gap: 0.75rem;">
-                    <div style="background-color: rgba(0,0,0,0.03); padding: 0.75rem; border-radius: 0.75rem; display: flex; justify-content: space-between; align-items: center;">
-                        <span style="font-size: 0.75rem; font-weight: 700; color: #94a3b8; text-transform: uppercase;">Code</span>
+                    <div class="map-info-row">
+                        <span class="map-row-label">Code</span>
                         <span style="font-family: monospace; font-weight: 700; color: inherit;" x-text="selectedPin?.code"></span>
                     </div>
-                    <div style="background-color: rgba(0,0,0,0.03); padding: 0.75rem; border-radius: 0.75rem; display: flex; justify-content: space-between; align-items: center;">
-                        <span style="font-size: 0.75rem; font-weight: 700; color: #94a3b8; text-transform: uppercase;">Status</span>
-                        <span style="display: inline-block; padding: 0.25rem 0.5rem; border-radius: 0.5rem; font-size: 0.75rem; font-weight: 700; background-color: #d1fae5; color: #065f46;" x-text="selectedPin?.status"></span>
+                    <div class="map-info-row">
+                        <span class="map-row-label">Status</span>
+                        <span class="map-pin-status" x-text="selectedPin?.status"></span>
                     </div>
                     
                     <div style="padding-top: 1rem; display: flex; flex-direction: column; gap: 0.75rem;">
-                        <a :href="`./item/list?location=${selectedPin?.id}`" style="background-color: #1e293b; color: white; font-weight: 700; padding: 1rem; border-radius: 0.75rem; text-align: center; text-decoration: none; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                        <a :href="`./item/list?location=${selectedPin?.id}`" class="map-inventory-btn">
                             View Inventory &rarr;
                         </a>
                     </div>
@@ -225,15 +470,15 @@
             <!-- Global Stats -->
             <div class="map-card" style="display: flex; flex-direction: column; gap: 1.5rem;">
                 <div>
-                    <h4 style="font-size: 0.75rem; font-weight: 700; color: #94a3b8; text-transform: uppercase; margin-bottom: 0.75rem;">Coverage Insights</h4>
-                    <div style="height: 0.5rem; background-color: #f1f5f9; border-radius: 9999px; overflow: hidden; position: relative;">
+                    <h4 class="map-section-label">Coverage Insights</h4>
+                    <div class="map-progress-track">
                         <div style="position: absolute; top: 0; bottom: 0; left: 0; background-color: #4f46e5; transition: width 1s;" :style="`width: ${pins.length > 0 ? (pins.filter(p => p.x !== null).length / pins.length * 100) : 0}%`"></div>
                     </div>
                     <div style="display: flex; justify-content: space-between; margin-top: 0.5rem;">
-                        <span style="font-size: 0.625rem; font-weight: 700; color: #64748b; text-transform: uppercase;">
+                        <span class="map-progress-label">
                             <span x-text="pins.filter(p => p.x !== null).length"></span> Pinned
                         </span>
-                        <span style="font-size: 0.625rem; font-weight: 700; color: #4f46e5; text-transform: uppercase;" x-text="pins.length > 0 ? Math.round((pins.filter(p => p.x !== null).length / pins.length) * 100) + '%' : '0%'"></span>
+                        <span class="map-progress-accent" x-text="pins.length > 0 ? Math.round((pins.filter(p => p.x !== null).length / pins.length) * 100) + '%' : '0%'"></span>
                     </div>
                 </div>
 
@@ -251,11 +496,11 @@
 
             <!-- Shortcuts -->
             <div class="map-card" style="text-align: center; padding: 1rem;">
-                <p style="font-size: 0.625rem; font-weight: 700; color: #94a3b8; text-transform: uppercase; margin-bottom: 0.75rem;">Navigation Tips</p>
+                <p class="map-nav-label">Navigation Tips</p>
                 <div style="display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: center;">
-                    <span style="font-size: 0.625rem; padding: 0.25rem 0.5rem; background-color: #f1f5f9; color: #64748b; border-radius: 9999px;">Scroll to Zoom</span>
-                    <span style="font-size: 0.625rem; padding: 0.25rem 0.5rem; background-color: #f1f5f9; color: #64748b; border-radius: 9999px;">Click to Detail</span>
-                    <span style="font-size: 0.625rem; padding: 0.25rem 0.5rem; background-color: #f1f5f9; color: #64748b; border-radius: 9999px;">Drag to Pan</span>
+                    <span class="map-nav-chip">Scroll to Zoom</span>
+                    <span class="map-nav-chip">Click to Detail</span>
+                    <span class="map-nav-chip">Drag to Pan</span>
                 </div>
             </div>
         </div>

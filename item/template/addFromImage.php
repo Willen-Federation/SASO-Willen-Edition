@@ -56,7 +56,7 @@
                   <?php echo $lang === 'ja' ? 'またはここにドラッグ＆ドロップ' : ' or drag and drop here'; ?>
                 </span>
               </div>
-              <p class="text-xs text-gray-400">JPG, PNG, WEBP &mdash; <?php echo $lang === 'ja' ? '最大10MB' : 'max 10 MB'; ?></p>
+              <p class="text-xs text-gray-400 dark:text-gray-300">JPG, PNG, WEBP &mdash; <?php echo $lang === 'ja' ? '最大10MB' : 'max 10 MB'; ?></p>
             </div>
           </template>
 

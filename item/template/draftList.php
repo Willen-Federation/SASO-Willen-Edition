@@ -46,7 +46,7 @@
     'body' => function () use ($drafts, $lang, $statusLabels, $statusClasses) {
       if (empty($drafts)): ?>
         <div class="flex flex-col items-center gap-3 py-12 text-gray-500 dark:text-gray-400">
-          <svg class="h-12 w-12 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+          <svg class="h-12 w-12 text-gray-400 dark:text-gray-300" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
           </svg>
           <p class="text-sm font-medium"><?php echo $lang === 'ja' ? '保留中のドラフトはありません。' : 'No pending drafts.'; ?></p>
@@ -97,7 +97,7 @@
                          loading="lazy">
                   <?php else: ?>
                     <div class="flex h-14 w-14 items-center justify-center rounded border border-gray-200 bg-gray-100 dark:border-gray-800 dark:bg-gray-700">
-                      <svg class="h-6 w-6 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                      <svg class="h-6 w-6 text-gray-400 dark:text-gray-300" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
                       </svg>
                     </div>
@@ -115,7 +115,7 @@
                   </span>
                 </td>
                 <td class="px-4 py-3 text-gray-600 dark:text-gray-400">
-                  <?php echo $barcodeHint ?: '<span class="text-gray-400">—</span>'; ?>
+                  <?php echo $barcodeHint ?: '<span class="text-gray-400 dark:text-gray-300">—</span>'; ?>
                 </td>
                 <td class="px-4 py-3 text-gray-600 dark:text-gray-400 whitespace-nowrap">
                   <?php echo htmlspecialchars($createdFormatted, ENT_QUOTES, 'UTF-8'); ?>

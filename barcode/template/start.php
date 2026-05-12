@@ -25,13 +25,12 @@
     $labelScanDetected = $lang === 'ja' ? 'バーコードを検知しました' : 'Barcode detected';
 ?>
 
-<div
-  x-data="{
-    code: '',
-    result: null,
-    error: null,
-    loading: false,
-    itemUrl: null,
+<div class="flex justify-center mb-8">
+  <div
+    x-data="{
+      code: '',
+      error: null,
+      loading: false,
 
     showRegModal: false,
     reg: { barcodeId: '', itemName: '', colorName: '', sizeName: '', price: '' },
@@ -123,19 +122,14 @@
             this.regError = null;
             this.showRegModal = true;
           }
-        } catch (e) {
-          this.error = <?php echo json_encode($labelError); ?>;
-        } finally {
-          this.loading = false;
+        } else if (this.isLegacy()) {
+          const item  = raw.slice(0, 8);
+          const color = raw.slice(8, 10);
+          const size  = raw.slice(10, 12);
+          window.location.href = './item/start/item/' + item + '/color/' + color + '/size/' + size + '/action/shelf';
+        } else {
+          this.error = <?php echo json_encode($labelInvalid); ?>;
         }
-      } else if (this.isLegacy()) {
-        const item  = raw.slice(0, 8);
-        const color = raw.slice(8, 10);
-        const size  = raw.slice(10, 12);
-        this.result  = { type: 'legacy', item, color, size };
-        this.itemUrl = './item/start/item/' + item + '/color/' + color + '/size/' + size + '/action/shelf';
-      } else {
-        this.error = <?php echo json_encode($labelInvalid); ?>;
       }
     },
 
@@ -181,16 +175,24 @@
           <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
             <?php ui('iconHeroicon', ['name' => 'qr', 'class' => 'h-5 w-5']); ?>
           </div>
-          <input
-            id="barcodeInput"
-            x-model="code"
-            type="text"
-            maxlength="12"
-            class="form-input pl-10"
-            placeholder="<?php echo ui_attr($placeholder); ?>"
-            @keydown.enter.prevent="search()"
-            autocomplete="off"
+          <button
+            type="button"
+            id="barcodeSubmit"
+            class="btn btn-primary shrink-0 flex items-center gap-2"
+            @click="search()"
+            :disabled="loading"
           >
+            <span x-show="loading" aria-hidden="true">
+              <svg class="animate-spin h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+              </svg>
+            </span>
+            <span x-show="!loading" aria-hidden="true">
+              <?php ui('iconHeroicon', ['name' => 'search', 'class' => 'h-4 w-4 shrink-0']); ?>
+            </span>
+            <?php echo ui_text($labelSubmit); ?>
+          </button>
         </div>
         <button
           type="button"
@@ -225,22 +227,9 @@
         </div>
       </div>
 
-      <!-- Legacy barcode result -->
-      <div x-show="result && result.type === 'legacy'" x-cloak class="mt-3 ta-alert ta-alert-success">
-        <?php ui('iconHeroicon', ['name' => 'check-square', 'class' => 'h-5 w-5 shrink-0']); ?>
-        <div class="flex flex-col gap-1 text-sm">
-          <p>
-            <span class="font-medium"><?php echo ui_text($labelCode); ?>:</span>
-            <span x-text="result && result.item" class="font-mono ml-1"></span>
-          </p>
-          <p>
-            <span class="font-medium"><?php echo ui_text($labelColor); ?>:</span>
-            <span x-text="result && result.color" class="font-mono ml-1"></span>
-            <span class="mx-2 text-gray-300">/</span>
-            <span class="font-medium"><?php echo ui_text($labelSize); ?>:</span>
-            <span x-text="result && result.size" class="font-mono ml-1"></span>
-          </p>
-          <a :href="itemUrl" class="underline"><?php echo ui_text($labelViewItem); ?></a>
+        <div x-show="error" x-cloak class="mt-3 ta-alert ta-alert-danger" role="alert" aria-live="polite">
+          <?php ui('iconHeroicon', ['name' => 'x-circle', 'class' => 'h-5 w-5 shrink-0']); ?>
+          <span x-text="error"></span>
         </div>
       </div>
 

@@ -171,6 +171,21 @@
         "registerFromBarcode": {
             "matter": "item",
             "action": "registerFromBarcode"
+        "attributeValues": {
+            "matter": "item",
+            "action": "attributeValues"
+        },
+        "bulkImport": {
+            "matter": "item",
+            "action": "bulkImport"
+        },
+        "bulkExport": {
+            "matter": "item",
+            "action": "bulkExport"
+        },
+        "bulkTemplate": {
+            "matter": "item",
+            "action": "bulkTemplate"
         },
         "inventory": {
            "matter": "feature",
@@ -307,5 +322,12 @@
     },
     "search": {
         "start": { "matter": "search", "action": "start" }
+    },
+    "itemAttribute": {
+        "start":      { "matter": "itemAttribute", "action": "edit" },
+        "list.json":  { "matter": "itemAttribute", "action": "list" },
+        "add":        { "matter": "itemAttribute", "action": "add" },
+        "update":     { "matter": "itemAttribute", "action": "update" },
+        "delete":     { "matter": "itemAttribute", "action": "delete" }
     }
 }

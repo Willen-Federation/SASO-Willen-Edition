@@ -31,7 +31,7 @@
     <div class="flex flex-wrap gap-4 items-center justify-between">
       <div class="flex flex-wrap gap-4 items-center">
         <div class="relative">
-          <svg xmlns="http://www.w3.org/2000/svg" class="absolute left-4.5 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+          <svg xmlns="http://www.w3.org/2000/svg" class="absolute left-4.5 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400 dark:text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
           <input x-model="search" type="search" class="w-full sm:w-64 rounded border border-gray-200 bg-transparent py-3 pl-11.5 pr-4.5 font-medium outline-none transition focus:border-brand-500 active:border-brand-500 dark:border-gray-800 dark:bg-form-input dark:focus:border-brand-500 text-black dark:text-white" placeholder="<?php echo $lang === 'ja' ? 'キーで検索...' : 'Search by key...'; ?>">
         </div>
         <div class="flex rounded border border-gray-200 dark:border-gray-800 overflow-hidden" role="group">
@@ -149,7 +149,7 @@
           <input type="text" name="key" class="form-input" required aria-required="true"
             pattern="^[a-z0-9_\-\.]+$"
             placeholder="<?php echo $lang === 'ja' ? '例: feature.mobile_connect' : 'e.g. feature.mobile_connect'; ?>">
-          <p class="mt-1 text-xs text-gray-600"><?php echo $lang === 'ja' ? '小文字英数字・アンダースコア・ハイフン・ドットのみ' : 'Lowercase letters, numbers, underscores, hyphens, dots only'; ?></p>
+          <p class="mt-1 text-xs text-gray-600 dark:text-gray-400"><?php echo $lang === 'ja' ? '小文字英数字・アンダースコア・ハイフン・ドットのみ' : 'Lowercase letters, numbers, underscores, hyphens, dots only'; ?></p>
         </div>
         <div>
           <label class="form-label"><?php echo $lang === 'ja' ? '説明' : 'Description'; ?></label>

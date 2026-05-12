@@ -81,7 +81,7 @@ $this->content = function ($v) {
     </h1>
   </div>
 
-  {{-- Mode selector --}}
+  <!-- Mode selector -->
   <div class="card mb-6">
     <div class="card-body">
       <div class="flex flex-wrap gap-2" role="tablist"
@@ -120,7 +120,7 @@ $this->content = function ($v) {
     </div>
   </div>
 
-  {{-- Scanner + manual input --}}
+  <!-- Scanner + manual input -->
   <div class="card mb-6">
     <div class="card-header">
       <h2 class="font-semibold text-black dark:text-white">
@@ -172,11 +172,11 @@ $this->content = function ($v) {
     </div>
   </div>
 
-  {{-- Item info + quantity form --}}
+  <!-- Item info + quantity form -->
   <div x-show="item" class="card mb-6">
     <div class="card-body">
 
-      {{-- Item summary --}}
+      <!-- Item summary -->
       <div class="mb-4 flex items-start gap-4">
         <div class="flex-1">
           <p class="font-semibold text-black dark:text-white" x-text="item && item.name"></p>
@@ -186,7 +186,7 @@ $this->content = function ($v) {
         </div>
       </div>
 
-      {{-- Quantity input --}}
+      <!-- Quantity input -->
       <div class="mb-4">
         <label for="scan-stock-qty" class="form-label">
           <?php echo ui_text($lang === 'ja' ? '数量' : 'Quantity'); ?>
@@ -200,13 +200,13 @@ $this->content = function ($v) {
         >
       </div>
 
-      {{-- Success / error messages --}}
+      <!-- Success / error messages -->
       <div x-show="submitSuccess" class="ta-alert ta-alert-success mb-4" role="status">
         <?php echo ui_text($lang === 'ja' ? '登録しました' : 'Registered successfully'); ?>
       </div>
       <div x-show="submitError" x-text="submitError" class="ta-alert ta-alert-danger mb-4" role="alert"></div>
 
-      {{-- Submit --}}
+      <!-- Submit -->
       <button
         type="button"
         @click="submitStock()"

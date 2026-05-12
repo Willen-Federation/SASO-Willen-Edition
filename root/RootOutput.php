@@ -15,6 +15,8 @@ final class RootOutput implements DTO
         private string $action,
         private string $currentLocale,
         private array $supportedLocales,
+        /** @var list<string> */
+        private array $permissions = [],
     ) {
     }
 }

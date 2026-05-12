@@ -14,6 +14,8 @@ final class RootInput implements DTO
         private bool $authed,
         private string $matter,
         private string $action,
+        /** @var list<string> */
+        private array $permissions = [],
     )
     {
     }

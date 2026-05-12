@@ -297,9 +297,9 @@ if (preg_match('#^/auth/(?:start/(\d+)|callback|saml/acs|saml/sls)/?$#', $reques
         $providerId = new \Saso\Domain\Auth\AuthProviderId($providerIdInt);
 
         if ($authAction === 'start') {
-            $returnTo = (string) ($_GET['return'] ?? './');
+            $returnTo = (string) ($_GET['return'] ?? '/start/start/');
             if (preg_match('#^/[^/\\\\]#', $returnTo) !== 1) {
-                $returnTo = './';
+                $returnTo = '/start/start/';
             }
             $redirect = $orch->beginLogin($providerId, $returnTo);
             header('Location: '.$redirect->url, true, $redirect->status);

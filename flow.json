@@ -80,6 +80,8 @@
         "addFeature": "\\saso\\item\\AddFeatureDIContainer",
         "archive": "\\saso\\item\\ArchiveDIContainer",
         "reproduction": "\\saso\\item\\ReproductionDIContainer",
+        "fromBarcode": "\\saso\\item\\FromBarcodeDIContainer",
+        "registerFromBarcode": "\\saso\\item\\RegisterFromBarcodeDIContainer"
         "attributeValues": "\\saso\\item\\AttributeValuesDIContainer",
         "fromBarcode": "\\saso\\item\\FromBarcodeDIContainer",
         "registerFromBarcode": "\\saso\\item\\RegisterFromBarcodeDIContainer"

@@ -164,6 +164,13 @@
             "matter": "item",
             "action": "reproduction"
         },
+        "fromBarcode": {
+            "matter": "item",
+            "action": "fromBarcode"
+        },
+        "registerFromBarcode": {
+            "matter": "item",
+            "action": "registerFromBarcode"
         "bulkAdd": {
             "matter": "item",
             "action": "bulkAdd"

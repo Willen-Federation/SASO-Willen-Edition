@@ -30,21 +30,6 @@
 <td class="<?php echo $cellClass; ?>">
 <?php
 echo implode(', ', array_map(
-    function($color) use ($v) {
-        return
-            '<a class="text-primary hover:underline" href="./image/start/item/' . htmlspecialchars((string)$v->item->id, ENT_QUOTES, 'UTF-8') . '/color/' . htmlspecialchars((string)$color->code, ENT_QUOTES, 'UTF-8') . '">'
-        .
-            htmlspecialchars((string)$color->name, ENT_QUOTES, 'UTF-8') . '(' . htmlspecialchars((string)$color->code, ENT_QUOTES, 'UTF-8') . ')'
-        .
-        '</a>';
-    },
-    iterator_to_array($v->colors),
-));
-?>
-</td>
-<td class="<?php echo $cellClass; ?>">
-<?php
-echo implode(', ', array_map(
     function($size) {
         return htmlspecialchars((string) $size->name, ENT_QUOTES, 'UTF-8');
     },

@@ -14,13 +14,6 @@
 ?>
 
 <div class="hidden" id="current"><?php echo $v->request; ?></div>
-<div class="flex items-center gap-2 mb-4">
-  <input type="text" id="search" maxlength="50" placeholder="商品名"
-         value="<?php echo htmlspecialchars(urldecode($v->search), ENT_QUOTES, 'UTF-8'); ?>"
-         class="form-input w-64">
-  <button id="searchButton" type="button" class="btn btn-primary btn-sm">検索</button>
-  <a href="./<?php echo $v->request; ?>/" class="btn btn-secondary btn-sm">検索解除</a>
-</div>
 
 <div class="overflow-x-auto rounded-2xl border" style="border-color:var(--saso-card-bdr)">
   <table class="ta-table">
@@ -51,7 +44,6 @@
           <a href="./<?php echo $v->request; ?>/sortby/updateAt/direction/desc/<?php echo $v->searchUrl; ?>">▼</a>
           <a href="./<?php echo $v->request; ?>/sortby/updateAt/direction/asc/<?php echo $v->searchUrl; ?>">▲</a>
         </th>
-        <th scope="col">色</th>
         <th scope="col">サイズ</th>
       </tr>
     </thead>

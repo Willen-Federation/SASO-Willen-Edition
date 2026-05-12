@@ -115,7 +115,8 @@
         "deleteAll": "\\saso\\label\\DeleteAllDIContainer",
         "shortName": "\\saso\\label\\ShortNameDIContainer",
         "pdf": "\\saso\\label\\PdfDIContainer",
-        "wizard": "\\saso\\label\\WizardDIContainer"
+        "wizard": "\\saso\\label\\WizardDIContainer",
+        "pending": "\\saso\\label\\PendingDIContainer"
     },
     "barcode": {
         "start": "\\saso\\barcode\\StartDIContainer",

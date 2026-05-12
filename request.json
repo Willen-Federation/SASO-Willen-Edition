@@ -221,6 +221,10 @@
         "outputPdf": {
             "matter": "label",
             "action": "pdf"
+        },
+        "wizard": {
+            "matter": "label",
+            "action": "wizard"
         }
     },
     "shelf": {

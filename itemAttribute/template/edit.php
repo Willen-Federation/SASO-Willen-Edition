@@ -36,7 +36,7 @@
       <table class="w-full text-sm">
         <thead>
           <tr class="border-b text-left text-xs font-semibold uppercase tracking-wider"
-              style="background:var(--saso-card-alt);border-color:var(--saso-card-bdr);color:var(--saso-text-sub)">
+              style="background:var(--saso-body);border-color:var(--saso-card-bdr);color:var(--saso-text-sub)">
             <th class="px-4 py-3"><?php echo $lang === 'ja' ? 'コード' : 'Code'; ?></th>
             <th class="px-4 py-3"><?php echo $lang === 'ja' ? 'ラベル' : 'Label'; ?></th>
             <th class="px-4 py-3"><?php echo $lang === 'ja' ? '型' : 'Type'; ?></th>
@@ -196,8 +196,7 @@
 
   function buildRow(d) {
     const tr = document.createElement('tr');
-    tr.className = 'border-b last:border-0 hover:bg-gray-50 dark:hover:bg-white/[0.02]';
-    tr.style.borderColor = 'var(--saso-card-bdr)';
+    tr.className = 'ia-row';
     tr.dataset.id = d.id;
     tr.innerHTML = `
       <td class="px-4 py-3 font-mono text-xs">${esc(d.code)}</td>
@@ -207,10 +206,10 @@
       <td class="px-4 py-3 text-xs">${d.required ? (lang === 'ja' ? '必須' : 'Yes') : '<span class="opacity-40">—</span>'}</td>
       <td class="px-4 py-3 text-xs">${d.sort_order}</td>
       <td class="px-4 py-3 text-right">
-        <button class="ia-edit-btn btn btn-xs btn-secondary mr-1" data-id="${d.id}" aria-label="${lang === 'ja' ? '編集' : 'Edit'}">
+        <button class="ia-edit-btn btn-sm btn-secondary mr-1" data-id="${d.id}" aria-label="${lang === 'ja' ? '編集' : 'Edit'}">
           <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 pointer-events-none" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931z"/></svg>
         </button>
-        <button class="ia-del-btn btn btn-xs" style="background:var(--color-error-100,#fee2e2);color:var(--color-error-600,#dc2626)" data-id="${d.id}" data-code="${esc(d.code)}" aria-label="${lang === 'ja' ? '削除' : 'Delete'}">
+        <button class="ia-del-btn btn-sm" style="background:var(--color-error-100,#fee2e2);color:var(--color-error-600,#dc2626)" data-id="${d.id}" data-code="${esc(d.code)}" aria-label="${lang === 'ja' ? '削除' : 'Delete'}">
           <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 pointer-events-none" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
         </button>
       </td>`;

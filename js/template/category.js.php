@@ -29,11 +29,12 @@ export default class Category {
             }
             let parents = document.createElement('ul');
             parents.setAttribute('id', 'parents');
-            parents.setAttribute('class', 'flex flex-col divide-y divide-gray-100 dark:divide-gray-700 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden');
+            parents.setAttribute('class', 'category-list');
             this.nestChildren(data.children, parents);
             document.querySelector('#categoriesRoot').appendChild(parents);
             if(data.selected??false) {
                 let selected = document.querySelector('#content'+data.selected);
+                selected.classList.add('category-item--selected');
                 let appendingButton = document.createElement('button');
                 appendingButton.setAttribute('id', 'appendingButton');
                 appendingButton.setAttribute('title', data.selected);
@@ -106,18 +107,18 @@ export default class Category {
         children.forEach(aParent=>{
             let content = document.createElement('p');
             content.setAttribute('title', aParent.key);
-            content.setAttribute('class', 'flex-1 text-sm text-gray-700 dark:text-gray-300');
+            content.setAttribute('class', 'category-item__text');
             content.textContent = aParent.name;
             let div = document.createElement('div');
             div.setAttribute('id', 'content'+aParent.key);
             div.setAttribute('title', aParent.key);
-            div.setAttribute('class', 'flex items-center gap-1 px-3 py-2 cursor-pointer hover:bg-gray-50 dark:hover:bg-white/[0.03]');
+            div.setAttribute('class', 'category-item');
             div.appendChild(content);
             let li = document.createElement('li');
             li.appendChild(div);
             let children = document.createElement('ul');
             children.setAttribute('id', 'childrenOf'+aParent.key);
-            children.setAttribute('class', 'ml-4 border-l-2 border-gray-100 dark:border-gray-700 pl-2');
+            children.setAttribute('class', 'category-children');
             this.nestChildren(aParent.children, children);
             li.appendChild(children);
             parents.appendChild(li);

@@ -81,9 +81,10 @@ AddDefaultCharset UTF-8
     # RewriteCond %{HTTP:X-Forwarded-Proto} !https
     # RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [R=301,L]
 
-    # Skip rewriting for real files and directories
-    RewriteCond %{REQUEST_FILENAME} -f [OR]
-    RewriteCond %{REQUEST_FILENAME} -d
+    # Skip rewriting for real files only; directories go through index.php
+    # (PHP routes like /auth/, /start/ etc. are real directories but must be
+    # handled by the front controller, not served as directory listings)
+    RewriteCond %{REQUEST_FILENAME} -f
     RewriteRule ^ - [L]
 
     # Everything else goes through the front controller

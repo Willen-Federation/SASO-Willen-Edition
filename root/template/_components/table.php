@@ -13,8 +13,7 @@ $caption = $caption ?? null;
 $class   = $class   ?? '';
 $empty   = $empty   ?? __('ui.table.empty', [], null, 'No records');
 ?>
-<div class="ta-card <?php echo ui_attr($class); ?>">
-  <div class="w-full overflow-x-auto">
+<div class="w-full overflow-x-auto <?php echo ui_attr($class); ?>">
     <table class="ta-table">
       <?php if ($caption): ?>
         <caption class="sr-only"><?php echo ui_text($caption); ?></caption>
@@ -61,5 +60,4 @@ $empty   = $empty   ?? __('ui.table.empty', [], null, 'No records');
         <?php endif; ?>
       </tbody>
     </table>
-  </div>
 </div>

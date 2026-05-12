@@ -33,12 +33,15 @@
               $editLink = '<a href="'.ui_attr($editUrl).'" class="text-brand-500 hover:underline text-sm">'.ui_text(__('ui.auth_providers.edit', [], null, 'Edit')).'</a>';
               $deleteLink = '<a href="'.ui_attr($deleteUrl).'" class="text-error-500 hover:underline text-sm ml-3" onclick="return confirm(\''.ui_attr(__('ui.auth_providers.confirm_delete', [], null, 'Delete this provider?')).'\')">'.ui_text(__('ui.auth_providers.delete', [], null, 'Delete')).'</a>';
 
+              $issuerHtml = $p['issuer']
+                  ? '<div class="max-w-xs break-all text-sm">'.ui_text((string) $p['issuer']).'</div>'
+                  : '';
               $rows[] = [
                   ['value' => '<span class="badge badge-primary uppercase">'.ui_text($p['flavor']).'</span>', 'html' => true],
                   ['value' => ui_text($p['name']).$defaultMark, 'html' => true],
-                  ['value' => ui_text((string) ($p['issuer'] ?? '')) ],
-                  ['value' => $statusBadge, 'html' => true],
-                  ['value' => $editLink . $deleteLink, 'html' => true],
+                  ['value' => $issuerHtml, 'html' => true],
+                  ['value' => $statusBadge, 'html' => true, 'class' => 'whitespace-nowrap'],
+                  ['value' => $editLink . $deleteLink, 'html' => true, 'class' => 'whitespace-nowrap'],
               ];
           }
           ui('table', [

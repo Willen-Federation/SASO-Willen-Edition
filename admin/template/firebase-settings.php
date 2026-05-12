@@ -60,7 +60,7 @@
             placeholder="<?php echo $apiKey !== '' ? '••••••••••••••••' : 'AIza...'; ?>"
             class="w-full rounded border border-gray-200 bg-transparent py-3 px-4 font-medium outline-none transition focus:border-brand-500 active:border-brand-500 dark:border-gray-800 dark:bg-form-input dark:focus:border-brand-500 text-black dark:text-white">
           <?php if ($apiKey !== ''): ?>
-            <p class="mt-1.5 text-xs text-gray-500"><?php echo $lang === 'ja' ? '設定済み: ' : 'Configured: '; ?><?php echo $maskKey($apiKey); ?></p>
+            <p class="mt-1.5 text-xs text-gray-500 dark:text-gray-400"><?php echo $lang === 'ja' ? '設定済み: ' : 'Configured: '; ?><?php echo $maskKey($apiKey); ?></p>
           <?php endif; ?>
         </div>
       </div>
@@ -123,7 +123,7 @@
          </a>
        </p>
        <div class="space-y-3">
-         <p class="text-xs text-gray-500"><?php echo $lang === 'ja' ? '※ ここで設定した内容は即座にシステム全体に反映されます。' : '* Changes made here take effect immediately across the entire system.'; ?></p>
+         <p class="text-xs text-gray-500 dark:text-gray-400"><?php echo $lang === 'ja' ? '※ ここで設定した内容は即座にシステム全体に反映されます。' : '* Changes made here take effect immediately across the entire system.'; ?></p>
        </div>
     </div>
   </div>

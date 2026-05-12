@@ -38,6 +38,10 @@ final readonly class StorageLocation
         public ?int $capacity = null,
         public ?string $notes = null,
         public StorageOperationalStatus $operationalStatus = StorageOperationalStatus::Available,
+        public ?string $areaCode = null,
+        public ?int $mapImageId = null,
+        public ?float $mapXRatio = null,
+        public ?float $mapYRatio = null,
     ) {
         if ($id < 1) {
             throw new InvalidArgumentException('StorageLocation.id must be a positive integer.');

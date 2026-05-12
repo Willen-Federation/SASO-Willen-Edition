@@ -28,6 +28,8 @@ final class RootPresenter implements Presenter
             $this->success->currentLocale(fn($v)=>$v->currentLocale)
         )->flatMap(
             $this->success->supportedLocales(fn($v)=>$v->supportedLocales)
+        )->flatMap(
+            $this->success->permissions(fn($v)=>$v->permissions)
         );
 
         return $this->success;

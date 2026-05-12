@@ -81,6 +81,9 @@
         "archive": "\\saso\\item\\ArchiveDIContainer",
         "reproduction": "\\saso\\item\\ReproductionDIContainer",
         "bulkAdd": "\\saso\\item\\BulkAddDIContainer",
+        "attributeValues": "\\saso\\item\\AttributeValuesDIContainer",
+        "bulkImport": "\\saso\\item\\BulkImportDIContainer",
+        "bulkExport": "\\saso\\item\\BulkExportDIContainer",
         "bulkTemplate": "\\saso\\item\\BulkTemplateDIContainer"
     },
     "feature": {
@@ -146,5 +149,12 @@
     },
     "search": {
         "start": "\\saso\\search\\StartDIContainer"
+    },
+    "itemAttribute": {
+        "edit":   "\\saso\\itemAttribute\\EditDIContainer",
+        "list":   "\\saso\\itemAttribute\\ListDIContainer",
+        "add":    "\\saso\\itemAttribute\\AddDIContainer",
+        "update": "\\saso\\itemAttribute\\UpdateDIContainer",
+        "delete": "\\saso\\itemAttribute\\DeleteDIContainer"
     }
 }

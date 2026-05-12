@@ -58,7 +58,7 @@
           ?>
           <div class="mt-2 flex gap-2">
             <div class="relative flex-1">
-              <span class="absolute left-3 top-3 text-gray-600">
+              <span class="absolute left-3 top-3 text-gray-600 dark:text-gray-400">
                 <?php ui('iconHeroicon', ['name' => 'qr', 'class' => 'h-5 w-5']); ?>
               </span>
               <input
@@ -134,14 +134,14 @@
           <div class="mb-4">
             <label for="fb-price" class="form-label"><?php echo $lang === 'ja' ? '価格' : 'Price'; ?></label>
             <div class="relative">
-              <span class="absolute left-4 top-3 text-gray-600">¥</span>
+              <span class="absolute left-4 top-3 text-gray-600 dark:text-gray-400">¥</span>
               <input id="fb-price" type="text" name="price" pattern="^[0-9,]+$" maxlength="11" class="form-input pl-8" placeholder="0">
             </div>
           </div>
 
           <div class="mb-5">
             <label for="fb-category" class="form-label"><?php echo $lang === 'ja' ? '分類' : 'Category'; ?></label>
-            <div id="fb-category-selector" class="rounded border border-gray-200 p-3 dark:border-gray-800 text-sm text-gray-600">
+            <div id="fb-category-selector" class="rounded border border-gray-200 p-3 dark:border-gray-800 text-sm text-gray-600 dark:text-gray-400">
               <?php echo $lang === 'ja' ? '（分類選択は通常の商品登録画面と同様に設定できます）' : '(Category selection available on the full registration form)'; ?>
             </div>
             <input type="hidden" name="categoryId" id="fb-categoryId" value="">

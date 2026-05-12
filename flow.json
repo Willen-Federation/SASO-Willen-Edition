@@ -114,7 +114,8 @@
         "features": "\\saso\\label\\FeaturesDIContainer",
         "deleteAll": "\\saso\\label\\DeleteAllDIContainer",
         "shortName": "\\saso\\label\\ShortNameDIContainer",
-        "pdf": "\\saso\\label\\PdfDIContainer"
+        "pdf": "\\saso\\label\\PdfDIContainer",
+        "wizard": "\\saso\\label\\WizardDIContainer"
     },
     "barcode": {
         "start": "\\saso\\barcode\\StartDIContainer",

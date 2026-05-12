@@ -80,6 +80,7 @@ final class RootView implements View
                 'items' => $filterItems([
                     ['key' => 'home',         'label' => $t('ui.sidebar.home',          'Home'),            'href' => $base.'start/start/',      'icon' => $svg('home'),         'permission' => null],
                     ['key' => 'item_add',     'label' => $t('ui.sidebar.item_register', 'Register'),        'href' => $base.'item/add/',          'icon' => $svg('plus-circle'), 'permission' => 'item'],
+                    ['key' => 'bulk',         'label' => $t('ui.sidebar.bulk',          'Bulk operations'), 'href' => $base.'item/bulkImport/',   'icon' => $svg('box'),          'permission' => 'item'],
                     ['key' => 'verify',       'label' => $t('ui.sidebar.verify',        'Verification'),    'href' => $base.'verify/start/',      'icon' => $svg('check-circle'),'permission' => 'verify'],
                     ['key' => 'item_archive', 'label' => $t('ui.sidebar.item_archive',  'Archive list'),    'href' => $base.'archive/list/',      'icon' => $svg('archive'),     'permission' => 'archive'],
                 ]),

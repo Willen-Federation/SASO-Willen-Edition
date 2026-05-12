@@ -164,9 +164,24 @@
             "matter": "item",
             "action": "reproduction"
         },
+        "bulkAdd": {
+            "matter": "item",
+            "action": "bulkAdd"
         "attributeValues": {
             "matter": "item",
             "action": "attributeValues"
+        },
+        "bulkImport": {
+            "matter": "item",
+            "action": "bulkImport"
+        },
+        "bulkExport": {
+            "matter": "item",
+            "action": "bulkExport"
+        },
+        "bulkTemplate": {
+            "matter": "item",
+            "action": "bulkTemplate"
         },
         "inventory": {
            "matter": "feature",

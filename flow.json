@@ -83,6 +83,11 @@
         "attributeValues": "\\saso\\item\\AttributeValuesDIContainer",
         "fromBarcode": "\\saso\\item\\FromBarcodeDIContainer",
         "registerFromBarcode": "\\saso\\item\\RegisterFromBarcodeDIContainer"
+        "bulkAdd": "\\saso\\item\\BulkAddDIContainer",
+        "attributeValues": "\\saso\\item\\AttributeValuesDIContainer",
+        "bulkImport": "\\saso\\item\\BulkImportDIContainer",
+        "bulkExport": "\\saso\\item\\BulkExportDIContainer",
+        "bulkTemplate": "\\saso\\item\\BulkTemplateDIContainer"
     },
     "feature": {
         "inventory": "\\saso\\feature\\AmountDIContainer",

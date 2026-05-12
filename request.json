@@ -171,6 +171,9 @@
         "registerFromBarcode": {
             "matter": "item",
             "action": "registerFromBarcode"
+        "bulkAdd": {
+            "matter": "item",
+            "action": "bulkAdd"
         "attributeValues": {
             "matter": "item",
             "action": "attributeValues"
@@ -202,6 +205,14 @@
         "history": {
            "matter": "feature",
            "action": "history"
+        },
+        "fromBarcode": {
+            "matter": "item",
+            "action": "fromBarcode"
+        },
+        "registerFromBarcode": {
+            "matter": "item",
+            "action": "registerFromBarcode"
         }
     },
     "label": {

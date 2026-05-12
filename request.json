@@ -164,6 +164,9 @@
             "matter": "item",
             "action": "reproduction"
         },
+        "bulkAdd": {
+            "matter": "item",
+            "action": "bulkAdd"
         "attributeValues": {
             "matter": "item",
             "action": "attributeValues"

@@ -80,6 +80,7 @@
         "addFeature": "\\saso\\item\\AddFeatureDIContainer",
         "archive": "\\saso\\item\\ArchiveDIContainer",
         "reproduction": "\\saso\\item\\ReproductionDIContainer",
+        "bulkAdd": "\\saso\\item\\BulkAddDIContainer",
         "attributeValues": "\\saso\\item\\AttributeValuesDIContainer",
         "bulkImport": "\\saso\\item\\BulkImportDIContainer",
         "bulkExport": "\\saso\\item\\BulkExportDIContainer",

@@ -20,6 +20,6 @@ final class BulkTemplateDIContainer implements DIContainer
 
     public function flow(): View
     {
-        return $this->view;
+        return new BulkTemplateView();
     }
 }

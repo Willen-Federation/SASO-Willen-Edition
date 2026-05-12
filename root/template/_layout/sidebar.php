@@ -11,7 +11,7 @@ if (!$authed) {
 }
 ?>
 <aside id="sidebar"
-       class="saso-sidebar sidebar fixed left-0 top-0 z-9999 flex h-screen w-[290px] flex-col overflow-y-hidden px-5 transition-transform duration-200 ease-linear lg:static lg:translate-x-0"
+       class="saso-sidebar sidebar fixed left-0 top-0 z-9999 flex h-screen w-[290px] flex-col overflow-y-auto px-5 transition-transform duration-200 ease-linear lg:static lg:translate-x-0"
        :class="mobileOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'"
        aria-label="<?php echo ui_attr(__('ui.a11y.sidebar', [], null, 'Primary')); ?>">
 
@@ -22,7 +22,7 @@ if (!$authed) {
     </a>
   </div>
 
-  <nav class="flex flex-col overflow-y-auto no-scrollbar"
+  <nav class="flex flex-1 min-h-0 flex-col overflow-y-auto no-scrollbar"
        aria-label="<?php echo ui_attr(__('ui.a11y.main_nav', [], null, 'Main navigation')); ?>"
        x-data="{ selected: $persist(null).as('saso.sidebar.selected') }">
     <?php

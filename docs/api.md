@@ -4,7 +4,11 @@ The REST API lives at `/api/v1/*`. The contract is defined by an OpenAPI 3.1 spe
 
 ## Status
 
-As of M3-D the API is bootstrapped with three meta endpoints. Domain endpoints (items, categories, labels, shelves, auth) land across M3-E and M4.
+As of M4-D the API is live with meta, feature-flag, and mobile-pairing endpoints. Domain endpoints (items, categories, labels, shelves) are scheduled for M5.
+
+## Endpoints
+
+### Meta
 
 | Endpoint | Method | What it does |
 |---|---|---|
@@ -12,9 +16,34 @@ As of M3-D the API is bootstrapped with three meta endpoints. Domain endpoints (
 | `/api/v1/openapi.yaml` | `GET` | Returns this OpenAPI specification verbatim, ready for SDK generators. |
 | `/api/v1/docs` | `GET` | Embedded Swagger UI loaded against the spec above. |
 
+### Feature Flags
+
+Operator-managed runtime feature flags backed by the `feature_flag` table (cf. [ADR 0005](architecture/adr/0005-openfeature-with-db-provider.md)).
+
+| Endpoint | Method | What it does |
+|---|---|---|
+| `/api/v1/feature-flags` | `GET` | List all feature flags ordered by key. |
+| `/api/v1/feature-flags` | `POST` | Create a new feature flag (`key` must match `^[a-z0-9][a-z0-9._]{0,119}$`). |
+| `/api/v1/feature-flags/{key}` | `GET` | Fetch a single flag by key. |
+| `/api/v1/feature-flags/{key}` | `PATCH` | Update `enabled` and/or `value` for a flag. |
+| `/api/v1/feature-flags/{key}` | `DELETE` | Delete a feature flag. |
+
+### Mobile — Device Pairing
+
+QR-based device pairing and Flutter client configuration (cf. [ADR 0014](architecture/adr/0014-flutter-pairing-and-mcp-server.md)).
+
+| Endpoint | Method | What it does |
+|---|---|---|
+| `/api/v1/mobile/pairing-codes` | `POST` | Generate a short-lived (10 min) QR pairing code as a base64 PNG data URI. |
+| `/api/v1/mobile/connect` | `POST` | Exchange a pairing token for a device access token and refresh token. |
+| `/api/v1/mobile/token/refresh` | `POST` | Refresh an expired device access token. |
+| `/api/v1/mobile/config` | `GET` | Return server URL, feature flags, and supported capabilities as a Flutter config bundle. |
+| `/api/v1/mobile/tokens` | `GET` | List all active device tokens for the current operator. |
+| `/api/v1/mobile/tokens/{id}` | `DELETE` | Revoke a specific device token. |
+
 ## Authentication
 
-Endpoints are unauthenticated until the M3-E auth surface lands. OIDC (browsers) and Bearer JWT (machine clients) follow the [`AuthProvider`](architecture/adr/0003-pluggable-idp.md) contract.
+API endpoints under `/api/v1/feature-flags` and `/api/v1/mobile` require a session cookie (browser) or a Bearer device token (machine clients). The Bearer token is issued by `POST /api/v1/mobile/connect` after a QR pairing. OIDC/SAML-issued tokens follow the same Bearer scheme once those providers ship in M5.
 
 ## Errors
 
@@ -36,7 +65,7 @@ For interactive exploration, point a browser at `/api/v1/docs` for an embedded S
 
 ## Why two transports
 
-- Legacy PHP screens stay **PHPStyle** — server-side rendered, session-cookie auth, CSRF-protected forms. Operators on shared hosting keep their existing UX.
+- Legacy PHP screens stay **PHP-rendered** — server-side rendered, session-cookie auth, CSRF-protected forms. Operators on shared hosting keep their existing UX.
 - The REST API enables future SPA clients, a mobile app, and machine-to-machine integrations. The Application layer is shared; only the Presentation transport differs.
 
 The duality is recorded in [ADR 0001](architecture/adr/0001-clean-architecture-ddd.md) (Strangler Fig migration) and [ADR 0002](architecture/adr/0002-openapi-as-source-of-truth.md) (OpenAPI as source of truth).

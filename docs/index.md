@@ -15,12 +15,12 @@ This documentation site covers operating the application, contributing to it, an
 | [Architecture](architecture/index.md) | Contributors understanding the Clean Architecture / DDD layout |
 | [Development](development/index.md) | Contributors writing code, tests, or docs |
 | [Security](security.md) | Anyone — disclosure policy and operator hardening |
-| [API Reference](api.md) | API clients consuming `/api/v1/*` (arrives in M3) |
+| [API Reference](api.md) | API clients consuming `/api/v1/*` |
 | [Error Codes](error-codes.md) | Anyone debugging a `SASO-*` error code |
 
 ## Status
 
-The fork is in active modernization. As of this writing, **M0 (Stabilize)**, **M1 (Security Hotfix)**, and most of **M2 (Tooling & Composer)** are complete. See the [Changelog](changelog.md) for the current state.
+The fork is in active modernization. **M0 (Stabilize)**, **M1 (Security Hotfix)**, **M2 (Tooling & Composer)**, **M3 (REST API + i18n + Errors)**, and **M4 (Auth Providers + Feature Flags + Mobile Pairing)** are complete. **M5 (UI Modernization — TailAdmin → Tabler)** is underway; see [ADR 0017](architecture/adr/0017-tailadmin-ui-migration.md) and [ADR 0018](architecture/adr/0018-tabler-ui-migration.md) for the rationale. See the [Changelog](changelog.md) for the full activity log.
 
 ## License
 

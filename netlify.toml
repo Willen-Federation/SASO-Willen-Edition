@@ -10,6 +10,7 @@
   base       = "."
   publish    = "site"
   command    = "pip install --upgrade pip && pip install -r requirements.txt && mkdocs build --strict"
+  ignore     = "if [ -n \"$CACHED_COMMIT_REF\" ] && [ -n \"$COMMIT_REF\" ]; then git diff --quiet \"$CACHED_COMMIT_REF\" \"$COMMIT_REF\" -- docs mkdocs.yml requirements.txt; else git diff --quiet HEAD^ HEAD -- docs mkdocs.yml requirements.txt; fi"
 
 [build.environment]
   PYTHON_VERSION = "3.12"
@@ -29,7 +30,7 @@
   command = "pip install --upgrade pip && pip install -r requirements.txt && mkdocs build --strict"
 
 [context.deploy-preview]
-  command = "sh scripts/netlify-deploy-preview-build.sh"
+  command = "pip install --upgrade pip && pip install -r requirements.txt && mkdocs build --strict"
 
 [context.branch-deploy]
   command = "pip install --upgrade pip && pip install -r requirements.txt && mkdocs build --strict"

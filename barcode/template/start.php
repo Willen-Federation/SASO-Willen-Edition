@@ -29,6 +29,8 @@
   <div
     x-data="{
       code: '',
+      result: null,
+      itemUrl: null,
       error: null,
       loading: false,
 
@@ -122,14 +124,18 @@
             this.regError = null;
             this.showRegModal = true;
           }
-        } else if (this.isLegacy()) {
-          const item  = raw.slice(0, 8);
-          const color = raw.slice(8, 10);
-          const size  = raw.slice(10, 12);
-          window.location.href = './item/start/item/' + item + '/color/' + color + '/size/' + size + '/action/shelf';
-        } else {
-          this.error = <?php echo json_encode($labelInvalid); ?>;
+        } catch (e) {
+          this.error = <?php echo json_encode($labelError); ?>;
+        } finally {
+          this.loading = false;
         }
+      } else if (this.isLegacy()) {
+        const item  = raw.slice(0, 8);
+        const color = raw.slice(8, 10);
+        const size  = raw.slice(10, 12);
+        window.location.href = './item/start/item/' + item + '/color/' + color + '/size/' + size + '/action/shelf';
+      } else {
+        this.error = <?php echo json_encode($labelInvalid); ?>;
       }
     },
 
@@ -175,28 +181,19 @@
           <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
             <?php ui('iconHeroicon', ['name' => 'qr', 'class' => 'h-5 w-5']); ?>
           </div>
-          <button
-            type="button"
-            id="barcodeSubmit"
-            class="btn btn-primary shrink-0 flex items-center gap-2"
-            @click="search()"
-            :disabled="loading"
+          <input
+            id="barcodeInput"
+            x-model="code"
+            type="text"
+            class="form-input pl-10 w-full"
+            placeholder="<?php echo ui_attr($placeholder); ?>"
+            @keydown.enter.prevent="search()"
+            autofocus
           >
-            <span x-show="loading" aria-hidden="true">
-              <svg class="animate-spin h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24">
-                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
-              </svg>
-            </span>
-            <span x-show="!loading" aria-hidden="true">
-              <?php ui('iconHeroicon', ['name' => 'search', 'class' => 'h-4 w-4 shrink-0']); ?>
-            </span>
-            <?php echo ui_text($labelSubmit); ?>
-          </button>
         </div>
         <button
           type="button"
-          id="barcodeSubmit"
+          id="barcodeSearch"
           class="btn btn-success"
           @click="search()"
           :disabled="loading"
@@ -224,12 +221,6 @@
           <p class="font-medium"><?php echo ui_text($labelRegistered); ?></p>
           <p class="text-sm" x-text="result && result.name"></p>
           <a :href="itemUrl" class="text-sm underline"><?php echo ui_text($labelViewItem); ?></a>
-        </div>
-      </div>
-
-        <div x-show="error" x-cloak class="mt-3 ta-alert ta-alert-danger" role="alert" aria-live="polite">
-          <?php ui('iconHeroicon', ['name' => 'x-circle', 'class' => 'h-5 w-5 shrink-0']); ?>
-          <span x-text="error"></span>
         </div>
       </div>
 

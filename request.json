@@ -171,9 +171,11 @@
         "registerFromBarcode": {
             "matter": "item",
             "action": "registerFromBarcode"
+        },
         "bulkAdd": {
             "matter": "item",
             "action": "bulkAdd"
+        },
         "attributeValues": {
             "matter": "item",
             "action": "attributeValues"

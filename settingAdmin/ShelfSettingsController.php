@@ -23,12 +23,12 @@ final class ShelfSettingsController implements Controller, DTO
     {
         $dimensions = [];
         for ($i = 1; $i <= 10; $i++) {
-            if (isset($this->post["dimension_${i}_enabled"])) {
+            if (isset($this->post["dimension_{$i}_enabled"])) {
                 $dimensions[] = [
                     'position' => $i,
-                    'name' => $this->post["dimension_${i}_name"] ?? '',
-                    'description' => $this->post["dimension_${i}_description"] ?? '',
-                    'type' => $this->post["dimension_${i}_type"] ?? 'numeric',
+                    'name' => $this->post["dimension_{$i}_name"] ?? '',
+                    'description' => $this->post["dimension_{$i}_description"] ?? '',
+                    'type' => $this->post["dimension_{$i}_type"] ?? 'numeric',
                     'enabled' => true,
                 ];
             }

@@ -25,93 +25,120 @@
     $labelScanDetected = $lang === 'ja' ? 'バーコードを検知しました' : 'Barcode detected';
 ?>
 
-<div class="flex justify-center mb-8">
-  <div
-    x-data="{
+<script>
+  window.sasoBarcodeSearch = function() {
+    return {
       code: '',
+      result: null,
       error: null,
+      itemUrl: null,
       loading: false,
+      showRegModal: false,
+      reg: { barcodeId: '', itemName: '', colorName: '', sizeName: '', price: '' },
+      regLoading: false,
+      regError: null,
+      csrfToken: <?php echo json_encode($csrfToken); ?>,
+      labels: {
+        notFound: <?php echo json_encode($labelNotFound); ?>,
+        invalid: <?php echo json_encode($labelInvalid); ?>,
+        regError: <?php echo json_encode($labelRegError); ?>,
+        regRequired: <?php echo json_encode($labelRegRequired); ?>
+      },
 
-    showRegModal: false,
-    reg: { barcodeId: '', itemName: '', colorName: '', sizeName: '', price: '' },
-    regLoading: false,
-    regError: null,
-    csrfToken: <?php echo json_encode($csrfToken); ?>,
+      _buf: '',
+      _lastTime: 0,
+      _timer: null,
+      SCAN_GAP_MS: 50,
+      MIN_SCAN_CHARS: 8,
 
-    _buf: '',
-    _lastTime: 0,
-    _timer: null,
-    SCAN_GAP_MS: 50,
-    MIN_SCAN_CHARS: 8,
+      onWindowKey(e) {
+        const el = document.activeElement;
+        const tag = el ? el.tagName : '';
+        const isBarcodeInput = el && el.id === 'barcodeInput';
+        const isOtherInput = !isBarcodeInput && (
+          tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' ||
+          (el && el.isContentEditable)
+        );
+        if (isOtherInput) return;
 
-    onWindowKey(e) {
-      const el = document.activeElement;
-      const tag = el ? el.tagName : '';
-      const isBarcodeInput = el && el.id === 'barcodeInput';
-      const isOtherInput = !isBarcodeInput && (
-        tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' ||
-        (el && el.isContentEditable)
-      );
-      if (isOtherInput) return;
+        const now = performance.now();
+        const gap = now - this._lastTime;
+        this._lastTime = now;
 
-      const now = performance.now();
-      const gap = now - this._lastTime;
-      this._lastTime = now;
-
-      if (e.key === 'Enter') {
-        if (this._buf.length >= this.MIN_SCAN_CHARS) {
-          e.preventDefault();
-          this.code = this._buf;
-          this._buf = '';
-          if (this._timer) { clearTimeout(this._timer); this._timer = null; }
-          this.$nextTick(() => this.search());
-        } else {
-          this._buf = '';
-        }
-        return;
-      }
-
-      if (e.key.length !== 1) return;
-
-      if (this._buf.length > 0 && gap > this.SCAN_GAP_MS * 5) {
-        this._buf = '';
-      }
-
-      this._buf += e.key;
-
-      if (this._timer) clearTimeout(this._timer);
-      if (this._buf.length >= this.MIN_SCAN_CHARS) {
-        this._timer = setTimeout(() => {
+        if (e.key === 'Enter') {
           if (this._buf.length >= this.MIN_SCAN_CHARS) {
+            e.preventDefault();
             this.code = this._buf;
             this._buf = '';
-            this.search();
+            if (this._timer) {
+              clearTimeout(this._timer);
+              this._timer = null;
+            }
+            this.$nextTick(() => this.search());
+          } else {
+            this._buf = '';
           }
-          this._timer = null;
-        }, 150);
-      }
-    },
+          return;
+        }
 
-    isPnd()    { return /^PND\d{9}$/.test(this.code.trim()); },
-    isLegacy() { return /^\d{12}$/.test(this.code.trim()); },
+        if (e.key.length !== 1) return;
 
-    async search() {
-      const raw = this.code.trim();
-      this.result  = null;
-      this.error   = null;
-      this.itemUrl = null;
-      this.showRegModal = false;
-      if (!raw) return;
+        if (this._buf.length > 0 && gap > this.SCAN_GAP_MS * 5) {
+          this._buf = '';
+        }
 
-      if (this.isPnd()) {
+        this._buf += e.key;
+
+        if (this._timer) clearTimeout(this._timer);
+        if (this._buf.length >= this.MIN_SCAN_CHARS) {
+          this._timer = setTimeout(() => {
+            if (this._buf.length >= this.MIN_SCAN_CHARS) {
+              this.code = this._buf;
+              this._buf = '';
+              this.search();
+            }
+            this._timer = null;
+          }, 150);
+        }
+      },
+
+      isPnd() {
+        return /^PND\d{9}$/.test(this.code.trim());
+      },
+
+      isLegacy() {
+        return /^\d{12}$/.test(this.code.trim());
+      },
+
+      async search() {
+        const raw = this.code.trim();
+        this.result = null;
+        this.error = null;
+        this.itemUrl = null;
+        this.showRegModal = false;
+        if (!raw) return;
+
+        if (this.isLegacy()) {
+          const item = raw.slice(0, 8);
+          const color = raw.slice(8, 10);
+          const size = raw.slice(10, 12);
+          window.location.href = './item/start/item/' + item + '/color/' + color + '/size/' + size + '/action/shelf';
+          return;
+        }
+
+        if (!this.isPnd()) {
+          this.error = this.labels.invalid;
+          return;
+        }
+
         this.loading = true;
         try {
-          const res  = await fetch('./api/v1/barcode/' + encodeURIComponent(raw));
+          const res = await fetch('./api/v1/barcode/' + encodeURIComponent(raw));
           const data = await res.json();
           if (!res.ok || !data) {
-            this.error = <?php echo json_encode($labelNotFound); ?>;
+            this.error = this.labels.notFound;
           } else if (data.item && data.item.id) {
-            this.result  = { type: 'pnd', name: data.item.name, id: data.item.id };
+            this.result = { type: 'pnd', name: data.item.name, id: data.item.id };
             this.itemUrl = './item/start/item/' + data.item.id + '/';
           } else {
             this.reg.barcodeId = raw;
@@ -122,92 +149,89 @@
             this.regError = null;
             this.showRegModal = true;
           }
-        } else if (this.isLegacy()) {
-          const item  = raw.slice(0, 8);
-          const color = raw.slice(8, 10);
-          const size  = raw.slice(10, 12);
-          window.location.href = './item/start/item/' + item + '/color/' + color + '/size/' + size + '/action/shelf';
-        } else {
-          this.error = <?php echo json_encode($labelInvalid); ?>;
+        } catch (e) {
+          this.error = this.labels.notFound;
+        } finally {
+          this.loading = false;
         }
-      }
-    },
+      },
 
-    async submitReg() {
-      if (!this.reg.itemName.trim() || !this.reg.colorName.trim() || !this.reg.sizeName.trim()) {
-        this.regError = <?php echo json_encode($labelRegRequired); ?>;
-        return;
-      }
-      this.regLoading = true;
-      this.regError = null;
-      try {
-        const form = new FormData();
-        form.append('csrftoken', this.csrfToken);
-        form.append('barcodeId', this.reg.barcodeId);
-        form.append('itemName', this.reg.itemName.trim());
-        form.append('colorName', this.reg.colorName.trim());
-        form.append('sizeName', this.reg.sizeName.trim());
-        form.append('price', this.reg.price);
-        const res = await fetch('./item/registerFromBarcode/', {
-          method: 'POST',
-          body: form,
-          redirect: 'follow'
-        });
-        if (res.ok && res.url && res.url.includes('/item/')) {
-          window.location.href = res.url;
-        } else {
-          this.regError = <?php echo json_encode($labelRegError); ?>;
+      async submitReg() {
+        if (!this.reg.itemName.trim() || !this.reg.colorName.trim() || !this.reg.sizeName.trim()) {
+          this.regError = this.labels.regRequired;
+          return;
         }
-      } catch (e) {
-        this.regError = <?php echo json_encode($labelRegError); ?>;
-      } finally {
-        this.regLoading = false;
+        this.regLoading = true;
+        this.regError = null;
+        try {
+          const form = new FormData();
+          form.append('csrftoken', this.csrfToken);
+          form.append('barcodeId', this.reg.barcodeId);
+          form.append('itemName', this.reg.itemName.trim());
+          form.append('colorName', this.reg.colorName.trim());
+          form.append('sizeName', this.reg.sizeName.trim());
+          form.append('price', this.reg.price);
+          const res = await fetch('./item/registerFromBarcode/', {
+            method: 'POST',
+            body: form,
+            redirect: 'follow'
+          });
+          if (res.ok && res.url && res.url.includes('/item/')) {
+            window.location.href = res.url;
+          } else {
+            this.regError = this.labels.regError;
+          }
+        } catch (e) {
+          this.regError = this.labels.regError;
+        } finally {
+          this.regLoading = false;
+        }
       }
-    }
-  }"
-  @keydown.window="onWindowKey($event)"
-  class="mb-6"
->
+    };
+  };
+</script>
+
+<div class="flex justify-center mb-8">
+  <div
+    x-data="sasoBarcodeSearch()"
+    @keydown.window="onWindowKey($event)"
+    class="mb-6"
+  >
   <div class="card">
     <div class="card-body">
-      <div class="flex items-center gap-3">
-        <div class="relative grow max-w-xs">
+      <div class="flex flex-col gap-3 sm:flex-row sm:items-center">
+        <div class="relative grow">
           <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
             <?php ui('iconHeroicon', ['name' => 'qr', 'class' => 'h-5 w-5']); ?>
           </div>
-          <button
-            type="button"
-            id="barcodeSubmit"
-            class="btn btn-primary shrink-0 flex items-center gap-2"
-            @click="search()"
-            :disabled="loading"
+          <input
+            id="barcodeInput"
+            x-model="code"
+            type="text"
+            class="form-input pl-11"
+            placeholder="<?php echo ui_attr($placeholder); ?>"
+            @keydown.enter.prevent="search()"
+            autocomplete="off"
+            inputmode="text"
           >
-            <span x-show="loading" aria-hidden="true">
-              <svg class="animate-spin h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24">
-                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
-              </svg>
-            </span>
-            <span x-show="!loading" aria-hidden="true">
-              <?php ui('iconHeroicon', ['name' => 'search', 'class' => 'h-4 w-4 shrink-0']); ?>
-            </span>
-            <?php echo ui_text($labelSubmit); ?>
-          </button>
         </div>
         <button
           type="button"
           id="barcodeSubmit"
-          class="btn btn-success"
+          class="btn btn-primary shrink-0 flex items-center justify-center gap-2"
           @click="search()"
           :disabled="loading"
         >
-          <span x-show="!loading"><?php echo ui_text($labelDisplay); ?></span>
-          <span x-show="loading" class="flex items-center gap-1">
-            <svg class="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
+          <span x-show="loading" aria-hidden="true">
+            <svg class="animate-spin h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24">
               <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
               <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
             </svg>
           </span>
+          <span x-show="!loading" aria-hidden="true">
+            <?php ui('iconHeroicon', ['name' => 'search', 'class' => 'h-4 w-4 shrink-0']); ?>
+          </span>
+          <span><?php echo ui_text($labelDisplay); ?></span>
         </button>
       </div>
 
@@ -224,12 +248,6 @@
           <p class="font-medium"><?php echo ui_text($labelRegistered); ?></p>
           <p class="text-sm" x-text="result && result.name"></p>
           <a :href="itemUrl" class="text-sm underline"><?php echo ui_text($labelViewItem); ?></a>
-        </div>
-      </div>
-
-        <div x-show="error" x-cloak class="mt-3 ta-alert ta-alert-danger" role="alert" aria-live="polite">
-          <?php ui('iconHeroicon', ['name' => 'x-circle', 'class' => 'h-5 w-5 shrink-0']); ?>
-          <span x-text="error"></span>
         </div>
       </div>
 
@@ -322,6 +340,7 @@
 
     </div>
   </div>
+</div>
 </div>
 
 <?php }; ?>

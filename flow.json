@@ -81,12 +81,9 @@
         "archive": "\\saso\\item\\ArchiveDIContainer",
         "reproduction": "\\saso\\item\\ReproductionDIContainer",
         "fromBarcode": "\\saso\\item\\FromBarcodeDIContainer",
-        "registerFromBarcode": "\\saso\\item\\RegisterFromBarcodeDIContainer"
+        "registerFromBarcode": "\\saso\\item\\RegisterFromBarcodeDIContainer",
         "attributeValues": "\\saso\\item\\AttributeValuesDIContainer",
-        "fromBarcode": "\\saso\\item\\FromBarcodeDIContainer",
-        "registerFromBarcode": "\\saso\\item\\RegisterFromBarcodeDIContainer"
         "bulkAdd": "\\saso\\item\\BulkAddDIContainer",
-        "attributeValues": "\\saso\\item\\AttributeValuesDIContainer",
         "bulkImport": "\\saso\\item\\BulkImportDIContainer",
         "bulkExport": "\\saso\\item\\BulkExportDIContainer",
         "bulkTemplate": "\\saso\\item\\BulkTemplateDIContainer"

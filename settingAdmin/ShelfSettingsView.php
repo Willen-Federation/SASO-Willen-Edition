@@ -79,11 +79,11 @@ final class ShelfSettingsView implements View
         try {
             $dimensions = [];
             for ($i = 1; $i <= 10; $i++) {
-                if (isset($this->post["dimension_${i}_enabled"])) {
+                if (isset($this->post["dimension_{$i}_enabled"])) {
                     $dimensions[] = new ShelfDimensionMetadata(
-                        name: $this->post["dimension_${i}_name"] ?? '',
-                        description: $this->post["dimension_${i}_description"] ?? '',
-                        type: ShelfDimensionType::from($this->post["dimension_${i}_type"] ?? 'numeric'),
+                        name: $this->post["dimension_{$i}_name"] ?? '',
+                        description: $this->post["dimension_{$i}_description"] ?? '',
+                        type: ShelfDimensionType::from($this->post["dimension_{$i}_type"] ?? 'numeric'),
                         position: $i,
                         enabled: true,
                     );

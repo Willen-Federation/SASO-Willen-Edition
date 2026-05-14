@@ -8,6 +8,7 @@ use PDO;
 use Saso\Application\Common\IdempotencyService;
 use Saso\Application\Mobile\JwtGuard;
 use Saso\Domain\MobileConnect\Jwt\JwtService;
+use Saso\Infrastructure\Auth\Crypto\SecretEncryptor;
 use Saso\Infrastructure\Auth\Repository\PdoAuthProviderRepository;
 use Saso\Infrastructure\Barcode\PdoBarcodeRepository;
 use Saso\Infrastructure\Category\PdoCategoryRepository;
@@ -122,7 +123,7 @@ final class Bootstrap
 
         // Auth provider discovery (public).
         $config       = \saso\ConfigLoader::load();
-        $providerRepo = new PdoAuthProviderRepository($pdo);
+        $providerRepo = new PdoAuthProviderRepository($pdo, new SecretEncryptor(self::encryptorKey()));
         $discovery    = new DiscoveryController(
             providers: $providerRepo,
             serverName: (string) ($config['site']['name'] ?? 'SASO'),
@@ -236,6 +237,37 @@ final class Bootstrap
         $dsn    = (string) ($config['database']['dsn'] ?? 'saso-fallback');
 
         return hash('sha256', 'saso-jwt-'.$dsn, binary: true);
+    }
+
+    /**
+     * Derives the AES-256-GCM key used by {@see SecretEncryptor} from APP_KEY.
+     *
+     * Resolution order (mirrors the pattern in auth/AuthView.php):
+     *   1. APP_KEY as base64-encoded 32 bytes (44 chars with padding)
+     *   2. APP_KEY as hex-encoded 32 bytes (64 hex chars)
+     *   3. APP_KEY run through SHA-256 (any-length string → 32 bytes)
+     *   4. 32 zero bytes (development fallback when APP_KEY is not set)
+     */
+    private static function encryptorKey(): string
+    {
+        $appKey = getenv('APP_KEY');
+        if (is_string($appKey) && $appKey !== '') {
+            $raw = base64_decode($appKey, strict: true);
+            if ($raw !== false && strlen($raw) === 32) {
+                return $raw;
+            }
+
+            if (preg_match('/^[0-9a-fA-F]{64}$/', $appKey)) {
+                $hex = hex2bin($appKey);
+                if ($hex !== false && strlen($hex) === 32) {
+                    return $hex;
+                }
+            }
+
+            return hash('sha256', $appKey, binary: true);
+        }
+
+        return str_repeat("\x00", 32);
     }
 
     private static function requireSessionAuth(): void

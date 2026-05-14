@@ -41,8 +41,7 @@
       <span>棚卸を許可</span>
       <button role="switch" type="button" id="inventoryButtonDisplayButton"
               aria-checked="false"
-              class="saso-toggle relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus-visible:outline focus-visible:outline-2 bg-gray-200 dark:bg-gray-700"
-              style="focus-visible:outline-color:var(--saso-ctrl-focus)"
+              class="saso-toggle relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus-visible:outline focus-visible:outline-2 focus-visible:[outline-color:var(--saso-ctrl-focus)] bg-gray-200 dark:bg-gray-700"
               onclick="this.setAttribute('aria-checked', this.getAttribute('aria-checked')==='false'?'true':'false')">
         <span class="saso-toggle-thumb pointer-events-none inline-block h-4 w-4 translate-x-0 rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out"></span>
       </button>

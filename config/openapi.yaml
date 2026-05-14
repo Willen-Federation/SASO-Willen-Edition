@@ -43,10 +43,20 @@ servers:
 tags:
   - name: meta
     description: Service health, build info, and the API specification itself.
+  - name: auth
+    description: Authentication provider discovery (public — no credentials required).
   - name: feature-flags
     description: Operator-managed runtime feature flags (cf. ADR 0005).
   - name: mobile
     description: QR-based device pairing and Flutter client configuration.
+  - name: items
+    description: Inventory item CRUD operations (Bearer auth).
+  - name: categories
+    description: Category hierarchy (Bearer auth).
+  - name: storage-locations
+    description: Storage location hierarchy and item contents (Bearer auth).
+  - name: barcodes
+    description: Barcode lookup (Bearer auth).
 
 paths:
   /health:
@@ -416,6 +426,384 @@ paths:
         '500':
           $ref: '#/components/responses/ProblemInternalError'
 
+  # ---------------------------------------------------------------------------
+  # Auth provider discovery
+  # ---------------------------------------------------------------------------
+
+  /auth/providers:
+    get:
+      tags: [auth]
+      summary: Discover available authentication providers.
+      description: |
+        Public endpoint the Flutter app calls immediately after the user enters
+        a server URL. Returns the list of enabled IdP providers and the
+        recommended `authStrategy` so the app can skip the chooser when only
+        one provider is configured.
+
+        No credentials required.
+      operationId: listAuthProviders
+      x-handler: 'Saso\Presentation\Api\V1\Controller\Mobile\DiscoveryController::handle'
+      responses:
+        '200':
+          description: Auth provider discovery document.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthProviderDiscovery'
+        '500':
+          $ref: '#/components/responses/ProblemInternalError'
+
+  # ---------------------------------------------------------------------------
+  # Barcodes
+  # ---------------------------------------------------------------------------
+
+  /barcode/{code}:
+    parameters:
+      - name: code
+        in: path
+        required: true
+        description: JAN / EAN barcode string.
+        schema:
+          type: string
+          minLength: 1
+
+    get:
+      tags: [barcodes]
+      summary: Look up a barcode.
+      description: |
+        Finds a registered barcode and returns its status and, if linked, a
+        brief summary of the associated inventory item.
+
+        **Auth:** `Authorization: Bearer <deviceToken>`
+      operationId: getBarcode
+      x-handler: 'Saso\Presentation\Api\V1\Controller\Barcode\BarcodeGetController::handle'
+      responses:
+        '200':
+          description: Barcode found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BarcodeResource'
+        '401':
+          $ref: '#/components/responses/ProblemUnauthorized'
+        '404':
+          $ref: '#/components/responses/ProblemNotFound'
+        '500':
+          $ref: '#/components/responses/ProblemInternalError'
+
+  # ---------------------------------------------------------------------------
+  # Items
+  # ---------------------------------------------------------------------------
+
+  /items:
+    get:
+      tags: [items]
+      summary: List / search inventory items.
+      description: |
+        Returns a cursor-paginated list of items. Supports keyword search,
+        category filter, and exact barcode match.
+
+        **Auth:** `Authorization: Bearer <deviceToken>`
+      operationId: listItems
+      x-handler: 'Saso\Presentation\Api\V1\Controller\Item\ListItemsController::handle'
+      parameters:
+        - name: q
+          in: query
+          description: Keyword search (LIKE match on name and JAN code).
+          schema:
+            type: string
+        - name: category_id
+          in: query
+          description: Filter by category ID.
+          schema:
+            type: integer
+            minimum: 1
+        - name: barcode
+          in: query
+          description: Exact JAN / EAN code match.
+          schema:
+            type: string
+        - name: limit
+          in: query
+          description: Page size (1–200, default 20).
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 200
+            default: 20
+        - name: cursor
+          in: query
+          description: Last item ID from the previous page (cursor pagination).
+          schema:
+            type: integer
+            minimum: 1
+      responses:
+        '200':
+          description: Item list with cursor.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ItemList'
+        '401':
+          $ref: '#/components/responses/ProblemUnauthorized'
+        '500':
+          $ref: '#/components/responses/ProblemInternalError'
+
+    post:
+      tags: [items]
+      summary: Create an inventory item.
+      description: |
+        Creates a new item in the specified category. Supply an
+        `Idempotency-Key` header to make retries safe.
+
+        **Auth:** `Authorization: Bearer <deviceToken>`
+      operationId: createItem
+      x-handler: 'Saso\Presentation\Api\V1\Controller\Item\CreateItemController::handle'
+      parameters:
+        - name: Idempotency-Key
+          in: header
+          description: Client-generated UUID for safe retries (24 h TTL).
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ItemCreateRequest'
+      responses:
+        '201':
+          description: Item created.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ItemResource'
+        '400':
+          $ref: '#/components/responses/ProblemBadRequest'
+        '401':
+          $ref: '#/components/responses/ProblemUnauthorized'
+        '500':
+          $ref: '#/components/responses/ProblemInternalError'
+
+  /items/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        description: Numeric item ID.
+        schema:
+          type: integer
+          minimum: 1
+
+    get:
+      tags: [items]
+      summary: Get a single inventory item.
+      description: |
+        Returns full item detail including EAV attribute values.
+
+        **Auth:** `Authorization: Bearer <deviceToken>`
+      operationId: getItem
+      x-handler: 'Saso\Presentation\Api\V1\Controller\Item\GetItemController::handle'
+      responses:
+        '200':
+          description: Item found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ItemResource'
+        '401':
+          $ref: '#/components/responses/ProblemUnauthorized'
+        '404':
+          $ref: '#/components/responses/ProblemNotFound'
+        '500':
+          $ref: '#/components/responses/ProblemInternalError'
+
+    patch:
+      tags: [items]
+      summary: Partially update an inventory item.
+      description: |
+        Only the fields present in the request body are applied. Supply an
+        `Idempotency-Key` header for safe retries.
+
+        **Auth:** `Authorization: Bearer <deviceToken>`
+      operationId: updateItem
+      x-handler: 'Saso\Presentation\Api\V1\Controller\Item\UpdateItemController::handle'
+      parameters:
+        - name: Idempotency-Key
+          in: header
+          description: Client-generated UUID for safe retries (24 h TTL).
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ItemPatchRequest'
+      responses:
+        '200':
+          description: Item updated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ItemResource'
+        '400':
+          $ref: '#/components/responses/ProblemBadRequest'
+        '401':
+          $ref: '#/components/responses/ProblemUnauthorized'
+        '404':
+          $ref: '#/components/responses/ProblemNotFound'
+        '500':
+          $ref: '#/components/responses/ProblemInternalError'
+
+  # ---------------------------------------------------------------------------
+  # Categories
+  # ---------------------------------------------------------------------------
+
+  /categories:
+    get:
+      tags: [categories]
+      summary: List the category hierarchy.
+      description: |
+        Returns all categories as a flat list (default) or a nested tree.
+        Use `format=tree` to receive each root category with its `children`
+        populated recursively.
+
+        **Auth:** `Authorization: Bearer <deviceToken>`
+      operationId: listCategories
+      x-handler: 'Saso\Presentation\Api\V1\Controller\Category\ListCategoriesController::handle'
+      parameters:
+        - name: format
+          in: query
+          description: Response shape — flat list or recursive tree.
+          schema:
+            type: string
+            enum: [flat, tree]
+            default: flat
+      responses:
+        '200':
+          description: Category list.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CategoryList'
+        '401':
+          $ref: '#/components/responses/ProblemUnauthorized'
+        '500':
+          $ref: '#/components/responses/ProblemInternalError'
+
+  # ---------------------------------------------------------------------------
+  # Storage Locations
+  # ---------------------------------------------------------------------------
+
+  /storage-locations:
+    get:
+      tags: [storage-locations]
+      summary: List storage locations.
+      description: |
+        Returns root storage locations when `parent_id` is omitted, or the
+        direct children of the specified location.
+
+        **Auth:** `Authorization: Bearer <deviceToken>`
+      operationId: listStorageLocations
+      x-handler: 'Saso\Presentation\Api\V1\Controller\StorageLocation\ListStorageLocationsController::handle'
+      parameters:
+        - name: parent_id
+          in: query
+          description: Return children of this location (omit for roots).
+          schema:
+            type: integer
+            minimum: 1
+      responses:
+        '200':
+          description: Storage location list.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StorageLocationList'
+        '401':
+          $ref: '#/components/responses/ProblemUnauthorized'
+        '500':
+          $ref: '#/components/responses/ProblemInternalError'
+
+  /storage-locations/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        description: Numeric storage location ID.
+        schema:
+          type: integer
+          minimum: 1
+
+    get:
+      tags: [storage-locations]
+      summary: Get a storage location.
+      description: |
+        Returns a single storage location with capacity, operational status,
+        and whether it can receive or ship inventory.
+
+        **Auth:** `Authorization: Bearer <deviceToken>`
+      operationId: getStorageLocation
+      x-handler: 'Saso\Presentation\Api\V1\Controller\StorageLocation\GetStorageLocationController::handle'
+      responses:
+        '200':
+          description: Storage location found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StorageLocationResource'
+        '401':
+          $ref: '#/components/responses/ProblemUnauthorized'
+        '404':
+          $ref: '#/components/responses/ProblemNotFound'
+        '500':
+          $ref: '#/components/responses/ProblemInternalError'
+
+  /storage-locations/{id}/items:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        description: Numeric storage location ID.
+        schema:
+          type: integer
+          minimum: 1
+
+    get:
+      tags: [storage-locations]
+      summary: List items in a storage location.
+      description: |
+        Returns items currently assigned to the specified storage location.
+
+        **Auth:** `Authorization: Bearer <deviceToken>`
+      operationId: listStorageLocationItems
+      x-handler: 'Saso\Presentation\Api\V1\Controller\StorageLocation\StorageLocationItemsController::handle'
+      parameters:
+        - name: limit
+          in: query
+          description: Page size (1–200, default 50).
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 200
+            default: 50
+      responses:
+        '200':
+          description: Items in this location.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ItemList'
+        '401':
+          $ref: '#/components/responses/ProblemUnauthorized'
+        '404':
+          $ref: '#/components/responses/ProblemNotFound'
+        '500':
+          $ref: '#/components/responses/ProblemInternalError'
+
 components:
   schemas:
     HealthStatus:
@@ -748,6 +1136,361 @@ components:
         total:
           type: integer
           example: 2
+
+    # -------------------------------------------------------------------------
+    # Auth discovery
+    # -------------------------------------------------------------------------
+
+    AuthProviderSummary:
+      type: object
+      required: [id, name, type, isDefault, enabled]
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: Corporate SSO
+        type:
+          type: string
+          description: Provider type (oidc, saml, firebase, auth0, cognito, local).
+          example: oidc
+        isDefault:
+          type: boolean
+          example: true
+        enabled:
+          type: boolean
+          example: true
+
+    AuthProviderDiscovery:
+      type: object
+      required: [serverName, version, mobileSetupUrl, authStrategy, providers]
+      properties:
+        serverName:
+          type: string
+          example: SASO Warehouse
+        version:
+          type: string
+          example: 1.0.0-alpha
+        mobileSetupUrl:
+          type: string
+          format: uri
+          description: URL to open the in-app browser for the pairing flow.
+          example: https://saso.example.com/m/setup
+        authStrategy:
+          type: string
+          enum: [local-only, default-only, user-choice]
+          description: |
+            How the Flutter app should present the login chooser:
+            - `local-only` — no external IdPs configured; show username/password.
+            - `default-only` — one IdP is marked default; skip the chooser.
+            - `user-choice` — multiple IdPs; show a chooser screen.
+          example: default-only
+        providers:
+          type: array
+          items:
+            $ref: '#/components/schemas/AuthProviderSummary'
+
+    # -------------------------------------------------------------------------
+    # Barcodes
+    # -------------------------------------------------------------------------
+
+    BarcodeItemSummary:
+      type: object
+      nullable: true
+      required: [id, name]
+      properties:
+        id:
+          type: integer
+          example: 42
+        name:
+          type: string
+          example: Acme Widget A
+
+    BarcodeResource:
+      type: object
+      required: [code, status]
+      properties:
+        code:
+          type: string
+          description: The barcode string (JAN / EAN).
+          example: '4901234567890'
+        status:
+          type: string
+          description: Barcode registration status.
+          example: active
+        item:
+          $ref: '#/components/schemas/BarcodeItemSummary'
+
+    # -------------------------------------------------------------------------
+    # Items
+    # -------------------------------------------------------------------------
+
+    AttributeValue:
+      type: object
+      required: [key, label, value]
+      properties:
+        key:
+          type: string
+          example: color
+        label:
+          type: string
+          example: 色
+        value:
+          nullable: true
+          example: red
+
+    ItemResource:
+      type: object
+      required: [id, name, categoryId, price, stock, status, features, registeredAt]
+      properties:
+        id:
+          type: string
+          example: '42'
+        name:
+          type: string
+          example: Acme Widget A
+        description:
+          type: string
+          nullable: true
+          example: null
+        categoryId:
+          type: string
+          example: '7'
+        categoryName:
+          type: string
+          nullable: true
+          example: Electronics
+        janCode:
+          type: string
+          nullable: true
+          example: '4901234567890'
+        price:
+          type: integer
+          minimum: 0
+          example: 1500
+        stock:
+          type: integer
+          minimum: 0
+          example: 10
+        status:
+          type: string
+          enum: [active, inactive]
+          example: active
+        storageLocationId:
+          type: string
+          nullable: true
+          example: '3'
+        features:
+          type: array
+          items:
+            type: object
+          example: []
+        attributes:
+          type: array
+          description: EAV attribute values (only present on GET /items/{id}).
+          items:
+            $ref: '#/components/schemas/AttributeValue'
+        registeredAt:
+          type: string
+          format: date-time
+          example: '2026-05-01T09:00:00Z'
+        updatedAt:
+          type: string
+          format: date-time
+          nullable: true
+          example: '2026-05-10T14:30:00Z'
+
+    ItemList:
+      type: object
+      required: [data, total]
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/ItemResource'
+        total:
+          type: integer
+          description: Total matching rows (before cursor limit).
+          example: 42
+        nextCursor:
+          type: integer
+          nullable: true
+          description: Pass as `cursor` on the next request to get the next page.
+          example: 99
+
+    ItemCreateRequest:
+      type: object
+      required: [name, categoryId]
+      properties:
+        name:
+          type: string
+          minLength: 1
+          example: Acme Widget A
+        categoryId:
+          type: integer
+          minimum: 1
+          example: 7
+        janCode:
+          type: string
+          example: '4901234567890'
+        price:
+          type: integer
+          minimum: 0
+          default: 0
+          example: 1500
+        stock:
+          type: integer
+          minimum: 0
+          default: 0
+          example: 10
+
+    ItemPatchRequest:
+      type: object
+      minProperties: 1
+      properties:
+        name:
+          type: string
+          minLength: 1
+        categoryId:
+          type: integer
+          minimum: 1
+        janCode:
+          type: string
+          nullable: true
+        price:
+          type: integer
+          minimum: 0
+        stock:
+          type: integer
+          minimum: 0
+
+    # -------------------------------------------------------------------------
+    # Categories
+    # -------------------------------------------------------------------------
+
+    CategoryResource:
+      type: object
+      required: [id, name, nameEn, nameJa, depth, sortOrder, code, children]
+      properties:
+        id:
+          type: string
+          example: '3'
+        name:
+          type: string
+          description: Display name (Japanese preferred, falls back to English).
+          example: 電子機器
+        nameEn:
+          type: string
+          example: Electronics
+        nameJa:
+          type: string
+          example: 電子機器
+        parentId:
+          type: string
+          nullable: true
+          example: null
+        depth:
+          type: integer
+          example: 0
+        sortOrder:
+          type: integer
+          example: 1
+        code:
+          type: string
+          example: ELEC
+        children:
+          type: array
+          description: Populated only when `format=tree`.
+          items:
+            $ref: '#/components/schemas/CategoryResource'
+
+    CategoryList:
+      type: object
+      required: [data, total]
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/CategoryResource'
+        total:
+          type: integer
+          example: 12
+
+    # -------------------------------------------------------------------------
+    # Storage Locations
+    # -------------------------------------------------------------------------
+
+    StorageLocationResource:
+      type: object
+      required: [id, code, name, label, location, locationType, depth, position, operationalStatus, canReceive, canShip]
+      properties:
+        id:
+          type: string
+          example: '5'
+        parentId:
+          type: string
+          nullable: true
+          example: null
+        code:
+          type: string
+          example: A-01-03
+        name:
+          type: string
+          example: Aisle 1, Shelf 3
+        label:
+          type: string
+          example: Aisle 1, Shelf 3
+        location:
+          type: string
+          example: A-01-03
+        locationType:
+          type: string
+          example: shelf
+        depth:
+          type: integer
+          example: 2
+        position:
+          type: integer
+          example: 3
+        operationalStatus:
+          type: string
+          example: active
+        canReceive:
+          type: boolean
+          example: true
+        canShip:
+          type: boolean
+          example: true
+        capacity:
+          type: integer
+          nullable: true
+          example: 100
+        description:
+          type: string
+          nullable: true
+          example: null
+        itemIds:
+          type: array
+          description: Populated only on GET /storage-locations/{id}.
+          items:
+            type: integer
+
+    StorageLocationList:
+      type: object
+      required: [data, total]
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/StorageLocationResource'
+        total:
+          type: integer
+          example: 8
+
+    # -------------------------------------------------------------------------
+    # Errors (RFC 7807)
+    # -------------------------------------------------------------------------
 
     ProblemDetails:
       type: object

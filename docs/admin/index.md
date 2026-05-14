@@ -4,11 +4,16 @@ The SASO admin console provides a centralized interface for managing system conf
 
 ## Overview
 
-The admin console is built with:
-- **PHP** - Server-side templating and logic
-- **TailAdmin** - Tailwind CSS-based dashboard template
-- **Alpine.js** - Client-side interactivity and theme management
-- **Material for MkDocs** - Documentation (this site)
+The admin console is currently built with:
+
+- **PHP** — Server-side templating and logic
+- **TailAdmin** (Tailwind CSS) — Current dashboard template ([ADR 0017](../architecture/adr/0017-tailadmin-ui-migration.md))
+- **Alpine.js** — Client-side interactivity and theme management
+
+!!! note "Upcoming design system change"
+    [ADR 0018](../architecture/adr/0018-tabler-ui-migration.md) (accepted 2026-05-04) supersedes ADR 0017 and adopts **Tabler** as the single design system, replacing TailAdmin and the standalone Tailwind CLI build step. Migration is in progress as part of M5.
+
+- **Material for MkDocs** — Documentation (this site)
 
 ## Key Features
 

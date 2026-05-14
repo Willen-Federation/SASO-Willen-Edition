@@ -143,6 +143,5 @@ Full request / response shapes are in [`docs/api.md`](../api.md#specification).
 
 ## See also
 
-* ADR 0003 — pluggable IdP contract
-* ADR 0017 — TailAdmin migration
-* [API Reference — Auth Providers](../api.md#specification)
+* [ADR 0003 — Pluggable IdP contract](../architecture/adr/0003-pluggable-idp.md)
+* [API Reference](../api.md)

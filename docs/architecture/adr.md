@@ -23,6 +23,8 @@ ADRs live under `docs/architecture/adr/` and are numbered sequentially. They are
 | [0014](adr/0014-flutter-pairing-and-mcp-server.md) | Flutter device pairing (RFC 8628) + MCP server endpoint | 2026-04-26 | M6 |
 | [0015](adr/0015-plugin-system.md) | Plugin system: Composer-installed packages with extension points | 2026-04-26 | M6 |
 | [0016](adr/0016-english-as-default-locale.md) | English-as-default + extract legacy JA strings into i18n catalogue | 2026-04-26 | M6 |
+| [0017](adr/0017-tailadmin-ui-migration.md) | TailAdmin Free Tailwind UI migration (Bootstrap 5 → Tailwind v3) | 2026-04-28 | M5 |
+| [0018](adr/0018-tabler-ui-migration.md) | Adopt Tabler as the single design system (supersedes ADR 0017) | 2026-05-04 | M5 |
 
 ## Planned
 

@@ -123,6 +123,8 @@ plugins:
             Error Codes: エラーコード
             Changelog: 変更履歴
             Code of Conduct: 行動規範
+            "ADR 0017 — TailAdmin UI migration": "ADR 0017 — TailAdmin UI 移行"
+            "ADR 0018 — Tabler design system": "ADR 0018 — Tabler デザインシステム"
   - git-revision-date-localized:
       type: iso_date
       fallback_to_build_date: true
@@ -183,6 +185,8 @@ nav:
       - "ADR 0014 — Flutter pairing + MCP server": architecture/adr/0014-flutter-pairing-and-mcp-server.md
       - "ADR 0015 — Plugin system": architecture/adr/0015-plugin-system.md
       - "ADR 0016 — English as default locale": architecture/adr/0016-english-as-default-locale.md
+      - "ADR 0017 — TailAdmin UI migration": architecture/adr/0017-tailadmin-ui-migration.md
+      - "ADR 0018 — Tabler design system": architecture/adr/0018-tabler-ui-migration.md
   - Development:
       - development/index.md
       - Workflow: development/workflow.md

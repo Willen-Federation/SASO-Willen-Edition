@@ -18,7 +18,7 @@ final class AddFirebaseSettingsAndFlags extends AbstractMigration
             ->insert([
                 [
                     'key' => 'firebase.api_key',
-                    'value' => 'AIzaSyDtzU5VPcdXNQzNeHvYXNMQ1jHWMsTQveM',
+                    'value' => '',
                     'value_type' => 'secret',
                     'encrypted' => 0,
                     'updated_at' => $now,

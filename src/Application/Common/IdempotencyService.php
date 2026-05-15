@@ -40,7 +40,8 @@ final class IdempotencyService
             return null;
         }
 
-        $age = time() - strtotime((string) $row['created_at']);
+        $createdAt = new \DateTimeImmutable((string) $row['created_at'], new \DateTimeZone('UTC'));
+        $age = time() - $createdAt->getTimestamp();
         if ($age > self::TTL_SECONDS) {
             $this->pdo->prepare('DELETE FROM idempotency_key WHERE `key` = :key')
                 ->execute(['key' => $key]);

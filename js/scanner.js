@@ -290,5 +290,171 @@
         reader.readAsDataURL(file);
       },
     }));
+
+    // -----------------------------------------------------------------------
+    // sasoBarcodeSearch — home-page barcode lookup + quick registration
+    // -----------------------------------------------------------------------
+    Alpine.data('sasoBarcodeSearch', () => ({
+      code: '',
+      result: null,
+      error: null,
+      itemUrl: null,
+      loading: false,
+      showRegModal: false,
+      reg: { barcodeId: '', itemName: '', colorName: '', sizeName: '', price: '' },
+      regLoading: false,
+      regError: null,
+      csrfToken: '',
+      labels: { notFound: '', invalid: '', regError: '', regRequired: '' },
+
+      _buf: '', _lastTime: 0, _timer: null, SCAN_GAP_MS: 50, MIN_SCAN_CHARS: 8,
+
+      init() {
+        this.csrfToken = this.$el.dataset.csrf || '';
+        this.labels = {
+          notFound:    this.$el.dataset.labelNotFound    || '',
+          invalid:     this.$el.dataset.labelInvalid     || '',
+          regError:    this.$el.dataset.labelRegError    || '',
+          regRequired: this.$el.dataset.labelRegRequired || '',
+        };
+      },
+
+      onWindowKey(e) {
+        const el = document.activeElement;
+        const tag = el ? el.tagName : '';
+        const isBarcodeInput = el && el.id === 'barcodeInput';
+        const isOtherInput = !isBarcodeInput && (
+          tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' ||
+          (el && el.isContentEditable)
+        );
+        if (isOtherInput) return;
+
+        const now = performance.now();
+        const gap = now - this._lastTime;
+        this._lastTime = now;
+
+        if (e.key === 'Enter') {
+          if (this._buf.length >= this.MIN_SCAN_CHARS) {
+            e.preventDefault();
+            this.code = this._buf;
+            this._buf = '';
+            if (this._timer) {
+              clearTimeout(this._timer);
+              this._timer = null;
+            }
+            this.$nextTick(() => this.search());
+          } else {
+            this._buf = '';
+          }
+          return;
+        }
+
+        if (e.key.length !== 1) return;
+
+        if (this._buf.length > 0 && gap > this.SCAN_GAP_MS * 5) {
+          this._buf = '';
+        }
+
+        this._buf += e.key;
+
+        if (this._timer) clearTimeout(this._timer);
+        if (this._buf.length >= this.MIN_SCAN_CHARS) {
+          this._timer = setTimeout(() => {
+            if (this._buf.length >= this.MIN_SCAN_CHARS) {
+              this.code = this._buf;
+              this._buf = '';
+              this.search();
+            }
+            this._timer = null;
+          }, 150);
+        }
+      },
+
+      isPnd() {
+        return /^PND\d{9}$/.test(this.code.trim());
+      },
+
+      isLegacy() {
+        return /^\d{12}$/.test(this.code.trim());
+      },
+
+      async search() {
+        const raw = this.code.trim();
+        this.result = null;
+        this.error = null;
+        this.itemUrl = null;
+        this.showRegModal = false;
+        if (!raw) return;
+
+        if (this.isLegacy()) {
+          const item  = raw.slice(0, 8);
+          const color = raw.slice(8, 10);
+          const size  = raw.slice(10, 12);
+          window.location.href = './item/start/item/' + item + '/color/' + color + '/size/' + size + '/action/shelf';
+          return;
+        }
+
+        if (!this.isPnd()) {
+          this.error = this.labels.invalid;
+          return;
+        }
+
+        this.loading = true;
+        try {
+          const res  = await fetch('./api/v1/barcode/' + encodeURIComponent(raw));
+          const data = await res.json();
+          if (!res.ok || !data) {
+            this.error = this.labels.notFound;
+          } else if (data.item && data.item.id) {
+            this.result  = { type: 'pnd', name: data.item.name, id: data.item.id };
+            this.itemUrl = './item/start/item/' + data.item.id + '/';
+          } else {
+            this.reg.barcodeId = raw;
+            this.reg.itemName  = '';
+            this.reg.colorName = '';
+            this.reg.sizeName  = '';
+            this.reg.price     = '';
+            this.regError      = null;
+            this.showRegModal  = true;
+          }
+        } catch (e) {
+          this.error = this.labels.notFound;
+        } finally {
+          this.loading = false;
+        }
+      },
+
+      async submitReg() {
+        if (!this.reg.itemName.trim() || !this.reg.colorName.trim() || !this.reg.sizeName.trim()) {
+          this.regError = this.labels.regRequired;
+          return;
+        }
+        this.regLoading = true;
+        this.regError   = null;
+        try {
+          const form = new FormData();
+          form.append('csrftoken',  this.csrfToken);
+          form.append('barcodeId',  this.reg.barcodeId);
+          form.append('itemName',   this.reg.itemName.trim());
+          form.append('colorName',  this.reg.colorName.trim());
+          form.append('sizeName',   this.reg.sizeName.trim());
+          form.append('price',      this.reg.price);
+          const res = await fetch('./item/registerFromBarcode/', {
+            method:   'POST',
+            body:     form,
+            redirect: 'follow',
+          });
+          if (res.ok && res.url && res.url.includes('/item/')) {
+            window.location.href = res.url;
+          } else {
+            this.regError = this.labels.regError;
+          }
+        } catch (e) {
+          this.regError = this.labels.regError;
+        } finally {
+          this.regLoading = false;
+        }
+      },
+    }));
   });
 })();

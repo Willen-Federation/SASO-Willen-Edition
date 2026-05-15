@@ -32,6 +32,7 @@ final class ShelfSettingsView implements View
         }
 
         // Load current dimension configuration
+        $settingService = null;
         try {
             $appKey = (string)(getenv('APP_KEY') ?: '');
             $encryptor = new SecretEncryptor(str_repeat("\x00", 32));
@@ -70,7 +71,11 @@ final class ShelfSettingsView implements View
         }
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($this->post['save_shelf_config'])) {
-            $this->handlePost($settingService, $_SESSION['id'] ?? 'admin');
+            if ($settingService !== null) {
+                $this->handlePost($settingService, $_SESSION['id'] ?? 'admin');
+            } else {
+                $this->message = 'Configuration service unavailable. Please try again.';
+            }
         }
     }
 

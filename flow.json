@@ -67,7 +67,7 @@
         "archiveAll": "\\saso\\item\\ArchiveAllDIContainer",
         "archivedAll": "\\saso\\item\\ArchivedAllDIContainer",
         "listFrame": "\\saso\\item\\ListFrameDIContainer",
-        "listContents": "saso\\item\\ListContentsDIContainer",
+        "listContents": "\\saso\\item\\ListContentsDIContainer",
         "head": "\\saso\\item\\HeadDIContainer",
         "row": "\\saso\\item\\RowDIContainer",
         "pagination": "\\saso\\item\\PaginationDIContainer",
@@ -122,7 +122,7 @@
         "deleteAll": "\\saso\\label\\DeleteAllDIContainer",
         "shortName": "\\saso\\label\\ShortNameDIContainer",
         "pdf": "\\saso\\label\\PdfDIContainer",
-        "wizard": "\\saso\\label\\WizardDIContainer",
+        "wizard": "\\saso\\barcode\\SheetDIContainer",
         "pending": "\\saso\\label\\PendingDIContainer"
     },
     "barcode": {

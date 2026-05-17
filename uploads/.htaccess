@@ -1,0 +1,39 @@
+# SASO uploads policy — defence-in-depth against unrestricted-upload (CWE-434).
+#
+# This directory holds user-supplied files (image drafts, attachments, etc.).
+# Even though the application validates MIME types and derives extensions from
+# the validated MIME, an attacker who finds a way to write an arbitrary file
+# into this tree must not be able to have Apache execute it as PHP.
+#
+# Keep this file in sync with the runtime drop in
+# item/RegisterFromImageDIContainer::ensureNoExecutePolicy() — both should
+# describe the same policy.
+
+<FilesMatch "\.(php|phtml|phar|inc|pl|py|jsp|asp|sh|cgi)$">
+    <IfModule mod_authz_core.c>
+        Require all denied
+    </IfModule>
+    <IfModule !mod_authz_core.c>
+        Order allow,deny
+        Deny from all
+    </IfModule>
+</FilesMatch>
+
+<IfModule mod_mime.c>
+    RemoveHandler .php .phtml .phar .inc
+    RemoveType .php .phtml .phar .inc
+</IfModule>
+
+<IfModule mod_php.c>
+    php_flag engine off
+</IfModule>
+
+<IfModule mod_php7.c>
+    php_flag engine off
+</IfModule>
+
+<IfModule mod_php8.c>
+    php_flag engine off
+</IfModule>
+
+Options -ExecCGI

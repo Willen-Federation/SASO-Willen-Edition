@@ -23,13 +23,13 @@ final class RouterTest extends TestCase
           title: t
           version: 0
         paths:
-          /api/v1/health:
+          /health:
             get:
               operationId: getHealth
               responses:
                 '200':
                   description: ok
-          /api/v1/items/{id}:
+          /items/{id}:
             get:
               operationId: getItem
               responses:

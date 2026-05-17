@@ -66,6 +66,14 @@ final class QrController
             $serverUrl = $proto.'://'.$host;
         }
 
+        // Bootstrap::requireSessionAuth() runs before this handler, so
+        // $_SESSION['id'] is guaranteed present and non-empty. Bind the
+        // pairing code to that admin so the eventual device JWT can claim
+        // a real principal (cf. mobile-pairing hardening, issue #204).
+        $memberId = isset($_SESSION['id']) && is_string($_SESSION['id']) && $_SESSION['id'] !== ''
+            ? $_SESSION['id']
+            : null;
+
         $now      = new DateTimeImmutable('now', new DateTimeZone('UTC'));
         $expiry   = $now->modify(sprintf('+%d minutes', PairingCode::TTL_MINUTES));
         $rawToken = PairingCode::generateRawToken();
@@ -78,6 +86,7 @@ final class QrController
             used: false,
             expiresAt: $expiry,
             createdAt: $now,
+            memberId: $memberId,
         );
 
         $this->codes->save($code);

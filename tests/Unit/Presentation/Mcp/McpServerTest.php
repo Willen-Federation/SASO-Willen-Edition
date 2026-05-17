@@ -36,6 +36,8 @@ final class McpServerTest extends TestCase
                 id                 INTEGER PRIMARY KEY,
                 token_hash         TEXT NOT NULL UNIQUE,
                 refresh_token_hash TEXT,
+                member_id          TEXT,
+                scopes             TEXT,
                 device_name        TEXT NOT NULL,
                 revoked            INTEGER NOT NULL DEFAULT 0,
                 last_used_at       TEXT,
@@ -52,7 +54,10 @@ final class McpServerTest extends TestCase
         return new McpServer($this->registry, $this->jwt, $this->tokenRepo);
     }
 
-    private function seedDevice(int $id = 1, bool $revoked = false): string
+    /**
+     * @param list<string> $scopes
+     */
+    private function seedDevice(int $id = 1, bool $revoked = false, array $scopes = []): string
     {
         $now = new DateTimeImmutable('now', new DateTimeZone('UTC'));
         $token = new DeviceToken(
@@ -64,10 +69,12 @@ final class McpServerTest extends TestCase
             lastUsedAt: null,
             expiresAt: $now->modify('+1 year'),
             createdAt: $now,
+            memberId: 'admin_test',
+            scopes: $scopes,
         );
         $this->tokenRepo->save($token);
 
-        $result = $this->jwt->issue($id, $now);
+        $result = $this->jwt->issue($id, $now, 'admin_test', $scopes);
 
         return $result['token'];
     }
@@ -185,6 +192,79 @@ final class McpServerTest extends TestCase
         $response = $server->handle([], (string) $body);
 
         self::assertSame(-32601, $response->toArray()['error']['code']);
+    }
+
+    public function testToolsCallReturnsScopeInsufficientWhenScopeMissing(): void
+    {
+        $jwt = $this->seedDevice(scopes: ['items:read']);
+        $this->registry->registerCore(new RegistryName('write_tool'), $this->makeScopedTool('items:write'));
+
+        $server = $this->makeServer();
+        $body   = json_encode([
+            'jsonrpc' => '2.0',
+            'id'      => 7,
+            'method'  => 'tools/call',
+            'params'  => ['name' => 'write_tool', 'arguments' => []],
+        ]);
+        $response = $server->handle(['authorization' => 'Bearer '.$jwt], (string) $body);
+
+        self::assertSame(403, $response->httpStatus);
+        $arr = $response->toArray();
+        self::assertSame(-32003, $arr['error']['code']);
+        self::assertSame('items:write', $arr['error']['data']['requiredScope']);
+    }
+
+    public function testToolsCallAllowedWhenScopeGranted(): void
+    {
+        $jwt = $this->seedDevice(scopes: ['items:write']);
+        $this->registry->registerCore(new RegistryName('write_tool'), $this->makeScopedTool('items:write'));
+
+        $server = $this->makeServer();
+        $body   = json_encode([
+            'jsonrpc' => '2.0',
+            'id'      => 8,
+            'method'  => 'tools/call',
+            'params'  => ['name' => 'write_tool', 'arguments' => []],
+        ]);
+        $response = $server->handle(['authorization' => 'Bearer '.$jwt], (string) $body);
+
+        self::assertSame(200, $response->httpStatus);
+        $arr = $response->toArray();
+        self::assertArrayHasKey('result', $arr);
+    }
+
+    private function makeScopedTool(string $scope): McpTool
+    {
+        return new class ($scope) implements McpTool {
+            public function __construct(private readonly string $scope)
+            {
+            }
+
+            public function name(): string
+            {
+                return 'write_tool';
+            }
+
+            public function description(): string
+            {
+                return 'Scoped test tool.';
+            }
+
+            public function inputSchema(): array
+            {
+                return ['type' => 'object'];
+            }
+
+            public function invoke(array $input, int $deviceId): array
+            {
+                return ['ok' => true];
+            }
+
+            public function requiredScope(): ?string
+            {
+                return $this->scope;
+            }
+        };
     }
 
     private function makeFakeTool(): McpTool

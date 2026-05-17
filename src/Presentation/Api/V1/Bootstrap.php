@@ -116,7 +116,7 @@ final class Bootstrap
 
         $qr           = new QrController($codeRepo, $qrRenderer);
         $connect      = new ConnectController($codeRepo, $tokenRepo, $jwt);
-        $configBundle = new ConfigBundleController($flagRepo);
+        $configBundle = new ConfigBundleController($flagRepo, $jwtGuard);
         $tokenList    = new TokenListController($tokenRepo);
         $tokenRevoke  = new TokenRevokeController($tokenRepo);
         $tokenRefresh = new TokenRefreshController($tokenRepo, $jwt);
@@ -170,12 +170,21 @@ final class Bootstrap
                 return $flagDelete->handle($r);
             },
 
-            'createPairingCode'  => [$qr, 'handle'],
+            'createPairingCode'  => static function (HttpRequest $r) use ($qr) {
+                self::requireSessionAuth();
+                return $qr->handle($r);
+            },
             'mobileConnect'      => [$connect, 'handle'],
             'refreshMobileToken' => [$tokenRefresh, 'handle'],
             'getMobileConfig'    => [$configBundle, 'handle'],
-            'listDeviceTokens'   => [$tokenList, 'handle'],
-            'revokeDeviceToken'  => [$tokenRevoke, 'handle'],
+            'listDeviceTokens'   => static function (HttpRequest $r) use ($tokenList) {
+                self::requireSessionAuth();
+                return $tokenList->handle($r);
+            },
+            'revokeDeviceToken'  => static function (HttpRequest $r) use ($tokenRevoke) {
+                self::requireSessionAuth();
+                return $tokenRevoke->handle($r);
+            },
 
             'listItems'               => [$listItems, 'handle'],
             'getItem'                 => [$getItem, 'handle'],
@@ -218,8 +227,9 @@ final class Bootstrap
      *
      * Resolution order (highest first):
      *   1. JWT_SECRET environment variable (raw string, ≥ 32 chars)
-     *   2. APP_KEY environment variable used as HMAC key input
-     *   3. Derived from the database DSN (development fallback only)
+     *   2. APP_KEY environment variable (≥ 32 chars) run through SHA-256
+     *
+     * Boots fail closed if neither is set to a value of at least 32 bytes.
      */
     private static function jwtSecret(): string
     {
@@ -229,24 +239,25 @@ final class Bootstrap
         }
 
         $appKey = getenv('APP_KEY');
-        if (is_string($appKey) && $appKey !== '') {
+        if (is_string($appKey) && strlen($appKey) >= 32) {
             return hash('sha256', $appKey, binary: true);
         }
 
-        $config = \saso\ConfigLoader::load();
-        $dsn    = (string) ($config['database']['dsn'] ?? 'saso-fallback');
-
-        return hash('sha256', 'saso-jwt-'.$dsn, binary: true);
+        throw new \RuntimeException(
+            'JWT_SECRET (or APP_KEY) must be set to a value of at least 32 bytes. '
+            .'Refusing to boot with an insecure fallback. See .env.example.'
+        );
     }
 
     /**
      * Derives the AES-256-GCM key used by {@see SecretEncryptor} from APP_KEY.
      *
-     * Resolution order (mirrors the pattern in auth/AuthView.php):
+     * Resolution order:
      *   1. APP_KEY as base64-encoded 32 bytes (44 chars with padding)
      *   2. APP_KEY as hex-encoded 32 bytes (64 hex chars)
-     *   3. APP_KEY run through SHA-256 (any-length string → 32 bytes)
-     *   4. 32 zero bytes (development fallback when APP_KEY is not set)
+     *   3. APP_KEY as any string ≥ 32 chars, run through SHA-256
+     *
+     * Boots fail closed if APP_KEY is missing or shorter than 32 characters.
      */
     private static function encryptorKey(): string
     {
@@ -264,10 +275,16 @@ final class Bootstrap
                 }
             }
 
-            return hash('sha256', $appKey, binary: true);
+            if (strlen($appKey) >= 32) {
+                return hash('sha256', $appKey, binary: true);
+            }
         }
 
-        return str_repeat("\x00", 32);
+        throw new \RuntimeException(
+            'APP_KEY must be set to a base64-encoded 32 bytes, hex-encoded 32 bytes, '
+            .'or any string of at least 32 characters. Refusing to boot with an all-zero AES key. '
+            .'See .env.example.'
+        );
     }
 
     private static function requireSessionAuth(): void

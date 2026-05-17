@@ -266,6 +266,8 @@ paths:
         interaction beyond pointing the camera at the QR code.
       operationId: createPairingCode
       x-handler: 'Saso\Presentation\Api\V1\Controller\Mobile\QrController::handle'
+      security:
+        - adminSession: []
       requestBody:
         required: false
         content:
@@ -279,6 +281,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/PairingCodeResponse'
+        '401':
+          $ref: '#/components/responses/ProblemUnauthorized'
         '500':
           $ref: '#/components/responses/ProblemInternalError'
 
@@ -369,6 +373,8 @@ paths:
         `POST /api/v1/mobile/connect`).
       operationId: getMobileConfig
       x-handler: 'Saso\Presentation\Api\V1\Controller\Mobile\ConfigBundleController::handle'
+      security:
+        - deviceJwt: []
       responses:
         '200':
           description: Configuration bundle.
@@ -390,6 +396,8 @@ paths:
         admin audit and token-management purposes.
       operationId: listDeviceTokens
       x-handler: 'Saso\Presentation\Api\V1\Controller\Mobile\TokenListController::handle'
+      security:
+        - adminSession: []
       responses:
         '200':
           description: Device token list.
@@ -397,6 +405,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/DeviceTokenList'
+        '401':
+          $ref: '#/components/responses/ProblemUnauthorized'
         '500':
           $ref: '#/components/responses/ProblemInternalError'
 
@@ -418,9 +428,13 @@ paths:
         receive `SASO-MOBILE-2005` on its next authenticated request.
       operationId: revokeDeviceToken
       x-handler: 'Saso\Presentation\Api\V1\Controller\Mobile\TokenRevokeController::handle'
+      security:
+        - adminSession: []
       responses:
         '204':
           description: Token revoked.
+        '401':
+          $ref: '#/components/responses/ProblemUnauthorized'
         '404':
           $ref: '#/components/responses/ProblemNotFound'
         '500':
@@ -1574,3 +1588,23 @@ components:
         application/problem+json:
           schema:
             $ref: '#/components/schemas/ProblemDetails'
+
+  securitySchemes:
+    adminSession:
+      type: apiKey
+      in: cookie
+      name: PHPSESSID
+      description: |
+        Cookie-based session for the admin web UI. Endpoints tagged with
+        this scheme require the caller to have signed in through the
+        password / external-IdP flow (`$_SESSION['id']` populated).
+    deviceJwt:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: |
+        Short-lived HS256 JWT issued by `POST /api/v1/mobile/connect` (or
+        rotated via `POST /api/v1/mobile/token/refresh`). The `sub` claim
+        is the `device_token.id`; the SASO-specific `mid` claim binds the
+        token to the admin Member who minted it, and `scp` lists the
+        scopes granted at issuance time.

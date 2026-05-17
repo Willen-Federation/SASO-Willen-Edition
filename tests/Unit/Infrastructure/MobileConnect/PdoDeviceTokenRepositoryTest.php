@@ -25,6 +25,8 @@ final class PdoDeviceTokenRepositoryTest extends TestCase
                 id                 INTEGER PRIMARY KEY,
                 token_hash         TEXT NOT NULL UNIQUE,
                 refresh_token_hash TEXT UNIQUE,
+                member_id          TEXT,
+                scopes             TEXT,
                 device_name        TEXT NOT NULL,
                 revoked            INTEGER NOT NULL DEFAULT 0,
                 last_used_at       TEXT,

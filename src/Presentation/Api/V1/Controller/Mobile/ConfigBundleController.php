@@ -7,6 +7,7 @@ namespace Saso\Presentation\Api\V1\Controller\Mobile;
 use DateTimeImmutable;
 use DateTimeInterface;
 use DateTimeZone;
+use Saso\Application\Mobile\JwtGuard;
 use Saso\Domain\Feature\FeatureFlag;
 use Saso\Domain\Feature\Repository\FeatureFlagRepository;
 use Saso\Presentation\Api\V1\HttpRequest;
@@ -32,18 +33,21 @@ use Saso\Presentation\Api\V1\Response\JsonResponse;
  * HEAD or GET, then discard if it matches the cached value.
  *
  * Authentication: the device must present a valid Bearer token issued by
- * POST /api/v1/mobile/connect. Token validation middleware is wired in
- * Bootstrap; this controller assumes the request is already authenticated.
+ * POST /api/v1/mobile/connect. The controller calls the JwtGuard at the
+ * top of `handle()` and aborts with 401 if the token is missing or invalid.
  */
 final class ConfigBundleController
 {
     public function __construct(
         private readonly FeatureFlagRepository $flags,
+        private readonly JwtGuard $guard,
     ) {
     }
 
     public function handle(HttpRequest $request): JsonResponse
     {
+        $this->guard->authenticate($request);
+
         $now      = new DateTimeImmutable('now', new DateTimeZone('UTC'));
         $allFlags = $this->flags->listAll();
 

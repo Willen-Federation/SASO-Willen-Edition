@@ -5,11 +5,12 @@ declare(strict_types=1);
 namespace Saso\Application\Mobile;
 
 use RuntimeException;
+use Saso\Domain\MobileConnect\Jwt\JwtClaims;
 use Saso\Domain\MobileConnect\Jwt\JwtService;
 use Saso\Presentation\Api\V1\HttpRequest;
 
 /**
- * Validates the Bearer JWT in an API request and returns the device token ID.
+ * Validates the Bearer JWT in an API request and returns the parsed claims.
  *
  * Usage: call `$guard->authenticate($request)` at the top of any controller
  * method that requires an authenticated device. Throws RuntimeException (which
@@ -25,11 +26,9 @@ final class JwtGuard
     /**
      * Extract and verify the Bearer token from the Authorization header.
      *
-     * @return int verified device token ID (`sub` claim)
-     *
      * @throws RuntimeException when auth fails (→ 401 via ProblemExceptionHandler)
      */
-    public function authenticate(HttpRequest $request): int
+    public function authenticate(HttpRequest $request): JwtClaims
     {
         $authHeader = $request->header('authorization') ?? '';
 

@@ -58,6 +58,23 @@ final class PairingCodeTest extends TestCase
         self::assertTrue($used->used);
     }
 
+    public function testMarkUsedPreservesMemberId(): void
+    {
+        $code = new PairingCode(
+            id: 1,
+            tokenHash: str_repeat('a', 64),
+            label: 'Test',
+            used: false,
+            expiresAt: new DateTimeImmutable('2026-04-26 12:10:00'),
+            createdAt: new DateTimeImmutable('2026-04-26 12:00:00'),
+            memberId: 'admin_test',
+        );
+
+        $used = $code->markUsed();
+
+        self::assertSame('admin_test', $used->memberId);
+    }
+
     public function testHashTokenProducesSha256Hex(): void
     {
         $hash = PairingCode::hashToken('hello');

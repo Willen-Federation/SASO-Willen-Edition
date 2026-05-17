@@ -131,6 +131,12 @@ final class Bootstrap
         );
     }
 
+    /**
+     * Resolves the JWT signing secret (mirrors `Saso\Presentation\Api\V1\Bootstrap`).
+     *
+     * Boots fail closed if neither JWT_SECRET nor APP_KEY is set to a value
+     * of at least 32 bytes.
+     */
     private static function jwtSecret(): string
     {
         $jwtSecret = getenv('JWT_SECRET');
@@ -139,14 +145,14 @@ final class Bootstrap
         }
 
         $appKey = getenv('APP_KEY');
-        if (is_string($appKey) && $appKey !== '') {
+        if (is_string($appKey) && strlen($appKey) >= 32) {
             return hash('sha256', $appKey, binary: true);
         }
 
-        $config = \saso\ConfigLoader::load();
-        $dsn    = (string) ($config['database']['dsn'] ?? 'saso-fallback');
-
-        return hash('sha256', 'saso-jwt-'.$dsn, binary: true);
+        throw new \RuntimeException(
+            'JWT_SECRET (or APP_KEY) must be set to a value of at least 32 bytes. '
+            .'Refusing to boot with an insecure fallback. See .env.example.'
+        );
     }
 
     /** @return array<string, string> */

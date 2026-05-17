@@ -17,6 +17,7 @@ namespace Saso\Presentation\Mcp;
  * SASO-specific codes:
  *   -32001  Unauthorized (missing / expired / revoked Bearer token)
  *   -32002  Tool not found (SASO-MCP-A001)
+ *   -32003  Forbidden: device token lacks the required scope
  */
 final readonly class McpResponse
 {
@@ -106,6 +107,20 @@ final readonly class McpResponse
             httpStatus: 200,
             result: null,
             error: ['code' => -32002, 'message' => sprintf('Tool not found: %s', $toolName)],
+            id: $id,
+        );
+    }
+
+    public static function scopeInsufficient(int|string|null $id, string $requiredScope): self
+    {
+        return new self(
+            httpStatus: 403,
+            result: null,
+            error: [
+                'code'    => -32003,
+                'message' => sprintf('Forbidden: device token lacks the "%s" scope.', $requiredScope),
+                'data'    => ['requiredScope' => $requiredScope],
+            ],
             id: $id,
         );
     }

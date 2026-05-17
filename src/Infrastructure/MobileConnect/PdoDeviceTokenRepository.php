@@ -57,6 +57,19 @@ final class PdoDeviceTokenRepository implements DeviceTokenRepository
         );
     }
 
+    public function findByMemberId(string $memberId): array
+    {
+        $stmt = $this->pdo->prepare(
+            'SELECT * FROM device_token WHERE member_id = :mid ORDER BY created_at DESC',
+        );
+        $stmt->execute(['mid' => $memberId]);
+
+        return array_map(
+            fn (array $row): DeviceToken => $this->hydrate($row),
+            $stmt->fetchAll(PDO::FETCH_ASSOC),
+        );
+    }
+
     public function nextId(): int
     {
         $stmt = $this->pdo->query('SELECT COALESCE(MAX(id), 0) + 1 FROM device_token');

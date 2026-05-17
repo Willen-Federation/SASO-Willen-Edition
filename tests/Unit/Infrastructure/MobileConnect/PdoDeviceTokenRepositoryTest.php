@@ -88,7 +88,42 @@ final class PdoDeviceTokenRepositoryTest extends TestCase
         self::assertCount(2, $list);
     }
 
-    private function makeToken(string $hash, int $id = 1): DeviceToken
+    public function testFindByMemberIdReturnsOnlyOwnedTokens(): void
+    {
+        $this->repo->save($this->makeToken(hash: str_repeat('f', 64), id: 1, memberId: 'alice'));
+        $this->repo->save($this->makeToken(hash: str_repeat('g', 64), id: 2, memberId: 'bob'));
+        $this->repo->save($this->makeToken(hash: str_repeat('h', 64), id: 3, memberId: 'alice'));
+
+        $aliceTokens = $this->repo->findByMemberId('alice');
+
+        self::assertCount(2, $aliceTokens);
+        foreach ($aliceTokens as $token) {
+            self::assertSame('alice', $token->memberId);
+        }
+    }
+
+    public function testFindByMemberIdReturnsEmptyArrayForUnknownMember(): void
+    {
+        $this->repo->save($this->makeToken(hash: str_repeat('i', 64), id: 1, memberId: 'alice'));
+
+        self::assertSame([], $this->repo->findByMemberId('nobody'));
+    }
+
+    public function testFindByMemberIdIncludesRevokedTokens(): void
+    {
+        // The MyPage view layer is responsible for filtering revoked rows;
+        // the repository returns every row so audit screens (and tests) can
+        // see the full history. Keeps the contract symmetric with listAll().
+        $token = $this->makeToken(hash: str_repeat('j', 64), id: 1, memberId: 'alice');
+        $this->repo->save($token);
+        $this->repo->save($token->revoke());
+
+        $rows = $this->repo->findByMemberId('alice');
+        self::assertCount(1, $rows);
+        self::assertTrue($rows[0]->revoked);
+    }
+
+    private function makeToken(string $hash, int $id = 1, ?string $memberId = null): DeviceToken
     {
         $now = new DateTimeImmutable('2026-04-26 12:00:00', new DateTimeZone('UTC'));
 
@@ -101,6 +136,7 @@ final class PdoDeviceTokenRepositoryTest extends TestCase
             lastUsedAt: null,
             expiresAt: new DateTimeImmutable('2027-04-26 12:00:00', new DateTimeZone('UTC')),
             createdAt: $now,
+            memberId: $memberId,
         );
     }
 }

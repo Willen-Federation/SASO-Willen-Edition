@@ -93,11 +93,18 @@ final class ConnectController
             lastUsedAt: null,
             expiresAt: $now->modify(sprintf('+%d days', DeviceToken::TTL_DAYS)),
             createdAt: $now,
+            memberId: $code->memberId,
+            scopes: DeviceToken::DEFAULT_SCOPES,
         );
 
         $saved = $this->tokens->save($deviceToken);
 
-        $jwtResult = $this->jwt->issue($saved->id, $now);
+        $jwtResult = $this->jwt->issue(
+            $saved->id,
+            $now,
+            $saved->memberId,
+            $saved->scopes,
+        );
 
         return new JsonResponse(
             status: 201,

@@ -301,7 +301,9 @@
         "unlinkProvider": { "matter": "mypage", "action": "unlinkProvider" },
         "passkeyBegin": { "matter": "mypage", "action": "passkeyBegin" },
         "passkeyComplete": { "matter": "mypage", "action": "passkeyComplete" },
-        "passkeyDelete": { "matter": "mypage", "action": "passkeyDelete" }
+        "passkeyDelete": { "matter": "mypage", "action": "passkeyDelete" },
+        "devicePair":   { "matter": "mypage", "action": "devicePair" },
+        "deviceRevoke": { "matter": "mypage", "action": "deviceRevoke" }
     },
     "admin": {
         "feature-flags": {

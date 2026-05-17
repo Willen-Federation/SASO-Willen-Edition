@@ -7,6 +7,7 @@ namespace Saso\Presentation\Mcp;
 use DateTimeImmutable;
 use DateTimeZone;
 use RuntimeException;
+use Saso\Domain\MobileConnect\DeviceToken;
 use Saso\Domain\MobileConnect\Jwt\JwtService;
 use Saso\Domain\MobileConnect\Repository\DeviceTokenRepository;
 use Saso\Domain\Plugin\Registry\McpToolRegistry;
@@ -98,7 +99,7 @@ final class McpServer
     private function handleToolsList(int|string|null $id, array $headers): McpResponse
     {
         try {
-            $this->authenticate($headers);
+            $this->authenticateToken($headers);
         } catch (RuntimeException) {
             return McpResponse::unauthorized($id);
         }
@@ -126,7 +127,7 @@ final class McpServer
     private function handleToolsCall(int|string|null $id, array $params, array $headers): McpResponse
     {
         try {
-            $deviceId = $this->authenticate($headers);
+            $token = $this->authenticateToken($headers);
         } catch (RuntimeException) {
             return McpResponse::unauthorized($id);
         }
@@ -154,16 +155,12 @@ final class McpServer
         }
 
         $scope = $tool->requiredScope();
-        if ($scope !== null) {
-            // Scope checking: currently all valid device tokens carry all scopes.
-            // A future migration adding device_token.scopes JSON column will
-            // gate this per-token. For now the existence of a valid, non-revoked
-            // token grants write access — consistent with ADR 0014 which says
-            // scope gating is enforced here, not in the pairing flow.
+        if ($scope !== null && !in_array($scope, $token->scopes, true)) {
+            return McpResponse::scopeInsufficient($id, $scope);
         }
 
         try {
-            $result = $tool->invoke($arguments, $deviceId);
+            $result = $tool->invoke($arguments, $token->id);
         } catch (\InvalidArgumentException $e) {
             return McpResponse::invalidParams($id, $e->getMessage());
         } catch (\Throwable) {
@@ -180,13 +177,15 @@ final class McpServer
     /**
      * Verifies the Bearer JWT and device token state.
      *
-     * @param array<string, string> $headers
+     * Returns the persisted DeviceToken so callers can read the stored
+     * scopes (authoritative — the JWT carries the same list but the row
+     * is what gets updated on revocation/refresh).
      *
-     * @return int device_token.id
+     * @param array<string, string> $headers
      *
      * @throws RuntimeException on any auth failure
      */
-    private function authenticate(array $headers): int
+    private function authenticateToken(array $headers): DeviceToken
     {
         $authHeader = $headers['authorization'] ?? $headers['Authorization'] ?? '';
         if (!str_starts_with($authHeader, 'Bearer ')) {
@@ -197,12 +196,12 @@ final class McpServer
         $now = new DateTimeImmutable('now', new DateTimeZone('UTC'));
 
         try {
-            $deviceId = $this->jwt->verify($jwt, $now);
+            $claims = $this->jwt->verify($jwt, $now);
         } catch (RuntimeException $e) {
             throw new RuntimeException('Invalid JWT: '.$e->getMessage(), 0, $e);
         }
 
-        $token = $this->tokens->findById($deviceId);
+        $token = $this->tokens->findById($claims->deviceId);
         if ($token === null) {
             throw new RuntimeException('Device token not found.');
         }
@@ -213,6 +212,6 @@ final class McpServer
             throw new RuntimeException('Device token expired.');
         }
 
-        return $deviceId;
+        return $token;
     }
 }

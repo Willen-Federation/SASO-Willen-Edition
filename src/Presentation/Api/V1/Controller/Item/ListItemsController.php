@@ -31,7 +31,7 @@ final class ListItemsController
 
     public function handle(HttpRequest $request): JsonResponse
     {
-        $this->guard->authenticate($request);
+        $this->guard->requireScope($request, 'items:read');
 
         $limit = min(200, max(1, (int) ($request->query['limit'] ?? 20)));
         $cursor = isset($request->query['cursor']) && $request->query['cursor'] !== ''

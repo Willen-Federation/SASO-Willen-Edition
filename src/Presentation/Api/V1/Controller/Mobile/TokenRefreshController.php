@@ -83,11 +83,18 @@ final class TokenRefreshController
             lastUsedAt: $now,
             expiresAt: $token->expiresAt,
             createdAt: $token->createdAt,
+            memberId: $token->memberId,
+            scopes: $token->scopes,
         );
 
         $this->tokens->save($rotated);
 
-        $jwtResult = $this->jwt->issue($token->id, $now);
+        $jwtResult = $this->jwt->issue(
+            $token->id,
+            $now,
+            $token->memberId,
+            $token->scopes,
+        );
 
         return new JsonResponse(
             status: 200,

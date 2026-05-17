@@ -27,6 +27,25 @@ final readonly class DeviceToken
 {
     public const TTL_DAYS = 365;
 
+    /**
+     * Default OAuth2-style scopes granted to devices paired through the
+     * standard QR flow. Matches the union of `requiredScope()` values
+     * declared by the core MCP tools so the mobile app retains today's
+     * write access without requiring per-token configuration.
+     */
+    public const DEFAULT_SCOPES = [
+        'items:read',
+        'items:write',
+        'barcodes:read',
+        'barcodes:write',
+        'verification:read',
+        'verification:write',
+        'feature_flags:read',
+    ];
+
+    /**
+     * @param list<string> $scopes
+     */
     public function __construct(
         public int $id,
         public string $tokenHash,
@@ -36,6 +55,8 @@ final readonly class DeviceToken
         public ?DateTimeImmutable $lastUsedAt,
         public DateTimeImmutable $expiresAt,
         public DateTimeImmutable $createdAt,
+        public ?string $memberId = null,
+        public array $scopes = [],
     ) {
         if ($id < 1) {
             throw new InvalidArgumentException('DeviceToken.id must be a positive integer.');
@@ -64,6 +85,8 @@ final readonly class DeviceToken
             lastUsedAt: $this->lastUsedAt,
             expiresAt: $this->expiresAt,
             createdAt: $this->createdAt,
+            memberId: $this->memberId,
+            scopes: $this->scopes,
         );
     }
 
@@ -78,6 +101,8 @@ final readonly class DeviceToken
             lastUsedAt: $at,
             expiresAt: $this->expiresAt,
             createdAt: $this->createdAt,
+            memberId: $this->memberId,
+            scopes: $this->scopes,
         );
     }
 

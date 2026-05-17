@@ -31,6 +31,7 @@ final readonly class PairingCode
         public bool $used,
         public DateTimeImmutable $expiresAt,
         public DateTimeImmutable $createdAt,
+        public ?string $memberId = null,
     ) {
         if ($id < 1) {
             throw new InvalidArgumentException('PairingCode.id must be a positive integer.');
@@ -57,6 +58,7 @@ final readonly class PairingCode
             used: true,
             expiresAt: $this->expiresAt,
             createdAt: $this->createdAt,
+            memberId: $this->memberId,
         );
     }
 

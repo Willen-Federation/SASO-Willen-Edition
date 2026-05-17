@@ -27,6 +27,10 @@ use RuntimeException;
  *   iat  - issued-at (Unix timestamp)
  *   exp  - expiry   (Unix timestamp)
  *   jti  - unique token id (prevents trivial replay if needed)
+ *
+ * SASO-specific claims:
+ *   mid  - issuing admin's Member.id (string; null only for legacy tokens)
+ *   scp  - list of OAuth2-style scopes granted at issuance time
  */
 final class JwtService
 {
@@ -46,20 +50,34 @@ final class JwtService
     /**
      * Issue a signed JWT for the given device token ID.
      *
+     * @param list<string> $scopes
+     *
      * @return array{token: string, expiresAt: DateTimeImmutable}
      */
-    public function issue(int $deviceTokenId, ?DateTimeImmutable $now = null): array
-    {
+    public function issue(
+        int $deviceTokenId,
+        ?DateTimeImmutable $now = null,
+        ?string $memberId = null,
+        array $scopes = [],
+    ): array {
         $now = $now ?? new DateTimeImmutable('now', new DateTimeZone('UTC'));
         $exp = $now->modify(sprintf('+%d seconds', self::ACCESS_TOKEN_TTL_SECONDS));
 
-        $payload = json_encode([
+        $claims = [
             'iss' => 'saso',
             'sub' => (string) $deviceTokenId,
             'iat' => $now->getTimestamp(),
             'exp' => $exp->getTimestamp(),
             'jti' => bin2hex(random_bytes(16)),
-        ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+        ];
+        if ($memberId !== null && $memberId !== '') {
+            $claims['mid'] = $memberId;
+        }
+        if ($scopes !== []) {
+            $claims['scp'] = array_values($scopes);
+        }
+
+        $payload = json_encode($claims, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
 
         if ($payload === false) {
             throw new RuntimeException('JwtService: json_encode failed.');
@@ -76,11 +94,11 @@ final class JwtService
     }
 
     /**
-     * Verify the token signature and expiry; return the `sub` claim (device token ID).
+     * Verify the token signature and expiry; return the parsed claims.
      *
      * @throws RuntimeException on invalid structure, bad signature, or expiry
      */
-    public function verify(string $token, ?DateTimeImmutable $now = null): int
+    public function verify(string $token, ?DateTimeImmutable $now = null): JwtClaims
     {
         $parts = explode('.', $token);
         if (count($parts) !== 3) {
@@ -114,7 +132,21 @@ final class JwtService
             throw new RuntimeException('JWT: missing or invalid sub claim.');
         }
 
-        return (int) $claims['sub'];
+        $memberId = null;
+        if (isset($claims['mid']) && is_string($claims['mid']) && $claims['mid'] !== '') {
+            $memberId = $claims['mid'];
+        }
+
+        $scopes = [];
+        if (isset($claims['scp']) && is_array($claims['scp'])) {
+            $scopes = array_values(array_filter($claims['scp'], 'is_string'));
+        }
+
+        return new JwtClaims(
+            deviceId: (int) $claims['sub'],
+            memberId: $memberId,
+            scopes: $scopes,
+        );
     }
 
     private static function b64u(string $data): string

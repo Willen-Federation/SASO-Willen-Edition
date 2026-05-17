@@ -39,7 +39,7 @@ final class CreateItemController
 
     public function handle(HttpRequest $request): JsonResponse
     {
-        $this->guard->authenticate($request);
+        $this->guard->requireScope($request, 'items:write');
 
         $idempotencyKey = $request->header('idempotency-key');
         if ($idempotencyKey !== null) {

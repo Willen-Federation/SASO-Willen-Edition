@@ -36,6 +36,7 @@ enum ErrorCode: string
     case MobileTokenRevoked          = 'SASO-MOBILE-2005';
     case MobileTokenExpired          = 'SASO-MOBILE-2006';
     case MobileInvalidRequest        = 'SASO-MOBILE-2007';
+    case MobileScopeInsufficient     = 'SASO-MOBILE-2008';
 
     // ── Configuration (6xxx) ─────────────────────────────────────────────
     case ConfigSettingNotFound = 'SASO-CONFIG-6001';
@@ -95,6 +96,8 @@ enum ErrorCode: string
             self::MobileTokenRevoked,
             self::MobileTokenExpired,
             self::MobileInvalidRequest         => 400,
+
+            self::MobileScopeInsufficient      => 403,
 
             self::ConfigSettingNotFound,
             self::FlagNotFound                 => 404,
@@ -162,6 +165,7 @@ enum ErrorCode: string
             self::MobileTokenRevoked           => 'Device token has been revoked',
             self::MobileTokenExpired           => 'Device token has expired',
             self::MobileInvalidRequest         => 'Invalid mobile connect request',
+            self::MobileScopeInsufficient      => 'Scope insufficient for the requested endpoint',
             self::ConfigSettingNotFound        => 'System setting not found',
             self::FlagNotFound                 => 'Feature flag not found',
             self::AiProviderNotConfigured      => 'AI provider is not configured',

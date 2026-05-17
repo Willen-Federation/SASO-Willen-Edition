@@ -187,5 +187,5 @@ parameters:
 
 		-
 			message: "#^Call to an undefined method Saso\\\\Domain\\\\Setting\\\\SystemSettingService\\:\\:method\\(\\)\\.$#"
-			count: 11
+			count: 12
 			path: tests/Unit/Infrastructure/Ai/AiAssistantFactoryTest.php

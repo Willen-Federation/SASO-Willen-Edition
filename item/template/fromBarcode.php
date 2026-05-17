@@ -15,7 +15,7 @@
       this.lookupResult = null;
       this.lookupError = null;
       try {
-        const res = await fetch('./api/v1/barcode/' + encodeURIComponent(this.barcodeInput.trim()));
+	        const res = await fetch('./api/v1/barcode/' + encodeURIComponent(this.barcodeInput.trim().toUpperCase()));
         const data = await res.json();
         if (data.item || data.code) { 
           this.lookupResult = data; 
@@ -66,7 +66,7 @@
                 x-model="barcodeInput"
                 type="text"
                 class="form-input pl-11"
-                placeholder="<?php echo $lang === 'ja' ? '例: BC00001' : 'e.g. BC00001'; ?>"
+	                placeholder="<?php echo $lang === 'ja' ? '例: BC00001' : 'e.g. BC00001'; ?>"
                 @keydown.enter.prevent="lookup()"
                 autocomplete="off"
                 aria-label="<?php echo $lang === 'ja' ? 'バーコード番号' : 'Barcode number'; ?>"
@@ -162,4 +162,3 @@
 </div>
 
 <?php }; ?>
-

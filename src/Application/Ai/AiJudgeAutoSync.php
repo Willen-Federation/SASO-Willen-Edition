@@ -90,8 +90,15 @@ final class AiJudgeAutoSync
         };
 
         $envValue = $envVar !== null ? getenv($envVar) : false;
-        if ($envValue !== false && $envValue !== '') {
+        if ($envValue !== false && self::isUsableKey($envValue)) {
             return [$envValue];
+        }
+
+        if ($provider === 'gemini') {
+            $localValue = getenv('LOCAL_GEMINI_KEY');
+            if ($localValue !== false && self::isUsableKey($localValue)) {
+                return [$localValue];
+            }
         }
 
         $value = $this->settings->get(new SettingKey($settingKey));
@@ -102,11 +109,25 @@ final class AiJudgeAutoSync
         $parsed = json_decode($value->raw, true);
 
         if (is_array($parsed)) {
-            return array_values(array_filter($parsed, static fn (mixed $v) => is_string($v) && $v !== ''));
+            return array_values(array_filter($parsed, static fn (mixed $v) => is_string($v) && self::isUsableKey($v)));
         }
 
         $raw = $value->asString();
 
-        return $raw !== '' ? [$raw] : [];
+        return self::isUsableKey($raw) ? [$raw] : [];
+    }
+
+    private static function isUsableKey(string $key): bool
+    {
+        $key = trim($key);
+        if ($key === '') {
+            return false;
+        }
+        return !in_array($key, [
+            'local-gemini-key-placeholder',
+            'your-api-key',
+            'your_api_key',
+            'placeholder',
+        ], true);
     }
 }

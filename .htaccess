@@ -36,7 +36,7 @@ RedirectMatch 404 (?i)/vendor(/|$)
 RedirectMatch 404 (?i)/tests(/|$)
 RedirectMatch 404 (?i)/migrations(/|$)
 RedirectMatch 404 (?i)/docker(/|$)
-RedirectMatch 404 (?i)/docs(/|$)
+RedirectMatch 404 (?i)^/docs(/|$)
 
 # -----------------------------------------------------------------------------
 # 2) Disable directory listing

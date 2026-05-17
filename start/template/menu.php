@@ -32,22 +32,15 @@
                 [
                     'href'  => './label/features/',
                     'icon'  => 'printer',
-                    'label' => __('ui.sidebar.label_print', [], null, 'Print labels'),
-                    'help'  => __('ui.dashboard.label_help', [], null, 'Generate barcode labels for items.'),
-                    'tone'  => 'warning',
-                ],
-                [
-                    'href'  => './label/wizard/',
-                    'icon'  => 'sparkles',
-                    'label' => __('ui.sidebar.label_first', [], null, 'Print → register'),
-                    'help'  => __('ui.dashboard.label_wizard_help', [], null, 'Print a barcode and register the item immediately.'),
+                    'label' => __('ui.sidebar.label_print', [], null, 'Print item labels'),
+                    'help'  => __('ui.dashboard.label_help', [], null, 'Generate barcode labels for registered items.'),
                     'tone'  => 'warning',
                 ],
                 [
                     'href'  => './barcode/sheet/',
                     'icon'  => 'qr',
-                    'label' => __('ui.sidebar.barcode_sheet', [], null, 'Barcode sheet'),
-                    'help'  => __('ui.dashboard.barcode_sheet_help', [], null, 'Print a sheet of unique barcodes.'),
+                    'label' => __('ui.sidebar.barcode_sheet', [], null, 'Create barcodes'),
+                    'help'  => __('ui.dashboard.barcode_sheet_help', [], null, 'Create, print, then attach barcode labels to items.'),
                     'tone'  => 'success',
                 ],
             ]

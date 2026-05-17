@@ -91,6 +91,18 @@ final class UpdateItemController
             $binds['jan_code'] = $jan === '' ? null : $jan;
         }
 
+        if (array_key_exists('isbnCode', $body)) {
+            $isbn             = $body['isbnCode'] !== null ? trim((string) $body['isbnCode']) : null;
+            $sets[]           = 'isbn = :isbn';
+            $binds['isbn'] = $isbn === '' ? null : $isbn;
+        }
+
+        if (array_key_exists('labelCode', $body)) {
+            $label                = $body['labelCode'] !== null ? trim((string) $body['labelCode']) : null;
+            $sets[]               = 'label_code = :label_code';
+            $binds['label_code'] = $label === '' ? null : $label;
+        }
+
         if (array_key_exists('price', $body)) {
             $sets[]         = 'price = :price';
             $binds['price'] = max(0, (int) $body['price']);
@@ -129,7 +141,7 @@ final class UpdateItemController
 
         $fetchStmt = $this->pdo->prepare(
             'SELECT i.id, i.name, i.category_id, c.name_ja AS category_name, '.
-            'i.jan_code, i.stock, i.price, i.status, i.storage_location_id, '.
+            'i.jan_code, i.isbn, i.label_code, i.stock, i.price, i.status, i.storage_location_id, '.
             'i.created_at, i.updated_at '.
             'FROM item i '.
             'LEFT JOIN category c ON c.id = i.category_id '.
@@ -157,6 +169,8 @@ final class UpdateItemController
             'categoryId'        => (string) ($row['category_id'] ?? ''),
             'categoryName'      => isset($row['category_name']) ? (string) $row['category_name'] : null,
             'janCode'           => isset($row['jan_code']) && $row['jan_code'] !== null ? (string) $row['jan_code'] : null,
+            'isbnCode'          => isset($row['isbn']) && $row['isbn'] !== null ? (string) $row['isbn'] : null,
+            'labelCode'         => isset($row['label_code']) && $row['label_code'] !== null ? (string) $row['label_code'] : null,
             'price'             => isset($row['price']) ? (int) $row['price'] : 0,
             'stock'             => isset($row['stock']) ? (int) $row['stock'] : 0,
             'status'            => (string) ($row['status'] ?? 'active'),

@@ -26,7 +26,7 @@ use Symfony\Component\Messenger\Stamp\StampInterface;
 final class NullMessageBus implements MessageBusInterface
 {
     /**
-     * @param iterable<StampInterface> $stamps
+     * @param array<StampInterface> $stamps
      */
     public function dispatch(object $message, array $stamps = []): Envelope
     {

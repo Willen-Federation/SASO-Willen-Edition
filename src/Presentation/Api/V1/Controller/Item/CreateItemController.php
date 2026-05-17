@@ -21,6 +21,8 @@ use Saso\Presentation\Api\V1\Response\JsonResponse;
  *   name        string  required
  *   categoryId  int     required
  *   janCode     string  optional
+ *   isbnCode    string  optional
+ *   labelCode   string  optional
  *   price       int     optional, default 0
  *   stock       int     optional, default 0
  *
@@ -68,18 +70,22 @@ final class CreateItemController
             };
         }
 
-        $janCode = isset($body['janCode']) && $body['janCode'] !== '' ? trim((string) $body['janCode']) : null;
+        $janCode   = isset($body['janCode']) && $body['janCode'] !== '' ? trim((string) $body['janCode']) : null;
+        $isbnCode  = isset($body['isbnCode']) && $body['isbnCode'] !== '' ? trim((string) $body['isbnCode']) : null;
+        $labelCode = isset($body['labelCode']) && $body['labelCode'] !== '' ? trim((string) $body['labelCode']) : null;
         $price   = max(0, (int) ($body['price'] ?? 0));
         $stock   = max(0, (int) ($body['stock'] ?? 0));
         $now     = (new DateTimeImmutable('now', new DateTimeZone('UTC')))->format('Y-m-d H:i:s');
 
         $stmt = $this->pdo->prepare(
-            'INSERT INTO item (name, category_id, jan_code, price, stock, status, created_at, updated_at) '.
-            'VALUES (:name, :category_id, :jan_code, :price, :stock, :status, :created_at, :updated_at)',
+            'INSERT INTO item (name, category_id, jan_code, isbn, label_code, price, stock, status, created_at, updated_at) '.
+            'VALUES (:name, :category_id, :jan_code, :isbn, :label_code, :price, :stock, :status, :created_at, :updated_at)',
         );
         $stmt->bindValue('name', $name);
         $stmt->bindValue('category_id', $categoryId, PDO::PARAM_INT);
         $stmt->bindValue('jan_code', $janCode);
+        $stmt->bindValue('isbn', $isbnCode);
+        $stmt->bindValue('label_code', $labelCode);
         $stmt->bindValue('price', $price, PDO::PARAM_INT);
         $stmt->bindValue('stock', $stock, PDO::PARAM_INT);
         $stmt->bindValue('status', 'active');
@@ -100,6 +106,8 @@ final class CreateItemController
             'categoryId'   => (string) $categoryId,
             'categoryName' => $catName !== false ? (string) $catName : null,
             'janCode'      => $janCode,
+            'isbnCode'     => $isbnCode,
+            'labelCode'    => $labelCode,
             'price'        => $price,
             'stock'        => $stock,
             'status'       => 'active',

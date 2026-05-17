@@ -49,7 +49,11 @@ final class Router
     public function dispatch(HttpRequest $request, ?string $locale = null): void
     {
         try {
-            $info = $this->dispatcher->dispatch($request->method, $request->path);
+            // The OpenAPI spec declares paths without the /api/v1 server-prefix
+            // (e.g. `/health`, `/items`). Strip that prefix from the incoming
+            // request path before handing off to FastRoute so the two match.
+            $dispatchPath = preg_replace('#^/api/v1(?=/|$)#', '', $request->path) ?: '/';
+            $info         = $this->dispatcher->dispatch($request->method, $dispatchPath);
 
             switch ($info[0]) {
                 case Dispatcher::NOT_FOUND:

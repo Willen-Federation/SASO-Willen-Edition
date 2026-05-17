@@ -14,6 +14,7 @@ use Saso\Domain\Ai\ChatResponse;
 use Saso\Domain\Ai\EmbeddingRequest;
 use Saso\Domain\Ai\EmbeddingResponse;
 use Saso\Domain\Ai\Exception\AiProviderNotConfiguredException;
+use Saso\Domain\Ai\Exception\AiResponseMalformedException;
 use Saso\Domain\Ai\ImageDescriptionResponse;
 use Saso\Domain\Ai\ImageRequest;
 use Saso\Domain\Ai\StructuredExtractionRequest;
@@ -212,5 +213,42 @@ final class AiVisionStepTest extends TestCase
         $step = new AiVisionStep($this->nullAi(), $this->flagRepo($this->makeFlag(true)));
 
         self::assertSame([], $step->run('/nonexistent/path.jpg', null, []));
+    }
+
+    public function testMalformedAiResponseReturnsEmpty(): void
+    {
+        $mockAi = new class () implements AiAssistant {
+            public function chatComplete(ChatRequest $req): ChatResponse
+            {
+                throw AiProviderNotConfiguredException::for('mock', 'chatComplete');
+            }
+
+            public function extractStructured(StructuredExtractionRequest $req): StructuredExtractionResponse
+            {
+                throw AiResponseMalformedException::for('mock', 'invalid JSON');
+            }
+
+            public function embed(EmbeddingRequest $req): EmbeddingResponse
+            {
+                throw AiProviderNotConfiguredException::for('mock', 'embed');
+            }
+
+            public function describeImage(ImageRequest $req): ImageDescriptionResponse
+            {
+                throw AiProviderNotConfiguredException::for('mock', 'describeImage');
+            }
+        };
+
+        $step = new AiVisionStep($mockAi, $this->flagRepo($this->makeFlag(true)));
+
+        $tmp = tempnam(sys_get_temp_dir(), 'ai_test_');
+        assert($tmp !== false);
+        file_put_contents($tmp, 'fake-image-bytes');
+
+        try {
+            self::assertSame([], $step->run($tmp, null, []));
+        } finally {
+            unlink($tmp);
+        }
     }
 }

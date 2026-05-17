@@ -8,6 +8,7 @@ use Saso\Domain\Ai\AiAssistant;
 use Saso\Domain\Ai\Exception\AiContentPolicyException;
 use Saso\Domain\Ai\Exception\AiProviderNotConfiguredException;
 use Saso\Domain\Ai\Exception\AiRateLimitedException;
+use Saso\Domain\Ai\Exception\AiResponseMalformedException;
 use Saso\Domain\Ai\Exception\AiUpstreamException;
 use Saso\Domain\Ai\StructuredExtractionRequest;
 use Saso\Domain\Feature\FeatureKey;
@@ -72,7 +73,7 @@ final class AiVisionStep implements AiVisionStepInterface
             $response = $this->ai->extractStructured($request);
 
             return $response->data;
-        } catch (AiProviderNotConfiguredException | AiRateLimitedException | AiUpstreamException | AiContentPolicyException) {
+        } catch (AiProviderNotConfiguredException | AiRateLimitedException | AiUpstreamException | AiContentPolicyException | AiResponseMalformedException) {
             return [];
         }
     }

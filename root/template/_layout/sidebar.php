@@ -28,7 +28,7 @@ if (!$authed) {
     <?php
       // TailAdmin sidebar utility class strings (uses pre-compiled tailadmin.css).
       $menuGroupTitle = 'mb-3 px-2 text-xs font-bold uppercase tracking-widest text-gray-500 dark:text-gray-400';
-      $menuItemBase   = 'flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors';
+      $menuItemBase   = 'flex items-start gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors';
       $menuItemActive = 'bg-brand-50 text-brand-600 dark:bg-white/[0.05] dark:text-white';
       $menuItemIdle   = 'text-gray-700 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-white/[0.05] dark:hover:text-white';
     ?>
@@ -45,10 +45,15 @@ if (!$authed) {
                 <a href="<?php echo ui_attr($item['href']); ?>"
                    class="<?php echo $menuItemBase . ' ' . ($isActive ? $menuItemActive : $menuItemIdle); ?>"
                    <?php if ($isActive): ?>aria-current="page"<?php endif; ?>>
-                  <?php echo $item['icon'] ?? ''; ?>
-                  <span class="grow"><?php echo ui_text($item['label']); ?></span>
+                  <span class="mt-0.5"><?php echo $item['icon'] ?? ''; ?></span>
+                  <span class="min-w-0 grow">
+                    <span class="block leading-5"><?php echo ui_text($item['label']); ?></span>
+                    <?php if (!empty($item['description'])): ?>
+                      <span class="mt-0.5 block text-xs font-normal leading-4 text-gray-500 dark:text-gray-400"><?php echo ui_text($item['description']); ?></span>
+                    <?php endif; ?>
+                  </span>
                   <?php if (!empty($item['new'])): ?>
-                    <span class="ta-badge ta-badge-primary text-[10px]">NEW</span>
+                    <span class="ta-badge ta-badge-primary mt-0.5 text-[10px]">NEW</span>
                   <?php endif; ?>
                 </a>
               </li>
@@ -58,8 +63,13 @@ if (!$authed) {
                         @click="selected = (selected === groupKey ? null : groupKey)"
                         class="<?php echo $menuItemBase . ' ' . $menuItemIdle; ?> w-full text-left"
                         :aria-expanded="selected === groupKey ? 'true' : 'false'">
-                  <?php echo $item['icon'] ?? ''; ?>
-                  <span class="grow"><?php echo ui_text($item['label']); ?></span>
+                  <span class="mt-0.5"><?php echo $item['icon'] ?? ''; ?></span>
+                  <span class="min-w-0 grow">
+                    <span class="block leading-5"><?php echo ui_text($item['label']); ?></span>
+                    <?php if (!empty($item['description'])): ?>
+                      <span class="mt-0.5 block text-xs font-normal leading-4 text-gray-500 dark:text-gray-400"><?php echo ui_text($item['description']); ?></span>
+                    <?php endif; ?>
+                  </span>
                   <svg class="h-4 w-4 shrink-0 transition-transform"
                        :class="selected === groupKey ? 'rotate-180' : ''"
                        viewBox="0 0 20 20" fill="none" aria-hidden="true">
@@ -71,7 +81,10 @@ if (!$authed) {
                     <li>
                       <a href="<?php echo ui_attr($child['href']); ?>"
                          class="block rounded-md px-2 py-1.5 text-theme-sm text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-white/[0.05] dark:hover:text-white">
-                        <?php echo ui_text($child['label']); ?>
+                        <span class="block leading-5"><?php echo ui_text($child['label']); ?></span>
+                        <?php if (!empty($child['description'])): ?>
+                          <span class="mt-0.5 block text-xs leading-4 text-gray-500 dark:text-gray-500"><?php echo ui_text($child['description']); ?></span>
+                        <?php endif; ?>
                         <?php if (!empty($child['new'])): ?>
                           <span class="ta-badge ta-badge-primary text-[10px] ml-1">NEW</span>
                         <?php endif; ?>

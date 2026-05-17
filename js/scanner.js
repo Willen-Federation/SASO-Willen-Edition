@@ -370,8 +370,11 @@
         }
       },
 
-      isPnd() {
-        return /^PND\d{9}$/.test(this.code.trim());
+      // Matches BarcodeCode::PATTERN: alphanumeric-prefix codes (e.g. PND000000001)
+      // and 13-digit JAN/EAN barcodes — keeps legacy 12-digit Feature codes excluded.
+      isPoolCode() {
+        const v = this.code.trim().toUpperCase();
+        return /^[A-Z][A-Z0-9]{0,7}\d{4,12}$/.test(v) || /^\d{13}$/.test(v);
       },
 
       isLegacy() {
@@ -394,7 +397,7 @@
           return;
         }
 
-        if (!this.isPnd()) {
+        if (!this.isPoolCode()) {
           this.error = this.labels.invalid;
           return;
         }

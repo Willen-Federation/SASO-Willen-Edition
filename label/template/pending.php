@@ -8,7 +8,7 @@
     <h3 class="font-semibold" style="color:var(--saso-text)">
       <?php echo ui_text(__('ui.label_pending.title', [], null, 'Pending Labels')); ?>
     </h3>
-    <a href="./label/wizard/" class="btn btn-secondary btn-sm">
+    <a href="./barcode/sheet/" class="btn btn-secondary btn-sm">
       <?php echo ui_text(__('ui.label_pending.back_to_wizard', [], null, '← Back to wizard')); ?>
     </a>
   </div>
@@ -23,7 +23,7 @@
           <path d="M14 14h.01M14 17h3M17 14v7M20 17h.01" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
         </svg>
         <p class="text-sm"><?php echo ui_text(__('ui.label_pending.empty', [], null, 'No pending labels. Mint a batch from the wizard.')); ?></p>
-        <a href="./label/wizard/" class="btn btn-primary btn-sm">
+        <a href="./barcode/sheet/" class="btn btn-primary btn-sm">
           <?php echo ui_text(__('ui.label_pending.go_wizard', [], null, 'Go to wizard')); ?>
         </a>
       </div>

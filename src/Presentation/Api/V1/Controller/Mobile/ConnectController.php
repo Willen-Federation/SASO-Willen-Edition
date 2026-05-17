@@ -8,6 +8,7 @@ use DateTimeImmutable;
 use DateTimeInterface;
 use DateTimeZone;
 use Saso\Domain\MobileConnect\DeviceToken;
+use Saso\Domain\MobileConnect\Exception\MobileInvalidRequestException;
 use Saso\Domain\MobileConnect\Exception\PairingCodeExpiredException;
 use Saso\Domain\MobileConnect\Exception\PairingCodeNotFoundException;
 use Saso\Domain\MobileConnect\Exception\PairingCodeUsedException;
@@ -58,7 +59,7 @@ final class ConnectController
         $deviceName = trim((string) ($body['deviceName'] ?? ''));
 
         if ($rawToken === '' || $deviceName === '') {
-            throw new \InvalidArgumentException('Fields "token" and "deviceName" are required.');
+            throw new MobileInvalidRequestException('Fields "token" and "deviceName" are required.');
         }
 
         $hash = PairingCode::hashToken($rawToken);

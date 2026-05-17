@@ -113,14 +113,14 @@ final class AiAssistantFactory
     private static function resolveKeys(string $settingKey, string $envVar, SystemSettingService $settings): array
     {
         $envValue = getenv($envVar);
-        if ($envValue !== false && $envValue !== '') {
+        if ($envValue !== false && self::isUsableKey($envValue)) {
             return [$envValue];
         }
 
         // Fallback to LOCAL_* variant for development environments
         if ($envVar === 'GEMINI_API_KEY') {
             $localValue = getenv('LOCAL_GEMINI_KEY');
-            if ($localValue !== false && $localValue !== '') {
+            if ($localValue !== false && self::isUsableKey($localValue)) {
                 return [$localValue];
             }
         }
@@ -133,11 +133,25 @@ final class AiAssistantFactory
         $parsed = json_decode($value->raw, true);
 
         if (is_array($parsed)) {
-            return array_values(array_filter($parsed, static fn (mixed $v) => is_string($v) && $v !== ''));
+            return array_values(array_filter($parsed, static fn (mixed $v) => is_string($v) && self::isUsableKey($v)));
         }
 
         $raw = $value->asString();
 
-        return $raw !== '' ? [$raw] : [];
+        return self::isUsableKey($raw) ? [$raw] : [];
+    }
+
+    private static function isUsableKey(string $key): bool
+    {
+        $key = trim($key);
+        if ($key === '') {
+            return false;
+        }
+        return !in_array($key, [
+            'local-gemini-key-placeholder',
+            'your-api-key',
+            'your_api_key',
+            'placeholder',
+        ], true);
     }
 }

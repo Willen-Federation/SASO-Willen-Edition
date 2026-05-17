@@ -22,7 +22,7 @@ final class BarcodeGetController
 
     public function handle(HttpRequest $request): HttpResponse
     {
-        $codeString = (string) ($request->pathParams['code'] ?? '');
+        $codeString = strtoupper((string) ($request->pathParams['code'] ?? ''));
         try {
             $code = new BarcodeCode($codeString);
         } catch (\InvalidArgumentException) {

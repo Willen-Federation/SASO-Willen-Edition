@@ -7,7 +7,7 @@
     $labelNotFound = $lang === 'ja' ? 'バーコードが見つかりません' : 'Barcode not found';
     $labelUnlinked  = $lang === 'ja' ? 'このバーコードはまだ商品に紐付けられていません' : 'This barcode is not yet linked to any item';
     $labelError     = $lang === 'ja' ? '検索エラーが発生しました' : 'Lookup error occurred';
-    $labelInvalid   = $lang === 'ja' ? '有効な12桁のバーコードを入力してください' : 'Please enter a valid 12-digit barcode';
+    $labelInvalid   = $lang === 'ja' ? '有効なバーコードを入力してください' : 'Please enter a valid barcode';
     $labelRegistered = $lang === 'ja' ? '商品登録済み' : 'Item found';
     $labelCode      = $lang === 'ja' ? '商品コード' : 'Item code';
     $labelColor     = $lang === 'ja' ? '色コード' : 'Color';

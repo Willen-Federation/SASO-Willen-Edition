@@ -2,7 +2,7 @@
 
 This page is the single source of truth that clients (especially the Flutter
 mobile app) consult when wiring against the SASO `/api/v1/*` surface. The
-underlying contracts live in [`config/openapi.yaml`](../config/openapi.yaml) — if
+underlying contracts live in [`config/openapi.yaml`](https://github.com/Willen-Federation/SASO-Willen-Edition/blob/main/config/openapi.yaml) — if
 you change one, change the other; CI rejects drift.
 
 ## Conventions
@@ -72,7 +72,7 @@ you change one, change the other; CI rejects drift.
 | `POST` | `/api/v1/items` | Bearer | `items:write` | Create (supports `Idempotency-Key`) |
 | `GET` | `/api/v1/items/{id}` | Bearer | `items:read` | Get one item with EAV attributes |
 | `PATCH` | `/api/v1/items/{id}` | Bearer | `items:write` | Partial update (supports `Idempotency-Key`) |
-| `POST` | `/api/v1/items/drafts` | Bearer | `items:write` | Multipart upload → enqueue an `item_draft` row. See [DraftCreateController](../src/Presentation/Api/V1/Controller/Item/DraftCreateController.php). |
+| `POST` | `/api/v1/items/drafts` | Bearer | `items:write` | Multipart upload → enqueue an `item_draft` row. See [DraftCreateController](https://github.com/Willen-Federation/SASO-Willen-Edition/blob/main/src/Presentation/Api/V1/Controller/Item/DraftCreateController.php). |
 
 ### Categories & storage locations (Bearer)
 

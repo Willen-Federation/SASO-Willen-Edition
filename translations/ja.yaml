@@ -95,6 +95,7 @@ ui:
     label_first: 印刷 → 登録
     item: 商品
     item_register: 商品登録
+    bulk: 一括操作
     item_archive: アーカイブ一覧
     item_archiveAll: 一括アーカイブ
     shelf: 棚
@@ -102,13 +103,18 @@ ui:
     shelf_map: 棚マップ
     verify: データ照合
     label: ラベル
-    label_print: 印刷
+    label_print: 商品ラベル印刷
     label_size: サイズ管理
+    item_attribute: ステータス列
     category: 分類管理
     flags: フィーチャーフラグ
     auth_providers: 認証プロバイダ
+    member: メンバー
+    role: 権限ロール
+    ai_settings: AI設定
+    firebase_settings: Firebase
     password: パスワード
-    barcode_sheet: バーコードシート
+    barcode_sheet: バーコード作成・印刷
     shelf_simple: 棚番設定
     group:
       main: メイン
@@ -119,16 +125,27 @@ ui:
       admin: 管理
   dashboard:
     quick_links: クイックリンク
+    quick_links_help: メイン操作ダッシュボードを開きます。
     item_register_help: 新しい商品をカタログに追加します。
-    barcode_sheet_help: ユニークなバーコードのシートを印刷します。
+    bulk_help: 商品の取り込み、書き出し、一括更新を行います。
+    barcode_sheet_help: バーコードを作成・印刷し、あとから商品へ紐づけます。
     shelf_simple_help: 棚番の範囲を素早く設定します。
+    shelf_map_help: 棚ごとの商品配置を確認します。
     verify_help: 棚卸や個別照合を実行します。
     shelf_help: 詳細な棚番管理とシール印刷を行います。
-    label_help: 商品用のバーコードラベルを生成します。
+    label_help: 登録済み商品のバーコードラベルを生成します。
+    label_wizard_help: バーコードを印刷して、そのまま商品を登録します。
     archive_help: アーカイブされた商品を閲覧します。
     archive_all_help: すべてのアクティブな商品を一括でアーカイブします。
     category_help: 分類ツリーを管理します。
     label_size_help: A4ラベルシートのレイアウトを構成します。
+    item_attribute_help: 商品に独自のステータス列を追加します。
+    member_help: 利用者アカウントを管理します。
+    role_help: ロールごとの権限を管理します。
+    flags_help: 任意機能の有効・無効を切り替えます。
+    auth_providers_help: 外部ログインプロバイダを設定します。
+    ai_settings_help: AIプロバイダの認証情報を設定します。
+    firebase_settings_help: Firebase連携を設定します。
     password_help: サインイン用のパスワードを変更します。
   header:
     search_placeholder: 商品を検索...
@@ -304,8 +321,8 @@ ui:
     title: 未紐づけバーコード
     count: 件数
     empty: 未紐づけバーコードはありません。
-    go_wizard: ウィザードへ
-    back_to_wizard: ウィザードへ戻る
+    go_wizard: バーコード作成へ
+    back_to_wizard: バーコード作成へ戻る
     col_batch: バッチ
     col_code: コード
     col_created: 作成日時

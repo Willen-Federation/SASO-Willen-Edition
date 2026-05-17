@@ -82,6 +82,17 @@ final class AiAssistantFactoryTest extends TestCase
         $this->assertInstanceOf(GeminiAssistant::class, $assistant);
     }
 
+    public function testForVisionIgnoresPlaceholderLocalGeminiKey(): void
+    {
+        putenv('AI_PROVIDER=gemini');
+        putenv('LOCAL_GEMINI_KEY=local-gemini-key-placeholder');
+        $this->settingService->method('get')->willReturn(null);
+
+        $assistant = AiAssistantFactory::forVision($this->settingService);
+
+        $this->assertInstanceOf(NullAssistant::class, $assistant);
+    }
+
     public function testForVisionReturnsNullAssistantWhenNoKeysConfigured(): void
     {
         putenv('AI_PROVIDER=gemini');

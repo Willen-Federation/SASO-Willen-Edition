@@ -39,6 +39,9 @@ interface BarcodeRepository
         ?int $labelSheetLayoutId,
         ?string $createdBy,
         \Saso\Domain\Barcode\BarcodeBatchOrigin $origin,
+        ?string $prefix = null,
+        ?int $startNo = null,
+        ?string $codeType = null,
     ): array;
 
     public function save(PendingBarcode $barcode): void;

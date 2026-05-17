@@ -46,8 +46,10 @@ phpstan.tmp.neon
 /cache/
 /uploads/*
 !/uploads/.gitkeep
+!/uploads/.htaccess
 /public/uploads/*
 !/public/uploads/.gitkeep
+!/public/uploads/.htaccess
 
 # --- Installer lock (set by completed installs) ---
 /installer/installer.json

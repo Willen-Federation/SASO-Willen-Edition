@@ -27,7 +27,7 @@ final class ListStorageLocationsController
 
     public function handle(HttpRequest $request): JsonResponse
     {
-        $this->guard->authenticate($request);
+        $this->guard->requireScope($request, 'items:read');
 
         $parentId = isset($request->query['parent_id']) && $request->query['parent_id'] !== ''
             ? (int) $request->query['parent_id']

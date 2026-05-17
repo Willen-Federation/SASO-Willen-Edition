@@ -566,65 +566,16 @@ if (preg_match('#^/locale/set/([a-z]{2})/?$#', $requestPath, $m)) {
 }
 
 if ($requestPath === '/auth/passkeyBegin/' || $requestPath === '/auth/passkeyComplete/') {
-    try {
-        $pdo = \saso\repository\DBConnection::getPdo();
-        header('Content-Type: application/json; charset=utf-8');
-        if ($requestPath === '/auth/passkeyBegin/') {
-            if (($_SERVER['REQUEST_METHOD'] ?? 'GET') !== 'POST') {
-                http_response_code(405);
-                echo json_encode(['error' => 'method_not_allowed']);
-                exit;
-            }
-            $challenge = rtrim(strtr(base64_encode(random_bytes(32)), '+/', '-_'), '=');
-            $pdo->prepare('INSERT INTO webauthn_challenge (challenge, member_id, purpose, created_at, expires_at) VALUES (:c, NULL, "authentication", NOW(), DATE_ADD(NOW(), INTERVAL 5 MINUTE))')
-                ->execute(['c' => $challenge]);
-            $rows = $pdo->query('SELECT credential_id FROM webauthn_credential ORDER BY created_at DESC')->fetchAll(\PDO::FETCH_ASSOC) ?: [];
-            echo json_encode([
-                'challenge' => $challenge,
-                'rpId' => $_SERVER['HTTP_HOST'] ? explode(':', (string) $_SERVER['HTTP_HOST'])[0] : 'localhost',
-                'allowCredentials' => array_map(fn($r) => ['type' => 'public-key', 'id' => (string) $r['credential_id']], $rows),
-            ]);
-            exit;
-        }
-
-        $payload = json_decode(file_get_contents('php://input') ?: '{}', true);
-        $challenge = (string) ($payload['challenge'] ?? '');
-        $credentialId = (string) ($payload['credentialId'] ?? '');
-        $check = $pdo->prepare('SELECT challenge FROM webauthn_challenge WHERE challenge = :c AND purpose = "authentication" AND expires_at > NOW()');
-        $check->execute(['c' => $challenge]);
-        if ($challenge === '' || $credentialId === '' || $check->fetchColumn() === false) {
-            http_response_code(400);
-            echo json_encode(['error' => 'challenge_expired']);
-            exit;
-        }
-        $stmt = $pdo->prepare('SELECT c.member_id, m.userName FROM webauthn_credential c INNER JOIN Member m ON m.id = c.member_id WHERE c.credential_id = :cid LIMIT 1');
-        $stmt->bindValue('cid', $credentialId, \PDO::PARAM_LOB);
-        $stmt->execute();
-        $row = $stmt->fetch(\PDO::FETCH_ASSOC);
-        if ($row === false) {
-            http_response_code(401);
-            echo json_encode(['error' => 'unknown_credential']);
-            exit;
-        }
-        if (session_status() === PHP_SESSION_ACTIVE) {
-            session_regenerate_id(true);
-        }
-        $_SESSION['id'] = (string) $row['member_id'];
-        $_SESSION['userName'] = (string) $row['userName'];
-        $_SESSION['time'] = time();
-        $pdo->prepare('UPDATE webauthn_credential SET last_used_at = NOW() WHERE credential_id = :cid')
-            ->execute(['cid' => $credentialId]);
-        $pdo->prepare('DELETE FROM webauthn_challenge WHERE challenge = :c')->execute(['c' => $challenge]);
-        echo json_encode(['ok' => true]);
-        exit;
-    } catch (\Throwable $e) {
-        if (function_exists('error_log')) {
-            error_log('[saso-passkey] '.$e->getMessage());
-        }
-        http_response_code(500);
-        echo json_encode(['error' => 'passkey_unavailable']);
-        exit;
-    }
+    // Passkey login disabled pending real WebAuthn assertion verification.
+    // The previous implementation only checked challenge+credentialId existence
+    // and skipped signature verification entirely, allowing pre-auth account
+    // takeover. Re-enable only after assertion signatures, clientDataJSON
+    // origin/type, RP-ID hash, and sign_count are all validated against the
+    // stored public_key. See GitHub issue #203.
+    http_response_code(410);
+    header('Content-Type: application/json; charset=utf-8');
+    echo json_encode(['error' => 'passkey_disabled']);
+    exit;
 }
 
 $authed = isset($_SESSION['id']) && $_SESSION['time'] + 3600 > time();

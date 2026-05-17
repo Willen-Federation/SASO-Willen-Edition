@@ -143,31 +143,11 @@ $lang = $_SESSION['lang'] ?? ($_COOKIE['saso_locale'] ?? 'ja');
         <h2 class="font-semibold text-base" style="color:var(--saso-text)"><?php echo ui_text($t('パスキー', 'Passkeys')); ?></h2>
       </div>
       <div class="px-6 py-5 flex flex-col gap-4">
-        <p class="text-xs" style="color:var(--saso-text-sub)"><?php echo ui_text($t('Windows Hello、Touch ID、Face ID などでログインできます。', 'Sign in with Windows Hello, Touch ID, Face ID, or a security key.')); ?></p>
-        <button type="button" class="btn btn-primary w-full" id="register-passkey-btn" data-csrftoken="<?php echo ui_attr(\saso\util\CSRFtoken::current()); ?>">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true" focusable="false"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 11c0 3.517-1.009 6.799-2.753 9.571m-3.44-2.04l.054-.09A13.916 13.916 0 008 11a4 4 0 118 0c0 1.017-.07 2.019-.203 3m-2.118 6.844A21.88 21.88 0 0015.171 17m3.839 1.132c.645-2.266.99-4.659.99-7.132A8 8 0 008 4.07M3 15.364c.64-1.319 1-2.8 1-4.364 0-1.457.39-2.823 1.07-4"/></svg>
-          <?php echo ui_text($t('新しいパスキーを登録', 'Register New Passkey')); ?>
-        </button>
-        <?php if ($v->passkeys === []): ?>
-          <div class="ta-alert ta-alert-info" role="status"><?php echo ui_text($t('登録済みパスキーはありません。', 'No passkeys are registered.')); ?></div>
-        <?php else: ?>
-          <?php foreach ($v->passkeys as $passkey): ?>
-            <div class="rounded-xl border p-3" style="border-color:var(--saso-card-bdr)">
-              <p class="font-semibold text-sm" style="color:var(--saso-text)"><?php echo ui_text((string) $passkey['name']); ?></p>
-              <p class="text-xs mt-0.5" style="color:var(--saso-text-sub)"><?php echo ui_text($t('登録', 'Created')); ?>: <?php echo ui_text((string) $passkey['created_at']); ?></p>
-              <form method="post" action="./mypage/passkeyDelete/" class="mt-2">
-                <input type="hidden" name="csrftoken" value="<?php echo ui_attr(\saso\util\CSRFtoken::current()); ?>">
-                <input type="hidden" name="id" value="<?php echo (int) $passkey['id']; ?>">
-                <button type="submit" class="btn btn-danger btn-sm"><?php echo ui_text($t('削除', 'Delete')); ?></button>
-              </form>
-            </div>
-          <?php endforeach; ?>
-        <?php endif; ?>
+        <div class="ta-alert ta-alert-warning" role="status"><?php echo ui_text($t('パスキー機能は現在無効です（WebAuthn 署名検証の整備中）。', 'Passkey support is currently disabled while WebAuthn signature verification is being implemented.')); ?></div>
       </div>
     </div>
   </div>
 
 </div>
 
-<script defer src="./js/passkey-register.js"></script>
 <?php }; ?>

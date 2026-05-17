@@ -2,6 +2,8 @@
 
 namespace saso\mypage;
 
+use Saso\Domain\MobileConnect\DeviceToken;
+use Saso\Infrastructure\MobileConnect\PdoDeviceTokenRepository;
 use saso\framework\DTO;
 use saso\framework\Output;
 use saso\framework\Presenter;
@@ -35,12 +37,60 @@ final class MyPageUsecase implements Usecase
             return;
         }
 
+        $apiBaseUrl = $this->computeApiBaseUrl();
+
         $this->output = new MyPageOutput(
             member: $member,
             authMethods: $this->loadAuthMethods($this->memberId),
             availableProviders: $this->loadAvailableProviders($this->memberId),
             passkeys: $this->loadPasskeys($this->memberId),
+            devices: $this->loadDevices($this->memberId),
+            apiBaseUrl: $apiBaseUrl,
+            apiDocsUrl: $apiBaseUrl.'/docs',
+            openApiUrl: $apiBaseUrl.'/openapi.yaml',
+            defaultScopes: DeviceToken::DEFAULT_SCOPES,
         );
+    }
+
+    private function computeApiBaseUrl(): string
+    {
+        $proto = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
+            || (($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '') === 'https')
+            ? 'https'
+            : 'http';
+        $host = $_SERVER['HTTP_HOST'] ?? 'localhost';
+
+        return $proto.'://'.$host.'/api/v1';
+    }
+
+    /**
+     * @return list<array{id:int,device_name:string,created_at:string,last_used_at:?string,expires_at:string,scopes:list<string>}>
+     */
+    private function loadDevices(string $memberId): array
+    {
+        try {
+            $repo   = new PdoDeviceTokenRepository(DBConnection::getPdo());
+            $tokens = $repo->findByMemberId($memberId);
+        } catch (\Throwable) {
+            return [];
+        }
+
+        $rows = [];
+        foreach ($tokens as $token) {
+            if ($token->revoked) {
+                continue;
+            }
+            $rows[] = [
+                'id'           => $token->id,
+                'device_name'  => $token->deviceName,
+                'created_at'   => $token->createdAt->format('Y-m-d H:i'),
+                'last_used_at' => $token->lastUsedAt?->format('Y-m-d H:i'),
+                'expires_at'   => $token->expiresAt->format('Y-m-d H:i'),
+                'scopes'       => $token->scopes,
+            ];
+        }
+
+        return $rows;
     }
 
     private function loadAuthMethods(string $memberId): array

@@ -51,7 +51,9 @@
         "unlinkProvider": "\\saso\\mypage\\UnlinkProviderDIContainer",
         "passkeyBegin": "\\saso\\mypage\\PasskeyBeginDIContainer",
         "passkeyComplete": "\\saso\\mypage\\PasskeyCompleteDIContainer",
-        "passkeyDelete": "\\saso\\mypage\\PasskeyDeleteDIContainer"
+        "passkeyDelete": "\\saso\\mypage\\PasskeyDeleteDIContainer",
+        "devicePair": "\\saso\\mypage\\DevicePairDIContainer",
+        "deviceRevoke": "\\saso\\mypage\\DeviceRevokeDIContainer"
     },
     "category": {
         "edit": "\\saso\\category\\EditDIContainer",

@@ -19,6 +19,15 @@ interface DeviceTokenRepository
      */
     public function listAll(): array;
 
+    /**
+     * Return every device token owned by a given member, newest first.
+     * Used by the MyPage self-service device list — never returns tokens
+     * belonging to other members.
+     *
+     * @return list<DeviceToken>
+     */
+    public function findByMemberId(string $memberId): array;
+
     public function nextId(): int;
 
     public function save(DeviceToken $token): DeviceToken;

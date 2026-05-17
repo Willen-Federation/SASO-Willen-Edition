@@ -15,6 +15,11 @@ final class MyPageView implements View
     private array $authMethods = [];
     private array $availableProviders = [];
     private array $passkeys = [];
+    private array $devices = [];
+    private string $apiBaseUrl = '';
+    private string $apiDocsUrl = '';
+    private string $openApiUrl = '';
+    private array $defaultScopes = [];
 
     public function display(): void
     {

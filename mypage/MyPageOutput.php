@@ -18,6 +18,11 @@ final class MyPageOutput implements DTO
         private readonly array $authMethods = [],
         private readonly array $availableProviders = [],
         private readonly array $passkeys = [],
+        private readonly array $devices = [],
+        private readonly string $apiBaseUrl = '',
+        private readonly string $apiDocsUrl = '',
+        private readonly string $openApiUrl = '',
+        private readonly array $defaultScopes = [],
     ) {
         $this->another = new EmptyIO();
     }

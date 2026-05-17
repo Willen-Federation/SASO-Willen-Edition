@@ -14,6 +14,7 @@ use Saso\Infrastructure\Barcode\PdoBarcodeRepository;
 use Saso\Infrastructure\Category\PdoCategoryRepository;
 use Saso\Infrastructure\FeatureFlag\PdoFeatureFlagRepository;
 use Saso\Infrastructure\Logging\MonologFactory;
+use Saso\Infrastructure\Messaging\NullMessageBus;
 use Saso\Infrastructure\MobileConnect\PdoDeviceTokenRepository;
 use Saso\Infrastructure\MobileConnect\PdoPairingCodeRepository;
 use Saso\Infrastructure\MobileConnect\QrCodeRenderer;
@@ -29,6 +30,7 @@ use Saso\Presentation\Api\V1\Controller\FeatureFlag\FeatureFlagListController;
 use Saso\Presentation\Api\V1\Controller\FeatureFlag\FeatureFlagUpdateController;
 use Saso\Presentation\Api\V1\Controller\HealthController;
 use Saso\Presentation\Api\V1\Controller\Item\CreateItemController;
+use Saso\Presentation\Api\V1\Controller\Item\DraftCreateController;
 use Saso\Presentation\Api\V1\Controller\Item\GetItemController;
 use Saso\Presentation\Api\V1\Controller\Item\ListItemsController;
 use Saso\Presentation\Api\V1\Controller\Item\UpdateItemController;
@@ -131,10 +133,11 @@ final class Bootstrap
         );
 
         // Item controllers.
-        $listItems  = new ListItemsController($pdo, $jwtGuard);
-        $getItem    = new GetItemController($pdo, $jwtGuard);
-        $createItem = new CreateItemController($pdo, $jwtGuard, $idempotency);
-        $updateItem = new UpdateItemController($pdo, $jwtGuard, $idempotency);
+        $listItems   = new ListItemsController($pdo, $jwtGuard);
+        $getItem     = new GetItemController($pdo, $jwtGuard);
+        $createItem  = new CreateItemController($pdo, $jwtGuard, $idempotency);
+        $updateItem  = new UpdateItemController($pdo, $jwtGuard, $idempotency);
+        $createDraft = new DraftCreateController($pdo, new NullMessageBus(), $jwt);
 
         // Category controller.
         $catRepo  = new PdoCategoryRepository($pdo);
@@ -190,6 +193,7 @@ final class Bootstrap
             'getItem'                 => [$getItem, 'handle'],
             'createItem'              => [$createItem, 'handle'],
             'updateItem'              => [$updateItem, 'handle'],
+            'createItemDraft'         => [$createDraft, 'handle'],
             'listCategories'          => [$listCats, 'handle'],
             'listStorageLocations'    => [$listLocs, 'handle'],
             'getStorageLocation'      => [$getLoc, 'handle'],

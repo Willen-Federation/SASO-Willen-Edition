@@ -46,7 +46,7 @@ final class ConfigBundleController
 
     public function handle(HttpRequest $request): JsonResponse
     {
-        $this->guard->authenticate($request);
+        $this->guard->requireScope($request, 'feature_flags:read');
 
         $now      = new DateTimeImmutable('now', new DateTimeZone('UTC'));
         $allFlags = $this->flags->listAll();

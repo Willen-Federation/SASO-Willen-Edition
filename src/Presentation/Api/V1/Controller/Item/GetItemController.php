@@ -26,7 +26,7 @@ final class GetItemController
 
     public function handle(HttpRequest $request): JsonResponse
     {
-        $this->guard->authenticate($request);
+        $this->guard->requireScope($request, 'items:read');
 
         $id = (int) ($request->pathParams['id'] ?? 0);
         if ($id < 1) {

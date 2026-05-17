@@ -28,7 +28,7 @@ final class ListCategoriesController
 
     public function handle(HttpRequest $request): JsonResponse
     {
-        $this->guard->authenticate($request);
+        $this->guard->requireScope($request, 'items:read');
 
         $format = ($request->query['format'] ?? 'flat') === 'tree' ? 'tree' : 'flat';
         $all    = $this->categories->listAll();

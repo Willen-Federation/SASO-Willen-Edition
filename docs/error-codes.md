@@ -13,13 +13,15 @@ SASO-<DOMAIN>-<NNNN>
 | Domain | Range | Owner area |
 |---|---|---|
 | `AUTH`    | `1xxx` | Login, OIDC / SAML provisioning, password change |
-| `ITEM`    | `2xxx` | Items and item operations |
+| `MOBILE`  | `2xxx` | QR pairing, device tokens, V1 API scope enforcement |
 | `LABEL`   | `3xxx` | Label definition and PDF generation |
 | `SHELF`   | `4xxx` | Shelf management |
 | `INSTALL` | `5xxx` | Web installer flow |
 | `CONFIG`  | `6xxx` | `system_setting` and provider configuration |
 | `FLAG`    | `7xxx` | Feature flag evaluation |
 | `INFRA`   | `9xxx` | Database / network / unhandled exceptions |
+| `MCP`     | `Axxx` | MCP server (JSON-RPC tools, scope enforcement) |
+| `PLUGIN`  | `Bxxx` | Plugin registry / loader |
 
 Within each domain the four-digit suffix counts upward starting at `0001`. **Codes are append-only.** A code that goes out of use is marked _(deprecated)_ but never reassigned, so logs from older releases stay decodable.
 
@@ -37,6 +39,19 @@ Within each domain the four-digit suffix counts upward starting at `0001`. **Cod
 | `SASO-AUTH-1006` | 503 | Authentication provider is misconfigured | An `AuthProvider` cannot drive a login because its stored configuration is incomplete or unreachable (e.g. discovery URL 404, expired SAML certificate). Operator-actionable; the affected provider stays disabled until the row is fixed |
 | `SASO-AUTH-1007` | 400 | Authentication callback could not be matched to a pending request | OIDC `state` / SAML `RelayState` did not match the value the application stored on `beginLogin()`. Most often caused by an expired login attempt (cookies cleared between hops); rarely indicates an attempted CSRF on the callback |
 | `SASO-AUTH-1008` | 400 | Authentication callback failed verification | The IdP response (OIDC token signature, SAML assertion signature, nonce, audience, expiry) failed verification |
+
+### `MOBILE` — mobile / QR connect & device tokens
+
+| Code | HTTP | Title | When it is raised |
+|---|---|---|---|
+| `SASO-MOBILE-2001` | 404 | Pairing code not found        | The QR pairing code does not exist (typo, never issued, or already expired and reaped) |
+| `SASO-MOBILE-2002` | 400 | Pairing code has expired      | The pairing code TTL elapsed before the device exchanged it for a token |
+| `SASO-MOBILE-2003` | 400 | Pairing code has already been used | The pairing code was already exchanged once — codes are single-use |
+| `SASO-MOBILE-2004` | 404 | Device token not found        | The Bearer token references a token row that does not exist |
+| `SASO-MOBILE-2005` | 400 | Device token has been revoked | The token row exists but an admin revoked it via the admin console |
+| `SASO-MOBILE-2006` | 400 | Device token has expired      | The token row exists but is past its expiry |
+| `SASO-MOBILE-2007` | 400 | Invalid mobile connect request | A request to a mobile/V1 endpoint failed input validation (e.g. missing required field) |
+| `SASO-MOBILE-2008` | 403 | Scope insufficient for the requested endpoint | The device token's `scp` claim does not include the scope the called endpoint requires. RFC 6749 §3.3 — scopes are normative, not advisory |
 
 ### `INFRA` — infrastructure
 

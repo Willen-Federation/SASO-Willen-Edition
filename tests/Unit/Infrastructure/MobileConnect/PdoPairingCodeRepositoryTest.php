@@ -25,6 +25,7 @@ final class PdoPairingCodeRepositoryTest extends TestCase
                 id         INTEGER PRIMARY KEY,
                 token_hash TEXT NOT NULL UNIQUE,
                 label      TEXT NOT NULL,
+                member_id  TEXT,
                 used       INTEGER NOT NULL DEFAULT 0,
                 expires_at TEXT NOT NULL,
                 created_at TEXT NOT NULL

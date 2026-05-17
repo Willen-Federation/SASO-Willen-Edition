@@ -116,7 +116,7 @@ final class Bootstrap
 
         $qr           = new QrController($codeRepo, $qrRenderer);
         $connect      = new ConnectController($codeRepo, $tokenRepo, $jwt);
-        $configBundle = new ConfigBundleController($flagRepo);
+        $configBundle = new ConfigBundleController($flagRepo, $jwtGuard);
         $tokenList    = new TokenListController($tokenRepo);
         $tokenRevoke  = new TokenRevokeController($tokenRepo);
         $tokenRefresh = new TokenRefreshController($tokenRepo, $jwt);
@@ -170,12 +170,21 @@ final class Bootstrap
                 return $flagDelete->handle($r);
             },
 
-            'createPairingCode'  => [$qr, 'handle'],
+            'createPairingCode'  => static function (HttpRequest $r) use ($qr) {
+                self::requireSessionAuth();
+                return $qr->handle($r);
+            },
             'mobileConnect'      => [$connect, 'handle'],
             'refreshMobileToken' => [$tokenRefresh, 'handle'],
             'getMobileConfig'    => [$configBundle, 'handle'],
-            'listDeviceTokens'   => [$tokenList, 'handle'],
-            'revokeDeviceToken'  => [$tokenRevoke, 'handle'],
+            'listDeviceTokens'   => static function (HttpRequest $r) use ($tokenList) {
+                self::requireSessionAuth();
+                return $tokenList->handle($r);
+            },
+            'revokeDeviceToken'  => static function (HttpRequest $r) use ($tokenRevoke) {
+                self::requireSessionAuth();
+                return $tokenRevoke->handle($r);
+            },
 
             'listItems'               => [$listItems, 'handle'],
             'getItem'                 => [$getItem, 'handle'],

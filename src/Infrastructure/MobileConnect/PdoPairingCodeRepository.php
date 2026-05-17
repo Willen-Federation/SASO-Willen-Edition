@@ -43,12 +43,13 @@ final class PdoPairingCodeRepository implements PairingCodeRepository
 
         if ($existing === null) {
             $stmt = $this->pdo->prepare(
-                'INSERT INTO pairing_code (id, token_hash, label, used, expires_at, created_at) '.
-                'VALUES (:id, :hash, :label, :used, :expires_at, :created_at)',
+                'INSERT INTO pairing_code (id, token_hash, label, member_id, used, expires_at, created_at) '.
+                'VALUES (:id, :hash, :label, :member_id, :used, :expires_at, :created_at)',
             );
             $stmt->bindValue('id', $code->id, PDO::PARAM_INT);
             $stmt->bindValue('hash', $code->tokenHash);
             $stmt->bindValue('label', $code->label);
+            $stmt->bindValue('member_id', $code->memberId);
             $stmt->bindValue('used', $code->used ? 1 : 0, PDO::PARAM_INT);
             $stmt->bindValue('expires_at', $code->expiresAt->setTimezone($this->timezone)->format('Y-m-d H:i:s'));
             $stmt->bindValue('created_at', $code->createdAt->setTimezone($this->timezone)->format('Y-m-d H:i:s'));
@@ -86,6 +87,8 @@ final class PdoPairingCodeRepository implements PairingCodeRepository
     /** @param array<string, mixed> $row */
     private function hydrate(array $row): PairingCode
     {
+        $memberId = $row['member_id'] ?? null;
+
         return new PairingCode(
             id: (int) $row['id'],
             tokenHash: (string) $row['token_hash'],
@@ -93,6 +96,7 @@ final class PdoPairingCodeRepository implements PairingCodeRepository
             used: (int) $row['used'] === 1,
             expiresAt: new DateTimeImmutable((string) $row['expires_at'], $this->timezone),
             createdAt: new DateTimeImmutable((string) $row['created_at'], $this->timezone),
+            memberId: is_string($memberId) && $memberId !== '' ? $memberId : null,
         );
     }
 }

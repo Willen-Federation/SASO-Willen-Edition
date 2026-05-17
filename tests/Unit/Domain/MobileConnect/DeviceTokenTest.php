@@ -59,6 +59,40 @@ final class DeviceTokenTest extends TestCase
         self::assertTrue($revoked->revoked);
     }
 
+    public function testRevokeAndWithLastUsedCarryMemberIdAndScopes(): void
+    {
+        $now   = new DateTimeImmutable('2026-04-26 12:00:00');
+        $token = new DeviceToken(
+            id: 1,
+            tokenHash: str_repeat('b', 64),
+            refreshTokenHash: null,
+            deviceName: 'iPad mini',
+            revoked: false,
+            lastUsedAt: null,
+            expiresAt: new DateTimeImmutable('2027-04-26 12:00:00'),
+            createdAt: $now,
+            memberId: 'admin_test',
+            scopes: ['items:read', 'items:write'],
+        );
+
+        $revoked = $token->revoke();
+        self::assertSame('admin_test', $revoked->memberId);
+        self::assertSame(['items:read', 'items:write'], $revoked->scopes);
+
+        $touched = $token->withLastUsed(new DateTimeImmutable('2026-05-01 08:00:00'));
+        self::assertSame('admin_test', $touched->memberId);
+        self::assertSame(['items:read', 'items:write'], $touched->scopes);
+    }
+
+    public function testDefaultScopesCoverEveryCoreToolScope(): void
+    {
+        self::assertContains('items:write', DeviceToken::DEFAULT_SCOPES);
+        self::assertContains('items:read', DeviceToken::DEFAULT_SCOPES);
+        self::assertContains('barcodes:write', DeviceToken::DEFAULT_SCOPES);
+        self::assertContains('verification:write', DeviceToken::DEFAULT_SCOPES);
+        self::assertContains('feature_flags:read', DeviceToken::DEFAULT_SCOPES);
+    }
+
     public function testWithLastUsedUpdatesTimestamp(): void
     {
         $token = $this->makeToken();

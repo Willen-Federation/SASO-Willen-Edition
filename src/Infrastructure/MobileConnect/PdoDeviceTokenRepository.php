@@ -71,6 +71,15 @@ final class PdoDeviceTokenRepository implements DeviceTokenRepository
     private function hydrate(array $row): DeviceToken
     {
         $lastUsed = $row['last_used_at'] ?? null;
+        $memberId = $row['member_id'] ?? null;
+        $scopesRaw = $row['scopes'] ?? null;
+        $scopes = [];
+        if (is_string($scopesRaw) && $scopesRaw !== '') {
+            $decoded = json_decode($scopesRaw, associative: true);
+            if (is_array($decoded)) {
+                $scopes = array_values(array_filter($decoded, 'is_string'));
+            }
+        }
 
         return new DeviceToken(
             id: (int) $row['id'],
@@ -85,22 +94,30 @@ final class PdoDeviceTokenRepository implements DeviceTokenRepository
                 : null,
             expiresAt: new \DateTimeImmutable((string) $row['expires_at'], $this->timezone),
             createdAt: new \DateTimeImmutable((string) $row['created_at'], $this->timezone),
+            memberId: is_string($memberId) && $memberId !== '' ? $memberId : null,
+            scopes: $scopes,
         );
     }
 
     public function save(DeviceToken $token): DeviceToken
     {
         $existing = $this->findById($token->id);
+        $scopesJson = $token->scopes === [] ? null : (string) json_encode(
+            array_values($token->scopes),
+            JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE,
+        );
 
         if ($existing === null) {
             $stmt = $this->pdo->prepare(
                 'INSERT INTO device_token '.
-                '(id, token_hash, refresh_token_hash, device_name, revoked, last_used_at, expires_at, created_at) '.
-                'VALUES (:id, :hash, :refresh_hash, :device_name, :revoked, :last_used_at, :expires_at, :created_at)',
+                '(id, token_hash, refresh_token_hash, member_id, scopes, device_name, revoked, last_used_at, expires_at, created_at) '.
+                'VALUES (:id, :hash, :refresh_hash, :member_id, :scopes, :device_name, :revoked, :last_used_at, :expires_at, :created_at)',
             );
             $stmt->bindValue('id', $token->id, PDO::PARAM_INT);
             $stmt->bindValue('hash', $token->tokenHash);
             $stmt->bindValue('refresh_hash', $token->refreshTokenHash);
+            $stmt->bindValue('member_id', $token->memberId);
+            $stmt->bindValue('scopes', $scopesJson);
             $stmt->bindValue('device_name', $token->deviceName);
             $stmt->bindValue('revoked', $token->revoked ? 1 : 0, PDO::PARAM_INT);
             $stmt->bindValue('last_used_at', $token->lastUsedAt?->setTimezone($this->timezone)->format('Y-m-d H:i:s'));
@@ -110,12 +127,13 @@ final class PdoDeviceTokenRepository implements DeviceTokenRepository
         } else {
             $stmt = $this->pdo->prepare(
                 'UPDATE device_token SET device_name = :device_name, revoked = :revoked, '.
-                'refresh_token_hash = :refresh_hash, last_used_at = :last_used_at WHERE id = :id',
+                'refresh_token_hash = :refresh_hash, scopes = :scopes, last_used_at = :last_used_at WHERE id = :id',
             );
             $stmt->bindValue('id', $token->id, PDO::PARAM_INT);
             $stmt->bindValue('device_name', $token->deviceName);
             $stmt->bindValue('revoked', $token->revoked ? 1 : 0, PDO::PARAM_INT);
             $stmt->bindValue('refresh_hash', $token->refreshTokenHash);
+            $stmt->bindValue('scopes', $scopesJson);
             $stmt->bindValue('last_used_at', $token->lastUsedAt?->setTimezone($this->timezone)->format('Y-m-d H:i:s'));
             $stmt->execute();
         }

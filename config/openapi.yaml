@@ -672,6 +672,61 @@ paths:
         '500':
           $ref: '#/components/responses/ProblemInternalError'
 
+  /items/drafts:
+    post:
+      tags: [items]
+      summary: Upload an image to create an item draft.
+      description: |
+        Accepts a multipart upload (one product photo plus optional barcode /
+        name / price hints) and enqueues an `item_draft` row. A background
+        worker enriches the draft via barcode lookup and AI vision before
+        promoting it to a real item, so this endpoint returns immediately
+        with the draft id and `status: queued`.
+
+        **Auth:** `Authorization: Bearer <deviceToken>` (`items:write` scope)
+      operationId: createItemDraft
+      x-handler: 'Saso\Presentation\Api\V1\Controller\Item\DraftCreateController::handle'
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [image]
+              properties:
+                image:
+                  type: string
+                  format: binary
+                  description: Product photo (jpeg/png/webp/gif, ≤ 20 MB).
+                item_name:
+                  type: string
+                  description: Optional initial name hint.
+                jan_code:
+                  type: string
+                  description: Optional JAN/EAN barcode string.
+                isbn:
+                  type: string
+                  description: Optional ISBN.
+                price:
+                  type: string
+                  description: Optional price hint.
+                barcode_hint:
+                  type: string
+                  description: Optional barcode string to associate.
+      responses:
+        '201':
+          description: Draft accepted; background processing queued.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ItemDraftResource'
+        '400':
+          $ref: '#/components/responses/ProblemBadRequest'
+        '401':
+          $ref: '#/components/responses/ProblemUnauthorized'
+        '500':
+          $ref: '#/components/responses/ProblemInternalError'
+
   # ---------------------------------------------------------------------------
   # Categories
   # ---------------------------------------------------------------------------
@@ -1378,6 +1433,19 @@ components:
         stock:
           type: integer
           minimum: 0
+
+    ItemDraftResource:
+      type: object
+      required: [draft_id, status]
+      properties:
+        draft_id:
+          type: integer
+          minimum: 1
+          example: 42
+        status:
+          type: string
+          enum: [queued, processing, ready, failed]
+          example: queued
 
     # -------------------------------------------------------------------------
     # Categories

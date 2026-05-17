@@ -46,6 +46,56 @@ final class ProblemRendererTest extends TestCase
         self::assertStringNotContainsString('\/', $body);
     }
 
+    public function testBearerChallengeIsEmittedForMobile401(): void
+    {
+        $p = new ProblemDetails(
+            type: 'https://example.test/#SASO-MOBILE-2002',
+            title: 'Invalid token',
+            status: 401,
+            detail: 'Bearer rejected',
+            instance: '/api/v1/items',
+            code: 'SASO-MOBILE-2002',
+            traceId: 'aaaaaaaa-bbbb-4ccc-8ddd-eeeeeeeeeeee',
+        );
+
+        self::assertSame(
+            'Bearer realm="api", error="invalid_token"',
+            (new ProblemRenderer())->bearerChallenge($p),
+        );
+    }
+
+    public function testBearerChallengeForScopeInsufficientCarriesScopeWhenProvided(): void
+    {
+        $p = new ProblemDetails(
+            type: 'https://example.test/#SASO-MOBILE-2008',
+            title: 'Scope insufficient',
+            status: 403,
+            detail: 'Token lacks scope',
+            instance: '/api/v1/items',
+            code: 'SASO-MOBILE-2008',
+            traceId: 'aaaaaaaa-bbbb-4ccc-8ddd-eeeeeeeeeeee',
+            extensions: ['requiredScope' => 'items:write'],
+        );
+
+        self::assertSame(
+            'Bearer realm="api", error="insufficient_scope", scope="items:write"',
+            (new ProblemRenderer())->bearerChallenge($p),
+        );
+    }
+
+    public function testBearerChallengeReturnsNullForNonMobileFailures(): void
+    {
+        $p = ProblemDetails::fromError(
+            code: ErrorCode::AuthInvalidCredentials,
+            title: 'Invalid credentials',
+            detail: 'wrong password',
+            instance: '/login',
+            traceId: 'aaaaaaaa-bbbb-4ccc-8ddd-eeeeeeeeeeee',
+        );
+
+        self::assertNull((new ProblemRenderer())->bearerChallenge($p));
+    }
+
     public function testEncodeKeepsMultibyteCharactersUnescaped(): void
     {
         $p = ProblemDetails::fromError(

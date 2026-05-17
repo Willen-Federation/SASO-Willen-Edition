@@ -16,6 +16,8 @@ use Saso\Presentation\Api\V1\Response\JsonResponse;
  *   q           string   keyword search (LIKE %)
  *   category_id int      filter by category
  *   barcode     string   exact JAN/EAN code match
+ *   isbn        string   exact ISBN-13 code match
+ *   label_code  string   exact custom label/shelf code match
  *   limit       int      default 20, max 200
  *   cursor      int      last seen item ID for cursor pagination
  */
@@ -44,6 +46,12 @@ final class ListItemsController
         $barcode = isset($request->query['barcode']) && $request->query['barcode'] !== ''
             ? trim($request->query['barcode'])
             : null;
+        $isbn = isset($request->query['isbn']) && $request->query['isbn'] !== ''
+            ? trim($request->query['isbn'])
+            : null;
+        $labelCode = isset($request->query['label_code']) && $request->query['label_code'] !== ''
+            ? trim($request->query['label_code'])
+            : null;
 
         $where = ['1=1'];
         $binds = [];
@@ -54,7 +62,7 @@ final class ListItemsController
         }
 
         if ($q !== null) {
-            $where[]   = '(i.name LIKE :q OR i.jan_code LIKE :q)';
+            $where[]   = '(i.name LIKE :q OR i.jan_code LIKE :q OR i.isbn LIKE :q)';
             $binds['q'] = '%'.$q.'%';
         }
 
@@ -68,6 +76,16 @@ final class ListItemsController
             $binds['barcode'] = $barcode;
         }
 
+        if ($isbn !== null) {
+            $where[]         = 'i.isbn = :isbn';
+            $binds['isbn'] = $isbn;
+        }
+
+        if ($labelCode !== null) {
+            $where[]               = 'i.label_code = :label_code';
+            $binds['label_code'] = $labelCode;
+        }
+
         $whereClause = implode(' AND ', $where);
 
         $countStmt = $this->pdo->prepare(
@@ -79,7 +97,7 @@ final class ListItemsController
         $binds['limit'] = $limit + 1;
         $stmt = $this->pdo->prepare(
             'SELECT i.id, i.name, i.category_id, c.name_ja AS category_name, '.
-            'i.jan_code, i.stock, i.price, i.status, i.storage_location_id, '.
+            'i.jan_code, i.isbn, i.label_code, i.stock, i.price, i.status, i.storage_location_id, '.
             'i.created_at, i.updated_at '.
             'FROM item i '.
             'LEFT JOIN category c ON c.id = i.category_id '.
@@ -119,6 +137,8 @@ final class ListItemsController
             'categoryId'        => (string) ($row['category_id'] ?? ''),
             'categoryName'      => isset($row['category_name']) ? (string) $row['category_name'] : null,
             'janCode'           => isset($row['jan_code']) && $row['jan_code'] !== null ? (string) $row['jan_code'] : null,
+            'isbnCode'          => isset($row['isbn']) && $row['isbn'] !== null ? (string) $row['isbn'] : null,
+            'labelCode'         => isset($row['label_code']) && $row['label_code'] !== null ? (string) $row['label_code'] : null,
             'price'             => isset($row['price']) ? (int) $row['price'] : 0,
             'stock'             => isset($row['stock']) ? (int) $row['stock'] : 0,
             'status'            => (string) ($row['status'] ?? 'active'),

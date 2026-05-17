@@ -7,7 +7,7 @@
     $labelNotFound = $lang === 'ja' ? 'バーコードが見つかりません' : 'Barcode not found';
     $labelUnlinked  = $lang === 'ja' ? 'このバーコードはまだ商品に紐付けられていません' : 'This barcode is not yet linked to any item';
     $labelError     = $lang === 'ja' ? '検索エラーが発生しました' : 'Lookup error occurred';
-    $labelInvalid   = $lang === 'ja' ? '有効な12桁のバーコードを入力してください' : 'Please enter a valid 12-digit barcode';
+    $labelInvalid   = $lang === 'ja' ? '有効なバーコードを入力してください' : 'Please enter a valid barcode';
     $labelRegistered = $lang === 'ja' ? '商品登録済み' : 'Item found';
     $labelCode      = $lang === 'ja' ? '商品コード' : 'Item code';
     $labelColor     = $lang === 'ja' ? '色コード' : 'Color';
@@ -26,8 +26,25 @@
 ?>
 
 <script>
-  window.sasoBarcodeSearch = function() {
-    return {
+  (function () {
+    'use strict';
+
+    const config = {
+      csrfToken: <?php echo json_encode($csrfToken); ?>,
+      labels: {
+        notFound: <?php echo json_encode($labelNotFound); ?>,
+        invalid: <?php echo json_encode($labelInvalid); ?>,
+        regError: <?php echo json_encode($labelRegError); ?>,
+        regRequired: <?php echo json_encode($labelRegRequired); ?>
+      }
+    };
+
+    function registerBarcodeSearch() {
+      const Alpine = window.Alpine;
+      if (!Alpine || Alpine.__sasoBarcodeSearchRegistered) return;
+      Alpine.__sasoBarcodeSearchRegistered = true;
+
+      Alpine.data('sasoBarcodeSearch', () => ({
       code: '',
       result: null,
       error: null,
@@ -37,13 +54,8 @@
       reg: { barcodeId: '', itemName: '', colorName: '', sizeName: '', price: '' },
       regLoading: false,
       regError: null,
-      csrfToken: <?php echo json_encode($csrfToken); ?>,
-      labels: {
-        notFound: <?php echo json_encode($labelNotFound); ?>,
-        invalid: <?php echo json_encode($labelInvalid); ?>,
-        regError: <?php echo json_encode($labelRegError); ?>,
-        regRequired: <?php echo json_encode($labelRegRequired); ?>
-      },
+      csrfToken: config.csrfToken,
+      labels: config.labels,
 
       _buf: '',
       _lastTime: 0,
@@ -102,8 +114,9 @@
         }
       },
 
-      isPnd() {
-        return /^PND\d{9}$/.test(this.code.trim());
+      isPoolCode() {
+        const value = this.code.trim().toUpperCase();
+        return /^[A-Z][A-Z0-9]{0,7}\d{4,12}$/.test(value) || /^\d{13}$/.test(value);
       },
 
       isLegacy() {
@@ -126,14 +139,14 @@
           return;
         }
 
-        if (!this.isPnd()) {
+        if (!this.isPoolCode()) {
           this.error = this.labels.invalid;
           return;
         }
 
         this.loading = true;
         try {
-          const res = await fetch('./api/v1/barcode/' + encodeURIComponent(raw));
+          const res = await fetch('./api/v1/barcode/' + encodeURIComponent(raw.toUpperCase()));
           const data = await res.json();
           if (!res.ok || !data) {
             this.error = this.labels.notFound;
@@ -187,13 +200,17 @@
           this.regLoading = false;
         }
       }
-    };
-  };
+      }));
+    }
+
+    document.addEventListener('alpine:init', registerBarcodeSearch);
+    registerBarcodeSearch();
+  })();
 </script>
 
 <div class="flex justify-center mb-8">
   <div
-    x-data="sasoBarcodeSearch()"
+    x-data="sasoBarcodeSearch"
     @keydown.window="onWindowKey($event)"
     class="mb-6"
   >

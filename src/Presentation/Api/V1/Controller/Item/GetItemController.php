@@ -40,7 +40,7 @@ final class GetItemController
 
         $stmt = $this->pdo->prepare(
             'SELECT i.id, i.name, i.category_id, c.name_ja AS category_name, '.
-            'i.jan_code, i.stock, i.price, i.status, i.storage_location_id, '.
+            'i.jan_code, i.isbn, i.label_code, i.stock, i.price, i.status, i.storage_location_id, '.
             'i.created_at, i.updated_at '.
             'FROM item i '.
             'LEFT JOIN category c ON c.id = i.category_id '.
@@ -87,6 +87,8 @@ final class GetItemController
             'categoryId'        => (string) ($row['category_id'] ?? ''),
             'categoryName'      => isset($row['category_name']) ? (string) $row['category_name'] : null,
             'janCode'           => isset($row['jan_code']) && $row['jan_code'] !== null ? (string) $row['jan_code'] : null,
+            'isbnCode'          => isset($row['isbn']) && $row['isbn'] !== null ? (string) $row['isbn'] : null,
+            'labelCode'         => isset($row['label_code']) ? (string) $row['label_code'] : null,
             'price'             => isset($row['price']) ? (int) $row['price'] : 0,
             'stock'             => isset($row['stock']) ? (int) $row['stock'] : 0,
             'status'            => (string) ($row['status'] ?? 'active'),

@@ -95,6 +95,7 @@ ui:
     label_first: Print → Register
     item: Items
     item_register: Register
+    bulk: Bulk operations
     item_archive: Archive list
     item_archiveAll: Archive all
     shelf: Shelves
@@ -102,13 +103,18 @@ ui:
     shelf_map: Map
     verify: Verification
     label: Label
-    label_print: Print
+    label_print: Print item labels
     label_size: Sizes
+    item_attribute: Status columns
     category: Categories
     flags: Feature flags
     auth_providers: Auth providers
+    member: Members
+    role: Roles
+    ai_settings: AI settings
+    firebase_settings: Firebase
     password: Password
-    barcode_sheet: Barcode sheet
+    barcode_sheet: Create barcodes
     shelf_simple: Shelf setup
     group:
       main: Main
@@ -119,16 +125,27 @@ ui:
       admin: Administration
   dashboard:
     quick_links: Quick links
+    quick_links_help: Open the main operations dashboard.
     item_register_help: Add a new SKU to the catalogue.
-    barcode_sheet_help: Print a sheet of unique barcodes.
+    bulk_help: Import, export, or update many items at once.
+    barcode_sheet_help: Create, print, then attach barcode labels to items.
     shelf_simple_help: Quickly configure shelf ranges.
+    shelf_map_help: View item locations by shelf.
     verify_help: Run stocktakes or spot-checks.
     shelf_help: Detailed shelf management and labels.
-    label_help: Generate barcode labels for items.
+    label_help: Generate barcode labels for registered items.
+    label_wizard_help: Print a barcode and register the item immediately.
     archive_help: Browse archived items.
     archive_all_help: Archive every active item in one step.
     category_help: Manage the category tree.
     label_size_help: Configure A4 sheet layouts.
+    item_attribute_help: Add custom status columns to items.
+    member_help: Manage user accounts.
+    role_help: Control role permissions.
+    flags_help: Turn optional features on or off.
+    auth_providers_help: Configure external sign-in providers.
+    ai_settings_help: Configure AI provider credentials.
+    firebase_settings_help: Configure Firebase integration.
     password_help: Change your sign-in credentials.
   header:
     search_placeholder: Search items...
@@ -304,8 +321,8 @@ ui:
     title: Pending Barcodes
     count: Count
     empty: No pending barcodes.
-    go_wizard: Go to Wizard
-    back_to_wizard: Back to Wizard
+    go_wizard: Go to barcode creation
+    back_to_wizard: Back to barcode creation
     col_batch: Batch
     col_code: Code
     col_created: Created

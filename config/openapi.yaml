@@ -523,6 +523,16 @@ paths:
           description: Exact JAN / EAN code match.
           schema:
             type: string
+        - name: isbn
+          in: query
+          description: Exact ISBN-13 code match.
+          schema:
+            type: string
+        - name: label_code
+          in: query
+          description: Exact custom label/shelf code match.
+          schema:
+            type: string
         - name: limit
           in: query
           description: Page size (1–200, default 20).
@@ -1265,6 +1275,15 @@ components:
           type: string
           nullable: true
           example: '4901234567890'
+        isbnCode:
+          type: string
+          nullable: true
+          example: '9784101092058'
+          description: ISBN-13 barcode (books only).
+        labelCode:
+          type: string
+          nullable: true
+          description: "Custom label/shelf code."
         price:
           type: integer
           minimum: 0
@@ -1334,6 +1353,14 @@ components:
         janCode:
           type: string
           example: '4901234567890'
+        isbnCode:
+          type: string
+          example: '9784101092058'
+          description: ISBN-13 barcode (books). Mutually exclusive with janCode.
+        labelCode:
+          type: string
+          nullable: true
+          description: "Custom label/shelf code."
         price:
           type: integer
           minimum: 0
@@ -1358,6 +1385,14 @@ components:
         janCode:
           type: string
           nullable: true
+        isbnCode:
+          type: string
+          nullable: true
+          description: ISBN-13 barcode (books).
+        labelCode:
+          type: string
+          nullable: true
+          description: "Custom label/shelf code."
         price:
           type: integer
           minimum: 0

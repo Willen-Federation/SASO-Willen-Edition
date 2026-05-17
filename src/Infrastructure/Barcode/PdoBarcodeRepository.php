@@ -19,10 +19,9 @@ use Saso\Domain\Barcode\Repository\BarcodeRepository;
  *
  * `mintBatch()` runs inside an explicit transaction:
  *   1. Insert `barcode_batch` (initially `created_count = 0`).
- *   2. Loop `requestedCount` times: generate a 9-digit sequence via
- *      `random_int(0, 999_999_999)`, format as `PND` + zero-padded.
- *      INSERT IGNORE absorbs the once-in-a-billion collision; on every
- *      ignored insert we retry up to 3× before giving up on the batch.
+ *   2. Loop `requestedCount` times: generate either a random PND code or
+ *      a caller-selected prefix + sequential number. Unique constraint
+ *      collisions are retried by generating/advancing to the next candidate.
  *   3. UPDATE `barcode_batch.created_count` to the actual number of rows
  *      successfully inserted (always == requestedCount in practice;
  *      never less unless an unrecoverable collision occurs).
@@ -71,6 +70,9 @@ final class PdoBarcodeRepository implements BarcodeRepository
         ?int $labelSheetLayoutId,
         ?string $createdBy,
         BarcodeBatchOrigin $origin,
+        ?string $prefix = null,
+        ?int $startNo = null,
+        ?string $codeType = null,
     ): array {
         if ($requestedCount < 1 || $requestedCount > 5_000) {
             throw new \InvalidArgumentException('mintBatch count must be in [1, 5000].');
@@ -78,7 +80,13 @@ final class PdoBarcodeRepository implements BarcodeRepository
 
         $now    = new DateTimeImmutable('now', $this->timezone);
         $nowSql = $now->format('Y-m-d H:i:s');
-        $slug   = sprintf('PND-%s-%04d', $now->format('Ymd'), random_int(0, 9999));
+        $janMode = strtoupper((string) $codeType) === 'EAN13';
+        $prefix = $janMode
+            ? BarcodeCode::normalizeJanPrefix((string) $prefix)
+            : ($prefix !== null ? BarcodeCode::normalizePrefix($prefix) : BarcodeCode::PREFIX);
+        $sequential = $startNo !== null && $startNo > 0;
+        $nextSequence = $sequential ? $startNo : null;
+        $slug   = sprintf('%s-%s-%04d', $prefix, $now->format('Ymd'), random_int(0, 9999));
 
         $this->pdo->beginTransaction();
         try {
@@ -108,7 +116,15 @@ final class PdoBarcodeRepository implements BarcodeRepository
             $maxTry = max(10, $requestedCount * 3);
             while (count($codes) < $requestedCount && $tries < $maxTry) {
                 $tries++;
-                $code = BarcodeCode::fromSequence(random_int(0, 999_999_999));
+                if ($janMode) {
+                    $code = BarcodeCode::fromJanSequence((int) $nextSequence, $prefix);
+                    $nextSequence++;
+                } elseif ($sequential) {
+                    $code = BarcodeCode::fromSequence((int) $nextSequence, $prefix, 5);
+                    $nextSequence++;
+                } else {
+                    $code = BarcodeCode::fromSequence(random_int(0, 999_999_999), $prefix, 9);
+                }
                 try {
                     $insertCode->bindValue('code', $code->asString());
                     $insertCode->bindValue('status', BarcodeStatus::Pending->value);

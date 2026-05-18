@@ -48,6 +48,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   result so a rejected upload short-circuits before any DB write.
 
 ### Added
+- **`note` / `janCode` / `isbnCode` on items, with optional color/size on
+  registration.** New `note` (VARCHAR 255) and `jan_code` (VARCHAR 32,
+  indexed) columns join the existing `isbn` and `label_code` columns on
+  the shared `Item` row, so both transports see the same data:
+  * Legacy `/item/add/` form: three new optional inputs (note, JAN,
+    ISBN) on entry and confirmation. The required attribute is dropped
+    from `colorName` / `sizeName` so an item can register with no
+    variants; the `色数×サイズ数 ≤ 100` upper bound still applies when
+    either is supplied. A matching edit panel ships at
+    `/item/changeMeta/item/{id}/` and is wired into `/item/edit/...`.
+  * REST `/api/v1/items`: `note` is exposed on `POST`, `PATCH`, `GET`,
+    and the list response. Pass `""` or `null` on `PATCH` to clear. The
+    OpenAPI schemas (`ItemCreateRequest`, `ItemPatchRequest`,
+    `ItemResource`) gain the new property with a 255-char ceiling.
+  * Schema migration `20260519120000_add_note_and_jan_to_item.php`. The
+    `note` field complements the packaging-specific `plaNote` /
+    `paperNote` columns — those describe wrapping, `note` is for
+    everything else.
 - **Plugin lifecycle contract + `PluginContext` facade** (M6-J2).
   Promotes `Saso\Domain\Plugin\Plugin` from a marker interface to the
   full lifecycle promised by

@@ -4,7 +4,7 @@ The REST API lives at `/api/v1/*`. The contract is defined by an OpenAPI 3.1 spe
 
 ## Status
 
-As of M4-D the API is live with meta, feature-flag, and mobile-pairing endpoints. Domain endpoints (items, categories, labels, shelves) are scheduled for M5.
+As of M4-D the API is live with meta, feature-flag, and mobile-pairing endpoints. Items, categories, and storage-location endpoints ship throughout M5–M7; labels and shelves remain scheduled.
 
 ## Endpoints
 
@@ -40,6 +40,52 @@ QR-based device pairing and Flutter client configuration (cf. [ADR 0014](archite
 | `/api/v1/mobile/config` | `GET` | Return server URL, feature flags, and supported capabilities as a Flutter config bundle. |
 | `/api/v1/mobile/tokens` | `GET` | List all active device tokens for the current operator. |
 | `/api/v1/mobile/tokens/{id}` | `DELETE` | Revoke a specific device token. |
+
+### Items — Inventory CRUD
+
+Bearer-authenticated item operations. The same `Item` row is shared with the
+legacy admin screens (cf. [item registration form](#item-registration-form-legacy))
+so any field added here is visible from both transports.
+
+| Endpoint | Method | What it does |
+|---|---|---|
+| `/api/v1/items` | `GET` | Cursor-paginated list / search. Filters: `q`, `category_id`, `barcode`, `isbn`, `label_code`. |
+| `/api/v1/items` | `POST` | Create an item. Optional `Idempotency-Key` header for safe retries. |
+| `/api/v1/items/{id}` | `GET` | Single item, including EAV attribute values. |
+| `/api/v1/items/{id}` | `PATCH` | Partial update — only keys present in the body are applied. |
+| `/api/v1/items/drafts` | `POST` | Multipart upload that enqueues an `item_draft` for AI enrichment. |
+
+#### Fields
+
+`ItemResource` and the request payloads carry the following identifiers
+and free-form fields beyond `name` / `categoryId`:
+
+| Field | Type | Notes |
+|---|---|---|
+| `janCode` | string ≤ 32 | JAN/EAN product barcode. Indexed for `?barcode=` filter. |
+| `isbnCode` | string ≤ 32 | ISBN-13 (`978...` / `979...`). Indexed for `?isbn=` filter. |
+| `labelCode` | string ≤ 64 | Custom shelf/SKU label. Indexed for `?label_code=` filter. |
+| `note` | string ≤ 255 | Free-form remarks. Persisted to `Item.note`. Pass `""` or `null` on PATCH to clear. |
+
+`note` complements the packaging-specific `plaNote` / `paperNote` columns
+used by the legacy form: those describe the wrapping; `note` is for
+everything else (handling instructions, supplier comments, internal
+labelling notes).
+
+#### Item registration form (legacy)
+
+The PHP-rendered registration screen at `/item/add/` shares the same
+underlying `Item` row as the REST API. Effective with the May 2026
+schema additions:
+
+- `colorName` and `sizeName` are now **optional**. An item can be
+  registered without any color/size variants; the `色数×サイズ数 ≤ 100`
+  upper bound still applies when either is supplied.
+- `note`, `janCode`, and `isbnCode` are exposed as optional inputs on
+  both the entry form and the two-step confirmation screen.
+- `/item/changeMeta/item/{id}/` is the matching edit panel on the
+  `/item/edit/...` page — operators can revise the three identifier /
+  remarks fields without going through the REST API.
 
 ## Authentication
 

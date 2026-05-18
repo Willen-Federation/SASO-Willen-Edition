@@ -122,6 +122,12 @@ final class UpdateItemController
             $binds['label_code'] = $label === '' ? null : $label;
         }
 
+        if (array_key_exists('note', $body)) {
+            $note          = $body['note'] !== null ? trim((string) $body['note']) : null;
+            $sets[]        = 'note = :note';
+            $binds['note'] = ($note === null || $note === '') ? null : mb_substr($note, 0, 255);
+        }
+
         if (array_key_exists('price', $body)) {
             $sets[]         = 'price = :price';
             $binds['price'] = max(0, (int) $body['price']);
@@ -172,7 +178,7 @@ final class UpdateItemController
 
         $fetchStmt = $this->pdo->prepare(
             'SELECT i.id, i.name, i.category_id, c.name_ja AS category_name, '.
-            'i.jan_code, i.isbn, i.label_code, i.stock, i.price, i.status, i.storage_location_id, '.
+            'i.jan_code, i.isbn, i.label_code, i.note, i.stock, i.price, i.status, i.storage_location_id, '.
             'i.created_at, i.updated_at '.
             'FROM item i '.
             'LEFT JOIN category c ON c.id = i.category_id '.
@@ -202,6 +208,7 @@ final class UpdateItemController
             'janCode'           => isset($row['jan_code']) && $row['jan_code'] !== null ? (string) $row['jan_code'] : null,
             'isbnCode'          => isset($row['isbn']) && $row['isbn'] !== null ? (string) $row['isbn'] : null,
             'labelCode'         => isset($row['label_code']) && $row['label_code'] !== null ? (string) $row['label_code'] : null,
+            'note'              => isset($row['note']) && $row['note'] !== null ? (string) $row['note'] : null,
             'price'             => isset($row['price']) ? (int) $row['price'] : 0,
             'stock'             => isset($row['stock']) ? (int) $row['stock'] : 0,
             'status'            => (string) ($row['status'] ?? 'active'),

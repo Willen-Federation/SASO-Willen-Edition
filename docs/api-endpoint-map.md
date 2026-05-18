@@ -68,10 +68,10 @@ you change one, change the other; CI rejects drift.
 
 | Method | Path | Auth | Scope | Purpose |
 |--------|------|------|-------|---------|
-| `GET` | `/api/v1/items` | Bearer | `items:read` | Search / list (cursor pagination: `cursor`, `limit`, `q`, `category_id`) |
-| `POST` | `/api/v1/items` | Bearer | `items:write` | Create (supports `Idempotency-Key`) |
-| `GET` | `/api/v1/items/{id}` | Bearer | `items:read` | Get one item with EAV attributes |
-| `PATCH` | `/api/v1/items/{id}` | Bearer | `items:write` | Partial update (supports `Idempotency-Key`) |
+| `GET` | `/api/v1/items` | Bearer | `items:read` | Search / list (cursor pagination: `cursor`, `limit`, `q`, `category_id`, `barcode`, `isbn`, `label_code`) |
+| `POST` | `/api/v1/items` | Bearer | `items:write` | Create (supports `Idempotency-Key`). Accepts `janCode`, `isbnCode`, `labelCode`, `note` as optional fields. |
+| `GET` | `/api/v1/items/{id}` | Bearer | `items:read` | Get one item with EAV attributes. Response includes `janCode`, `isbnCode`, `labelCode`, `note`. |
+| `PATCH` | `/api/v1/items/{id}` | Bearer | `items:write` | Partial update (supports `Idempotency-Key`). `note` accepts empty string or `null` to clear. |
 | `POST` | `/api/v1/items/drafts` | Bearer | `items:write` | Multipart upload → enqueue an `item_draft` row. See [DraftCreateController](https://github.com/Willen-Federation/SASO-Willen-Edition/blob/main/src/Presentation/Api/V1/Controller/Item/DraftCreateController.php). |
 
 ### Categories & storage locations (Bearer)

@@ -38,6 +38,7 @@ final class UpdateItemControllerTest extends TestCase
                 jan_code            TEXT,
                 isbn                TEXT,
                 label_code          TEXT,
+                note                TEXT,
                 price               INTEGER NOT NULL DEFAULT 0,
                 stock               INTEGER NOT NULL DEFAULT 0,
                 status              TEXT,
@@ -131,6 +132,32 @@ final class UpdateItemControllerTest extends TestCase
             self::assertSame(200, $response->status, "status={$value}");
             self::assertSame($value, $this->currentStatus(1));
         }
+    }
+
+    public function testNoteIsPersistedAndReturned(): void
+    {
+        $response = $this->controller->handle($this->patch('1', ['note' => '入荷時要再確認']));
+
+        self::assertSame(200, $response->status);
+        self::assertSame('入荷時要再確認', $response->body['note']);
+        self::assertSame('入荷時要再確認', (string) $this->fetchRow(1)['note']);
+    }
+
+    public function testNoteClearedByEmptyStringAndExplicitNull(): void
+    {
+        $this->pdo->exec("UPDATE item SET note = 'preset' WHERE id = 1");
+
+        $response = $this->controller->handle($this->patch('1', ['note' => '']));
+        self::assertSame(200, $response->status);
+        self::assertNull($response->body['note']);
+        self::assertNull($this->fetchRow(1)['note']);
+
+        $this->pdo->exec("UPDATE item SET note = 'preset again' WHERE id = 1");
+
+        $response = $this->controller->handle($this->patch('1', ['note' => null]));
+        self::assertSame(200, $response->status);
+        self::assertNull($response->body['note']);
+        self::assertNull($this->fetchRow(1)['note']);
     }
 
     /** @param array<string, mixed> $body */

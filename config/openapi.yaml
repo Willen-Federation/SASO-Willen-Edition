@@ -679,6 +679,8 @@ paths:
           $ref: '#/components/responses/ProblemUnauthorized'
         '404':
           $ref: '#/components/responses/ProblemNotFound'
+        '422':
+          $ref: '#/components/responses/ProblemUnprocessable'
         '500':
           $ref: '#/components/responses/ProblemInternalError'
 
@@ -1468,6 +1470,12 @@ components:
         stock:
           type: integer
           minimum: 0
+        status:
+          type: string
+          enum: [active, archived, discontinued, pending, in_storage, in_use, for_sale, reserved, shipped]
+          description: |
+            Operational lifecycle status. Any value → any value is permitted
+            (no transition rules). Unknown values yield 422.
 
     ItemDraftResource:
       type: object
@@ -1680,6 +1688,13 @@ components:
 
     ProblemMethodNotAllowed:
       description: HTTP method not registered on this path.
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/ProblemDetails'
+
+    ProblemUnprocessable:
+      description: The request was syntactically valid but a field value is not permitted (e.g. enum out of range).
       content:
         application/problem+json:
           schema:

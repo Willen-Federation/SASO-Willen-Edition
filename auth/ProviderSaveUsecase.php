@@ -71,7 +71,22 @@ final class ProviderSaveUsecase implements Usecase
             updatedAt: new DateTimeImmutable(),
         );
 
-        $this->repo->save($record);
+        // Persisting can fail for reasons the operator can act on (missing
+        // table from a partial M4 migration, sql_mode rejecting the row, a
+        // duplicate name, etc.). Surface those as form-level errors so the
+        // wizard re-renders with a real message instead of a blank page.
+        try {
+            $this->repo->save($record);
+        } catch (\Throwable $e) {
+            if (function_exists('error_log')) {
+                error_log('[saso-auth-provider-save] '.$e::class.': '.$e->getMessage());
+            }
+            $this->output = new ProviderNewInput(
+                errorMessage: '認証プロバイダーを保存できませんでした: '.$e->getMessage(),
+            );
+            return;
+        }
+
         $this->output = new ProviderNewInput();
     }
 

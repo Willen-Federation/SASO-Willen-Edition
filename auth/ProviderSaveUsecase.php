@@ -18,7 +18,7 @@ final class ProviderSaveUsecase implements Usecase
     private DTO $output;
 
     public function __construct(
-        private AuthProviderRepository $repo,
+        private ?AuthProviderRepository $repo,
         private ?SecretEncryptor $encryptor,
         private Presenter $presenter,
     ) {
@@ -33,12 +33,13 @@ final class ProviderSaveUsecase implements Usecase
         }
 
         // Surface a clear admin-facing error when the application has been
-        // started without an APP_KEY: silently dropping the secret would
-        // produce the "認証プロバイダーが正しく設定されていません" message
-        // at the next sign-in attempt with no clue why.
-        if ($data->clientSecret !== null && $data->clientSecret !== '' && $this->encryptor === null) {
+        // started without an APP_KEY. PdoAuthProviderRepository requires a
+        // SecretEncryptor at construction time, so the DI container passes
+        // a null repo when the key is missing — without this check the save
+        // call below would NPE.
+        if ($this->repo === null || $this->encryptor === null) {
             $this->output = new ProviderNewInput(
-                errorMessage: 'クライアントシークレットを保存できません。サーバーの APP_KEY が未設定です。管理者にご確認ください。',
+                errorMessage: '認証プロバイダーを保存できません。サーバーの APP_KEY が未設定です。.env に APP_KEY=<base64エンコードされた32バイトキー> を追加してください。',
             );
             return;
         }

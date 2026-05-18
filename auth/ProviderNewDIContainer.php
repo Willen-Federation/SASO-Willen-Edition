@@ -55,7 +55,13 @@ final class ProviderNewDIContainer implements DIContainer
         } else {
             $pdo       = DBConnection::getPdo();
             $encryptor = self::buildEncryptor();
-            $repo      = new PdoAuthProviderRepository($pdo, $encryptor);
+            // PdoAuthProviderRepository requires a non-null SecretEncryptor.
+            // When APP_KEY is missing we cannot build one; pass a null repo so
+            // ProviderSaveUsecase can surface the misconfiguration as a form
+            // error instead of fatally TypeError-ing at construction.
+            $repo      = $encryptor === null
+                ? null
+                : new PdoAuthProviderRepository($pdo, $encryptor);
 
             $this->ctrl    = new ProviderSaveController($post);
             $this->usecase = new ProviderSaveUsecase(

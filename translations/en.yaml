@@ -164,6 +164,7 @@ ui:
     dismiss: Dismiss
     edit: Edit
   user_menu:
+    my_page: My Page
     change_password: Change password
     logout: Sign out
   installer:

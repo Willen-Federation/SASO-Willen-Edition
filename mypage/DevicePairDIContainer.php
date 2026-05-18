@@ -35,7 +35,11 @@ final class DevicePairDIContainer implements DIContainer
 
     public function isTopLevel(): bool
     {
-        return false;
+        // JSON-only AJAX endpoint: must bypass the root template, otherwise
+        // the HTML shell is appended to the JSON body and `await res.json()`
+        // in the device-pairing modal throws (surfaces as "Failed to generate
+        // code" in the UI even though the row was written to pairing_code).
+        return true;
     }
 
     public function di(\Closure $inside, array $query, array $post, array $config, \DateTime $now): void

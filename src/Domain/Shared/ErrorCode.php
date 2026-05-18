@@ -38,6 +38,10 @@ enum ErrorCode: string
     case MobileInvalidRequest        = 'SASO-MOBILE-2007';
     case MobileScopeInsufficient     = 'SASO-MOBILE-2008';
 
+    // ── Item domain (3xxx) ───────────────────────────────────────────────
+    case ItemNotFound       = 'SASO-ITEM-3001';
+    case ItemInvalidStatus  = 'SASO-ITEM-3002';
+
     // ── Configuration (6xxx) ─────────────────────────────────────────────
     case ConfigSettingNotFound = 'SASO-CONFIG-6001';
 
@@ -98,6 +102,9 @@ enum ErrorCode: string
             self::MobileInvalidRequest         => 400,
 
             self::MobileScopeInsufficient      => 403,
+
+            self::ItemNotFound                 => 404,
+            self::ItemInvalidStatus            => 422,
 
             self::ConfigSettingNotFound,
             self::FlagNotFound                 => 404,
@@ -166,6 +173,8 @@ enum ErrorCode: string
             self::MobileTokenExpired           => 'Device token has expired',
             self::MobileInvalidRequest         => 'Invalid mobile connect request',
             self::MobileScopeInsufficient      => 'Scope insufficient for the requested endpoint',
+            self::ItemNotFound                 => 'Item not found',
+            self::ItemInvalidStatus            => 'Item status value is not one of the permitted values',
             self::ConfigSettingNotFound        => 'System setting not found',
             self::FlagNotFound                 => 'Feature flag not found',
             self::AiProviderNotConfigured      => 'AI provider is not configured',

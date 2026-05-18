@@ -13,6 +13,7 @@ use Saso\Domain\Shared\DomainException;
 use Saso\Domain\Shared\ErrorCode;
 use Saso\Presentation\Api\V1\HttpRequest;
 use Saso\Presentation\Api\V1\Response\JsonResponse;
+use Saso\Presentation\Api\V1\Response\ProblemResponse;
 
 /**
  * PATCH /api/v1/items/{id}
@@ -24,6 +25,24 @@ use Saso\Presentation\Api\V1\Response\JsonResponse;
  */
 final class UpdateItemController
 {
+    /**
+     * Permitted values for the `status` column. Mirrors the enum in
+     * `config/openapi.yaml#/components/schemas/ItemResource.status` and the
+     * legacy admin form in `item/template/changeStatus.php`. Any value here
+     * is reachable from any other value — there are no transition rules.
+     */
+    private const ALLOWED_STATUSES = [
+        'active',
+        'archived',
+        'discontinued',
+        'pending',
+        'in_storage',
+        'in_use',
+        'for_sale',
+        'reserved',
+        'shipped',
+    ];
+
     public function __construct(
         private readonly PDO $pdo,
         private readonly JwtGuard $guard,
@@ -111,6 +130,18 @@ final class UpdateItemController
         if (array_key_exists('stock', $body)) {
             $sets[]         = 'stock = :stock';
             $binds['stock'] = max(0, (int) $body['stock']);
+        }
+
+        if (array_key_exists('status', $body)) {
+            $status = is_string($body['status']) ? $body['status'] : '';
+            if (!in_array($status, self::ALLOWED_STATUSES, true)) {
+                return ProblemResponse::unprocessable(
+                    ErrorCode::ItemInvalidStatus->value,
+                    'status must be one of: '.implode(', ', self::ALLOWED_STATUSES),
+                );
+            }
+            $sets[]          = 'status = :status';
+            $binds['status'] = $status;
         }
 
         if ($sets === []) {

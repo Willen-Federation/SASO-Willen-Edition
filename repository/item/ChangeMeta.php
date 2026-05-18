@@ -4,7 +4,7 @@ namespace saso\repository\item;
 use saso\entity\Item;
 use saso\repository\DbPrepare;
 
-final class Insert implements DbPrepare
+final class ChangeMeta implements DbPrepare
 {
     private array $data;
     public function __construct(
@@ -15,12 +15,11 @@ final class Insert implements DbPrepare
     public function getQuery(): string
     {
         return '
-            INSERT INTO Item('
-                .implode(',', array_keys($this->data)).
-            ')
-            VALUES ('
-                .implode(',', array_map(fn($p)=>':'.$p, array_keys($this->data))).
-            ')
+            UPDATE Item
+                SET   note = :note
+                    , jan_code = :jan_code
+                    , isbn = :isbn
+                WHERE concatId = :concatId
         ';
     }
     public function bind(\PDOStatement $stmt, array $input): void
@@ -32,18 +31,10 @@ final class Insert implements DbPrepare
     public function map(): \Closure
     {
         $this->data = [
-            'dateCode'=>$this->item->dateCode,
-            'serial'=>$this->item->serial,
-            'itemName'=>$this->item->name,
-            'pla'=>$this->item->pla?1:0,
-            'plaNote'=>$this->item->plaNote,
-            'paper'=>$this->item->paper?1:0,
-            'paperNote'=>$this->item->paperNote,
-            'createAt'=>$this->item->createAt->format('Y-m-d H:i:s'),
-            'concatId'=>$this->item->id,
             'note'=>$this->item->note,
             'jan_code'=>$this->item->janCode,
             'isbn'=>$this->item->isbnCode,
+            'concatId'=>$this->item->id,
         ];
         return fn()=>$this->item;
     }

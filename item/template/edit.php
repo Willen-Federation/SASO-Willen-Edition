@@ -13,6 +13,8 @@
 <hr class="my-5" style="border-color:var(--saso-card-bdr)">
 <?php ($v->inside)('item', 'changePrice'); ?>
 <hr class="my-5" style="border-color:var(--saso-card-bdr)">
+<?php ($v->inside)('item', 'changeMeta'); ?>
+<hr class="my-5" style="border-color:var(--saso-card-bdr)">
 <?php ($v->inside)('item', 'changeSizeOrder'); ?>
 <hr class="my-5" style="border-color:var(--saso-card-bdr)">
 <?php ($v->inside)('item', 'attributeValues'); ?>

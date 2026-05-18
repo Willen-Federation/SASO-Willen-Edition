@@ -140,6 +140,10 @@
             "matter": "item",
             "action": "changeCategory"
         },
+        "changeMeta": {
+            "matter": "item",
+            "action": "changeMeta"
+        },
         "changeSizeOrder": {
             "matter": "item",
             "action": "changeSizeOrder"

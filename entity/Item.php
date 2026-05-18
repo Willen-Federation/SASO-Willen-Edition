@@ -17,6 +17,9 @@ final class Item
         private ?string $paperNote,
         private \DateTime $createAt,
         private ?string $status = null,
+        private ?string $note = null,
+        private ?string $janCode = null,
+        private ?string $isbnCode = null,
     )
     {
         $this->dateCode = self::makeDateCode($createAt);
@@ -33,6 +36,18 @@ final class Item
     public static function caseNoteConstraint(string $note): Either
     {
         return EntityConstraint::optionalNoteConstraint($note, 50);
+    }
+    public static function noteConstraint(string $note): Either
+    {
+        return EntityConstraint::optionalNoteConstraint($note, 255);
+    }
+    public static function janCodeConstraint(string $code): Either
+    {
+        return EntityConstraint::optionalNoteConstraint($code, 32);
+    }
+    public static function isbnCodeConstraint(string $code): Either
+    {
+        return EntityConstraint::optionalNoteConstraint($code, 32);
     }
     public static function makeDateCode(\DateTime $dt): string
     {

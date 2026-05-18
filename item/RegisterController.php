@@ -50,6 +50,9 @@ final class RegisterController implements Controller
         $paper = array_key_exists('paper', $post);
         $paperNote = entity\Item::caseNoteConstraint($post['paperNote']??'')
             ->map(fn($v)=>$paper?$v:'');
+        $note = entity\Item::noteConstraint(trim((string)($post['note']??'')));
+        $janCode = entity\Item::janCodeConstraint(trim((string)($post['janCode']??'')));
+        $isbnCode = entity\Item::isbnCodeConstraint(trim((string)($post['isbnCode']??'')));
         $this->data = new RegisterInputData(
             $name,
             $categoryId,
@@ -60,6 +63,9 @@ final class RegisterController implements Controller
             $plaNote,
             $paper,
             $paperNote,
+            $note,
+            $janCode,
+            $isbnCode,
             $now,
             entity\Feature::validFeaturesAmount(count($colorNames)*count($sizeNames)),
         );

@@ -46,6 +46,10 @@ final class RegisterUsecase implements Usecase
                 $data->paper,
                 $data->paperNote->getOrElseThrow('Item paperNote is invalid'),
                 $data->now,
+                null,
+                $data->note->getOrElse(null) ?: null,
+                $data->janCode->getOrElse(null) ?: null,
+                $data->isbnCode->getOrElse(null) ?: null,
             ));
             $itemEither = $item->map(fn($v)=>new item\Insert($v))
             ->filter(fn($v)=>$v??false)
@@ -73,8 +77,7 @@ final class RegisterUsecase implements Usecase
                 $v->name->getOrElseThrow('Color name is invalid.'),
             )))
             ->map(Each::tf(fn($v)=>new color\Insert($v)))
-            ->filter(fn($v)=>$v->valid())
-            ->getOrElseThrow('Color is nothing');
+            ->getOrElse(new \EmptyIterator());
             $sizes = $data->sizes
             ->map(Each::tf(fn($v)=>new entity\Size(
                 $item->getOrElseThrow('Fail to create Item.'),
@@ -83,8 +86,7 @@ final class RegisterUsecase implements Usecase
                 $v->orderNumber->getOrElseThrow('Size orderNumber is invalid'),
             )))
             ->map(Each::tf(fn($v)=>new size\Insert($v)))
-            ->filter(fn($v)=>$v->valid())
-            ->getOrElseThrow('Size is nothing');
+            ->getOrElse(new \EmptyIterator());
             Either::of(Each::t([$itemEither, $itemVar, $colors, $sizes]))
             ->map(Each::m())
             ->map(Each::exec(fn($v)=>$this->updater->exec($v)));

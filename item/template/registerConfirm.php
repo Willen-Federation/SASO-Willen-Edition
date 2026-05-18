@@ -14,6 +14,9 @@
         <th scope="col">役割名</th>
         <th scope="col">紙</th>
         <th scope="col">役割名</th>
+        <th scope="col">JAN</th>
+        <th scope="col">ISBN</th>
+        <th scope="col">備考</th>
         <th scope="col">登録日</th>
         <th scope="col">更新日</th>
         <th scope="col">色</th>
@@ -38,6 +41,9 @@
           <?php endif; ?>
         </td>
         <td><?php echo htmlspecialchars($v->item->paperNote, ENT_QUOTES, 'UTF-8'); ?></td>
+        <td><?php echo htmlspecialchars((string)($v->item->janCode ?? ''), ENT_QUOTES, 'UTF-8'); ?></td>
+        <td><?php echo htmlspecialchars((string)($v->item->isbnCode ?? ''), ENT_QUOTES, 'UTF-8'); ?></td>
+        <td><?php echo htmlspecialchars((string)($v->item->note ?? ''), ENT_QUOTES, 'UTF-8'); ?></td>
         <td>-</td>
         <td>-</td>
         <td><?php echo htmlspecialchars($v->serializedColors, ENT_QUOTES, 'UTF-8'); ?></td>
@@ -73,6 +79,9 @@
       <input type="hidden" name="plaNoteConfirm" value="<?php echo htmlspecialchars($v->item->plaNote, ENT_QUOTES, 'UTF-8'); ?>">
       <input type="hidden" name="paperConfirm" value="<?php echo $v->item->paper ? '1' : ''; ?>">
       <input type="hidden" name="paperNoteConfirm" value="<?php echo htmlspecialchars($v->item->paperNote, ENT_QUOTES, 'UTF-8'); ?>">
+      <input type="hidden" name="noteConfirm" value="<?php echo htmlspecialchars((string)($v->item->note ?? ''), ENT_QUOTES, 'UTF-8'); ?>">
+      <input type="hidden" name="janCodeConfirm" value="<?php echo htmlspecialchars((string)($v->item->janCode ?? ''), ENT_QUOTES, 'UTF-8'); ?>">
+      <input type="hidden" name="isbnCodeConfirm" value="<?php echo htmlspecialchars((string)($v->item->isbnCode ?? ''), ENT_QUOTES, 'UTF-8'); ?>">
 
       <div class="mb-4">
         <label for="rc-name" class="mb-1.5 block text-sm font-medium" style="color:var(--saso-text)">
@@ -107,20 +116,36 @@
       </div>
 
       <div class="mb-4">
-        <label for="rc-color" class="mb-1.5 block text-sm font-medium" style="color:var(--saso-text)">
-          色<span class="text-red-500" aria-hidden="true">*</span>
-        </label>
-        <input id="rc-color" type="text" name="colorName" class="form-input w-full" required
+        <label for="rc-color" class="mb-1.5 block text-sm font-medium" style="color:var(--saso-text)">色</label>
+        <input id="rc-color" type="text" name="colorName" class="form-input w-full"
                value="<?php echo htmlspecialchars($v->inputColors, ENT_QUOTES, 'UTF-8'); ?>">
+        <p class="mt-1 text-xs" style="color:var(--saso-text-sub)">任意。半角カンマ区切り。</p>
+      </div>
+
+      <div class="mb-4">
+        <label for="rc-size" class="mb-1.5 block text-sm font-medium" style="color:var(--saso-text)">サイズ</label>
+        <input id="rc-size" type="text" name="sizeName" class="form-input w-full"
+               value="<?php echo htmlspecialchars($v->inputSizes, ENT_QUOTES, 'UTF-8'); ?>">
+        <p class="mt-1 text-xs" style="color:var(--saso-text-sub)">任意。色数×サイズ数 &le; 100</p>
+      </div>
+
+      <div class="mb-4">
+        <label for="rc-jan" class="mb-1.5 block text-sm font-medium" style="color:var(--saso-text)">JANコード</label>
+        <input id="rc-jan" type="text" name="janCode" class="form-input w-full"
+               maxlength="32" inputmode="numeric" autocomplete="off"
+               value="<?php echo htmlspecialchars((string)($v->item->janCode ?? ''), ENT_QUOTES, 'UTF-8'); ?>">
+      </div>
+
+      <div class="mb-4">
+        <label for="rc-isbn" class="mb-1.5 block text-sm font-medium" style="color:var(--saso-text)">ISBNコード</label>
+        <input id="rc-isbn" type="text" name="isbnCode" class="form-input w-full"
+               maxlength="32" autocomplete="off"
+               value="<?php echo htmlspecialchars((string)($v->item->isbnCode ?? ''), ENT_QUOTES, 'UTF-8'); ?>">
       </div>
 
       <div class="mb-5">
-        <label for="rc-size" class="mb-1.5 block text-sm font-medium" style="color:var(--saso-text)">
-          サイズ<span class="text-red-500" aria-hidden="true">*</span>
-        </label>
-        <input id="rc-size" type="text" name="sizeName" class="form-input w-full" required
-               value="<?php echo htmlspecialchars($v->inputSizes, ENT_QUOTES, 'UTF-8'); ?>">
-        <p class="mt-1 text-xs" style="color:var(--saso-text-sub)">色数×サイズ数 &le; 100</p>
+        <label for="rc-note" class="mb-1.5 block text-sm font-medium" style="color:var(--saso-text)">その他の備考</label>
+        <textarea id="rc-note" name="note" class="form-input w-full" rows="3" maxlength="255"><?php echo htmlspecialchars((string)($v->item->note ?? ''), ENT_QUOTES, 'UTF-8'); ?></textarea>
       </div>
 
       <button type="submit" class="btn btn-primary w-full">登録</button>

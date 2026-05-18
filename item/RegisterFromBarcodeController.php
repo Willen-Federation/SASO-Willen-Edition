@@ -43,6 +43,10 @@ final class RegisterFromBarcodeController implements Controller, DTO
                 entity\Size::orderNumberConstraint($v),
             )));
 
+        $note = entity\Item::noteConstraint(trim((string) ($post['note'] ?? '')));
+        $janCode = entity\Item::janCodeConstraint(trim((string) ($post['janCode'] ?? '')));
+        $isbnCode = entity\Item::isbnCodeConstraint(trim((string) ($post['isbnCode'] ?? '')));
+
         $this->registerData = new RegisterInputData(
             $name,
             $categoryId,
@@ -53,6 +57,9 @@ final class RegisterFromBarcodeController implements Controller, DTO
             entity\Item::caseNoteConstraint(''), // plaNote
             false, // paper
             entity\Item::caseNoteConstraint(''), // paperNote
+            $note,
+            $janCode,
+            $isbnCode,
             $now,
             entity\Feature::validFeaturesAmount(count($colorNames) * count($sizeNames)),
         );

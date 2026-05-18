@@ -114,27 +114,25 @@ final class PdoSystemSettingService implements SystemSettingService
                 'INSERT INTO system_setting (`key`, value, value_type, encrypted, updated_at, updated_by) '.
                 'VALUES (:key, :value, :type, :encrypted, :updated_at, :updated_by)',
             );
-            $insert->execute([
-                'key'        => $name,
-                'value'      => $storedBytes,
-                'type'       => $value->type->value,
-                'encrypted'  => $isSecret ? 1 : 0,
-                'updated_at' => $now,
-                'updated_by' => $changedBy,
-            ]);
+            $insert->bindValue('key', $name);
+            $insert->bindValue('value', $storedBytes, PDO::PARAM_LOB);
+            $insert->bindValue('type', $value->type->value);
+            $insert->bindValue('encrypted', $isSecret ? 1 : 0, PDO::PARAM_INT);
+            $insert->bindValue('updated_at', $now);
+            $insert->bindValue('updated_by', $changedBy);
+            $insert->execute();
         } else {
             $update = $this->pdo->prepare(
                 'UPDATE system_setting SET value = :value, value_type = :type, encrypted = :encrypted, '.
                 'updated_at = :updated_at, updated_by = :updated_by WHERE `key` = :key',
             );
-            $update->execute([
-                'value'      => $storedBytes,
-                'type'       => $value->type->value,
-                'encrypted'  => $isSecret ? 1 : 0,
-                'updated_at' => $now,
-                'updated_by' => $changedBy,
-                'key'        => $name,
-            ]);
+            $update->bindValue('value', $storedBytes, PDO::PARAM_LOB);
+            $update->bindValue('type', $value->type->value);
+            $update->bindValue('encrypted', $isSecret ? 1 : 0, PDO::PARAM_INT);
+            $update->bindValue('updated_at', $now);
+            $update->bindValue('updated_by', $changedBy);
+            $update->bindValue('key', $name);
+            $update->execute();
         }
 
         $this->writeAudit(

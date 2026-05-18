@@ -23,43 +23,53 @@ final class FirebaseSettingsDIContainer implements DIContainer
     {
         $this->view = new FirebaseSettingsView();
 
-        $pdo        = DBConnection::getPdo();
-        $authorized = (new AdminGuard($pdo))->isAdmin(
-            isset($_SESSION['id']) && is_string($_SESSION['id']) ? $_SESSION['id'] : null,
-        );
+        try {
+            $pdo        = DBConnection::getPdo();
+            $authorized = (new AdminGuard($pdo))->isAdmin(
+                isset($_SESSION['id']) && is_string($_SESSION['id']) ? $_SESSION['id'] : null,
+            );
 
-        $this->view->authorized = $authorized;
+            $this->view->authorized = $authorized;
 
-        if (!$authorized) {
-            return;
-        }
-
-        $appKey    = (string) (getenv('APP_KEY') ?: '');
-        $encryptor = new SecretEncryptor(str_repeat("\x00", 32));
-        if ($appKey !== '') {
-            $rawKey = base64_decode($appKey, true);
-            if ($rawKey !== false && strlen($rawKey) === 32) {
-                $encryptor = new SecretEncryptor($rawKey);
+            if (!$authorized) {
+                return;
             }
+
+            $appKey    = (string) (getenv('APP_KEY') ?: '');
+            $encryptor = new SecretEncryptor(str_repeat("\x00", 32));
+            if ($appKey !== '') {
+                $rawKey = base64_decode($appKey, true);
+                if ($rawKey !== false && strlen($rawKey) === 32) {
+                    $encryptor = new SecretEncryptor($rawKey);
+                }
+            }
+
+            $settingService = new PdoSystemSettingService($pdo, $encryptor);
+            $changedBy      = isset($_SESSION['id']) && is_string($_SESSION['id']) ? $_SESSION['id'] : 'admin';
+
+            if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
+                // If handlePost throws, the catch below sets loadError and the
+                // page re-renders with the error — the redirect is skipped, so
+                // the admin never sees a false "?saved=1" success banner.
+                self::handlePost($settingService, $post, $changedBy);
+                $redirectTo = strtok((string) ($_SERVER['REQUEST_URI'] ?? './admin/firebase-settings/'), '?');
+                header('Location: ' . $redirectTo . '?saved=1', true, 303);
+                exit;
+            }
+
+            $this->view->settings = self::loadSettings($settingService);
+        } catch (\Throwable $e) {
+            error_log('[firebase-settings] load failed: ' . $e);
+            $this->view->settings  = $this->view->settings ?: [];
+            $this->view->loadError = $e->getMessage();
         }
 
-        $settingService = new PdoSystemSettingService($pdo, $encryptor);
-        $changedBy      = isset($_SESSION['id']) && is_string($_SESSION['id']) ? $_SESSION['id'] : 'admin';
-
-        if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
-            self::handlePost($settingService, $post, $changedBy);
-            $redirectTo = strtok((string) ($_SERVER['REQUEST_URI'] ?? './admin/firebase-settings/'), '?');
-            header('Location: ' . $redirectTo . '?saved=1', true, 303);
-            exit;
-        }
-
-        $this->view->settings = self::loadSettings($settingService);
-        $this->view->saved    = isset($_GET['saved']);
+        $this->view->saved = isset($_GET['saved']);
     }
 
     public function flow(): View
     {
-        return $this->view;
+        return $this->view ?? new FirebaseSettingsView();
     }
 
     /** @param array<string, mixed> $post */

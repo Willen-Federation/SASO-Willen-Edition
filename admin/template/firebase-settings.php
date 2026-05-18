@@ -4,6 +4,7 @@
   $settings   = $v->settings ?? [];
   $authorized = $v->authorized ?? false;
   $saved      = $v->saved ?? false;
+  $loadError  = $v->loadError ?? null;
 
   // Current settings with defaults
   $apiKey      = $settings['firebase_api_key']             ?? '';
@@ -17,6 +18,13 @@
   $maskKey = fn(string $key): string =>
     $key === '' ? '' : str_repeat('•', max(0, strlen($key) - 4)) . substr($key, -4);
 ?>
+
+<?php if ($loadError !== null): ?>
+<div class="mb-6 rounded-sm border border-error-500 bg-error-500 bg-opacity-10 px-4 py-3 text-error-500">
+  <strong><?php echo $lang === 'ja' ? '設定の読み込み中にエラーが発生しました: ' : 'Error loading settings: '; ?></strong>
+  <?php echo htmlspecialchars((string) $loadError, ENT_QUOTES, 'UTF-8'); ?>
+</div>
+<?php endif; ?>
 
 <?php if (!$authorized): ?>
 <div class="rounded-sm border border-error-500 bg-error-500 bg-opacity-10 p-4 text-error-500">

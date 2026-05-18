@@ -129,7 +129,7 @@ $videoId   = 'saso-camera-preview-' . $uniqueId;
      }"
 >
 
-  {{-- Trigger button --}}
+  <?php /* Trigger button */ ?>
   <button
     type="button"
     @click="openCamera()"
@@ -145,7 +145,7 @@ $videoId   = 'saso-camera-preview-' . $uniqueId;
     <span><?php echo ui_text($buttonLabel); ?></span>
   </button>
 
-  {{-- Camera overlay --}}
+  <?php /* Camera overlay */ ?>
   <div
     x-show="active"
     x-cloak
@@ -159,7 +159,7 @@ $videoId   = 'saso-camera-preview-' . $uniqueId;
     <div class="relative z-10 w-full max-w-sm rounded-xl bg-white p-6 shadow-2xl dark:bg-gray-800"
          x-trap.inert.noscroll="active">
 
-      {{-- Header --}}
+      <?php /* Header */ ?>
       <div class="mb-4 flex items-center justify-between">
         <h2 class="text-base font-semibold text-gray-800 dark:text-white">
           <?php echo ui_text(__('ui.item.register.take_photo', [], null, 'Take Photo')); ?>
@@ -176,7 +176,7 @@ $videoId   = 'saso-camera-preview-' . $uniqueId;
         </button>
       </div>
 
-      {{-- Mode tabs --}}
+      <?php /* Mode tabs */ ?>
       <div class="mb-4 flex rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden" role="tablist">
         <button
           type="button"
@@ -200,7 +200,7 @@ $videoId   = 'saso-camera-preview-' . $uniqueId;
         </button>
       </div>
 
-      {{-- Camera tab --}}
+      <?php /* Camera tab */ ?>
       <div x-show="mode === 'camera'">
         <div x-show="!capturedDataUrl">
           <video
@@ -229,7 +229,7 @@ $videoId   = 'saso-camera-preview-' . $uniqueId;
         </div>
       </div>
 
-      {{-- File tab --}}
+      <?php /* File tab */ ?>
       <div x-show="mode === 'file'">
         <div x-show="!capturedDataUrl">
           <label class="flex cursor-pointer flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed border-gray-300 p-8 text-gray-500 hover:border-brand-500 dark:border-gray-600 dark:text-gray-400">

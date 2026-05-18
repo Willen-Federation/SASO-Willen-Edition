@@ -80,6 +80,7 @@
         "changeCategory": "\\saso\\item\\ChangeCategoryDIContainer",
         "changeSizeOrder": "\\saso\\item\\ChangeSizeOrderDIContainer",
         "addFeature": "\\saso\\item\\AddFeatureDIContainer",
+        "changeStatus": "\\saso\\item\\ChangeStatusDIContainer",
         "archive": "\\saso\\item\\ArchiveDIContainer",
         "reproduction": "\\saso\\item\\ReproductionDIContainer",
         "fromBarcode": "\\saso\\item\\FromBarcodeDIContainer",

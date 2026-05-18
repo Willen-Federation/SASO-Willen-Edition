@@ -262,6 +262,16 @@ ui:
       plastic_note: 付記（任意）
       paper: 紙
       paper_note: 付記（任意）
+    status:
+      active: アクティブ
+      archived: アーカイブ
+      discontinued: 廃盤
+      pending: 保留中
+      in_storage: 保管中
+      in_use: 利用中
+      for_sale: 販売中
+      reserved: 仮押さえ
+      shipped: 発送済み
   not_found:
     title: ページが見つかりません
     body: お探しのページは存在しません。

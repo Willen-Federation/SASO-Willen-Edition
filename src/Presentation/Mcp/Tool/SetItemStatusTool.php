@@ -21,10 +21,18 @@ use Saso\Domain\Mcp\McpTool;
  *   archived     — Removed from active use but kept for history
  *   discontinued — No longer produced or stocked
  *   pending      — Awaiting confirmation / processing
+ *   in_storage   — 保管中: physically in storage
+ *   in_use       — 利用中: currently in use
+ *   for_sale     — 販売中: listed for sale
+ *   reserved     — 仮押さえ: tentatively reserved
+ *   shipped      — 発送済み: already shipped
  */
 final class SetItemStatusTool implements McpTool
 {
-    private const VALID_STATUSES = ['active', 'archived', 'discontinued', 'pending'];
+    private const VALID_STATUSES = [
+        'active', 'archived', 'discontinued', 'pending',
+        'in_storage', 'in_use', 'for_sale', 'reserved', 'shipped',
+    ];
 
     public function __construct(
         private readonly PDO $pdo,
@@ -38,7 +46,7 @@ final class SetItemStatusTool implements McpTool
 
     public function description(): string
     {
-        return 'Change the lifecycle status of an inventory item (active, archived, discontinued, pending).';
+        return 'Change the lifecycle status of an inventory item. Valid values: active, archived, discontinued, pending, in_storage (保管中), in_use (利用中), for_sale (販売中), reserved (仮押さえ), shipped (発送済み).';
     }
 
     public function inputSchema(): array
@@ -55,7 +63,7 @@ final class SetItemStatusTool implements McpTool
                 'status' => [
                     'type'        => 'string',
                     'enum'        => self::VALID_STATUSES,
-                    'description' => 'New lifecycle status.',
+                    'description' => 'New status. Operational: in_storage (保管中), in_use (利用中), for_sale (販売中), reserved (仮押さえ), shipped (発送済み). Lifecycle: active, archived, discontinued, pending.',
                 ],
             ],
         ];

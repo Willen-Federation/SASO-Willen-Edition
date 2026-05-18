@@ -1355,6 +1355,15 @@ components:
           type: string
           nullable: true
           description: "Custom label/shelf code."
+        note:
+          type: string
+          nullable: true
+          maxLength: 255
+          description: |
+            Free-form remarks. Surfaced by the legacy `/item/add/`
+            registration form and the `/item/changeMeta/` edit panel; reads
+            and writes from the same `Item.note` column.
+          example: 取扱注意（割れ物）
         price:
           type: integer
           minimum: 0
@@ -1432,6 +1441,14 @@ components:
           type: string
           nullable: true
           description: "Custom label/shelf code."
+        note:
+          type: string
+          nullable: true
+          maxLength: 255
+          description: |
+            Free-form remarks. Values longer than 255 characters are
+            silently truncated to fit the underlying column.
+          example: 取扱注意（割れ物）
         price:
           type: integer
           minimum: 0
@@ -1464,6 +1481,13 @@ components:
           type: string
           nullable: true
           description: "Custom label/shelf code."
+        note:
+          type: string
+          nullable: true
+          maxLength: 255
+          description: |
+            Free-form remarks. Pass an empty string or `null` to clear an
+            existing note; values longer than 255 characters are truncated.
         price:
           type: integer
           minimum: 0

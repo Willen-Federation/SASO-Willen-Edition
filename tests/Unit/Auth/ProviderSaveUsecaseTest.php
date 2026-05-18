@@ -159,6 +159,43 @@ final class ProviderSaveUsecaseTest extends TestCase
         self::assertStringContainsString('APP_KEY', $output->errorMessage);
     }
 
+    public function testRepositoryFailureSurfacesAsFormError(): void
+    {
+        // Regression: a PDOException from save() (missing table, sql_mode
+        // strictness, etc.) used to propagate as an uncaught exception and
+        // render a blank page. It must now appear as a form-level error so
+        // the operator sees what the database is rejecting.
+        $repo = new class implements \Saso\Domain\Auth\Repository\AuthProviderRepository {
+            public function findById(\Saso\Domain\Auth\AuthProviderId $id): ?\Saso\Domain\Auth\AuthProviderRecord { return null; }
+            public function listAll(): array { return []; }
+            public function listEnabled(): array { return []; }
+            public function save(\Saso\Domain\Auth\AuthProviderRecord $record): \Saso\Domain\Auth\AuthProviderRecord {
+                throw new \PDOException('SQLSTATE[42S02]: Base table or view not found: 1146 Table "auth_provider" doesn\'t exist');
+            }
+            public function delete(\Saso\Domain\Auth\AuthProviderId $id): void {}
+        };
+        $usecase = new ProviderSaveUsecase(
+            $repo,
+            new SecretEncryptor(SecretEncryptor::generateKey()),
+            new ProviderSavePresenter(new ProviderNewView()),
+        );
+        $controller = new ProviderSaveController([
+            'provider_template' => 'auth0',
+            'provider_name'     => 'Auth0',
+            'auth0_domain'      => 'example.auth0.com',
+            'client_id'         => 'abc',
+            'client_secret'     => 'shh',
+        ]);
+        $controller->input($usecase);
+
+        $reflector = new \ReflectionClass($usecase);
+        $outputProp = $reflector->getProperty('output');
+        $outputProp->setAccessible(true);
+        $output = $outputProp->getValue($usecase);
+
+        self::assertStringContainsString('auth_provider', $output->errorMessage);
+    }
+
     /**
      * @param array<string, string> $post
      */

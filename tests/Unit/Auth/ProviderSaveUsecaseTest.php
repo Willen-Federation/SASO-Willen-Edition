@@ -130,6 +130,35 @@ final class ProviderSaveUsecaseTest extends TestCase
         self::assertNull($repo->saved, 'Invalid input must not call save()');
     }
 
+    public function testMissingAppKeyDoesNotFatal(): void
+    {
+        // Regression: when APP_KEY is unset, the DI container can't build a
+        // SecretEncryptor and passes null repo + null encryptor. The wizard
+        // used to TypeError at PdoAuthProviderRepository construction and
+        // render a blank page; it must now surface a form-level error
+        // instead so the operator knows what to fix.
+        $usecase = new ProviderSaveUsecase(
+            null,
+            null,
+            new ProviderSavePresenter(new ProviderNewView()),
+        );
+        $controller = new ProviderSaveController([
+            'provider_template' => 'auth0',
+            'provider_name'     => 'Auth0',
+            'auth0_domain'      => 'example.auth0.com',
+            'client_id'         => 'abc',
+            'client_secret'     => 'shh',
+        ]);
+        $controller->input($usecase);
+
+        $reflector = new \ReflectionClass($usecase);
+        $outputProp = $reflector->getProperty('output');
+        $outputProp->setAccessible(true);
+        $output = $outputProp->getValue($usecase);
+
+        self::assertStringContainsString('APP_KEY', $output->errorMessage);
+    }
+
     /**
      * @param array<string, string> $post
      */

@@ -46,7 +46,7 @@ $scannerConfigJson = json_encode($scannerConfig, JSON_HEX_TAG | JSON_HEX_APOS | 
      "
 >
 
-  {{-- Trigger button --}}
+  <?php /* Trigger button */ ?>
   <button
     type="button"
     @click="openScanner()"
@@ -62,7 +62,7 @@ $scannerConfigJson = json_encode($scannerConfig, JSON_HEX_TAG | JSON_HEX_APOS | 
     <span><?php echo ui_text($buttonLabel); ?></span>
   </button>
 
-  {{-- Scanner overlay --}}
+  <?php /* Scanner overlay */ ?>
   <div
     x-show="active"
     x-cloak

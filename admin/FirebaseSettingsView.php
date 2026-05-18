@@ -10,8 +10,9 @@ final class FirebaseSettingsView implements View
     private string $title;
     private \Closure $content;
 
-    public bool $authorized = false;
-    public bool $saved      = false;
+    public bool $authorized    = false;
+    public bool $saved         = false;
+    public ?string $loadError  = null;
 
     /** @var array<string, mixed> */
     public array $settings = [];

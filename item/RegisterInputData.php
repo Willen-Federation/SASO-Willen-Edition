@@ -19,6 +19,9 @@ final class RegisterInputData implements DTO
      * @param Either<string> $plaNote
      * @param bool $paper
      * @param Either<string> $paperNote
+     * @param Either<string> $note
+     * @param Either<string> $janCode
+     * @param Either<string> $isbnCode
      * @param \DateTime $now
      * @param bool $validFeaturesAmount
      */
@@ -32,6 +35,9 @@ final class RegisterInputData implements DTO
         private Either $plaNote,
         private bool $paper,
         private Either $paperNote,
+        private Either $note,
+        private Either $janCode,
+        private Either $isbnCode,
         private \DateTime $now,
         private bool $validFeaturesAmount,
     )

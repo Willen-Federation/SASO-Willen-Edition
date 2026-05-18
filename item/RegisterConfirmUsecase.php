@@ -41,6 +41,10 @@ final class RegisterConfirmUsecase implements Usecase
                     $input->paper,
                     $input->paperNote->getOrElseThrow('invalid paper note.'),
                     new \DateTime(),
+                    null,
+                    $input->note->getOrElse(null) ?: null,
+                    $input->janCode->getOrElse(null) ?: null,
+                    $input->isbnCode->getOrElse(null) ?: null,
                 )
             );
             $colors = fn($i)=>$input->colors->flatMap(
@@ -49,7 +53,7 @@ final class RegisterConfirmUsecase implements Usecase
                     $v->code->getOrElseThrow('invalid color code.'),
                     $v->name->getOrElseThrow('invalid color name.')
                 ))
-            )->orElse(fn($v)=>throw new \Exception('color is nothing.'));
+            );
             $sizes = fn($i)=>$input->sizes->flatMap(
                 Each::tf(fn($v)=>new Size(
                     $i,
@@ -57,7 +61,7 @@ final class RegisterConfirmUsecase implements Usecase
                     $v->name->getOrElseThrow('invalid size name.'),
                     $v->orderNumber->getOrElseThrow('invalid size order number.')
                 ))
-            )->orElse(fn($v)=>throw new \Exception('size is nothing.'));
+            );
             $itemVar = fn($i)=>new ItemVar(
                 $i,
                 $category->getOrElse(null),

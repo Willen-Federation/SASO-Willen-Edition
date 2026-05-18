@@ -78,6 +78,7 @@
         "edit": "\\saso\\item\\EditDIContainer",
         "changePrice": "\\saso\\item\\ChangePriceDIContainer",
         "changeCategory": "\\saso\\item\\ChangeCategoryDIContainer",
+        "changeMeta": "\\saso\\item\\ChangeMetaDIContainer",
         "changeSizeOrder": "\\saso\\item\\ChangeSizeOrderDIContainer",
         "addFeature": "\\saso\\item\\AddFeatureDIContainer",
         "changeStatus": "\\saso\\item\\ChangeStatusDIContainer",

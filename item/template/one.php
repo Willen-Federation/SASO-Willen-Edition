@@ -9,6 +9,36 @@
   </table>
 </div>
 
+<?php
+  $hasJan  = !empty($v->item->janCode);
+  $hasIsbn = !empty($v->item->isbnCode);
+  $hasNote = !empty($v->item->note);
+?>
+<?php if($hasJan || $hasIsbn || $hasNote): ?>
+<div class="mb-4 rounded-2xl border overflow-hidden"
+     style="background:var(--saso-card);border-color:var(--saso-card-bdr)">
+  <div class="border-b px-5 py-3" style="border-color:var(--saso-card-bdr)">
+    <h2 class="text-sm font-semibold" style="color:var(--saso-text)">識別コード・備考</h2>
+  </div>
+  <div class="px-5 py-4">
+    <dl class="grid grid-cols-[auto_1fr] gap-x-4 gap-y-2 text-sm">
+      <?php if($hasJan): ?>
+        <dt class="font-medium" style="color:var(--saso-text)">JANコード</dt>
+        <dd class="font-mono" style="color:var(--saso-text-sub)"><?php echo htmlspecialchars((string)$v->item->janCode, ENT_QUOTES, 'UTF-8'); ?></dd>
+      <?php endif; ?>
+      <?php if($hasIsbn): ?>
+        <dt class="font-medium" style="color:var(--saso-text)">ISBNコード</dt>
+        <dd class="font-mono" style="color:var(--saso-text-sub)"><?php echo htmlspecialchars((string)$v->item->isbnCode, ENT_QUOTES, 'UTF-8'); ?></dd>
+      <?php endif; ?>
+      <?php if($hasNote): ?>
+        <dt class="font-medium" style="color:var(--saso-text)">その他備考</dt>
+        <dd class="whitespace-pre-wrap break-words" style="color:var(--saso-text-sub)"><?php echo nl2br(htmlspecialchars((string)$v->item->note, ENT_QUOTES, 'UTF-8')); ?></dd>
+      <?php endif; ?>
+    </dl>
+  </div>
+</div>
+<?php endif; ?>
+
 <?php if(!$v->archive->archive): ?>
 <div class="mb-5 flex flex-wrap gap-3">
   <a href="./item/edit/item/<?php echo (int)$v->item->id; ?>/" class="btn btn-secondary btn-sm">商品情報編集</a>

@@ -43,19 +43,31 @@
       </div>
 
       <div class="mb-4">
-        <label for="reg-color" class="mb-1.5 block text-sm font-medium" style="color:var(--saso-text)">
-          色<span class="text-red-500" aria-hidden="true">*</span>
-        </label>
-        <input id="reg-color" type="text" name="colorName" class="form-input w-full" required value="">
-        <p class="mt-1 text-xs" style="color:var(--saso-text-sub)">複数の場合は半角カンマ（,）で区切ってください。各色50字まで。</p>
+        <label for="reg-color" class="mb-1.5 block text-sm font-medium" style="color:var(--saso-text)">色</label>
+        <input id="reg-color" type="text" name="colorName" class="form-input w-full" value="">
+        <p class="mt-1 text-xs" style="color:var(--saso-text-sub)">任意。複数の場合は半角カンマ（,）で区切ってください。各色50字まで。</p>
       </div>
 
       <div class="mb-4">
-        <label for="reg-size" class="mb-1.5 block text-sm font-medium" style="color:var(--saso-text)">
-          サイズ<span class="text-red-500" aria-hidden="true">*</span>
-        </label>
-        <input id="reg-size" type="text" name="sizeName" class="form-input w-full" required value="">
-        <p class="mt-1 text-xs" style="color:var(--saso-text-sub)">複数の場合は半角カンマ（,）で区切ってください。色数×サイズ数 &le; 100</p>
+        <label for="reg-size" class="mb-1.5 block text-sm font-medium" style="color:var(--saso-text)">サイズ</label>
+        <input id="reg-size" type="text" name="sizeName" class="form-input w-full" value="">
+        <p class="mt-1 text-xs" style="color:var(--saso-text-sub)">任意。複数の場合は半角カンマ（,）で区切ってください。色数×サイズ数 &le; 100</p>
+      </div>
+
+      <div class="mb-4">
+        <label for="reg-jan" class="mb-1.5 block text-sm font-medium" style="color:var(--saso-text)">JANコード</label>
+        <input id="reg-jan" type="text" name="janCode" class="form-input w-full"
+               maxlength="32" value="" inputmode="numeric" autocomplete="off"
+               placeholder="例：4912345678904">
+        <p class="mt-1 text-xs" style="color:var(--saso-text-sub)">任意。JAN/EANのバーコード番号。</p>
+      </div>
+
+      <div class="mb-4">
+        <label for="reg-isbn" class="mb-1.5 block text-sm font-medium" style="color:var(--saso-text)">ISBNコード</label>
+        <input id="reg-isbn" type="text" name="isbnCode" class="form-input w-full"
+               maxlength="32" value="" autocomplete="off"
+               placeholder="例：9784101010014">
+        <p class="mt-1 text-xs" style="color:var(--saso-text-sub)">任意。書籍のISBN-13など。</p>
       </div>
 
       <fieldset class="mb-5">
@@ -73,6 +85,13 @@
           </label>
         </div>
       </fieldset>
+
+      <div class="mb-5">
+        <label for="reg-note" class="mb-1.5 block text-sm font-medium" style="color:var(--saso-text)">その他の備考</label>
+        <textarea id="reg-note" name="note" class="form-input w-full" rows="3" maxlength="255"
+                  placeholder="自由記述（255字以内）"></textarea>
+        <p class="mt-1 text-xs" style="color:var(--saso-text-sub)">任意。プラ／紙の付記とは別の自由記述欄です。</p>
+      </div>
 
       <button type="submit" class="btn btn-primary w-full">登録</button>
     </form>

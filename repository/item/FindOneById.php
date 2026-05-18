@@ -10,7 +10,7 @@ final class FindOneById implements DbPrepare
     public function getQuery(): string
     {
         return '
-            SELECT serial, itemName, pla, plaNote, paper, paperNote, createAt, status
+            SELECT serial, itemName, pla, plaNote, paper, paperNote, createAt, status, note, jan_code, isbn
                 FROM Item
                 WHERE concatId = :id
         ';
@@ -30,6 +30,9 @@ final class FindOneById implements DbPrepare
             $v->paperNote,
             new \DateTime($v->createAt),
             $v->status ?? null,
+            $v->note ?? null,
+            $v->jan_code ?? null,
+            $v->isbn ?? null,
         ));
     }
 }

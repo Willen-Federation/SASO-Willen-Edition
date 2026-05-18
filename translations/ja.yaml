@@ -161,6 +161,7 @@ ui:
     dismiss: 閉じる
     edit: 編集
   user_menu:
+    my_page: マイページ
     change_password: パスワード変更
     logout: ログアウト
   installer:

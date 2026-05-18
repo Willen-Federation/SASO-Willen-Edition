@@ -106,6 +106,16 @@
                      border:1.5px solid var(--saso-card-bdr);
                      box-shadow:0 8px 24px rgba(0,0,0,0.22),0 2px 6px rgba(0,0,0,0.14)">
             <li role="none">
+              <a href="/mypage/"
+                 role="menuitem"
+                 class="block rounded-lg text-sm px-3 py-2 mx-1 transition-colors"
+                 style="color:var(--saso-text)"
+                 onmouseover="this.style.background='var(--saso-ctrl-hover)'"
+                 onmouseout="this.style.background='transparent'">
+                <?php echo ui_text(__('ui.user_menu.my_page', [], null, 'My Page')); ?>
+              </a>
+            </li>
+            <li role="none">
               <a href="/start/password/"
                  role="menuitem"
                  class="block rounded-lg text-sm px-3 py-2 mx-1 transition-colors"

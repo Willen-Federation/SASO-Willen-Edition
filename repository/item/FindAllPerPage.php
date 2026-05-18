@@ -19,7 +19,7 @@ final class FindAllPerPage implements DbPrepare
     public function getQuery(): string
     {
         return '
-            SELECT dateCode, serial, itemName, pla, plaNote, paper, paperNote, createAt, concatId
+            SELECT dateCode, serial, itemName, pla, plaNote, paper, paperNote, createAt, concatId, status
                 FROM Item
                 WHERE archive = :archive '.$this->like.'
                 ORDER BY '.$this->sortColumn.' '. strtoupper($this->direction) .'
@@ -46,6 +46,7 @@ final class FindAllPerPage implements DbPrepare
             $v->paper,
             $v->paperNote,
             new \DateTime($v->createAt),
+            $v->status ?? null,
         ));
     }
 }

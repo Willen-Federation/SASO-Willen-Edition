@@ -17,6 +17,8 @@
 <hr class="my-5" style="border-color:var(--saso-card-bdr)">
 <?php ($v->inside)('item', 'attributeValues'); ?>
 <hr class="my-5" style="border-color:var(--saso-card-bdr)">
+<?php ($v->inside)('item', 'changeStatus'); ?>
+<hr class="my-5" style="border-color:var(--saso-card-bdr)">
 <?php ($v->inside)('item', 'archive'); ?>
 
 <?php }; ?>

@@ -16,6 +16,7 @@ final class Item
         private bool $paper,
         private ?string $paperNote,
         private \DateTime $createAt,
+        private ?string $status = null,
     )
     {
         $this->dateCode = self::makeDateCode($createAt);

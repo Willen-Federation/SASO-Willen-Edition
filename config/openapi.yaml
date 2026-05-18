@@ -1363,7 +1363,7 @@ components:
           example: 10
         status:
           type: string
-          enum: [active, inactive]
+          enum: [active, archived, discontinued, pending, in_storage, in_use, for_sale, reserved, shipped]
           example: active
         storageLocationId:
           type: string

@@ -505,6 +505,10 @@ if ($requestPath === '/m/setup' || $requestPath === '/m/issue-pairing') {
         $hash     = \Saso\Domain\MobileConnect\PairingCode::hashToken($rawTok);
         $label    = 'Mobile setup (member ' . (int) $_SESSION['id'] . ')';
 
+        $memberId = isset($_SESSION['id']) && is_string($_SESSION['id']) && $_SESSION['id'] !== ''
+            ? $_SESSION['id']
+            : null;
+
         $code = new \Saso\Domain\MobileConnect\PairingCode(
             id: $codeRepo->nextId(),
             tokenHash: $hash,
@@ -512,6 +516,7 @@ if ($requestPath === '/m/setup' || $requestPath === '/m/issue-pairing') {
             used: false,
             expiresAt: $expiry,
             createdAt: $now,
+            memberId: $memberId,
         );
         $codeRepo->save($code);
 

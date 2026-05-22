@@ -62,7 +62,7 @@ final class UpdateItemControllerTest extends TestCase
         );
         $this->pdo->exec("INSERT INTO category (id, name_ja) VALUES (1, '本')");
         $this->pdo->exec(
-            "INSERT INTO item (id, name, category_id, price, stock, status, created_at, updated_at) ".
+            'INSERT INTO item (id, name, category_id, price, stock, status, created_at, updated_at) '.
             "VALUES (1, 'テスト商品', 1, 1000, 5, 'active', '2026-01-01 00:00:00', '2026-01-01 00:00:00')",
         );
 

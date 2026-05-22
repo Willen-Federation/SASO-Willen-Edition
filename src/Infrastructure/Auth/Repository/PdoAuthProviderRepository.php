@@ -12,6 +12,7 @@ use Saso\Domain\Auth\AuthProviderRecord;
 use Saso\Domain\Auth\AuthProviderType;
 use Saso\Domain\Auth\Repository\AuthProviderRepository;
 use Saso\Infrastructure\Auth\Crypto\SecretEncryptor;
+use Throwable;
 
 /**
  * PDO-backed {@see AuthProviderRepository}.
@@ -158,7 +159,28 @@ final class PdoAuthProviderRepository implements AuthProviderRepository
      */
     private function hydrateAll(array $rows): array
     {
-        return array_map(fn (array $row): AuthProviderRecord => $this->hydrate($row), $rows);
+        $records = [];
+        foreach ($rows as $row) {
+            try {
+                $records[] = $this->hydrate($row);
+            } catch (Throwable $e) {
+                // A single corrupt row (e.g. `client_secret_encrypted`
+                // produced under a now-rotated APP_KEY, a NULL where the
+                // hydrate path needs a string, a missing column after a
+                // half-applied migration) must not take down the whole
+                // listing. The public `/api/v1/auth/providers` endpoint
+                // and the admin index page should keep rendering — the
+                // operator can find the offending row via the log line
+                // below and repair or delete it.
+                error_log(sprintf(
+                    '[PdoAuthProviderRepository] skipping unhydratable auth_provider row (id=%s): %s',
+                    is_scalar($row['id'] ?? null) ? (string) $row['id'] : '?',
+                    $e->getMessage(),
+                ));
+            }
+        }
+
+        return $records;
     }
 
     /**

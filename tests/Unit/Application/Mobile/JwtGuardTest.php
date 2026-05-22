@@ -8,8 +8,8 @@ use DateTimeImmutable;
 use DateTimeZone;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use RuntimeException;
 use Saso\Application\Mobile\JwtGuard;
+use Saso\Domain\Auth\Exception\AuthRequiredException;
 use Saso\Domain\MobileConnect\Exception\ScopeInsufficientException;
 use Saso\Domain\MobileConnect\Jwt\JwtService;
 use Saso\Domain\Shared\ErrorCode;
@@ -38,21 +38,55 @@ final class JwtGuardTest extends TestCase
     {
         $guard = new JwtGuard(new JwtService(self::SECRET));
 
-        $this->expectException(RuntimeException::class);
-        $this->expectExceptionMessage('Authorization header');
-        $guard->authenticate(new HttpRequest(method: 'GET', path: '/api/v1/items'));
+        try {
+            $guard->authenticate(new HttpRequest(method: 'GET', path: '/api/v1/items'));
+            self::fail('Expected AuthRequiredException');
+        } catch (AuthRequiredException $e) {
+            // Must be SASO-AUTH-1004 (HTTP 401) — not SASO-INFRA-9000 (500).
+            // ProblemExceptionHandler picks the response code off this enum.
+            self::assertSame(ErrorCode::AuthUnauthorized, $e->errorCode());
+            self::assertStringContainsString('Authorization header', $e->getMessage());
+        }
     }
 
     public function testAuthenticateRejectsMalformedAuthorizationHeader(): void
     {
         $guard = new JwtGuard(new JwtService(self::SECRET));
 
-        $this->expectException(RuntimeException::class);
-        $guard->authenticate(new HttpRequest(
-            method: 'GET',
-            path: '/api/v1/items',
-            headers: ['authorization' => 'Basic dXNlcjpwYXNz'],
-        ));
+        try {
+            $guard->authenticate(new HttpRequest(
+                method: 'GET',
+                path: '/api/v1/items',
+                headers: ['authorization' => 'Basic dXNlcjpwYXNz'],
+            ));
+            self::fail('Expected AuthRequiredException');
+        } catch (AuthRequiredException $e) {
+            self::assertSame(ErrorCode::AuthUnauthorized, $e->errorCode());
+        }
+    }
+
+    public function testAuthenticateRejectsTamperedTokenAsAuthRequired(): void
+    {
+        $jwt   = new JwtService(self::SECRET);
+        $now   = new DateTimeImmutable('2026-05-17 12:00:00', new DateTimeZone('UTC'));
+        $token = $jwt->issue(7, $now, 'admin_test', ['items:read'])['token'];
+
+        // Tamper the signature — without conversion this would surface as
+        // SASO-INFRA-9000 (500) because JwtService throws plain RuntimeException.
+        // The guard must re-wrap as AuthRequiredException so the response is 401.
+        $tampered = (string) preg_replace('/[A-Za-z0-9_-]+$/', 'aaaa', $token);
+
+        $guard = new JwtGuard($jwt);
+
+        try {
+            $guard->authenticate($this->makeRequest($tampered));
+            self::fail('Expected AuthRequiredException');
+        } catch (AuthRequiredException $e) {
+            self::assertSame(ErrorCode::AuthUnauthorized, $e->errorCode());
+            // Original RuntimeException must survive as $previous so operators
+            // can still see whether it was "invalid signature" vs "expired" etc.
+            self::assertNotNull($e->getPrevious());
+        }
     }
 
     public function testRequireScopeReturnsClaimsWhenScopeIsPresent(): void
@@ -110,7 +144,7 @@ final class JwtGuardTest extends TestCase
         // fail first (401) so we never reach the scope check (403). The order
         // matters: an unauthenticated caller probing for scope info would
         // otherwise see different responses for "no token" vs "wrong scope".
-        $this->expectException(RuntimeException::class);
+        $this->expectException(AuthRequiredException::class);
         $this->expectExceptionMessage('Authorization header');
         $guard->requireScope(new HttpRequest(method: 'GET', path: '/api/v1/items'), 'items:read');
     }
@@ -121,14 +155,15 @@ final class JwtGuardTest extends TestCase
         $now   = new DateTimeImmutable('2026-05-17 12:00:00', new DateTimeZone('UTC'));
         $token = $jwt->issue(7, $now, 'admin_test', ['items:read'])['token'];
 
-        // Tamper the signature — verify() must throw RuntimeException before
-        // scope evaluation runs, so the guard never leaks scope info to an
-        // unauthenticated caller.
+        // Tamper the signature — verify() throws RuntimeException; the guard
+        // re-wraps it as AuthRequiredException (→ 401) so the scope check is
+        // never reached and the response stays consistent for unauthenticated
+        // callers.
         $tampered = (string) preg_replace('/[A-Za-z0-9_-]+$/', 'aaaa', $token);
 
         $guard = new JwtGuard($jwt);
 
-        $this->expectException(RuntimeException::class);
+        $this->expectException(AuthRequiredException::class);
         $guard->requireScope($this->makeRequest($tampered), 'items:read');
     }
 

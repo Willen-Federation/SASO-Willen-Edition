@@ -141,11 +141,6 @@ parameters:
 			path: src/Infrastructure/Messaging/Transport/TransportFactory.php
 
 		-
-			message: "#^Access to undefined constant Saso\\\\Domain\\\\Shared\\\\ErrorCode\\:\\:ItemNotFound\\.$#"
-			count: 1
-			path: src/Presentation/Api/V1/Controller/Item/GetItemController.php
-
-		-
 			message: "#^Method Saso\\\\Presentation\\\\Api\\\\V1\\\\Controller\\\\Item\\\\GetItemController\\:\\:serialize\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Presentation/Api/V1/Controller/Item/GetItemController.php
@@ -159,11 +154,6 @@ parameters:
 			message: "#^Method Saso\\\\Presentation\\\\Api\\\\V1\\\\Controller\\\\Item\\\\ListItemsController\\:\\:serialize\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Presentation/Api/V1/Controller/Item/ListItemsController.php
-
-		-
-			message: "#^Access to undefined constant Saso\\\\Domain\\\\Shared\\\\ErrorCode\\:\\:ItemNotFound\\.$#"
-			count: 1
-			path: src/Presentation/Api/V1/Controller/Item/UpdateItemController.php
 
 		-
 			message: "#^Method Saso\\\\Presentation\\\\Api\\\\V1\\\\Controller\\\\Item\\\\UpdateItemController\\:\\:serialize\\(\\) return type has no value type specified in iterable type array\\.$#"

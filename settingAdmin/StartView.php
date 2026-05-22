@@ -8,6 +8,7 @@ use saso\repository\DBConnection;
 use Saso\Domain\Setting\SettingKey;
 use Saso\Domain\Setting\SettingValue;
 use Saso\Infrastructure\Setting\PdoSystemSettingService;
+use Saso\Infrastructure\Auth\Crypto\AppKeyResolver;
 use Saso\Infrastructure\Auth\Crypto\SecretEncryptor;
 
 final class StartView implements View
@@ -31,15 +32,13 @@ final class StartView implements View
             return;
         }
 
-        $appKey = (string)(getenv('APP_KEY') ?: '');
-        $encryptor = new SecretEncryptor(str_repeat("\x00", 32)); // fallback no-op key
-        if ($appKey !== '') {
-            $rawKey = base64_decode($appKey, true);
-            if ($rawKey !== false && strlen($rawKey) === 32) {
-                $encryptor = new SecretEncryptor($rawKey);
-            }
-        }
-
+        // The settings handled on this page are all non-secret, but the
+        // PdoSystemSettingService still requires a working encryptor for
+        // secret-type rows. Build one from APP_KEY using the shared resolver;
+        // if APP_KEY is missing, fall back to a sentinel-only service that
+        // raises the moment any caller actually touches a secret value.
+        $encryptor      = AppKeyResolver::tryEncryptor()
+            ?? new SecretEncryptor(str_repeat("\x00", 32));
         $settingService = new PdoSystemSettingService($pdo, $encryptor);
 
         $this->envOverrides = [

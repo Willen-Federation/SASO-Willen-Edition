@@ -2,6 +2,7 @@
 
 namespace saso\auth;
 
+use Saso\Infrastructure\Auth\Crypto\AppKeyResolver;
 use Saso\Infrastructure\Auth\Crypto\SecretEncryptor;
 use Saso\Infrastructure\Auth\Repository\PdoAuthProviderRepository;
 use saso\common\EmptyUsecase;
@@ -76,17 +77,6 @@ final class ProviderNewDIContainer implements DIContainer
 
     private static function buildEncryptor(): ?SecretEncryptor
     {
-        $raw = getenv('APP_KEY');
-        if (!is_string($raw) || $raw === '') {
-            return null;
-        }
-        $bytes = base64_decode($raw, strict: true);
-        if ($bytes === false) {
-            $bytes = hex2bin($raw) ?: null;
-        }
-        if ($bytes === null || strlen($bytes) !== 32) {
-            return null;
-        }
-        return new SecretEncryptor($bytes);
+        return AppKeyResolver::tryEncryptor();
     }
 }

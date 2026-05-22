@@ -1,18 +1,20 @@
 <?php $this->title = 'Firebase設定'; ?>
 <?php $this->content = function($v) {
-  $lang       = $_SESSION['lang'] ?? 'ja';
-  $settings   = $v->settings ?? [];
-  $authorized = $v->authorized ?? false;
-  $saved      = $v->saved ?? false;
-  $loadError  = $v->loadError ?? null;
+  $lang              = $_SESSION['lang'] ?? 'ja';
+  $settings          = $v->settings ?? [];
+  $authorized        = $v->authorized ?? false;
+  $saved             = $v->saved ?? false;
+  $loadError         = $v->loadError ?? null;
+  $apiKeyUnreadable  = $v->apiKeyUnreadable ?? false;
 
   // Current settings with defaults
-  $apiKey      = $settings['firebase_api_key']             ?? '';
-  $authDomain  = $settings['firebase_auth_domain']         ?? '';
-  $projectId   = $settings['firebase_project_id']          ?? '';
-  $storage     = $settings['firebase_storage_bucket']      ?? '';
-  $senderId    = $settings['firebase_messaging_sender_id'] ?? '';
-  $appId       = $settings['firebase_app_id']              ?? '';
+  $apiKey         = $settings['firebase_api_key']             ?? '';
+  $apiKeyExists   = $settings['firebase_api_key_exists']      ?? false;
+  $authDomain     = $settings['firebase_auth_domain']         ?? '';
+  $projectId      = $settings['firebase_project_id']          ?? '';
+  $storage        = $settings['firebase_storage_bucket']      ?? '';
+  $senderId       = $settings['firebase_messaging_sender_id'] ?? '';
+  $appId          = $settings['firebase_app_id']              ?? '';
 
   // Masking helper: show only last 4 chars
   $maskKey = fn(string $key): string =>
@@ -23,6 +25,13 @@
 <div class="mb-6 rounded-sm border border-error-500 bg-error-500 bg-opacity-10 px-4 py-3 text-error-500">
   <strong><?php echo $lang === 'ja' ? '設定の読み込み中にエラーが発生しました: ' : 'Error loading settings: '; ?></strong>
   <?php echo htmlspecialchars((string) $loadError, ENT_QUOTES, 'UTF-8'); ?>
+  <?php if ($apiKeyUnreadable): ?>
+    <p class="mt-2 text-sm">
+      <?php echo $lang === 'ja'
+        ? 'APP_KEY が変更されたため、保存済みの Firebase API キーを復号できません。下のフォームから新しい API キーを入力して保存してください。古い暗号文は上書きされます。'
+        : 'The saved Firebase API key cannot be decrypted because APP_KEY has changed. Enter the new API key below and save — the stale ciphertext will be overwritten.'; ?>
+    </p>
+  <?php endif; ?>
 </div>
 <?php endif; ?>
 
@@ -65,9 +74,11 @@
             <?php echo $lang === 'ja' ? 'Web APIキー' : 'Web API Key'; ?>
           </label>
           <input type="password" id="firebase_api_key" name="firebase_api_key"
-            placeholder="<?php echo $apiKey !== '' ? '••••••••••••••••' : 'AIza...'; ?>"
+            placeholder="<?php echo $apiKeyExists ? '••••••••••••••••' : 'AIza...'; ?>"
             class="w-full rounded border border-gray-200 bg-transparent py-3 px-4 font-medium outline-none transition focus:border-brand-500 active:border-brand-500 dark:border-gray-800 dark:bg-form-input dark:focus:border-brand-500 text-black dark:text-white">
-          <?php if ($apiKey !== ''): ?>
+          <?php if ($apiKeyUnreadable): ?>
+            <p class="mt-1.5 text-xs text-error-500"><?php echo $lang === 'ja' ? '保存済みの値は現在の APP_KEY で復号できません。新しいキーを入力してください。' : 'The saved value cannot be decrypted with the current APP_KEY. Enter a new key.'; ?></p>
+          <?php elseif ($apiKey !== ''): ?>
             <p class="mt-1.5 text-xs text-gray-500 dark:text-gray-400"><?php echo $lang === 'ja' ? '設定済み: ' : 'Configured: '; ?><?php echo $maskKey($apiKey); ?></p>
           <?php endif; ?>
         </div>

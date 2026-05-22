@@ -4,6 +4,7 @@
   $settings   = $v->settings ?? [];
   $authorized = $v->authorized ?? false;
   $saved      = $v->saved ?? false;
+  $loadError  = $v->loadError ?? null;
 
   // Current settings with defaults
   $visionProvider  = $settings['ai_provider_vision']    ?? '';
@@ -19,6 +20,18 @@
   $maskKey = fn(string $key): string =>
     $key === '' ? '' : str_repeat('•', max(0, strlen($key) - 4)) . substr($key, -4);
 ?>
+
+<?php if ($loadError !== null): ?>
+<div class="mb-6 rounded-sm border border-error-500 bg-error-500 bg-opacity-10 px-4 py-3 text-error-500">
+  <strong><?php echo $lang === 'ja' ? '設定の読み込み中にエラーが発生しました: ' : 'Error loading settings: '; ?></strong>
+  <?php echo htmlspecialchars((string) $loadError, ENT_QUOTES, 'UTF-8'); ?>
+  <p class="mt-2 text-sm">
+    <?php echo $lang === 'ja'
+      ? 'APP_KEY が変更された場合は、暗号化済みの設定値（Firebase APIキー等）を再入力してください。AIプロバイダーAPIキーは暗号化対象外のため、引き続き編集できます。'
+      : 'If APP_KEY has changed, re-enter encrypted settings (e.g., Firebase API key). AI provider API keys are stored unencrypted and can still be edited below.'; ?>
+  </p>
+</div>
+<?php endif; ?>
 
 <?php if (!$authorized): ?>
 <div class="rounded-sm border border-error-500 bg-error-500 bg-opacity-10 p-4 text-error-500">

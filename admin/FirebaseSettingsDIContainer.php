@@ -7,7 +7,7 @@ use saso\repository\DBConnection;
 use Saso\Application\Auth\AdminGuard;
 use Saso\Domain\Setting\SettingKey;
 use Saso\Domain\Setting\SettingValue;
-use Saso\Infrastructure\Auth\Crypto\SecretEncryptor;
+use Saso\Infrastructure\Auth\Crypto\AppKeyResolver;
 use Saso\Infrastructure\Setting\PdoSystemSettingService;
 
 final class FirebaseSettingsDIContainer implements DIContainer
@@ -35,13 +35,12 @@ final class FirebaseSettingsDIContainer implements DIContainer
                 return;
             }
 
-            $appKey    = (string) (getenv('APP_KEY') ?: '');
-            $encryptor = new SecretEncryptor(str_repeat("\x00", 32));
-            if ($appKey !== '') {
-                $rawKey = base64_decode($appKey, true);
-                if ($rawKey !== false && strlen($rawKey) === 32) {
-                    $encryptor = new SecretEncryptor($rawKey);
-                }
+            $encryptor = AppKeyResolver::tryEncryptor();
+            if ($encryptor === null) {
+                $this->view->loadError = 'APP_KEY is not configured. Set APP_KEY in .env to a 32-byte base64 / 64-char hex / ≥32-char string.';
+                $this->view->settings  = self::defaultSettings();
+                $this->view->saved     = isset($_GET['saved']);
+                return;
             }
 
             $settingService = new PdoSystemSettingService($pdo, $encryptor);
@@ -57,10 +56,13 @@ final class FirebaseSettingsDIContainer implements DIContainer
                 exit;
             }
 
-            $this->view->settings = self::loadSettings($settingService);
+            // Read settings tolerantly — if the saved firebase.api_key was
+            // encrypted with a different APP_KEY, surface a clear error and
+            // let the admin re-enter the value rather than 500ing the page.
+            $this->view->settings = self::loadSettings($settingService, $this->view);
         } catch (\Throwable $e) {
             error_log('[firebase-settings] load failed: ' . $e);
-            $this->view->settings  = $this->view->settings ?: [];
+            $this->view->settings  = self::defaultSettings();
             $this->view->loadError = $e->getMessage();
         }
 
@@ -126,23 +128,57 @@ final class FirebaseSettingsDIContainer implements DIContainer
         );
     }
 
-    /** @return array<string, mixed> */
-    private static function loadSettings(PdoSystemSettingService $settingService): array
-    {
-        $apiKeyVal      = $settingService->get(new SettingKey('firebase.api_key'));
-        $authDomainVal  = $settingService->get(new SettingKey('firebase.auth_domain'));
-        $projectIdVal   = $settingService->get(new SettingKey('firebase.project_id'));
-        $storageVal     = $settingService->get(new SettingKey('firebase.storage_bucket'));
-        $senderIdVal    = $settingService->get(new SettingKey('firebase.messaging_sender_id'));
-        $appIdVal       = $settingService->get(new SettingKey('firebase.app_id'));
+    /**
+     * @return array<string, mixed>
+     */
+    private static function loadSettings(
+        PdoSystemSettingService $settingService,
+        FirebaseSettingsView $view,
+    ): array {
+        // firebase.api_key is the only secret-type setting on this page —
+        // pull it through a try/catch so a wrong-APP_KEY ciphertext does
+        // not blank out every other (plaintext) field on the form.
+        $apiKey       = '';
+        $apiKeyExists = false;
+        try {
+            $apiKeyVal    = $settingService->get(new SettingKey('firebase.api_key'));
+            $apiKey       = $apiKeyVal !== null ? $apiKeyVal->asString() : '';
+            $apiKeyExists = $apiKeyVal !== null;
+        } catch (\Throwable $e) {
+            error_log('[firebase-settings] firebase.api_key decrypt failed: ' . $e->getMessage());
+            $view->loadError       = $e->getMessage();
+            $view->apiKeyUnreadable = true;
+            $apiKeyExists           = true;
+        }
+
+        $authDomainVal = $settingService->get(new SettingKey('firebase.auth_domain'));
+        $projectIdVal  = $settingService->get(new SettingKey('firebase.project_id'));
+        $storageVal    = $settingService->get(new SettingKey('firebase.storage_bucket'));
+        $senderIdVal   = $settingService->get(new SettingKey('firebase.messaging_sender_id'));
+        $appIdVal      = $settingService->get(new SettingKey('firebase.app_id'));
 
         return [
-            'firebase_api_key'             => $apiKeyVal     !== null ? $apiKeyVal->asString() : '',
+            'firebase_api_key'             => $apiKey,
+            'firebase_api_key_exists'      => $apiKeyExists,
             'firebase_auth_domain'         => $authDomainVal !== null ? $authDomainVal->asString() : '',
             'firebase_project_id'          => $projectIdVal  !== null ? $projectIdVal->asString() : '',
             'firebase_storage_bucket'      => $storageVal    !== null ? $storageVal->asString() : '',
             'firebase_messaging_sender_id' => $senderIdVal   !== null ? $senderIdVal->asString() : '',
             'firebase_app_id'              => $appIdVal      !== null ? $appIdVal->asString() : '',
+        ];
+    }
+
+    /** @return array<string, mixed> */
+    private static function defaultSettings(): array
+    {
+        return [
+            'firebase_api_key'             => '',
+            'firebase_api_key_exists'      => false,
+            'firebase_auth_domain'         => '',
+            'firebase_project_id'          => '',
+            'firebase_storage_bucket'      => '',
+            'firebase_messaging_sender_id' => '',
+            'firebase_app_id'              => '',
         ];
     }
 }

@@ -56,6 +56,50 @@ final class ProblemExceptionHandlerTest extends TestCase
         self::assertStringContainsString('Reference: '.$problem->traceId, $problem->detail);
     }
 
+    public function testPdoExceptionMapsToInfraDatabaseUnavailable(): void
+    {
+        $logHandler = new TestHandler();
+        $logger     = MonologFactory::withHandler($logHandler);
+        $handler    = new ProblemExceptionHandler($logger, new ProblemRenderer());
+
+        $pdoException = new \PDOException(
+            'SQLSTATE[42S22]: Column not found: 1054 Unknown column \'i.note\' in \'field list\'',
+        );
+
+        ob_start();
+        $problem = $handler->handle($pdoException, '/api/v1/items');
+        ob_end_clean();
+
+        // 9001 (Database unavailable, 503) — operators can immediately
+        // distinguish a schema-drift / DB-down condition from a generic
+        // application bug (which would still be 9000 / 500).
+        self::assertSame('SASO-INFRA-9001', $problem->code);
+        self::assertSame(503, $problem->status);
+        self::assertStringContainsString('Reference: '.$problem->traceId, $problem->detail);
+    }
+
+    public function testPdoExceptionLogsSqlstate(): void
+    {
+        $logHandler = new TestHandler();
+        $logger     = MonologFactory::withHandler($logHandler);
+        $handler    = new ProblemExceptionHandler($logger, new ProblemRenderer());
+
+        $pdoException = new \PDOException('Unknown column');
+        // PDOException's `code` is normally the SQLSTATE; PDOException's
+        // ctor stores the message but `getCode()` returns 0 unless set,
+        // so we set it explicitly to mimic real PDO behaviour.
+        $reflection = new \ReflectionProperty(\Exception::class, 'code');
+        $reflection->setValue($pdoException, '42S22');
+
+        ob_start();
+        $handler->handle($pdoException, '/api/v1/items');
+        ob_end_clean();
+
+        $records = $logHandler->getRecords();
+        self::assertNotEmpty($records);
+        self::assertSame('42S22', $records[0]->context['context']['sqlstate']);
+    }
+
     public function testDebugModeLeaksOriginalMessageOnGenericThrowables(): void
     {
         $logHandler = new TestHandler();

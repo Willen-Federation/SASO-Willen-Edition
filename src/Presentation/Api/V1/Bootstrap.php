@@ -42,6 +42,7 @@ use Saso\Presentation\Api\V1\Controller\Mobile\TokenListController;
 use Saso\Presentation\Api\V1\Controller\Mobile\TokenRefreshController;
 use Saso\Presentation\Api\V1\Controller\Mobile\TokenRevokeController;
 use Saso\Presentation\Api\V1\Controller\OpenApiController;
+use Saso\Presentation\Api\V1\Controller\ReadinessController;
 use Saso\Presentation\Api\V1\Controller\StorageLocation\GetStorageLocationController;
 use Saso\Presentation\Api\V1\Controller\StorageLocation\ListStorageLocationsController;
 use Saso\Presentation\Api\V1\Controller\StorageLocation\StorageLocationItemsController;
@@ -79,10 +80,21 @@ final class Bootstrap
             translator: $translator,
         );
 
-        $spec     = OpenApiSpec::load(self::specPath());
-        $handlers = self::handlerMap($spec);
+        // Boot-time exceptions (missing APP_KEY, malformed openapi.yaml,
+        // controllers that fail their own construction) used to escape
+        // the router and bubble up as PHP's default 500 page. Catch them
+        // here so they render as RFC 7807 Problem responses — operators
+        // get the same JSON envelope (with traceId) they get from any
+        // other API failure, instead of an HTML stack trace.
+        try {
+            $spec     = OpenApiSpec::load(self::specPath());
+            $handlers = self::handlerMap($spec);
+            $router   = new Router($spec, $handlers, $exceptionHandler);
+        } catch (\Throwable $e) {
+            $exceptionHandler->handle($e, $request->path, $locale);
+            return;
+        }
 
-        $router = new Router($spec, $handlers, $exceptionHandler);
         $router->dispatch($request, $locale);
     }
 
@@ -92,6 +104,7 @@ final class Bootstrap
     private static function handlerMap(OpenApiSpec $spec): array
     {
         $health    = new HealthController();
+        $readiness = new ReadinessController(static fn (): PDO => self::createPdo());
         $openApi   = new OpenApiController($spec);
         $swaggerUi = new SwaggerUiController();
 
@@ -151,6 +164,7 @@ final class Bootstrap
 
         return [
             'getHealth'       => [$health, 'handle'],
+            'getReadiness'    => [$readiness, 'handle'],
             'getOpenApiSpec'  => [$openApi, 'yaml'],
             'getSwaggerUi'    => [$swaggerUi, 'page'],
 

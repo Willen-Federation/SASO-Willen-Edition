@@ -48,6 +48,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   result so a rejected upload short-circuits before any DB write.
 
 ### Added
+- **`GET /api/v1/health/readiness` — schema-aware readiness probe** for
+  diagnosing the "200 on `/health` but 500 everywhere else" failure
+  pattern observed on production (issue #227). Connects to the database,
+  pings, and verifies that the tables/columns the API surface needs
+  (notably `item.note`, `item.jan_code`, `item.isbn`, `item.label_code`,
+  the M4 auth/flag tables) are present; returns a per-check JSON report
+  with `200 ready` or `503 degraded`. Operators no longer have to grep
+  the error log for a `traceId` to know whether the deployment is
+  missing a migration. Driver-aware (`information_schema` on MySQL,
+  `PRAGMA table_info` on SQLite for the test surface).
+- **`SASO-INFRA-9001` (Database unavailable, 503) is now emitted for
+  uncaught `PDOException`s.** Previously every PDO failure (missing
+  column, dropped table, dead connection) was bucketed under
+  `SASO-INFRA-9000` / 500 — indistinguishable from generic application
+  bugs. `ProblemExceptionHandler` now branches on `PDOException` and
+  records SQLSTATE alongside the trace id in the log context, so
+  operators can triage a schema-drift incident at a glance.
+- **Boot-time exceptions in `/api/v1/*` now render as RFC 7807
+  responses.** Previously a missing `APP_KEY`, a malformed
+  `openapi.yaml`, or a controller that failed its own construction
+  escaped the router and surfaced as PHP's default 500 page. The
+  bootstrap now wraps spec loading and the handler map in the same
+  exception handler used by request dispatch, so every failure carries
+  a `traceId` and a stable `code`.
 - **`note` / `janCode` / `isbnCode` on items, with optional color/size on
   registration.** New `note` (VARCHAR 255) and `jan_code` (VARCHAR 32,
   indexed) columns join the existing `isbn` and `label_code` columns on

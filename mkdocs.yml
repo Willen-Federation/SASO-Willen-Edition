@@ -187,6 +187,7 @@ nav:
       - "ADR 0016 — English as default locale": architecture/adr/0016-english-as-default-locale.md
       - "ADR 0017 — TailAdmin UI migration": architecture/adr/0017-tailadmin-ui-migration.md
       - "ADR 0018 — Tabler design system": architecture/adr/0018-tabler-ui-migration.md
+      - "ADR 0019 — Auth0 passkey delegation": architecture/adr/0019-auth0-passkey-delegation.md
   - Development:
       - development/index.md
       - Workflow: development/workflow.md

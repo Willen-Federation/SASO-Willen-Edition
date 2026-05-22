@@ -2,7 +2,13 @@
 
 namespace saso\mypage;
 
+use GuzzleHttp\Client;
+use Saso\Application\MyPage\Passkey\Auth0ManagementApiException;
+use Saso\Application\MyPage\Passkey\Auth0PasskeyConfig;
+use Saso\Application\MyPage\Passkey\Auth0PasskeyService;
+use Saso\Application\MyPage\Passkey\Auth0ProviderLookup;
 use Saso\Domain\MobileConnect\DeviceToken;
+use Saso\Infrastructure\Auth\GuzzleAuth0ManagementApi;
 use Saso\Infrastructure\MobileConnect\PdoDeviceTokenRepository;
 use saso\framework\DTO;
 use saso\framework\Output;
@@ -38,12 +44,14 @@ final class MyPageUsecase implements Usecase
         }
 
         $apiBaseUrl = $this->computeApiBaseUrl();
+        [$passkeys, $passkeyStatus] = $this->loadPasskeys($this->memberId);
 
         $this->output = new MyPageOutput(
             member: $member,
             authMethods: $this->loadAuthMethods($this->memberId),
             availableProviders: $this->loadAvailableProviders($this->memberId),
-            passkeys: $this->loadPasskeys($this->memberId),
+            passkeys: $passkeys,
+            passkeyStatus: $passkeyStatus,
             devices: $this->loadDevices($this->memberId),
             apiBaseUrl: $apiBaseUrl,
             apiDocsUrl: $apiBaseUrl.'/docs',
@@ -133,17 +141,54 @@ final class MyPageUsecase implements Usecase
         }
     }
 
+    /**
+     * Returns a tuple of (passkey rows, status string).
+     *
+     * The status drives a banner on the template:
+     *   - `ok`             — passkey list is current (may be empty)
+     *   - `no_auth0_link`  — member is not linked to Auth0 (passkey card
+     *                        explains they must sign in with Auth0 first)
+     *   - `m2m_unavailable`— AUTH0_M2M_* env vars are not set in this
+     *                        deployment; registration redirect still works
+     *                        but the list cannot be loaded
+     *   - `unreachable`    — transient Auth0 / network failure
+     *
+     * @return array{0: list<array{id: string, name: string, created_at: ?string, last_used_at: ?string}>, 1: string}
+     */
     private function loadPasskeys(string $memberId): array
     {
         try {
-            $pdo = DBConnection::getPdo();
-            $stmt = $pdo->prepare(
-                'SELECT id, name, created_at, last_used_at FROM webauthn_credential WHERE member_id = :id ORDER BY created_at DESC'
+            $pdo    = DBConnection::getPdo();
+            $lookup = new Auth0ProviderLookup($pdo);
+            if ($lookup->findFor($memberId) === null) {
+                return [[], 'no_auth0_link'];
+            }
+            $config = Auth0PasskeyConfig::fromEnv();
+            if ($config === null) {
+                return [[], 'm2m_unavailable'];
+            }
+            $api = new GuzzleAuth0ManagementApi(
+                new Client(['timeout' => 8.0, 'connect_timeout' => 4.0]),
+                $config->domain,
+                $config->clientId,
+                $config->clientSecret,
             );
-            $stmt->execute(['id' => $memberId]);
-            return $stmt->fetchAll(\PDO::FETCH_ASSOC) ?: [];
-        } catch (\Throwable) {
-            return [];
+            $service = new Auth0PasskeyService($lookup, $api);
+            $rows    = [];
+            foreach ($service->listFor($memberId) as $passkey) {
+                $rows[] = $passkey->toTemplateRow();
+            }
+            return [$rows, 'ok'];
+        } catch (Auth0ManagementApiException $e) {
+            if (function_exists('error_log')) {
+                error_log('[saso-passkey-list] Auth0 '.$e->upstreamStatus.': '.$e->getMessage());
+            }
+            return [[], 'unreachable'];
+        } catch (\Throwable $e) {
+            if (function_exists('error_log')) {
+                error_log('[saso-passkey-list] '.$e->getMessage());
+            }
+            return [[], 'unreachable'];
         }
     }
 

@@ -18,6 +18,7 @@ final class MyPageOutput implements DTO
         private readonly array $authMethods = [],
         private readonly array $availableProviders = [],
         private readonly array $passkeys = [],
+        private readonly string $passkeyStatus = 'ok',
         private readonly array $devices = [],
         private readonly string $apiBaseUrl = '',
         private readonly string $apiDocsUrl = '',

@@ -15,6 +15,7 @@ final class MyPageView implements View
     private array $authMethods = [];
     private array $availableProviders = [];
     private array $passkeys = [];
+    private string $passkeyStatus = 'ok';
     private array $devices = [];
     private string $apiBaseUrl = '';
     private string $apiDocsUrl = '';

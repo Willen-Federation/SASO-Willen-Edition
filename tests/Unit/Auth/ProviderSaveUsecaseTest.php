@@ -165,14 +165,26 @@ final class ProviderSaveUsecaseTest extends TestCase
         // strictness, etc.) used to propagate as an uncaught exception and
         // render a blank page. It must now appear as a form-level error so
         // the operator sees what the database is rejecting.
-        $repo = new class implements \Saso\Domain\Auth\Repository\AuthProviderRepository {
-            public function findById(\Saso\Domain\Auth\AuthProviderId $id): ?\Saso\Domain\Auth\AuthProviderRecord { return null; }
-            public function listAll(): array { return []; }
-            public function listEnabled(): array { return []; }
-            public function save(\Saso\Domain\Auth\AuthProviderRecord $record): \Saso\Domain\Auth\AuthProviderRecord {
+        $repo = new class () implements \Saso\Domain\Auth\Repository\AuthProviderRepository {
+            public function findById(\Saso\Domain\Auth\AuthProviderId $id): ?\Saso\Domain\Auth\AuthProviderRecord
+            {
+                return null;
+            }
+            public function listAll(): array
+            {
+                return [];
+            }
+            public function listEnabled(): array
+            {
+                return [];
+            }
+            public function save(\Saso\Domain\Auth\AuthProviderRecord $record): \Saso\Domain\Auth\AuthProviderRecord
+            {
                 throw new \PDOException('SQLSTATE[42S02]: Base table or view not found: 1146 Table "auth_provider" doesn\'t exist');
             }
-            public function delete(\Saso\Domain\Auth\AuthProviderId $id): void {}
+            public function delete(\Saso\Domain\Auth\AuthProviderId $id): void
+            {
+            }
         };
         $usecase = new ProviderSaveUsecase(
             $repo,

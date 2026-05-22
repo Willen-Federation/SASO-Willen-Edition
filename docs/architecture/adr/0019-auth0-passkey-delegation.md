@@ -12,7 +12,7 @@ Passkey (WebAuthn) support in My Page has been disabled since [Issue #203](https
 Two problems with the local-only plan:
 
 1. **High blast radius if mis-implemented.** WebAuthn signature verification is subtle (RP-ID hash check, sign-count rollback detection, attestation format dispatch, COSE→PEM key conversion). The previous regression that motivated Issue #203 was caused by exactly this surface area, and SASO has no security-engineering staff to re-audit it on every dependency bump.
-2. **Auth0 already runs the ceremony for us.** SASO supports Auth0 as a first-class IdP ([`Auth0Provider`](../../../src/Infrastructure/Auth/Provider/Auth0Provider.php)). Auth0 implements WebAuthn registration and assertion server-side, validated against the FIDO Alliance's compliance suite, and exposes the resulting credentials through the Management API.
+2. **Auth0 already runs the ceremony for us.** SASO supports Auth0 as a first-class IdP via `src/Infrastructure/Auth/Provider/Auth0Provider.php`. Auth0 implements WebAuthn registration and assertion server-side, validated against the FIDO Alliance's compliance suite, and exposes the resulting credentials through the Management API.
 
 ## Decision
 
@@ -82,4 +82,4 @@ Auth0 does not ship a hosted user-facing portal for authenticator management as 
 
 * Auth0 Management API: `GET /api/v2/users/{id}/authentication-methods`, `DELETE /api/v2/users/{id}/authentication-methods/{authentication_method_id}`
 * Auth0 PHP SDK: `auth0/auth0-php ^8.19` (in `composer.json`)
-* Prior art in this repo: [`mypage/UnlinkProviderDIContainer.php`](../../../mypage/UnlinkProviderDIContainer.php) (CSRF + DB cleanup pattern)
+* Prior art in this repo: `mypage/UnlinkProviderDIContainer.php` (CSRF + DB cleanup pattern)

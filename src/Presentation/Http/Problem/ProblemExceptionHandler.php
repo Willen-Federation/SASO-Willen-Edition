@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Saso\Presentation\Http\Problem;
 
+use PDOException;
 use Psr\Log\LoggerInterface;
 use Saso\Domain\Shared\DomainException;
 use Saso\Domain\Shared\ErrorCode;
@@ -20,6 +21,10 @@ use Throwable;
  *                          the request locale, falling back to the
  *                          exception's English message and the code's
  *                          {@see ErrorCode::defaultTitle()}.
+ *   - `PDOException`     → response carries `SASO-INFRA-9001` (503), so
+ *                          operators can immediately distinguish a database
+ *                          outage / schema drift from generic application
+ *                          bugs. SQLSTATE is captured in the log context.
  *   - any other throwable → response carries `SASO-INFRA-9000` and either
  *                          a generic message (production) or the original
  *                          message (debug mode). The full stack is logged.
@@ -52,6 +57,15 @@ final class ProblemExceptionHandler
             $code           = $exception->errorCode();
             $detailFallback = $exception->getMessage();
             $logCtx         = $exception->context();
+        } elseif ($exception instanceof PDOException) {
+            $code           = ErrorCode::InfraDatabaseUnavailable;
+            $detailFallback = $this->debug
+                ? $exception->getMessage()
+                : 'The database is unavailable or the schema is out of date. Reference: '.$traceId;
+            $logCtx = [
+                'sqlstate' => $exception->getCode() !== 0 ? (string) $exception->getCode() : null,
+                'errorInfo' => $exception->errorInfo ?? null,
+            ];
         } else {
             $code           = ErrorCode::InfraUnhandled;
             $detailFallback = $this->debug

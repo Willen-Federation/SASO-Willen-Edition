@@ -84,6 +84,51 @@ paths:
         '500':
           $ref: '#/components/responses/ProblemInternalError'
 
+  /health/readiness:
+    get:
+      tags: [meta]
+      summary: Readiness probe with schema diagnostics.
+      description: |
+        Actively probes downstream dependencies (database connectivity and
+        schema invariants) and returns a per-check report. Use this when
+        `/health` is `200` but feature endpoints (`/items`, `/categories`,
+        `/auth/providers`, …) return `503` / `SASO-INFRA-9001` — the most
+        common cause is unapplied Phinx migrations.
+
+        Response shape:
+
+        ```
+        {
+          "status": "ready" | "degraded",
+          "checks": [
+            {"name": "database.connect", "status": "ok"},
+            {"name": "schema.item.note", "status": "missing", "detail": "…"}
+          ],
+          "time": "<RFC3339>"
+        }
+        ```
+
+        Returns `200 OK` when every check is `ok`, `503 Service Unavailable`
+        when one or more checks failed (so monitors can still treat it as a
+        binary signal). The list of probed tables / columns lives in code so
+        that schema drift surfaces as a `missing` check rather than as a
+        live-query 500.
+      operationId: getReadiness
+      x-handler: 'Saso\Presentation\Api\V1\Controller\ReadinessController::handle'
+      responses:
+        '200':
+          description: Every readiness check passed.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReadinessStatus'
+        '503':
+          description: One or more readiness checks failed.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReadinessStatus'
+
   /openapi.yaml:
     get:
       tags: [meta]
@@ -905,6 +950,55 @@ components:
           format: date-time
           description: Server time at response generation, UTC, RFC 3339.
           example: '2026-04-26T12:34:56Z'
+
+    ReadinessStatus:
+      type: object
+      required: [status, checks, time]
+      properties:
+        status:
+          type: string
+          enum: [ready, degraded]
+          description: |
+            `ready` when every check is `ok`, `degraded` when at least one
+            check failed. Maps 1:1 to the HTTP status (`200` vs `503`).
+          example: degraded
+        checks:
+          type: array
+          description: Per-probe outcomes; the order is stable across requests.
+          items:
+            $ref: '#/components/schemas/ReadinessCheck'
+        time:
+          type: string
+          format: date-time
+          description: Server time when the probes ran, UTC, RFC 3339.
+          example: '2026-05-23T08:15:33Z'
+
+    ReadinessCheck:
+      type: object
+      required: [name, status]
+      properties:
+        name:
+          type: string
+          description: |
+            Dotted probe identifier. Examples — `database.connect`,
+            `database.ping`, `schema.item`, `schema.item.note`.
+          example: schema.item.note
+        status:
+          type: string
+          enum: [ok, missing, failed]
+          description: |
+            `ok` — probe passed. `missing` — schema object expected by the
+            API was not present (run migrations). `failed` — an error was
+            raised while probing.
+          example: missing
+        detail:
+          type: string
+          nullable: true
+          description: |
+            Human-readable diagnostic (PDO message, hint text). Credentials
+            and DSN fragments are stripped before serialization. Absent on
+            successful probes.
+          example: 'column not found — migrations may not be applied'
 
     # -------------------------------------------------------------------------
     # Feature Flags

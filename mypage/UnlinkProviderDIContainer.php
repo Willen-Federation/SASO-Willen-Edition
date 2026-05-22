@@ -45,7 +45,7 @@ final class UnlinkProviderDIContainer implements DIContainer
                         'DELETE FROM member_external_identity WHERE member_id = :id AND auth_provider_id = :pid'
                     );
                     $delete->execute(['id' => $memberId, 'pid' => $providerId]);
-                    \saso\util\Redirect::redirect('mypage/start/?auth=unlinked');
+                    \saso\util\Redirect::redirect('mypage/start/?authLink=unlinked');
                     return new EmptyView();
                 }
             } catch (\Throwable $e) {
@@ -55,7 +55,7 @@ final class UnlinkProviderDIContainer implements DIContainer
             }
         }
 
-        \saso\util\Redirect::redirect('mypage/start/?auth=blocked');
+        \saso\util\Redirect::redirect('mypage/start/?authLink=blocked');
         return new EmptyView();
     }
 }

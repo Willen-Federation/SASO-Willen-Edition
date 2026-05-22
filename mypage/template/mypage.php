@@ -72,10 +72,30 @@ $lang = $_SESSION['lang'] ?? ($_COOKIE['saso_locale'] ?? 'ja');
     </div>
 
     <!-- Auth methods card -->
+    <?php
+        $authLinkStatus = (string) ($_GET['authLink'] ?? '');
+        $authLinkBanner = match ($authLinkStatus) {
+            'linked'       => ['ta-alert-success', $t('外部認証を追加しました。', 'External authentication has been linked.')],
+            'unlinked'     => ['ta-alert-success', $t('外部認証を解除しました。', 'External authentication has been removed.')],
+            'taken'        => ['ta-alert-warning', $t('この外部認証は別のアカウントに紐づけられています。先に元のアカウントから解除してください。', 'This external identity is already linked to another account. Remove it from that account first.')],
+            'expired'      => ['ta-alert-warning', $t('連携処理の有効期限が切れました。もう一度お試しください。', 'The linking session expired. Please try again.')],
+            'invalid_csrf' => ['ta-alert-danger',  $t('セッションが無効です。ページを再読み込みしてからやり直してください。', 'Your session is invalid. Please reload the page and retry.')],
+            'blocked'      => ['ta-alert-danger',  $t('リクエストが無効です。再度ログインしてからお試しください。', 'The request was rejected. Please sign in again and retry.')],
+            'error'        => ['ta-alert-danger',  $t('外部認証の追加に失敗しました。プロバイダー設定を管理者に確認してください。', 'Failed to link external authentication. Please ask an administrator to verify the provider settings.')],
+            default        => null,
+        };
+        ?>
     <div class="rounded-2xl border shadow-sm overflow-hidden" style="background:var(--saso-card);border-color:var(--saso-card-bdr)">
       <div class="flex items-center px-6 py-4 border-b" style="border-color:var(--saso-card-bdr)">
         <h2 class="font-semibold text-base" style="color:var(--saso-text)"><?php echo ui_text($t('認証方法', 'Authentication Methods')); ?></h2>
       </div>
+      <?php if ($authLinkBanner !== null): ?>
+        <div class="px-6 pt-4">
+          <div class="ta-alert <?php echo ui_attr($authLinkBanner[0]); ?>" role="status">
+            <span><?php echo ui_text($authLinkBanner[1]); ?></span>
+          </div>
+        </div>
+      <?php endif; ?>
       <div class="px-6 py-5 flex flex-col gap-4">
 
         <!-- Local auth -->

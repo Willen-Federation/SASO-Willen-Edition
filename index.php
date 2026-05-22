@@ -273,6 +273,14 @@ if (preg_match('#^/auth/(?:start/(\d+)|callback|saml/acs|saml/sls)/?$#', $reques
         }
     }
 
+    // Detect linking flow early so the catch block can route errors back to
+    // mypage instead of bouncing the user to the login screen. The user is
+    // already authenticated; sending them to /auth/start? after a linking
+    // hiccup makes it look as if they were silently logged out.
+    $isLinkingFlow = $authAction === 'callback'
+        && ($_SESSION['auth.purpose'] ?? '') === 'linking'
+        && isset($_SESSION['id']);
+
     try {
         $appKey = (string) (getenv('APP_KEY') ?: '');
         if ($appKey === '') {
@@ -323,7 +331,7 @@ if (preg_match('#^/auth/(?:start/(\d+)|callback|saml/acs|saml/sls)/?$#', $reques
             exit;
         }
 
-        if ($authAction === 'callback' && ($_SESSION['auth.purpose'] ?? '') === 'linking') {
+        if ($isLinkingFlow) {
             $memberId = (string) ($_SESSION['auth.linking_member_id'] ?? '');
             $expires = (int) ($_SESSION['auth.linking_expires'] ?? 0);
             if ($memberId === '' || $memberId !== (string) ($_SESSION['id'] ?? '') || $expires < time()) {
@@ -400,6 +408,30 @@ if (preg_match('#^/auth/(?:start/(\d+)|callback|saml/acs|saml/sls)/?$#', $reques
         // login form with a generic error.
         if (function_exists('error_log')) {
             error_log('[saso-auth] '.$e->getMessage());
+        }
+        // For the linking flow the user was already authenticated; bouncing
+        // them to /auth/start would look like a silent logout. Send them back
+        // to mypage with a code the template can surface, and clear the
+        // linking session keys so they can retry from a clean state.
+        if ($isLinkingFlow) {
+            $msg = $e->getMessage();
+            $authLinkCode = 'error';
+            if (str_contains($msg, 'already linked to another member')) {
+                $authLinkCode = 'taken';
+            } elseif (str_contains($msg, 'invalid or expired')) {
+                $authLinkCode = 'expired';
+            }
+            unset(
+                $_SESSION['auth.purpose'],
+                $_SESSION['auth.linking_member_id'],
+                $_SESSION['auth.linking_expires'],
+                $_SESSION['auth.provider_id'],
+                $_SESSION['auth.return_to'],
+                $_SESSION['auth.state'],
+                $_SESSION['auth.nonce']
+            );
+            header('Location: /mypage/start/?authLink=' . $authLinkCode, true, 303);
+            exit;
         }
         $programDir = trim((string) ($config['programDir'] ?? ''), '/');
         $base = '/' . ($programDir !== '' ? $programDir . '/' : '');

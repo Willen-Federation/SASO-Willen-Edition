@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Saso\Application\Mobile;
 
 use RuntimeException;
+use Saso\Domain\Auth\Exception\AuthRequiredException;
 use Saso\Domain\MobileConnect\Exception\ScopeInsufficientException;
 use Saso\Domain\MobileConnect\Jwt\JwtClaims;
 use Saso\Domain\MobileConnect\Jwt\JwtService;
@@ -36,19 +37,30 @@ final class JwtGuard
     /**
      * Extract and verify the Bearer token from the Authorization header.
      *
-     * @throws RuntimeException when auth fails (→ 401 via ProblemExceptionHandler)
+     * @throws AuthRequiredException when the header is missing/malformed or
+     *                               the token fails verification (→ 401 via ProblemExceptionHandler)
      */
     public function authenticate(HttpRequest $request): JwtClaims
     {
         $authHeader = $request->header('authorization') ?? '';
 
         if (!str_starts_with($authHeader, 'Bearer ')) {
-            throw new RuntimeException('Missing or malformed Authorization header.');
+            throw AuthRequiredException::missing();
         }
 
         $token = substr($authHeader, 7);
 
-        return $this->jwt->verify($token);
+        try {
+            return $this->jwt->verify($token);
+        } catch (RuntimeException $e) {
+            // JwtService::verify() reports every failure mode (malformed,
+            // signature mismatch, expired, missing sub) as a bare
+            // RuntimeException. Without conversion these would bubble up
+            // through ProblemExceptionHandler as SASO-INFRA-9000 (500). Wrap
+            // them as AuthRequiredException so the response carries 401 +
+            // SASO-AUTH-1004 and the original cause is preserved as $previous.
+            throw AuthRequiredException::invalidToken($e->getMessage(), $e);
+        }
     }
 
     /**
@@ -60,7 +72,7 @@ final class JwtGuard
      * so this is invisible for the standard QR flow; tokens issued with a
      * restricted scope set will be refused.
      *
-     * @throws RuntimeException when auth fails (→ 401)
+     * @throws AuthRequiredException when auth fails (→ 401)
      * @throws ScopeInsufficientException when the scope is missing (→ 403)
      */
     public function requireScope(HttpRequest $request, string $scope): JwtClaims

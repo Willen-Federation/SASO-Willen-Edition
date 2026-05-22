@@ -47,6 +47,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   consumes the validator's `Either<{tmp_name, mimeType, size, extension}>`
   result so a rejected upload short-circuits before any DB write.
 
+### Fixed
+- **JWT auth failures now return HTTP 401 (`SASO-AUTH-1004`) instead of
+  500 (`SASO-INFRA-9000`).** `JwtGuard::authenticate()` and
+  `JwtService::verify()` historically threw plain `RuntimeException` for
+  every failure mode (missing/malformed `Authorization` header, bad
+  signature, expired token, missing `sub`), and `ProblemExceptionHandler`
+  only maps `DomainException` subclasses to specific codes — so all of
+  these surfaced as generic 500s. iOS clients hit "Internal server
+  error" on every post-login button because each endpoint's JWT check
+  raised one of these untyped exceptions. A new `AuthRequiredException`
+  (`DomainException` + `ErrorCode::AuthUnauthorized`) wraps the original
+  `RuntimeException` as `$previous`, preserving the specific cause in
+  the operator log while giving the response the correct 401 + code.
+- **`GET /api/v1/auth/providers` survives a single corrupt
+  `auth_provider` row.** `PdoAuthProviderRepository::hydrateAll()`
+  previously failed the whole response if any row's
+  `client_secret_encrypted` could not be decrypted (typically a row
+  written under a now-rotated `APP_KEY`). The Discovery endpoint never
+  returns the secret in its response anyway, so we now log + skip the
+  unhydratable row via `error_log` and return the remaining rows. The
+  operator-side cleanup for the offending row is documented in
+  `docs/runbooks/2026-05-saso-infra-9000.md`.
+
 ### Added
 - **`GET /api/v1/health/readiness` — schema-aware readiness probe** for
   diagnosing the "200 on `/health` but 500 everywhere else" failure

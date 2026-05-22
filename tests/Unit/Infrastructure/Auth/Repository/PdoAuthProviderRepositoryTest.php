@@ -130,6 +130,50 @@ final class PdoAuthProviderRepositoryTest extends TestCase
         ));
     }
 
+    public function testListEnabledSkipsUnhydratableRow(): void
+    {
+        // Two healthy rows + one row whose ciphertext was produced under a
+        // different APP_KEY (simulated by writing a stub bundle of the right
+        // shape but the wrong key). Without resilient hydration a single
+        // corrupt row would take down the whole /api/v1/auth/providers
+        // response with SASO-INFRA-9000.
+        $this->repo->save($this->makeRecord(id: 1, name: 'Good A', enabled: true));
+        $this->repo->save($this->makeRecord(id: 3, name: 'Good C', enabled: true));
+
+        $foreignEncryptor = new SecretEncryptor(SecretEncryptor::generateKey());
+        $foreignCipher    = $foreignEncryptor->encrypt('secret-from-old-key');
+        $now              = '2026-04-26 12:00:00';
+        $insert           = $this->pdo->prepare(
+            'INSERT INTO auth_provider '.
+            '(id, name, type, issuer_or_metadata_url, client_id, client_secret_encrypted, '.
+            ' scopes, claim_mapping, enabled, is_default, created_at, updated_at) '.
+            "VALUES (2, 'Corrupt B', 'oidc', 'https://example.test/.well-known', 'client-2', "
+            .':secret, NULL, NULL, 1, 0, :created, :updated)',
+        );
+        $insert->bindValue('secret', $foreignCipher, PDO::PARAM_LOB);
+        $insert->bindValue('created', $now);
+        $insert->bindValue('updated', $now);
+        $insert->execute();
+
+        // Suppress the error_log() line the resilient path emits so it doesn't
+        // pollute the PHPUnit output; the behaviour we care about is the
+        // returned list, not the side-channel.
+        $previousErrorLog = ini_set('error_log', '/dev/null');
+
+        try {
+            $list = $this->repo->listEnabled();
+        } finally {
+            if ($previousErrorLog !== false) {
+                ini_set('error_log', $previousErrorLog);
+            }
+        }
+
+        self::assertSame(['Good A', 'Good C'], array_map(
+            static fn (AuthProviderRecord $r): string => $r->name,
+            $list,
+        ));
+    }
+
     public function testClaimMappingRoundTrips(): void
     {
         $mapping = ['display_name' => 'preferred_username', 'roles' => 'cognito:groups'];

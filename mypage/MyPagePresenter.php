@@ -24,6 +24,8 @@ final class MyPagePresenter implements Presenter
         )->flatMap(
             $this->success->passkeys(fn($v) => $v->passkeys)
         )->flatMap(
+            $this->success->passkeyStatus(fn($v) => $v->passkeyStatus)
+        )->flatMap(
             $this->success->devices(fn($v) => $v->devices)
         )->flatMap(
             $this->success->apiBaseUrl(fn($v) => $v->apiBaseUrl)

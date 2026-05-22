@@ -359,6 +359,38 @@ if (preg_match('#^/auth/(?:start/(\d+)|callback|saml/acs|saml/sls)/?$#', $reques
             exit;
         }
 
+        // Passkey enrollment return — see ADR-0019. The user re-authenticated
+        // on Auth0 (where the New Universal Login passkey-enrollment widget
+        // ran), and is bouncing back through our shared callback endpoint.
+        // We complete the OIDC code exchange to invalidate the one-time code,
+        // confirm the linked identity is still the same member, and land them
+        // on My Page with a status banner. We do NOT regenerate the session
+        // id or rewrite $_SESSION['id'] — the user was already signed in.
+        if ($authAction === 'callback' && ($_SESSION['auth.purpose'] ?? '') === 'passkey_enroll') {
+            $memberId = (string) ($_SESSION['auth.passkey_member'] ?? '');
+            $expires  = (int) ($_SESSION['auth.passkey_expires'] ?? 0);
+            if ($memberId === '' || $memberId !== (string) ($_SESSION['id'] ?? '') || $expires < time()) {
+                throw new \RuntimeException('Pending passkey enrollment session is invalid or expired.');
+            }
+            $provider = $factory->forId($providerId);
+            $identity = $provider->completeLogin($callback);
+            $existing = $extIds->find($providerId, $identity->externalSubject);
+            if ($existing === null || $existing->memberId !== $memberId) {
+                throw new \RuntimeException('Passkey enrollment callback identity does not match the signed-in member.');
+            }
+            $extIds->recordLogin($providerId, $identity->externalSubject);
+            unset(
+                $_SESSION['auth.purpose'],
+                $_SESSION['auth.passkey_member'],
+                $_SESSION['auth.passkey_expires'],
+                $_SESSION['auth.provider_id'],
+                $_SESSION['auth.state'],
+                $_SESSION['auth.return_to'],
+            );
+            header('Location: /mypage/start/?passkey=enrolled', true, 303);
+            exit;
+        }
+
         $returnTo = $orch->handleCallback($providerId, $callback);
         header('Location: '.$returnTo, true, 303);
         exit;

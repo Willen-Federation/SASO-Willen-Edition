@@ -3,20 +3,28 @@
         "notFound": "\\saso\\common\\NotFoundDIContainer"
     },
     "installer": {
-        "config": "\\saso\\installer\\ConfigDIContainer",
+        "start": "\\saso\\installer\\StartDIContainer",
+        "database": "\\saso\\installer\\DatabaseDIContainer",
+        "schema": "\\saso\\installer\\SchemaDIContainer",
+        "security": "\\saso\\installer\\SecurityDIContainer",
+        "services": "\\saso\\installer\\ServicesDIContainer",
+        "admin": "\\saso\\installer\\AdminDIContainer",
         "install": "\\saso\\installer\\InstallDIContainer",
-        "installed": "\\saso\\installer\\InstalledDIContainer"
+        "installed": "\\saso\\installer\\InstalledDIContainer",
+        "cleanup": "\\saso\\installer\\CleanupDIContainer",
+        "config": "\\saso\\installer\\ConfigDIContainer"
+    },
+    "admin": {
+        "auth-providers": "\\saso\\authExt\\ProvidersDIContainer",
+        "ai-settings": "\\saso\\admin\\AiSettingsDIContainer",
+        "firebase-settings": "\\saso\\admin\\FirebaseSettingsDIContainer",
+        "env-settings": "\\saso\\admin\\EnvSettingsDIContainer"
     },
     "auth": {
         "start": "\\saso\\auth\\AuthDIContainer",
         "logout": "\\saso\\auth\\LogoutDIContainer",
         "password": "\\saso\\auth\\PasswordDIContainer",
         "providerNew": "\\saso\\auth\\ProviderNewDIContainer"
-    },
-    "admin": {
-        "auth-providers": "\\saso\\authExt\\ProvidersDIContainer",
-        "ai-settings": "\\saso\\admin\\AiSettingsDIContainer",
-        "firebase-settings": "\\saso\\admin\\FirebaseSettingsDIContainer"
     },
     "featureAdmin": {
         "list": "\\saso\\featureAdmin\\ListDIContainer"

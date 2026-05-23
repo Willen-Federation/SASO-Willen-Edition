@@ -7,11 +7,7 @@ namespace saso\installer;
 use saso\framework\DIContainer;
 use saso\framework\View;
 
-/**
- * Legacy installer endpoint. After the M10 wizard refactor the GET form
- * lives at `installer/admin/` and this controller only redirects.
- */
-final class InstallDIContainer implements DIContainer
+final class DatabaseDIContainer implements DIContainer
 {
     private View $view;
 
@@ -22,7 +18,7 @@ final class InstallDIContainer implements DIContainer
 
     public function di(\Closure $inside, array $query, array $post, array $config, \DateTime $now): void
     {
-        $this->view = new InstallView();
+        $this->view = new DatabaseView();
     }
 
     public function flow(): View

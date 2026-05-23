@@ -325,6 +325,10 @@
         "firebase-settings": {
            "matter": "admin",
            "action": "firebase-settings"
+        },
+        "env-settings": {
+           "matter": "admin",
+           "action": "env-settings"
         }
     },
     "verify": {

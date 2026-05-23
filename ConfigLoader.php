@@ -104,43 +104,91 @@ final class ConfigLoader
 
     /**
      * Overlay settings from the database (system_setting table).
-     * This allows runtime configuration of providers like Auth0 via the UI.
-     * DB values take precedence over config.json and .env values.
+     * Allows runtime configuration via the admin UI without redeploys.
+     * DB values take precedence over `.env` and config.json.
+     *
+     * Keys are dotted (`auth0.domain`, `firebase.project_id`, …) and we
+     * fold them into a nested array so callers can read
+     * `$config['auth0']['domain']`. Secret-typed rows are stored
+     * encrypted in the DB; here we read the raw bytes — callers that
+     * need plaintext should go through {@see PdoSystemSettingService}.
+     * The set of prefixes recognised is intentionally bounded so an
+     * accidentally-misnamed row cannot silently replace a nested
+     * structural key in config.json.
      */
     private static function overlayDb(array $config): array
     {
         try {
             if (
-                !empty($config['database']['dsn']) &&
-                isset($config['database']['user']) &&
-                isset($config['database']['password'])
+                empty($config['database']['dsn']) ||
+                !isset($config['database']['user']) ||
+                !isset($config['database']['password'])
             ) {
-                // Establish a temporary connection to fetch settings.
-                $pdo = new \PDO(
-                    $config['database']['dsn'],
-                    $config['database']['user'],
-                    $config['database']['password'],
-                    [\PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION]
-                );
+                return $config;
+            }
+            $pdo = new \PDO(
+                $config['database']['dsn'],
+                $config['database']['user'],
+                $config['database']['password'],
+                [\PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION]
+            );
 
-                // Fetch all Auth0 provider settings from the system_setting table.
-                $stmt = $pdo->query("SELECT `key`, `value` FROM `system_setting` WHERE `key` LIKE 'auth0.%'");
-                $settings = $stmt->fetchAll(\PDO::FETCH_KEY_PAIR);
+            $allowedPrefixes = ['auth0', 'firebase', 'mail', 'ai', 'webhook'];
+            $placeholders = implode(',', array_fill(0, count($allowedPrefixes), '?'));
+            $likes = array_map(static fn (string $p): string => $p . '.%', $allowedPrefixes);
+            $sql = "SELECT `key`, `value`, `value_type`, `encrypted` FROM `system_setting` WHERE "
+                 . implode(' OR ', array_fill(0, count($likes), "`key` LIKE ?"));
+            $stmt = $pdo->prepare($sql);
+            $stmt->execute($likes);
+            $rows = $stmt->fetchAll(\PDO::FETCH_ASSOC) ?: [];
 
-                if (!empty($settings)) {
-                    if (!isset($config['auth0']) || !is_array($config['auth0'])) {
-                        $config['auth0'] = [];
-                    }
-                    // Merge DB settings, overwriting any existing values.
-                    if (!empty($settings['auth0.domain']))       $config['auth0']['domain']       = $settings['auth0.domain'];
-                    if (!empty($settings['auth0.clientId']))     $config['auth0']['clientId']     = $settings['auth0.clientId'];
-                    if (!empty($settings['auth0.clientSecret'])) $config['auth0']['clientSecret'] = $settings['auth0.clientSecret'];
+            foreach ($rows as $row) {
+                $key = (string) ($row['key'] ?? '');
+                if ($key === '') {
+                    continue;
                 }
+                // Encrypted rows are skipped here — overlay sees them as
+                // unset so plaintext callers (PdoSystemSettingService)
+                // remain the single source of truth for decryption.
+                if (((int) ($row['encrypted'] ?? 0)) === 1) {
+                    continue;
+                }
+                $value = (string) ($row['value'] ?? '');
+                $type  = (string) ($row['value_type'] ?? 'string');
+                $config = self::setDotted($config, $key, self::castValue($value, $type));
             }
         } catch (\PDOException $e) {
-            // Silently ignore if the database is not available (e.g., during initial setup).
-            // In a production system with mature logging, this would log the error.
+            // Silently ignore if the database is not available (e.g.
+            // during initial setup before migrations run).
         }
         return $config;
+    }
+
+    /**
+     * Set a nested config value from a dotted key like `firebase.api_key`.
+     */
+    private static function setDotted(array $config, string $dotted, mixed $value): array
+    {
+        $parts = explode('.', $dotted);
+        $cursor = &$config;
+        $last = array_pop($parts);
+        foreach ($parts as $segment) {
+            if (!isset($cursor[$segment]) || !is_array($cursor[$segment])) {
+                $cursor[$segment] = [];
+            }
+            $cursor = &$cursor[$segment];
+        }
+        $cursor[$last] = $value;
+        return $config;
+    }
+
+    private static function castValue(string $raw, string $type): mixed
+    {
+        return match ($type) {
+            'int'    => (int) $raw,
+            'bool'   => filter_var($raw, FILTER_VALIDATE_BOOLEAN),
+            'json'   => json_decode($raw, true),
+            default  => $raw,
+        };
     }
 }

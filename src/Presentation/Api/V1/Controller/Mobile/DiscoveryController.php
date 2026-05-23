@@ -51,7 +51,7 @@ final class DiscoveryController
                 $hasNonLocal = true;
             }
             $providerList[] = [
-                'id'        => $rec->id->value(),
+                'id'        => $rec->id->value,
                 'name'      => $rec->name,
                 'type'      => $rec->type->value,
                 'isDefault' => $rec->isDefault,

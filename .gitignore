@@ -2,6 +2,10 @@
 .env
 .env.local
 .env.*.local
+# tools/repair-app-key.php side files
+.env.backup.*
+.env.lock
+.env.tmp.*
 config.local.json
 config_*.json
 !config.example.json

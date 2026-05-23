@@ -15,8 +15,10 @@ $finder = PhpCsFixer\Finder::create()
     ])
     ->append([
         __DIR__.'/util/EnvLoader.php',
+        __DIR__.'/util/EnvWriter.php',
         __DIR__.'/util/UploadValidator.php',
         __DIR__.'/util/CSRFtoken.php',
+        __DIR__.'/tools/repair-app-key.php',
     ])
     ->name('*.php');
 

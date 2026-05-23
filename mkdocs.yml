@@ -119,6 +119,8 @@ plugins:
             Accessibility: アクセシビリティ
             Security: セキュリティ
             API Reference: API リファレンス
+            Integrations: インテグレーション
+            "AI Auto-Registration": AI 自動登録
             Authentication Providers: 認証プロバイダー
             Error Codes: エラーコード
             Changelog: 変更履歴
@@ -201,6 +203,8 @@ nav:
       - Accessibility: admin/accessibility.md
   - Security: security.md
   - API Reference: api.md
+  - Integrations:
+      - "AI Auto-Registration": integrations/ai-auto-register.md
   - Authentication Providers: auth-providers/index.md
   - Error Codes: error-codes.md
   - Changelog: changelog.md

@@ -15,13 +15,18 @@ SASO-<DOMAIN>-<NNNN>
 | `AUTH`    | `1xxx` | Login, OIDC / SAML provisioning, password change |
 | `MOBILE`  | `2xxx` | QR pairing, device tokens, V1 API scope enforcement |
 | `LABEL`   | `3xxx` | Label definition and PDF generation |
-| `SHELF`   | `4xxx` | Shelf management |
+| `DRAFT`   | `4xxx` | Item-draft uploads (image / metadata validation) |
 | `INSTALL` | `5xxx` | Web installer flow |
 | `CONFIG`  | `6xxx` | `system_setting` and provider configuration |
 | `FLAG`    | `7xxx` | Feature flag evaluation |
 | `INFRA`   | `9xxx` | Database / network / unhandled exceptions |
 | `MCP`     | `Axxx` | MCP server (JSON-RPC tools, scope enforcement) |
 | `PLUGIN`  | `Bxxx` | Plugin registry / loader |
+
+> Note: `4xxx` previously listed "Shelf management" but no shelf-domain codes
+> were ever assigned. The range has been reallocated to `DRAFT` (item-draft
+> uploads). Shelf-related failures fall under `INFRA` or a future domain to
+> be assigned.
 
 Within each domain the four-digit suffix counts upward starting at `0001`. **Codes are append-only.** A code that goes out of use is marked _(deprecated)_ but never reassigned, so logs from older releases stay decodable.
 
@@ -53,6 +58,22 @@ Within each domain the four-digit suffix counts upward starting at `0001`. **Cod
 | `SASO-MOBILE-2007` | 400 | Invalid mobile connect request | A request to a mobile/V1 endpoint failed input validation (e.g. missing required field) |
 | `SASO-MOBILE-2008` | 403 | Scope insufficient for the requested endpoint | The device token's `scp` claim does not include the scope the called endpoint requires. RFC 6749 §3.3 — scopes are normative, not advisory |
 
+### `DRAFT` — item-draft uploads
+
+Emitted by `POST /api/v1/items/drafts` and `POST /api/v1/items/auto-register`
+during request validation. Failures that happen later (during background
+enrichment / promotion) are surfaced through the `item_draft.status` /
+`error_detail` columns rather than as HTTP error codes — see the
+[AI Auto-Register integration guide](integrations/ai-auto-register.md)
+for the worker-side failure catalogue.
+
+| Code | HTTP | Title | When it is raised |
+|---|---|---|---|
+| `SASO-DRAFT-4001` | 400 | Image field missing | The multipart payload had no `image` part. |
+| `SASO-DRAFT-4002` | 400 | Image upload failed  | The HTTP upload itself errored (`$_FILES['image']['error'] !== UPLOAD_ERR_OK`). |
+| `SASO-DRAFT-4003` | 400 | Image too large      | The uploaded file exceeds the 20 MB ceiling. |
+| `SASO-DRAFT-4004` | 400 | Unsupported image type | Detected MIME (from the file bytes, not the declared header) is not one of `image/jpeg`, `image/png`, `image/webp`, `image/gif`. |
+
 ### `INFRA` — infrastructure
 
 | Code | HTTP | Title | When it is raised |
@@ -63,7 +84,7 @@ Within each domain the four-digit suffix counts upward starting at `0001`. **Cod
 | `SASO-INFRA-9003` | 404 | Endpoint not found    | API router could not match the request path against any operation declared in `config/openapi.yaml` |
 | `SASO-INFRA-9004` | 405 | Method not allowed    | API router matched the path but not the HTTP method; allowed methods are listed in the server log under `context.allowed` |
 
-The remaining domains (`ITEM`, `LABEL`, `SHELF`, `INSTALL`, `CONFIG`, `FLAG`) reserve their numeric ranges and will be filled as M3-D and M4 land.
+The remaining domains (`ITEM`, `LABEL`, `INSTALL`, `CONFIG`, `FLAG`) reserve their numeric ranges and will be filled as the corresponding milestones land.
 
 ## How clients see them
 

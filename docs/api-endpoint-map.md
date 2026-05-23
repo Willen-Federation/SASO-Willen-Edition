@@ -73,6 +73,7 @@ you change one, change the other; CI rejects drift.
 | `GET` | `/api/v1/items/{id}` | Bearer | `items:read` | Get one item with EAV attributes. Response includes `janCode`, `isbnCode`, `labelCode`, `note`. |
 | `PATCH` | `/api/v1/items/{id}` | Bearer | `items:write` | Partial update (supports `Idempotency-Key`). `note` accepts empty string or `null` to clear. |
 | `POST` | `/api/v1/items/drafts` | Bearer | `items:write` | Multipart upload → enqueue an `item_draft` row. See [DraftCreateController](https://github.com/Willen-Federation/SASO-Willen-Edition/blob/main/src/Presentation/Api/V1/Controller/Item/DraftCreateController.php). |
+| `POST` | `/api/v1/items/auto-register` | Bearer | `items:write` | Multipart upload → enqueue an `item_draft` flagged for **direct promotion** to an `item` row after enrichment (JAN/ISBN + iterative AI vision). Gated by `ai.auto_register`. See [AutoRegisterController](https://github.com/Willen-Federation/SASO-Willen-Edition/blob/main/src/Presentation/Api/V1/Controller/Item/AutoRegisterController.php) and the [integration guide](integrations/ai-auto-register.md). |
 
 ### Categories & storage locations (Bearer)
 
@@ -93,7 +94,20 @@ you change one, change the other; CI rejects drift.
 
 | Method | Path | Auth | Scope | Purpose |
 |--------|------|------|-------|---------|
-| `POST` | `/mcp` | Bearer | per-tool | JSON-RPC 2.0 dispatch (`tools/list`, `tools/call`, resources, prompts). The "analyze image" path lives here, not as a REST endpoint. |
+| `POST` | `/mcp` | Bearer | per-tool | JSON-RPC 2.0 dispatch (`tools/list`, `tools/call`, resources, prompts). |
+
+#### MCP tools relevant to item creation
+
+| Tool name | Scope | Purpose |
+|-----------|-------|---------|
+| `register_item` | `items:write` | Create an item from a fully-populated payload (no image, no enrichment). |
+| `auto_register_item` | `items:write` | Run the full auto-register pipeline against a server-side image path (`uploads/item_drafts/...`) and an optional `barcodeHint`. Synchronous — returns `{draftId, status, itemId, errorDetail}`. Gated by `ai.auto_register`. |
+| `update_item` | `items:write` | Partial field update by id. |
+| `set_item_status` | `items:write` | Change lifecycle status. |
+| `set_item_attribute` | `items:write` | Set a custom EAV attribute value. |
+| `assign_item_location` | `items:write` | Assign / unassign a storage location. |
+| `search_items` | `items:read` | Keyword search over the catalogue. |
+| `get_item` / `get_item_attributes` | `items:read` | Read a single item or its EAV attributes. |
 
 ### Web self-service (browser)
 
@@ -116,6 +130,7 @@ Method ↔ endpoint mapping the client is expected to follow:
 | `createItem(body, idempotencyKey)` | `POST /items` |
 | `updateItem(id, patch, idempotencyKey)` | `PATCH /items/{id}` |
 | `createItemDraftWithAi(...)` | `POST /items/drafts` (multipart) |
+| `autoRegisterItem(...)` | `POST /items/auto-register` (multipart) |
 | `fetchCategories()` | `GET /categories` |
 | `fetchShelf(id)` | `GET /storage-locations/{id}` |
 | `fetchItemsByShelf(id)` | `GET /storage-locations/{id}/items` |

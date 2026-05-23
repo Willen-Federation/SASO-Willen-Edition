@@ -27,6 +27,7 @@
         <include>
             <directory>src</directory>
             <file>util/EnvLoader.php</file>
+            <file>util/EnvWriter.php</file>
             <file>util/UploadValidator.php</file>
             <file>util/AvatarHelper.php</file>
             <file>util/CSRFtoken.php</file>

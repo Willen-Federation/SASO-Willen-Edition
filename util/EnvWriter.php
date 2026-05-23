@@ -2,15 +2,25 @@
 
 namespace saso\util;
 
+use InvalidArgumentException;
+use RuntimeException;
+
 /**
  * Companion to {@see EnvLoader}: rewrites a single key in a `.env` file
- * preserving every other line. Used by the installer bootstrap path to
- * fill in an auto-generated APP_KEY when the user opens /installer/start
- * on a fresh deployment without ever needing to edit the file by hand.
+ * preserving every other line. Two API shapes coexist:
  *
- * Intentionally minimal — no quoting, no escaping. Callers are expected
- * to pass safe single-line strings. Generated secrets (base64 / hex
- * random output) satisfy that constraint.
+ *   - Static {@see set()}/{@see setMany()} — original installer-bootstrap path.
+ *     Best-effort, returns bool, no locking, no atomicity guarantees beyond
+ *     what `file_put_contents(LOCK_EX)` provides.
+ *
+ *   - Instance {@see setOrUpdate()}/{@see get()}/{@see hasValidValue()} — the
+ *     hardened path introduced for `tools/repair-app-key.php`. Atomic writes
+ *     via `rename()`, exclusive `flock()`, strict input validation, and
+ *     post-write chmod 0600 / best-effort chown to preserve ownership.
+ *
+ * Use the instance API for any code path that runs on production secrets.
+ * The static API is retained for the existing installer/admin call sites
+ * which write multiple keys in a row and have their own validation layer.
  */
 final class EnvWriter
 {
@@ -21,10 +31,12 @@ final class EnvWriter
      * If the file does not exist, it is created (the directory must already
      * be writable). This lets the installer bootstrap a fresh `.env` from
      * scratch on first run.
+     *
+     * NOTE: legacy API. New code should prefer {@see setOrUpdate()}.
      */
     public static function set(string $path, string $key, string $value): bool
     {
-        if (!preg_match('/^[A-Za-z_][A-Za-z0-9_]*$/', $key)) {
+        if (!self::isValidKey($key)) {
             return false;
         }
 
@@ -54,13 +66,13 @@ final class EnvWriter
         }
 
         $sanitised = self::sanitiseValue($value);
-        $line      = $key . '=' . $sanitised;
-        $pattern   = '/^' . preg_quote($key, '/') . '=.*$/m';
+        $line      = $key.'='.$sanitised;
+        $pattern   = '/^'.preg_quote($key, '/').'=.*$/m';
 
         if (preg_match($pattern, $contents)) {
             $updated = preg_replace($pattern, $line, $contents, 1);
         } else {
-            $updated = rtrim($contents, "\n") . "\n" . $line . "\n";
+            $updated = rtrim($contents, "\n")."\n".$line."\n";
         }
 
         return file_put_contents($path, $updated, LOCK_EX) !== false;
@@ -82,15 +94,208 @@ final class EnvWriter
         return $ok;
     }
 
+    // ── Instance / hardened API ─────────────────────────────────────────────
+
+    /**
+     * Set or update $key=$value in the .env file at $envPath. Existing keys
+     * keep their line position and surrounding comments. New keys are appended.
+     *
+     * Guarantees:
+     *   - Atomic: writes to `.env.tmp` then `rename()`s into place
+     *   - Locking: takes an exclusive flock on the temp handle
+     *   - Permissions: chmod 0600 on the final file, best-effort chown to the
+     *     existing file's owner (no-op when not permitted, e.g. unprivileged
+     *     CLI / non-root php-fpm)
+     *   - Auto-create: if $envPath doesn't exist, seeds from `.env.example`
+     *     adjacent to it; falls back to an empty file otherwise
+     *
+     * @throws InvalidArgumentException when $key is not a valid env key, or
+     *                                  $value contains newlines / null bytes
+     * @throws RuntimeException when the file cannot be opened, locked,
+     *                          or renamed into place
+     */
+    public function setOrUpdate(string $key, string $value, string $envPath): void
+    {
+        if (!self::isValidKey($key)) {
+            throw new InvalidArgumentException(
+                sprintf('Invalid env key "%s" (must match /^[A-Za-z_][A-Za-z0-9_]*$/).', $key)
+            );
+        }
+        self::assertSafeValue($value);
+
+        $this->ensureFileExists($envPath);
+
+        // Concurrency model:
+        //
+        //   - Lockfile: a sibling `.env.lock` is the serialization point. We
+        //     flock(LOCK_EX) on it for the whole read-modify-write window so
+        //     two writers running at the same time never produce a torn file.
+        //   - Temp file: per-process unique name (`.env.tmp.<pid>.<rand>`)
+        //     so even if locking is bypassed (e.g. NFS where flock is a
+        //     no-op), two processes don't clobber the same temp inode.
+        //   - rename(): atomic on the same filesystem on POSIX. The new file
+        //     is fully written before we attempt the rename — a crash mid-
+        //     write leaves the live .env untouched.
+        $lockPath = $envPath.'.lock';
+        $tmp      = $envPath.'.tmp.'.getmypid().'.'.bin2hex(random_bytes(4));
+
+        $lock = @fopen($lockPath, 'cb+');
+        if ($lock === false) {
+            throw new RuntimeException(
+                sprintf('Failed to open lock file "%s".', $lockPath)
+            );
+        }
+
+        try {
+            if (!flock($lock, LOCK_EX)) {
+                throw new RuntimeException(
+                    sprintf('Failed to acquire exclusive lock on "%s".', $lockPath)
+                );
+            }
+
+            $contents = @file_get_contents($envPath);
+            if ($contents === false) {
+                $contents = '';
+            }
+
+            $line    = $key.'='.self::sanitiseValue($value);
+            $pattern = '/^'.preg_quote($key, '/').'=.*$/m';
+
+            if (preg_match($pattern, $contents) === 1) {
+                $updated = preg_replace($pattern, $line, $contents, 1);
+            } else {
+                // Preserve trailing newline behaviour: ensure file ends with
+                // exactly one newline before our new line.
+                $updated = ($contents === '' ? '' : rtrim($contents, "\n")."\n")
+                    .$line."\n";
+            }
+            if ($updated === null) {
+                throw new RuntimeException('preg_replace failed while updating env line.');
+            }
+
+            $written = @file_put_contents($tmp, $updated);
+            if ($written === false || $written !== strlen($updated)) {
+                throw new RuntimeException(
+                    sprintf('Short write to temp file "%s".', $tmp)
+                );
+            }
+
+            // Capture existing owner *before* rename so chown survives.
+            $existingOwner = @fileowner($envPath);
+
+            if (!@rename($tmp, $envPath)) {
+                throw new RuntimeException(
+                    sprintf('Failed to rename temp file "%s" to "%s".', $tmp, $envPath)
+                );
+            }
+
+            @chmod($envPath, 0600);
+            if (is_int($existingOwner) && $existingOwner > 0 && function_exists('posix_geteuid')) {
+                // Only attempt chown if running as root; otherwise it is a
+                // guaranteed EPERM and not worth the warning.
+                if (posix_geteuid() === 0) {
+                    @chown($envPath, $existingOwner);
+                }
+            }
+        } finally {
+            if (is_resource($lock)) {
+                @flock($lock, LOCK_UN);
+                @fclose($lock);
+            }
+            // If we threw before rename, clean up the stray temp file.
+            if (is_file($tmp)) {
+                @unlink($tmp);
+            }
+        }
+    }
+
+    /**
+     * Read a single key from the env file. Returns null when the file is
+     * missing or the key is not present.
+     */
+    public function get(string $key, string $envPath): ?string
+    {
+        if (!self::isValidKey($key)) {
+            return null;
+        }
+        $env = EnvLoader::loadFile($envPath);
+        return $env[$key] ?? null;
+    }
+
+    /**
+     * True when $key is present in the env file AND the supplied validator
+     * accepts its current value. The validator receives the raw string and
+     * must return bool — anything else is treated as false.
+     */
+    public function hasValidValue(string $key, string $envPath, callable $validator): bool
+    {
+        $value = $this->get($key, $envPath);
+        if ($value === null || $value === '') {
+            return false;
+        }
+        return $validator($value) === true;
+    }
+
+    // ── Internal helpers ────────────────────────────────────────────────────
+
+    private static function isValidKey(string $key): bool
+    {
+        return preg_match('/^[A-Za-z_][A-Za-z0-9_]*$/', $key) === 1;
+    }
+
+    private static function assertSafeValue(string $value): void
+    {
+        if (strpbrk($value, "\r\n\0") !== false) {
+            throw new InvalidArgumentException(
+                'Env value must not contain newlines or null bytes.'
+            );
+        }
+    }
+
+    /**
+     * Create the .env file if it is missing. Prefers seeding from a sibling
+     * `.env.example` so operators retain the documented comments; falls back
+     * to an empty placeholder header otherwise.
+     */
+    private function ensureFileExists(string $envPath): void
+    {
+        if (is_file($envPath)) {
+            return;
+        }
+        $dir = dirname($envPath);
+        if (!is_dir($dir) || !is_writable($dir)) {
+            throw new RuntimeException(
+                sprintf('Parent directory "%s" does not exist or is not writable.', $dir)
+            );
+        }
+        $example = $dir.'/.env.example';
+        if (is_file($example) && is_readable($example)) {
+            $contents = @file_get_contents($example);
+            if ($contents === false) {
+                $contents = "# SASO — created by EnvWriter\n";
+            }
+        } else {
+            $contents = "# SASO — created by EnvWriter\n";
+        }
+        if (@file_put_contents($envPath, $contents, LOCK_EX) === false) {
+            throw new RuntimeException(
+                sprintf('Failed to seed "%s" from .env.example.', $envPath)
+            );
+        }
+        @chmod($envPath, 0600);
+    }
+
     /**
      * Quote the value if it contains characters that would otherwise change
      * how {@see EnvLoader::loadFile()} parses the line (whitespace, `#`,
-     * `"`, `'`). Bare alphanumeric / DSN-like strings are passed through.
+     * `"`, `'`, backslash). Bare alphanumeric / DSN-like strings (including
+     * `KEY=value=value` style content after the *first* `=`) pass through,
+     * since EnvLoader splits on the first `=` only.
      */
     private static function sanitiseValue(string $value): string
     {
-        // Strip newlines defensively — the install wizard validates inputs,
-        // but if anything slipped through it would otherwise corrupt the file.
+        // Strip newlines defensively for the legacy static API — the
+        // instance API rejects them in assertSafeValue() already.
         $value = str_replace(["\r", "\n"], '', $value);
 
         $needsQuotes = preg_match('/[\s"#\'\\\\]/', $value) === 1;
@@ -99,6 +304,6 @@ final class EnvWriter
         }
 
         $escaped = str_replace(['\\', '"'], ['\\\\', '\\"'], $value);
-        return '"' . $escaped . '"';
+        return '"'.$escaped.'"';
     }
 }

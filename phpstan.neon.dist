@@ -12,7 +12,9 @@ parameters:
     paths:
         - src
         - tests
+        - tools
         - util/EnvLoader.php
+        - util/EnvWriter.php
         - util/UploadValidator.php
         - util/CSRFtoken.php
     # Phinx migrations are class-based but resolved at runtime by Phinx

@@ -40,7 +40,25 @@ final class LoginUsecase implements Usecase
             $_SESSION['time'] = time();
             $_SESSION['userName'] = $member->name;
             return $data->restoredPath;
-        })->OrElse(fn($v)=>Either::left($data->restoredPath.'error/1/'));
+        })->OrElse(fn($v)=>Either::left(self::buildFailureRedirect((string) $data->restoredPath)));
+    }
+
+    /**
+     * Builds the redirect target for a failed login attempt.
+     *
+     * When the form has no `restoredPath` (e.g. desktop / embedded webview
+     * landing straight on `/auth/start/`), naively appending `error/1/`
+     * produces `/error/1/`, which the legacy router resolves to a 404 page
+     * instead of bouncing back to the login form. Anchoring on `auth/start/`
+     * keeps the user on the login form with the error banner visible.
+     */
+    private static function buildFailureRedirect(string $restoredPath): string
+    {
+        $trimmed = trim($restoredPath, '/');
+        if ($trimmed === '') {
+            return 'auth/start/error/1/';
+        }
+        return rtrim($restoredPath, '/').'/error/1/';
     }
 
     /**

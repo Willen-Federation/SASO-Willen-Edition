@@ -16,11 +16,23 @@ $this->title = $lang === 'ja' ? 'ログイン' : 'Login';
         <?php if ($v->isError) { ?>
           <div class="ta-alert ta-alert-danger mb-4" role="alert">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true" focusable="false"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/></svg>
-            <?php echo ui_text($lang === 'ja' ? 'ID、パスワードが違います。' : 'The user ID or password is incorrect.'); ?>
+            <?php echo ui_text($lang === 'ja' ? 'ユーザー名またはパスワードが正しくありません。' : 'The username or password is likely incorrect.'); ?>
           </div>
         <?php } ?>
 
-        <form method="post" action="<?php echo htmlspecialchars($v->restoredPath, ENT_QUOTES, 'UTF-8'); ?>" autocomplete="on">
+        <?php
+          // Force the form action to a leading slash. Without this, the browser
+          // resolves the relative `restoredPath` against the current URL — which
+          // diverges depending on whether the user landed on `/auth/start/` or
+          // was bounced here while requesting a deep path. Embedded webviews
+          // (desktop / mobile) are particularly sensitive to that base-URL
+          // ambiguity; the absolute path keeps them locked to the front
+          // controller. An empty restoredPath falls back to `/auth/start/` so
+          // the POST cannot escape into a route that 404s.
+          $formAction = (string) $v->restoredPath;
+          $formAction = $formAction === '' ? '/auth/start/' : '/' . ltrim($formAction, '/');
+        ?>
+        <form method="post" action="<?php echo htmlspecialchars($formAction, ENT_QUOTES, 'UTF-8'); ?>" autocomplete="on">
           <div class="mb-4">
             <label for="login-id" class="mb-1.5 block text-sm font-medium" style="color:var(--saso-text)"><?php echo ui_text($lang === 'ja' ? 'ログインID' : 'Login ID'); ?></label>
             <input type="text" id="login-id" name="id" class="form-input w-full"

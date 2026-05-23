@@ -43,6 +43,61 @@ final class AiVisionStep implements AiVisionStepInterface
      */
     public function run(string $imagePath, ?string $barcodeHint, array $existing): array
     {
+        return $this->callAi($imagePath, $barcodeHint, self::EXTRACTION_SCHEMA, $this->buildPrompt($barcodeHint));
+    }
+
+    /**
+     * @param array<string, mixed> $existing
+     * @param list<string> $missingFields
+     *
+     * @return array<string, mixed>
+     */
+    public function runForFields(
+        string $imagePath,
+        ?string $barcodeHint,
+        array $existing,
+        array $missingFields,
+    ): array {
+        $missingFields = array_values(array_filter(
+            $missingFields,
+            static fn (string $k): bool => isset(self::EXTRACTION_SCHEMA['properties'][$k]),
+        ));
+
+        if ($missingFields === []) {
+            return [];
+        }
+
+        $properties = [];
+        foreach ($missingFields as $key) {
+            $properties[$key] = self::EXTRACTION_SCHEMA['properties'][$key];
+        }
+
+        $required = array_values(array_intersect(
+            self::EXTRACTION_SCHEMA['required'],
+            $missingFields,
+        ));
+
+        $schema = [
+            'type'       => 'object',
+            'properties' => $properties,
+            'required'   => $required,
+        ];
+
+        return $this->callAi(
+            $imagePath,
+            $barcodeHint,
+            $schema,
+            $this->buildRetryPrompt($barcodeHint, $missingFields),
+        );
+    }
+
+    /**
+     * @param array<string, mixed> $schema
+     *
+     * @return array<string, mixed>
+     */
+    private function callAi(string $imagePath, ?string $barcodeHint, array $schema, string $instruction): array
+    {
         $flag = $this->flags->findByKey(new FeatureKey('ai.auto_judge'));
         if ($flag === null || !$flag->enabled) {
             return [];
@@ -57,13 +112,12 @@ final class AiVisionStep implements AiVisionStepInterface
             return [];
         }
 
-        $mime        = $this->detectMimeType($imagePath);
-        $instruction = $this->buildPrompt($barcodeHint);
+        $mime = $this->detectMimeType($imagePath);
 
         $request = new StructuredExtractionRequest(
             instruction: $instruction,
             sourceText: '',
-            jsonSchema: self::EXTRACTION_SCHEMA,
+            jsonSchema: $schema,
             imageBytes: $imageBytes,
             imageMimeType: $mime,
             maxTokens: 1024,
@@ -88,6 +142,38 @@ final class AiVisionStep implements AiVisionStepInterface
 
         $prompt .= "バーコード/QRコードが見えれば jan_code または isbn として記録してください。\n";
         $prompt .= "商品名・メーカー・価格・説明を日本語で記述してください。\n";
+        $prompt .= '不明な項目は null にしてください。';
+
+        return $prompt;
+    }
+
+    /**
+     * @param list<string> $missingFields
+     */
+    private function buildRetryPrompt(?string $barcodeHint, array $missingFields): string
+    {
+        $labels = [
+            'item_name'     => '商品名',
+            'manufacturer'  => 'メーカー',
+            'description'   => '説明',
+            'jan_code'      => 'JANコード',
+            'isbn'          => 'ISBN',
+            'category_hint' => 'カテゴリ',
+            'price'         => '価格',
+        ];
+
+        $requested = array_map(
+            static fn (string $k): string => $labels[$k] ?? $k,
+            $missingFields,
+        );
+
+        $prompt = 'この商品画像から、以下の項目のみを再抽出してください: '.implode('、', $requested)."。\n";
+
+        if ($barcodeHint !== null && $barcodeHint !== '') {
+            $prompt .= "商品コード: {$barcodeHint}\n";
+        }
+
+        $prompt .= "他の項目は出力しないでください。\n";
         $prompt .= '不明な項目は null にしてください。';
 
         return $prompt;

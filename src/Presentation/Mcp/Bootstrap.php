@@ -7,13 +7,18 @@ namespace Saso\Presentation\Mcp;
 use PDO;
 use Saso\Domain\MobileConnect\Jwt\JwtService;
 use Saso\Domain\Plugin\Registry\RegistryName;
+use Saso\Infrastructure\Auth\Crypto\SecretEncryptor;
 use Saso\Infrastructure\Category\PdoCategoryRepository;
+use Saso\Infrastructure\FeatureFlag\PdoFeatureFlagRepository;
 use Saso\Infrastructure\Item\Attribute\PdoAttributeDefinitionRepository;
+use Saso\Infrastructure\ItemDraft\PdoItemDraftRepository;
 use Saso\Infrastructure\MobileConnect\PdoDeviceTokenRepository;
 use Saso\Infrastructure\Plugin\Registry\InMemoryMcpToolRegistry;
 use Saso\Infrastructure\Search\NullSearchIndex;
+use Saso\Infrastructure\Setting\PdoSystemSettingService;
 use Saso\Infrastructure\StorageLocation\PdoStorageLocationRepository;
 use Saso\Presentation\Mcp\Tool\AssignItemLocationTool;
+use Saso\Presentation\Mcp\Tool\AutoRegisterItemTool;
 use Saso\Presentation\Mcp\Tool\DefineAttributeTool;
 use Saso\Presentation\Mcp\Tool\GetItemAttributesTool;
 use Saso\Presentation\Mcp\Tool\GetItemTool;
@@ -89,6 +94,15 @@ final class Bootstrap
         $registry->registerCore(new RegistryName('assign_item_location'), new AssignItemLocationTool($pdo));
         $registry->registerCore(new RegistryName('set_item_attribute'), new SetItemAttributeTool($pdo));
 
+        // Item — AI auto-register
+        $draftRepo       = new PdoItemDraftRepository($pdo);
+        $flagRepo        = new PdoFeatureFlagRepository($pdo);
+        $settingsService = new PdoSystemSettingService($pdo, new SecretEncryptor(self::encryptorKey()));
+        $registry->registerCore(
+            new RegistryName('auto_register_item'),
+            new AutoRegisterItemTool($pdo, $draftRepo, $settingsService, $flagRepo),
+        );
+
         // Attribute schema
         $registry->registerCore(new RegistryName('list_attributes'), new ListAttributesTool($attributes));
         $registry->registerCore(new RegistryName('define_attribute'), new DefineAttributeTool($pdo));
@@ -152,6 +166,38 @@ final class Bootstrap
         throw new \RuntimeException(
             'JWT_SECRET (or APP_KEY) must be set to a value of at least 32 bytes. '
             .'Refusing to boot with an insecure fallback. See .env.example.'
+        );
+    }
+
+    /**
+     * Derives the 32-byte AES-256-GCM key used by {@see SecretEncryptor}
+     * from APP_KEY. Mirrors `Saso\Presentation\Api\V1\Bootstrap::encryptorKey()`.
+     */
+    private static function encryptorKey(): string
+    {
+        $appKey = getenv('APP_KEY');
+        if (is_string($appKey) && $appKey !== '') {
+            $raw = base64_decode($appKey, strict: true);
+            if ($raw !== false && strlen($raw) === 32) {
+                return $raw;
+            }
+
+            if (preg_match('/^[0-9a-fA-F]{64}$/', $appKey)) {
+                $hex = hex2bin($appKey);
+                if ($hex !== false && strlen($hex) === 32) {
+                    return $hex;
+                }
+            }
+
+            if (strlen($appKey) >= 32) {
+                return hash('sha256', $appKey, binary: true);
+            }
+        }
+
+        throw new \RuntimeException(
+            'APP_KEY must be set to a base64-encoded 32 bytes, hex-encoded 32 bytes, '
+            .'or any string of at least 32 characters. Refusing to boot with an all-zero AES key. '
+            .'See .env.example.'
         );
     }
 

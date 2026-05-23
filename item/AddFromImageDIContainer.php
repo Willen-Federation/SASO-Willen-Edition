@@ -97,21 +97,23 @@ final class AddFromImageDIContainer implements DIContainer
         $userDataJson = empty($userData) ? null : json_encode($userData, JSON_UNESCAPED_UNICODE);
         $nowStr       = $this->now->format('Y-m-d H:i:s');
         $createdBy    = isset($_SESSION['id']) ? (int) $_SESSION['id'] : null;
+        $autoRegister = !empty($this->post['auto_register']) ? 1 : 0;
 
         $stmt = $pdo->prepare(
             'INSERT INTO item_draft
-                (image_path, barcode_hint, user_data, status, created_by, created_at, updated_at)
+                (image_path, barcode_hint, user_data, status, auto_register, created_by, created_at, updated_at)
              VALUES
-                (:image_path, :barcode_hint, :user_data, :status, :created_by, :created_at, :updated_at)'
+                (:image_path, :barcode_hint, :user_data, :status, :auto_register, :created_by, :created_at, :updated_at)'
         );
         $stmt->execute([
-            'image_path'   => $imagePath,
-            'barcode_hint' => $barcodeHint,
-            'user_data'    => $userDataJson,
-            'status'       => 'queued',
-            'created_by'   => $createdBy,
-            'created_at'   => $nowStr,
-            'updated_at'   => $nowStr,
+            'image_path'    => $imagePath,
+            'barcode_hint'  => $barcodeHint,
+            'user_data'     => $userDataJson,
+            'status'        => 'queued',
+            'auto_register' => $autoRegister,
+            'created_by'    => $createdBy,
+            'created_at'    => $nowStr,
+            'updated_at'    => $nowStr,
         ]);
         $draftId = (int) $pdo->lastInsertId();
 
@@ -120,7 +122,7 @@ final class AddFromImageDIContainer implements DIContainer
             $draftRepository = new PdoItemDraftRepository($pdo);
             $settingService = new PdoSystemSettingService($pdo, new SecretEncryptor());
             $flagRepository = new PdoFeatureFlagRepository($pdo);
-            $handler = ProcessItemDraftDIContainer::createHandler($draftRepository, $settingService, $flagRepository);
+            $handler = ProcessItemDraftDIContainer::createHandler($draftRepository, $settingService, $flagRepository, $pdo);
 
             $bus = MessageBusFactory::create([
                 ProcessItemDraft::class => [$handler],
@@ -133,12 +135,18 @@ final class AddFromImageDIContainer implements DIContainer
         if ($this->isAjax()) {
             header('Content-Type: application/json; charset=utf-8');
             http_response_code(201);
-            echo json_encode(['draft_id' => $draftId, 'status' => 'queued']);
+            echo json_encode([
+                'draft_id'      => $draftId,
+                'status'        => 'queued',
+                'auto_register' => (bool) $autoRegister,
+            ]);
             exit;
         }
 
-        $_SESSION['flash_success'] = 'Draft created. We\'ll analyse the image and let you know when it\'s ready.';
-        \saso\util\Redirect::redirect('item/drafts/');
+        $_SESSION['flash_success'] = $autoRegister
+            ? 'AI自動登録を受け付けました。バックグラウンドで処理しています。'
+            : 'Draft created. We\'ll analyse the image and let you know when it\'s ready.';
+        \saso\util\Redirect::redirect($autoRegister ? 'item/list/' : 'item/drafts/');
         exit;
     }
 

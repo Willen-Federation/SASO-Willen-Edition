@@ -29,6 +29,7 @@ use Saso\Presentation\Api\V1\Controller\FeatureFlag\FeatureFlagGetController;
 use Saso\Presentation\Api\V1\Controller\FeatureFlag\FeatureFlagListController;
 use Saso\Presentation\Api\V1\Controller\FeatureFlag\FeatureFlagUpdateController;
 use Saso\Presentation\Api\V1\Controller\HealthController;
+use Saso\Presentation\Api\V1\Controller\Item\AutoRegisterController;
 use Saso\Presentation\Api\V1\Controller\Item\CreateItemController;
 use Saso\Presentation\Api\V1\Controller\Item\DraftCreateController;
 use Saso\Presentation\Api\V1\Controller\Item\GetItemController;
@@ -150,7 +151,8 @@ final class Bootstrap
         $getItem     = new GetItemController($pdo, $jwtGuard);
         $createItem  = new CreateItemController($pdo, $jwtGuard, $idempotency);
         $updateItem  = new UpdateItemController($pdo, $jwtGuard, $idempotency);
-        $createDraft = new DraftCreateController($pdo, new NullMessageBus(), $jwt);
+        $createDraft  = new DraftCreateController($pdo, new NullMessageBus(), $jwt);
+        $autoRegister = new AutoRegisterController($pdo, new NullMessageBus(), $jwt);
 
         // Category controller.
         $catRepo  = new PdoCategoryRepository($pdo);
@@ -208,6 +210,7 @@ final class Bootstrap
             'createItem'              => [$createItem, 'handle'],
             'updateItem'              => [$updateItem, 'handle'],
             'createItemDraft'         => [$createDraft, 'handle'],
+            'autoRegisterItem'        => [$autoRegister, 'handle'],
             'listCategories'          => [$listCats, 'handle'],
             'listStorageLocations'    => [$listLocs, 'handle'],
             'getStorageLocation'      => [$getLoc, 'handle'],

@@ -22,6 +22,8 @@ final class ItemDraft
         public readonly ?int $createdBy,
         public readonly \DateTimeImmutable $createdAt,
         public readonly \DateTimeImmutable $updatedAt,
+        public readonly bool $autoRegister = false,
+        public readonly ?int $promotedItemId = null,
     ) {
     }
 
@@ -49,6 +51,10 @@ final class ItemDraft
             createdBy: isset($row['created_by']) ? (int) $row['created_by'] : null,
             createdAt: new \DateTimeImmutable((string) $row['created_at']),
             updatedAt: new \DateTimeImmutable((string) $row['updated_at']),
+            autoRegister: isset($row['auto_register']) && (int) $row['auto_register'] === 1,
+            promotedItemId: isset($row['promoted_item_id']) && $row['promoted_item_id'] !== null
+                ? (int) $row['promoted_item_id']
+                : null,
         );
     }
 }

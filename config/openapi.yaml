@@ -784,6 +784,68 @@ paths:
         '500':
           $ref: '#/components/responses/ProblemInternalError'
 
+  /items/auto-register:
+    post:
+      tags: [items]
+      summary: Upload an image for fully automatic item registration.
+      description: |
+        Accepts the same multipart payload as `/items/drafts` but flags the
+        draft for automatic promotion: once background enrichment (ISBN/JAN
+        lookup + iterative AI vision) finishes, the worker inserts the row
+        directly into the `item` table without requiring manual
+        confirmation.
+
+        When the `ai.auto_register` feature flag is disabled the worker
+        silently falls back to the legacy draft-ready flow, so uploads are
+        never lost — an admin can still confirm them manually.
+
+        **Auth:** `Authorization: Bearer <deviceToken>` (`items:write` scope)
+      operationId: autoRegisterItem
+      x-handler: 'Saso\Presentation\Api\V1\Controller\Item\AutoRegisterController::handle'
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [image]
+              properties:
+                image:
+                  type: string
+                  format: binary
+                  description: Product photo (jpeg/png/webp/gif, ≤ 20 MB).
+                item_name:
+                  type: string
+                  description: Optional initial name hint.
+                jan_code:
+                  type: string
+                  description: Optional JAN/EAN barcode string.
+                isbn:
+                  type: string
+                  description: Optional ISBN.
+                price:
+                  type: string
+                  description: Optional price hint.
+                barcode_hint:
+                  type: string
+                  description: Optional barcode string to associate.
+      responses:
+        '202':
+          description: |
+            Auto-register draft accepted. Enrichment + insertion happens
+            asynchronously; poll the draft id or watch the item list for
+            completion.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AutoRegisterAcceptedResource'
+        '400':
+          $ref: '#/components/responses/ProblemBadRequest'
+        '401':
+          $ref: '#/components/responses/ProblemUnauthorized'
+        '500':
+          $ref: '#/components/responses/ProblemInternalError'
+
   # ---------------------------------------------------------------------------
   # Categories
   # ---------------------------------------------------------------------------
@@ -1607,6 +1669,23 @@ components:
           type: string
           enum: [queued, processing, ready, failed]
           example: queued
+
+    AutoRegisterAcceptedResource:
+      type: object
+      required: [draft_id, status, auto_register]
+      properties:
+        draft_id:
+          type: integer
+          minimum: 1
+          example: 42
+        status:
+          type: string
+          enum: [queued]
+          example: queued
+        auto_register:
+          type: boolean
+          example: true
+          description: Always true for /items/auto-register responses.
 
     # -------------------------------------------------------------------------
     # Categories

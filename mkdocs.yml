@@ -203,6 +203,8 @@ nav:
       - Accessibility: admin/accessibility.md
   - Security: security.md
   - API Reference: api.md
+  - REST API:
+      - "Authentication Endpoints": api/auth-endpoints.md
   - Integrations:
       - "AI Auto-Registration": integrations/ai-auto-register.md
   - Authentication Providers: auth-providers/index.md

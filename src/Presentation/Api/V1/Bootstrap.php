@@ -5,6 +5,9 @@ declare(strict_types=1);
 namespace Saso\Presentation\Api\V1;
 
 use PDO;
+use Saso\Application\Auth\IssueTokenPairService;
+use Saso\Application\Auth\RateLimiter;
+use Saso\Application\Auth\VerifyCredentialsService;
 use Saso\Application\Common\IdempotencyService;
 use Saso\Application\Mobile\JwtGuard;
 use Saso\Domain\MobileConnect\Jwt\JwtService;
@@ -22,6 +25,9 @@ use Saso\Infrastructure\MobileConnect\QrCodeRenderer;
 use Saso\Infrastructure\StorageLocation\PdoStorageLocationRepository;
 use Saso\Infrastructure\Translation\TranslatorFactory;
 use Saso\Infrastructure\Translation\TranslatorRegistry;
+use Saso\Presentation\Api\V1\Controller\Auth\LoginController as AuthLoginController;
+use Saso\Presentation\Api\V1\Controller\Auth\LogoutController as AuthLogoutController;
+use Saso\Presentation\Api\V1\Controller\Auth\PasswordChangeController;
 use Saso\Presentation\Api\V1\Controller\Barcode\BarcodeGetController;
 use Saso\Presentation\Api\V1\Controller\Category\ListCategoriesController;
 use Saso\Presentation\Api\V1\Controller\FeatureFlag\FeatureFlagCreateController;
@@ -132,11 +138,24 @@ final class Bootstrap
         $flagDelete = new FeatureFlagDeleteController($flagRepo);
 
         $qr           = new QrController($codeRepo, $qrRenderer);
-        $connect      = new ConnectController($codeRepo, $tokenRepo, $jwt);
+        $issueTokenPair = new IssueTokenPairService($tokenRepo, $jwt);
+        $connect      = new ConnectController($codeRepo, $tokenRepo, $jwt, $issueTokenPair);
         $configBundle = new ConfigBundleController($flagRepo, $jwtGuard);
         $tokenList    = new TokenListController($tokenRepo);
         $tokenRevoke  = new TokenRevokeController($tokenRepo);
         $tokenRefresh = new TokenRefreshController($tokenRepo, $jwt);
+
+        // REST auth endpoints (PR-A3).
+        $verifyCredentials = new VerifyCredentialsService($pdo);
+        $authRateLimiter   = RateLimiter::default();
+        $authLogin         = new AuthLoginController($verifyCredentials, $issueTokenPair, $authRateLimiter);
+        $authLogout        = new AuthLogoutController($jwtGuard, $tokenRepo);
+        $authPasswordChange = new PasswordChangeController(
+            jwtGuard: $jwtGuard,
+            credentials: $verifyCredentials,
+            tokens: $tokenRepo,
+            rateLimiter: $authRateLimiter,
+        );
 
         // Auth provider discovery (public).
         $config       = \saso\ConfigLoader::load();
@@ -172,6 +191,10 @@ final class Bootstrap
             'getSwaggerUi'    => [$swaggerUi, 'page'],
 
             'listAuthProviders' => [$discovery, 'handle'],
+
+            'authLogin'          => [$authLogin, 'handle'],
+            'authLogout'         => [$authLogout, 'handle'],
+            'authChangePassword' => [$authPasswordChange, 'handle'],
 
             'getBarcode'        => [$barcodeGet, 'handle'],
 

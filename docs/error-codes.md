@@ -44,6 +44,11 @@ Within each domain the four-digit suffix counts upward starting at `0001`. **Cod
 | `SASO-AUTH-1006` | 503 | Authentication provider is misconfigured | An `AuthProvider` cannot drive a login because its stored configuration is incomplete or unreachable (e.g. discovery URL 404, expired SAML certificate). Operator-actionable; the affected provider stays disabled until the row is fixed |
 | `SASO-AUTH-1007` | 400 | Authentication callback could not be matched to a pending request | OIDC `state` / SAML `RelayState` did not match the value the application stored on `beginLogin()`. Most often caused by an expired login attempt (cookies cleared between hops); rarely indicates an attempted CSRF on the callback |
 | `SASO-AUTH-1008` | 400 | Authentication callback failed verification | The IdP response (OIDC token signature, SAML assertion signature, nonce, audience, expiry) failed verification |
+| `SASO-AUTH-1009` | 423 | Account is locked | Credentials matched but the member account is administratively disabled (PR-A3 REST `/auth/login`) |
+| `SASO-AUTH-1010` | 429 | Too many authentication attempts | Per-IP / per-user rate limit on failed attempts exceeded (PR-A3 REST `/auth/login`, `/auth/password`) |
+| `SASO-AUTH-1011` | 422 | Authentication request body is malformed | Required JSON fields are missing or of the wrong type (PR-A3 REST `/auth/*`) |
+| `SASO-AUTH-1012` | 401 | Current password did not match | `currentPassword` field on `/auth/password` did not match the stored hash (PR-A3) |
+| `SASO-AUTH-1013` | 422 | New password does not meet the password policy | `newPassword` violates the length / allowed-characters policy, or equals the current password (PR-A3) |
 
 ### `MOBILE` — mobile / QR connect & device tokens
 

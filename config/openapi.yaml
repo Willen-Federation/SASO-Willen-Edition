@@ -513,6 +513,113 @@ paths:
           $ref: '#/components/responses/ProblemInternalError'
 
   # ---------------------------------------------------------------------------
+  # REST auth — username/password login, logout, password change (PR-A3)
+  # ---------------------------------------------------------------------------
+
+  /auth/login:
+    post:
+      tags: [auth]
+      summary: Username + password login.
+      description: |
+        Verifies credentials and issues the same OAuth2-style
+        {`access_token`, `refresh_token`} pair as `POST /api/v1/mobile/connect`.
+
+        Public endpoint — no `Authorization` header required.
+
+        On success a new `device_token` row is created so the issued tokens
+        can later be revoked via `DELETE /api/v1/mobile/tokens/{id}` or
+        `POST /api/v1/auth/logout`.
+
+        The detail message for a 401 is intentionally vague (no
+        distinction between "no such user" and "wrong password") to
+        prevent username enumeration.
+      operationId: authLogin
+      x-handler: 'Saso\Presentation\Api\V1\Controller\Auth\LoginController::handle'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuthLoginRequest'
+      responses:
+        '201':
+          description: Credentials verified; token pair issued.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenPairResponse'
+        '401':
+          $ref: '#/components/responses/ProblemAuthInvalidCredentials'
+        '422':
+          $ref: '#/components/responses/ProblemAuthMalformedRequest'
+        '423':
+          $ref: '#/components/responses/ProblemAuthAccountLocked'
+        '429':
+          $ref: '#/components/responses/ProblemAuthRateLimited'
+        '500':
+          $ref: '#/components/responses/ProblemInternalError'
+
+  /auth/logout:
+    post:
+      tags: [auth]
+      summary: Revoke the current session's refresh token.
+      description: |
+        Reads the device id from the Bearer JWT and soft-revokes the
+        matching `device_token` row. Equivalent to
+        `DELETE /api/v1/mobile/tokens/{id}` but does not require the
+        caller to know the device id — it is recovered from the token's
+        `sub` claim.
+
+        Idempotent. Calling twice with the same Bearer returns 204 both
+        times.
+      operationId: authLogout
+      x-handler: 'Saso\Presentation\Api\V1\Controller\Auth\LogoutController::handle'
+      security:
+        - deviceJwt: []
+      responses:
+        '204':
+          description: Token revoked (or already revoked).
+        '401':
+          $ref: '#/components/responses/ProblemUnauthorized'
+        '500':
+          $ref: '#/components/responses/ProblemInternalError'
+
+  /auth/password:
+    post:
+      tags: [auth]
+      summary: Change the authenticated member's password.
+      description: |
+        Verifies `currentPassword`, enforces the password policy on
+        `newPassword`, and updates the stored Argon2id hash on success.
+
+        After a successful change every OTHER device's refresh token
+        for the same member is revoked, forcing them to re-authenticate
+        against the new password. The current device's tokens are kept
+        valid so the user is not signed out of the screen they just
+        used.
+      operationId: authChangePassword
+      x-handler: 'Saso\Presentation\Api\V1\Controller\Auth\PasswordChangeController::handle'
+      security:
+        - deviceJwt: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuthPasswordChangeRequest'
+      responses:
+        '204':
+          description: Password updated; other devices revoked.
+        '401':
+          $ref: '#/components/responses/ProblemAuthCurrentPasswordMismatch'
+        '422':
+          $ref: '#/components/responses/ProblemAuthPasswordPolicyViolation'
+        '429':
+          $ref: '#/components/responses/ProblemAuthRateLimited'
+        '500':
+          $ref: '#/components/responses/ProblemInternalError'
+
+  # ---------------------------------------------------------------------------
   # Barcodes
   # ---------------------------------------------------------------------------
 
@@ -1428,6 +1535,49 @@ components:
           items:
             $ref: '#/components/schemas/AuthProviderSummary'
 
+    AuthLoginRequest:
+      type: object
+      required: [username, password]
+      properties:
+        username:
+          type: string
+          minLength: 1
+          description: Member login id (the same value used by the legacy `/auth/start/` form).
+          example: alice
+        password:
+          type: string
+          minLength: 1
+          format: password
+          description: Plain-text password. Sent over HTTPS only.
+          example: hunter2hunter2
+        deviceName:
+          type: string
+          maxLength: 200
+          description: |
+            Human-readable label recorded on the issued `device_token` row.
+            Surfaced by the admin token list so operators can identify
+            sessions. Defaults to "Unknown device" if omitted.
+          example: Chrome on macOS
+
+    AuthPasswordChangeRequest:
+      type: object
+      required: [currentPassword, newPassword]
+      properties:
+        currentPassword:
+          type: string
+          minLength: 1
+          format: password
+          description: Member's current password, verified server-side against the stored hash.
+        newPassword:
+          type: string
+          minLength: 8
+          maxLength: 64
+          format: password
+          description: |
+            Replacement password. Must be 8-64 characters long and use only
+            `[A-Za-z0-9_-]`. Must differ from `currentPassword`. The server
+            stores the value as an Argon2id digest.
+
     # -------------------------------------------------------------------------
     # Barcodes
     # -------------------------------------------------------------------------
@@ -1899,6 +2049,63 @@ components:
 
     ProblemInternalError:
       description: Unexpected server-side failure.
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/ProblemDetails'
+
+    ProblemAuthInvalidCredentials:
+      description: |
+        Username / password pair did not match an active member. The
+        response detail is intentionally vague — "no such user" and
+        "wrong password" collapse into the same body to prevent
+        enumeration. (`code: SASO-AUTH-1001`)
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/ProblemDetails'
+
+    ProblemAuthAccountLocked:
+      description: |
+        Credentials are correct but the account is administratively
+        disabled. (`code: SASO-AUTH-1009`)
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/ProblemDetails'
+
+    ProblemAuthRateLimited:
+      description: |
+        Too many failed attempts from this caller in the rate-limit
+        window. Wait until the window clears before retrying.
+        (`code: SASO-AUTH-1010`)
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/ProblemDetails'
+
+    ProblemAuthMalformedRequest:
+      description: |
+        Request body is malformed — missing required fields or fields of
+        the wrong shape. (`code: SASO-AUTH-1011`)
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/ProblemDetails'
+
+    ProblemAuthCurrentPasswordMismatch:
+      description: |
+        The `currentPassword` supplied to the password-change endpoint
+        did not match the stored hash. (`code: SASO-AUTH-1012`)
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/ProblemDetails'
+
+    ProblemAuthPasswordPolicyViolation:
+      description: |
+        `newPassword` violates the password policy (length, allowed
+        characters, or "must differ from current"). (`code: SASO-AUTH-1013`)
       content:
         application/problem+json:
           schema:

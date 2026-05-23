@@ -51,8 +51,10 @@ phpstan.tmp.neon
 !/public/uploads/.gitkeep
 !/public/uploads/.htaccess
 
-# --- Installer lock (set by completed installs) ---
-/installer/installer.json
+# The install wizard at `installer/installer.json` is intentionally tracked
+# (fresh clones need it to activate the wizard routes). The wizard removes
+# this file when it finishes; operators who re-run install restore it from
+# git.
 
 # --- IDE / editor ---
 .idea/

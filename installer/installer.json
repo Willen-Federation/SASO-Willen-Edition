@@ -1,0 +1,44 @@
+{
+    "installer": {
+        "start": {
+            "matter": "installer",
+            "action": "start"
+        },
+        "database": {
+            "matter": "installer",
+            "action": "database"
+        },
+        "schema": {
+            "matter": "installer",
+            "action": "schema"
+        },
+        "security": {
+            "matter": "installer",
+            "action": "security"
+        },
+        "services": {
+            "matter": "installer",
+            "action": "services"
+        },
+        "admin": {
+            "matter": "installer",
+            "action": "admin"
+        },
+        "install": {
+            "matter": "installer",
+            "action": "install"
+        },
+        "installed": {
+            "matter": "installer",
+            "action": "installed"
+        },
+        "cleanup": {
+            "matter": "installer",
+            "action": "cleanup"
+        },
+        "config": {
+            "matter": "installer",
+            "action": "config"
+        }
+    }
+}

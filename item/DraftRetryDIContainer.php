@@ -59,7 +59,7 @@ final class DraftRetryDIContainer implements DIContainer
             $draftRepository = new PdoItemDraftRepository($pdo);
             $settingService = new PdoSystemSettingService($pdo, new SecretEncryptor());
             $flagRepository = new PdoFeatureFlagRepository($pdo);
-            $handler = ProcessItemDraftDIContainer::createHandler($draftRepository, $settingService, $flagRepository);
+            $handler = ProcessItemDraftDIContainer::createHandler($draftRepository, $settingService, $flagRepository, $pdo);
 
             $bus = MessageBusFactory::create([
                 ProcessItemDraft::class => [$handler],

@@ -1,0 +1,419 @@
+# =============================================================================
+# SASO REST API — OpenAPI 3.1 DIFF
+# AI Auto-Registration Mode (PR #235, branch `claude/competent-cerf-0c08db`)
+# -----------------------------------------------------------------------------
+# This file is a **stand-alone, integrator-facing diff** of the additions made
+# to `config/openapi.yaml` in PR #235. It is generation-ready: an SDK generator
+# (openapi-generator, oapi-codegen, openapi-typescript, …) can consume this
+# file directly to produce a focused client for the new endpoint without
+# regenerating the entire SDK.
+#
+# What it contains:
+#   * The new path: POST /api/v1/items/auto-register
+#   * The new response schema: AutoRegisterAcceptedResource
+#   * Mirrored references to existing Problem* responses
+#   * The new feature flag (operator-facing — not a REST endpoint, just an
+#     `x-saso-feature-flag` extension on the path)
+#   * The MCP tool surface change is described under `x-mcp-tools` for clients
+#     that auto-generate tool stubs.
+#
+# What it does NOT contain:
+#   * The full /api/v1 surface (see config/openapi.yaml for that).
+#   * Schemas already present in the base spec — they are referenced via
+#     `https://docs.willen-federation.org/openapi/refs/...` style external refs
+#     so an integrator can resolve them against the live spec at runtime.
+#
+# Versioning:
+#   * `info.version` is independent from the main spec's `info.version`.
+#   * Increment the patch component when the diff shape changes;
+#     a major version bump means the new endpoint contract itself changed.
+#
+# Production source-of-truth:
+#   curl -s https://saso.sksl.jp/api/v1/openapi.yaml
+# =============================================================================
+
+openapi: 3.1.0
+
+info:
+  title: SASO REST API — AI Auto-Registration diff
+  version: 1.0.0
+  summary: |
+    Standalone OpenAPI fragment covering the AI auto-registration mode
+    added in PR #235. Intended for clients that wire the new endpoint
+    without regenerating the full /api/v1 client.
+  description: |
+    Adds a single REST path (`POST /items/auto-register`) and one new MCP
+    tool (`auto_register_item`) that perform end-to-end automatic item
+    registration from a product image. The pipeline runs:
+
+    1. ISBN + JAN barcode lookups.
+    2. AI vision extraction (Claude / OpenAI / Gemini).
+    3. Iterative AI re-prompts for missing fields (max 3 calls total).
+    4. Category resolution from a free-text hint.
+    5. Transactional INSERT into the `item` table with idempotency guards.
+
+    The endpoint is gated by the operator-managed `ai.auto_register`
+    feature flag (default off). When the flag is disabled the worker
+    silently falls back to the legacy draft-ready flow so uploads are
+    never lost.
+  contact:
+    name: SASO maintainers
+    url: https://github.com/Willen-Federation/SASO-Willen-Edition
+  license:
+    name: See repository LICENSE
+    url: https://github.com/Willen-Federation/SASO-Willen-Edition/blob/main/LICENSE
+
+servers:
+  - url: https://{host}/api/v1
+    description: SASO server (replace {host} with your deployment).
+    variables:
+      host:
+        default: saso.sksl.jp
+
+security:
+  - bearerAuth: []
+
+tags:
+  - name: items
+    description: Item lifecycle endpoints.
+
+paths:
+  /items/auto-register:
+    post:
+      tags: [items]
+      summary: Upload an image for fully automatic item registration.
+      description: |
+        Variant of [`POST /items/drafts`](#/paths/~1items~1drafts/post) that
+        flags the draft for automatic promotion. After the background
+        enrichment pipeline finishes, the worker inserts the row directly
+        into the `item` table (status `active`) without requiring manual
+        confirmation.
+
+        The pipeline order is:
+
+        1. **ISBN lookup** against OpenLibrary (ISBN-13 starting with
+           `978` or `979`).
+        2. **JAN lookup** against OpenFoodFacts (8- or 13-digit JAN).
+        3. **AI vision** through `AiAssistantFactory::forVision()` (Claude
+           Sonnet → OpenAI GPT-4o → Gemini fallback chain).
+        4. **Iterative AI re-prompts** (`IterativeAiResolver`,
+           `maxAttempts = 3`) with a JSON-schema subset for any of
+           `item_name`, `description`, `category_hint`, `jan_code`, `isbn`
+           that are still empty. Barcode-derived fields are locked from AI
+           overwrite. Explicit-null AI verdicts stop the loop.
+        5. **Category resolution** (`CategoryHintResolver`) maps the free
+           text `category_hint` to a concrete `category_id`.
+        6. **Transactional INSERT** with idempotency via
+           `item_draft.promoted_item_id` so worker retries never produce
+           duplicates.
+
+        **Feature flag.** Requires `ai.auto_register = enabled`. When the
+        flag is disabled at processing time the worker silently degrades
+        to the legacy draft-ready flow (status `ready`), so admins can
+        still confirm registration manually via the existing UI.
+
+        **Auth.** `Authorization: Bearer <deviceToken>` (`items:write`
+        scope). Same JWT issuance as the legacy draft endpoint
+        (`POST /api/v1/mobile/connect`).
+      operationId: autoRegisterItem
+      x-handler: 'Saso\Presentation\Api\V1\Controller\Item\AutoRegisterController::handle'
+      x-saso-feature-flag: ai.auto_register
+      x-saso-pipeline:
+        steps:
+          - isbn-lookup
+          - jan-lookup
+          - ai-vision
+          - iterative-ai-resolver
+          - category-hint-resolver
+          - promote-draft-to-item
+        maxAiCalls: 3
+        targetKeys: [item_name, description, category_hint, jan_code, isbn]
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/AutoRegisterRequest'
+      responses:
+        '202':
+          description: |
+            Auto-register draft accepted. Enrichment + insertion happens
+            asynchronously; poll the draft status or watch `GET /items`
+            for the resulting item id.
+          headers:
+            Location:
+              description: Optional. Resolves to the draft status resource.
+              required: false
+              schema:
+                type: string
+                format: uri
+                example: /api/v1/items/drafts/42
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AutoRegisterAcceptedResource'
+        '400':
+          $ref: '#/components/responses/ProblemBadRequest'
+        '401':
+          $ref: '#/components/responses/ProblemUnauthorized'
+        '500':
+          $ref: '#/components/responses/ProblemInternalError'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: |
+        Device token issued by `POST /api/v1/mobile/connect`. Must carry
+        the `items:write` scope.
+
+  schemas:
+    AutoRegisterRequest:
+      type: object
+      required: [image]
+      description: |
+        Multipart form-data body. The `image` part is mandatory; all
+        other parts are optional hints fed into the pipeline as
+        user-provided fields (protected from AI overwrite by the
+        `MergeStep` merger).
+      properties:
+        image:
+          type: string
+          format: binary
+          description: Product photo (jpeg/png/webp/gif, ≤ 20 MB).
+        item_name:
+          type: string
+          maxLength: 255
+          description: Optional initial name hint.
+          example: コットンTシャツ
+        jan_code:
+          type: string
+          maxLength: 32
+          description: Optional JAN/EAN barcode string.
+          example: '4901234567890'
+        isbn:
+          type: string
+          maxLength: 32
+          description: Optional ISBN-13.
+          example: '9784003100011'
+        price:
+          type: string
+          description: |
+            Optional price hint. Sent as a string for tolerance to thousand
+            separators; the server parses to int with `max(0, (int) $value)`.
+          example: '1200'
+        barcode_hint:
+          type: string
+          maxLength: 50
+          description: |
+            Optional barcode string to feed into both the ISBN and JAN
+            lookup steps. If empty, the lookups are skipped and the
+            pipeline depends entirely on AI vision.
+          example: '4901234567890'
+
+    AutoRegisterAcceptedResource:
+      type: object
+      required: [draft_id, status, auto_register]
+      description: |
+        Acceptance envelope returned immediately after the upload is
+        persisted. The actual `item.id` is observable later by polling
+        the draft or watching the item list.
+      properties:
+        draft_id:
+          type: integer
+          minimum: 1
+          description: The `item_draft.id` created by this request.
+          example: 42
+        status:
+          type: string
+          enum: [queued]
+          description: Always `queued` at this stage.
+          example: queued
+        auto_register:
+          type: boolean
+          enum: [true]
+          description: Always `true` for `/items/auto-register` responses.
+          example: true
+
+    # ----- Existing schemas referenced by name (resolve against base spec) ----
+    ProblemDetails:
+      $ref: 'https://saso.sksl.jp/api/v1/openapi.yaml#/components/schemas/ProblemDetails'
+
+  responses:
+    ProblemBadRequest:
+      description: |
+        Validation error (missing image, unsupported MIME, oversized
+        payload). Body follows RFC 7807 with the SASO `code` extension.
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/ProblemDetails'
+          examples:
+            missingImage:
+              summary: image field missing
+              value:
+                type: https://docs.willen-federation.org/error-codes#SASO-DRAFT-4001
+                title: Bad Request
+                status: 400
+                detail: Field "image" is required.
+                code: SASO-DRAFT-4001
+                traceId: 1f9b3c8a-9e15-4d6a-8c2c-3d8f4f1f7a12
+            uploadFailed:
+              summary: upload transport error
+              value:
+                type: https://docs.willen-federation.org/error-codes#SASO-DRAFT-4002
+                title: Bad Request
+                status: 400
+                detail: 'Image upload failed (error code: 1).'
+                code: SASO-DRAFT-4002
+                traceId: 2a8a7c6b-5e15-4d6a-8c2c-3d8f4f1f7a12
+            tooLarge:
+              summary: payload too large
+              value:
+                type: https://docs.willen-federation.org/error-codes#SASO-DRAFT-4003
+                title: Bad Request
+                status: 400
+                detail: Image exceeds maximum allowed size of 20 MB.
+                code: SASO-DRAFT-4003
+                traceId: 3b7c5d4a-1e15-4d6a-8c2c-3d8f4f1f7a12
+            badMime:
+              summary: unsupported MIME type
+              value:
+                type: https://docs.willen-federation.org/error-codes#SASO-DRAFT-4004
+                title: Bad Request
+                status: 400
+                detail: 'Unsupported image type. Allowed: jpeg, png, webp, gif.'
+                code: SASO-DRAFT-4004
+                traceId: 4c6d4e5b-2e15-4d6a-8c2c-3d8f4f1f7a12
+
+    ProblemUnauthorized:
+      description: |
+        Bearer token missing, malformed, expired, or revoked. See
+        [error codes catalogue](https://docs.willen-federation.org/error-codes)
+        for `SASO-MOBILE-2001` … `SASO-MOBILE-2008`.
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/ProblemDetails'
+          examples:
+            missingBearer:
+              summary: header missing
+              value:
+                type: https://docs.willen-federation.org/error-codes#SASO-MOBILE-2001
+                title: Unauthorized
+                status: 401
+                detail: Authorization header missing or not Bearer.
+                code: SASO-MOBILE-2001
+                traceId: 5d6e4f5b-3e15-4d6a-8c2c-3d8f4f1f7a12
+            expiredToken:
+              summary: token rejected
+              value:
+                type: https://docs.willen-federation.org/error-codes#SASO-MOBILE-2002
+                title: Unauthorized
+                status: 401
+                detail: Invalid or expired Bearer token.
+                code: SASO-MOBILE-2002
+                traceId: 6e7f4a5b-4e15-4d6a-8c2c-3d8f4f1f7a12
+
+    ProblemInternalError:
+      description: |
+        Uncaught server-side failure. `code` is always `SASO-INFRA-9000`
+        and the body never carries internals beyond `traceId`.
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/ProblemDetails'
+
+# -----------------------------------------------------------------------------
+# MCP tool diff (non-REST surface). Provided as a vendor extension so SDK
+# generators that understand the MCP tool registry can emit a tool stub
+# alongside the REST client.
+# -----------------------------------------------------------------------------
+x-mcp-tools:
+  - name: auto_register_item
+    transport: 'POST /mcp (JSON-RPC 2.0, method=tools/call)'
+    requiredScope: items:write
+    handler: 'Saso\Presentation\Mcp\Tool\AutoRegisterItemTool'
+    description: |
+      Server-side variant of the REST `auto-register` flow. The image is
+      already accessible to the server (e.g. uploaded via a sibling
+      endpoint or shared volume) and only the path is passed in. Runs
+      the pipeline synchronously and returns the resulting `itemId`
+      directly in the JSON-RPC response.
+    inputSchema:
+      type: object
+      required: [imagePath]
+      properties:
+        imagePath:
+          type: string
+          minLength: 1
+          maxLength: 500
+          description: Server-relative path to the image (e.g. `uploads/item_drafts/foo.jpg`).
+        barcodeHint:
+          type: [string, 'null']
+          maxLength: 50
+          description: Optional JAN/EAN/ISBN barcode string.
+    outputSchema:
+      type: object
+      required: [draftId, status, itemId, errorDetail]
+      properties:
+        draftId:
+          type: integer
+          minimum: 1
+        status:
+          type: string
+          enum: [confirmed, ready, failed]
+          description: |
+            Final draft status after the synchronous run. `confirmed`
+            indicates a successful auto-promotion; `ready` means the
+            flag was off and the legacy flow finished instead; `failed`
+            indicates an unrecoverable error (see `errorDetail`).
+        itemId:
+          type: [integer, 'null']
+          minimum: 1
+          description: Set only when `status = confirmed`.
+        errorDetail:
+          type: [string, 'null']
+          description: Populated when `status = failed`.
+
+# -----------------------------------------------------------------------------
+# Feature flag diff. Operator-facing; not a REST endpoint of its own — toggled
+# via the existing /api/v1/feature-flags surface or the admin UI.
+# -----------------------------------------------------------------------------
+x-saso-feature-flags:
+  - key: ai.auto_register
+    seededDefault: disabled
+    autoSynced: false
+    description: |
+      Auto-register drafts directly into the `item` table after AI
+      enrichment, skipping manual confirmation. Disable to fall back to
+      the legacy draft confirmation flow.
+    seededBy: migrations/M7/20260524120000_seed_ai_auto_register_flag.php
+
+# -----------------------------------------------------------------------------
+# Database diff. Documented as a vendor extension so operators / DBA tools can
+# inspect the schema change without parsing PHP migrations.
+# -----------------------------------------------------------------------------
+x-saso-schema-changes:
+  - table: item_draft
+    addedColumns:
+      - name: auto_register
+        type: TINYINT(1)
+        nullable: false
+        default: 0
+        comment: |
+          When 1, ProcessItemDraftHandler promotes the draft directly to
+          an item row after enrichment.
+      - name: promoted_item_id
+        type: INT UNSIGNED
+        nullable: true
+        default: null
+        comment: |
+          item.id created from this draft. Set once; serves as
+          idempotency guard for worker retries.
+    addedIndexes:
+      - name: idx_draft_auto_register_status
+        columns: [auto_register, status]
+    migration: migrations/M7/20260524120001_add_auto_register_to_item_draft.php

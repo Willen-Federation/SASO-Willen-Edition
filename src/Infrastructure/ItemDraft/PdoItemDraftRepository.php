@@ -56,6 +56,8 @@ final class PdoItemDraftRepository implements ItemDraftRepository
                 user_data = ?,
                 ai_result = ?,
                 status = ?,
+                auto_register = ?,
+                promoted_item_id = ?,
                 processing_started_at = ?,
                 error_detail = ?,
                 created_by = ?,
@@ -69,6 +71,8 @@ final class PdoItemDraftRepository implements ItemDraftRepository
             $draft->userData !== null ? json_encode($draft->userData) : null,
             $draft->aiResult !== null ? json_encode($draft->aiResult) : null,
             $draft->status->value,
+            $draft->autoRegister ? 1 : 0,
+            $draft->promotedItemId,
             $draft->processingStartedAt?->format('Y-m-d H:i:s'),
             $draft->errorDetail,
             $draft->createdBy,
@@ -84,12 +88,13 @@ final class PdoItemDraftRepository implements ItemDraftRepository
         ?string $barcodeHint,
         ?array $userData,
         ?int $createdBy,
+        bool $autoRegister = false,
     ): int {
         $stmt = $this->pdo->prepare(
             'INSERT INTO item_draft
-                (image_path, barcode_hint, user_data, status, created_by, created_at, updated_at)
+                (image_path, barcode_hint, user_data, status, auto_register, created_by, created_at, updated_at)
             VALUES
-                (?, ?, ?, ?, ?, NOW(), NOW())',
+                (?, ?, ?, ?, ?, ?, NOW(), NOW())',
         );
 
         $stmt->execute([
@@ -97,6 +102,7 @@ final class PdoItemDraftRepository implements ItemDraftRepository
             $barcodeHint,
             $userData !== null ? json_encode($userData) : null,
             ItemDraftStatus::Queued->value,
+            $autoRegister ? 1 : 0,
             $createdBy,
         ]);
 
@@ -129,5 +135,14 @@ final class PdoItemDraftRepository implements ItemDraftRepository
         );
 
         $stmt->execute([ItemDraftStatus::Processing->value, $id]);
+    }
+
+    public function markPromoted(int $id, int $itemId): void
+    {
+        $stmt = $this->pdo->prepare(
+            'UPDATE item_draft SET status = ?, promoted_item_id = ?, updated_at = NOW() WHERE id = ?',
+        );
+
+        $stmt->execute([ItemDraftStatus::Confirmed->value, $itemId, $id]);
     }
 }

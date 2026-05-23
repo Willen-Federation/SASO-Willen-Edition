@@ -3,6 +3,19 @@
     $lang = $_SESSION['lang'] ?? 'ja';
     $flashError = $_SESSION['flash_error'] ?? null;
     unset($_SESSION['flash_error']);
+
+    // Read ai.auto_register flag once to decide whether to show the toggle.
+    $autoRegisterEnabled = false;
+    try {
+        $pdo = \saso\repository\DBConnection::pdo();
+        $stmt = $pdo->prepare('SELECT enabled FROM feature_flag WHERE key_name = :k LIMIT 1');
+        $stmt->execute(['k' => 'ai.auto_register']);
+        $value = $stmt->fetchColumn();
+        $autoRegisterEnabled = $value !== false && (int) $value === 1;
+    } catch (\Throwable) {
+        // If the flag table is unavailable, fall through with the toggle hidden.
+        $autoRegisterEnabled = false;
+    }
 ?>
 
 <?php if ($flashError): ?>
@@ -89,6 +102,23 @@
             "
           >
         </div>
+
+        <?php if ($autoRegisterEnabled): ?>
+        <label class="flex items-start gap-3 rounded-lg border border-brand-200 bg-brand-50 p-4 dark:border-brand-700 dark:bg-brand-900/20">
+          <input type="checkbox" name="auto_register" value="1"
+                 class="mt-1 h-4 w-4 rounded border-gray-300 text-brand-600 focus:ring-brand-500 dark:border-gray-700 dark:bg-gray-900">
+          <span class="flex-1">
+            <span class="block text-sm font-semibold text-black dark:text-white">
+              <?php echo $lang === 'ja' ? 'AI自動登録モード' : 'AI Auto-Registration Mode'; ?>
+            </span>
+            <span class="block text-xs text-gray-600 dark:text-gray-400">
+              <?php echo $lang === 'ja'
+                ? 'JAN/ISBN検索とAI画像解析の結果を使って、確認画面を挟まずに商品として即時登録します。不足項目がある場合はAIを最大3回呼び出します。'
+                : 'Skip the draft confirmation step and register the item directly after JAN/ISBN lookup and iterative AI vision (up to 3 AI calls).'; ?>
+            </span>
+          </span>
+        </label>
+        <?php endif; ?>
 
         <!-- Optional hints -->
         <details class="rounded-lg border border-gray-200 p-4 dark:border-gray-800">

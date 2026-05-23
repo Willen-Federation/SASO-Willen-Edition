@@ -24,6 +24,7 @@ interface ItemDraftRepository
         ?string $barcodeHint,
         ?array $userData,
         ?int $createdBy,
+        bool $autoRegister = false,
     ): int;
 
     public function updateStatus(int $id, ItemDraftStatus $status, ?string $errorDetail = null): void;
@@ -34,4 +35,10 @@ interface ItemDraftRepository
     public function updateAiResult(int $id, array $aiResult, ItemDraftStatus $status): void;
 
     public function markProcessing(int $id): void;
+
+    /**
+     * Atomically attaches the promoted item id to the draft and sets status=confirmed.
+     * Used by PromoteDraftToItemService as the final step of a successful promotion.
+     */
+    public function markPromoted(int $id, int $itemId): void;
 }

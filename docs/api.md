@@ -53,7 +53,8 @@ so any field added here is visible from both transports.
 | `/api/v1/items` | `POST` | Create an item. Optional `Idempotency-Key` header for safe retries. |
 | `/api/v1/items/{id}` | `GET` | Single item, including EAV attribute values. |
 | `/api/v1/items/{id}` | `PATCH` | Partial update — only keys present in the body are applied. |
-| `/api/v1/items/drafts` | `POST` | Multipart upload that enqueues an `item_draft` for AI enrichment. |
+| `/api/v1/items/drafts` | `POST` | Multipart upload that enqueues an `item_draft` for AI enrichment — caller confirms manually before the row is promoted. |
+| `/api/v1/items/auto-register` | `POST` | Multipart upload that runs the full enrichment + iterative AI pipeline and inserts the item directly. Gated by the `ai.auto_register` flag — see [AI Auto-Register integration guide](integrations/ai-auto-register.md). |
 
 #### Fields
 
@@ -71,6 +72,49 @@ and free-form fields beyond `name` / `categoryId`:
 used by the legacy form: those describe the wrapping; `note` is for
 everything else (handling instructions, supplier comments, internal
 labelling notes).
+
+#### AI Auto-Registration mode
+
+`POST /api/v1/items/auto-register` is a turnkey variant of the draft
+endpoint that finishes registration in a single multipart upload — no
+follow-up confirmation step. The worker runs:
+
+1. ISBN + JAN barcode lookups against OpenBD / OpenLibrary / OpenFoodFacts.
+2. AI vision extraction (Claude / OpenAI / Gemini through the
+   `AiAssistantFactory`) using the uploaded image.
+3. Iterative AI re-prompts (max 3 calls total, schema-subset payloads)
+   for any of `item_name`, `description`, `category_hint`, `jan_code`,
+   `isbn` that are still empty. Barcode-derived fields are locked from
+   AI overwrite; an explicit `null` from the AI is treated as "asked
+   and answered" so the loop stops without wasting calls.
+4. `category_hint` → `category_id` resolution (exact / substring /
+   Levenshtein ≤ 3 / fallback to the first root category).
+5. Transactional `INSERT INTO item` with idempotency: the draft row's
+   `promoted_item_id` column prevents double-inserts on worker retry.
+
+The endpoint returns `202 Accepted` with the draft id immediately; the
+final `item.id` is observable by polling the draft (status transitions
+`queued → processing → confirmed`) or by watching `GET /items`.
+
+**Feature flag gate.** `ai.auto_register` (operator-managed,
+default-off). When the flag is disabled at processing time the worker
+silently degrades to the legacy draft-ready flow so the upload is never
+lost — admins can finish registration manually via the existing draft
+queue UI.
+
+**Failure modes** — surfaced as `item_draft.status = failed` with a
+human-readable `error_detail`:
+
+- AI + barcode lookups could not resolve `item_name` → operator confirms
+  the draft manually.
+- `category` table is empty in a fresh install → seed at least one root
+  category before retrying.
+- AI provider not configured → falls back to ISBN/JAN only; fails when
+  the name is still missing.
+
+For integration details (curl examples, MCP usage, sequence diagram, and
+the standalone OpenAPI fragment intended for SDK generators) see the
+[AI Auto-Register integration guide](integrations/ai-auto-register.md).
 
 #### Item registration form (legacy)
 

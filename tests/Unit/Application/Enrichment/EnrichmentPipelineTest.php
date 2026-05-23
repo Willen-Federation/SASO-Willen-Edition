@@ -348,6 +348,21 @@ final class TestAiVisionStep implements AiVisionStepInterface
     {
         return self::$data;
     }
+
+    /**
+     * @param array<string, mixed> $_existing
+     * @param list<string> $_missingFields
+     *
+     * @return array<string, mixed>
+     */
+    public function runForFields(
+        string $_imagePath,
+        ?string $_barcodeHint,
+        array $_existing,
+        array $_missingFields,
+    ): array {
+        return self::$data;
+    }
 }
 
 final class TestKeywordLookupStep implements KeywordLookupStepInterface

@@ -71,6 +71,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `docs/runbooks/2026-05-saso-infra-9000.md`.
 
 ### Added
+- **AI Auto-Registration mode (`POST /api/v1/items/auto-register`).** New
+  turnkey variant of the existing draft endpoint that runs the full
+  enrichment pipeline (ISBN/JAN lookups → AI vision with iterative
+  re-prompting → category resolution) and inserts the row directly into
+  the `item` table, skipping the manual confirmation step. Gated by the
+  new operator-managed `ai.auto_register` feature flag (default off);
+  with the flag disabled the worker silently degrades to the legacy
+  draft-ready flow so uploads are never lost. Same multipart payload
+  shape as `/items/drafts` (image + optional barcode / name / price
+  hints), returns `202 Accepted` with `{draft_id, status, auto_register}`.
+  The iterative AI loop is capped at 3 calls per draft and uses a
+  JSON-schema subset for retries so token cost stays bounded.
+  Companion MCP tool `auto_register_item` exposes the same flow to AI
+  assistants connected through `POST /mcp` (synchronous, returns the
+  resulting `itemId` directly). Web UI gains an "AI自動登録モード"
+  checkbox on the image-upload screen, surfaced only when the flag is on.
+  Migrations: seed `ai.auto_register` feature flag + add `auto_register`
+  / `promoted_item_id` columns to `item_draft`. Standalone OpenAPI diff
+  for SDK generators committed at
+  `config/openapi-diff-ai-auto-register.yaml`. See the
+  [integration guide](docs/integrations/ai-auto-register.md) for curl
+  examples, the sequence diagram, and the failure-mode catalogue.
 - **`GET /api/v1/health/readiness` — schema-aware readiness probe** for
   diagnosing the "200 on `/health` but 500 everywhere else" failure
   pattern observed on production (issue #227). Connects to the database,

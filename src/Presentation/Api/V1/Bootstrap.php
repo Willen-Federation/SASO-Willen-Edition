@@ -8,6 +8,7 @@ use PDO;
 use Saso\Application\Common\IdempotencyService;
 use Saso\Application\Mobile\JwtGuard;
 use Saso\Domain\MobileConnect\Jwt\JwtService;
+use Saso\Infrastructure\Auth\Crypto\AppKeyResolver;
 use Saso\Infrastructure\Auth\Crypto\SecretEncryptor;
 use Saso\Infrastructure\Auth\Repository\PdoAuthProviderRepository;
 use Saso\Infrastructure\Barcode\PdoBarcodeRepository;
@@ -269,40 +270,11 @@ final class Bootstrap
 
     /**
      * Derives the AES-256-GCM key used by {@see SecretEncryptor} from APP_KEY.
-     *
-     * Resolution order:
-     *   1. APP_KEY as base64-encoded 32 bytes (44 chars with padding)
-     *   2. APP_KEY as hex-encoded 32 bytes (64 hex chars)
-     *   3. APP_KEY as any string ≥ 32 chars, run through SHA-256
-     *
-     * Boots fail closed if APP_KEY is missing or shorter than 32 characters.
+     * Delegates to {@see AppKeyResolver}, which all DIContainers also share.
      */
     private static function encryptorKey(): string
     {
-        $appKey = getenv('APP_KEY');
-        if (is_string($appKey) && $appKey !== '') {
-            $raw = base64_decode($appKey, strict: true);
-            if ($raw !== false && strlen($raw) === 32) {
-                return $raw;
-            }
-
-            if (preg_match('/^[0-9a-fA-F]{64}$/', $appKey)) {
-                $hex = hex2bin($appKey);
-                if ($hex !== false && strlen($hex) === 32) {
-                    return $hex;
-                }
-            }
-
-            if (strlen($appKey) >= 32) {
-                return hash('sha256', $appKey, binary: true);
-            }
-        }
-
-        throw new \RuntimeException(
-            'APP_KEY must be set to a base64-encoded 32 bytes, hex-encoded 32 bytes, '
-            .'or any string of at least 32 characters. Refusing to boot with an all-zero AES key. '
-            .'See .env.example.'
-        );
+        return AppKeyResolver::resolve();
     }
 
     private static function requireSessionAuth(): void

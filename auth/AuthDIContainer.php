@@ -2,6 +2,7 @@
 namespace saso\auth;
 
 use saso\common;
+use Saso\Infrastructure\Auth\Crypto\AppKeyResolver;
 use saso\framework\DIContainer;
 use saso\framework\Flow;
 use saso\repository\DbFinder;
@@ -42,16 +43,6 @@ final class AuthDIContainer implements DIContainer
 
     private static function buildEncryptor(): \Saso\Infrastructure\Auth\Crypto\SecretEncryptor
     {
-        $raw = getenv('APP_KEY') ?: '';
-        $bytes = base64_decode($raw, strict: true);
-        if ($bytes === false) {
-            $bytes = hex2bin($raw) ?: '';
-        }
-        if (strlen($bytes) !== 32) {
-            // This will likely cause errors downstream, but the repository
-            // requires a valid encryptor. In production APP_KEY must be correct.
-            throw new \RuntimeException('APP_KEY must be 32 bytes (base64 or hex).');
-        }
-        return new \Saso\Infrastructure\Auth\Crypto\SecretEncryptor($bytes);
+        return AppKeyResolver::encryptor();
     }
 }

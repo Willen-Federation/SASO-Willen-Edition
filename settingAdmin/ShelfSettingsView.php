@@ -10,6 +10,7 @@ use Saso\Domain\Setting\ShelfDimensionMetadata;
 use Saso\Domain\Setting\ShelfDimensionConfig;
 use Saso\Domain\Setting\ShelfDimensionType;
 use Saso\Infrastructure\Setting\PdoSystemSettingService;
+use Saso\Infrastructure\Auth\Crypto\AppKeyResolver;
 use Saso\Infrastructure\Auth\Crypto\SecretEncryptor;
 
 final class ShelfSettingsView implements View
@@ -34,15 +35,8 @@ final class ShelfSettingsView implements View
         // Load current dimension configuration
         $settingService = null;
         try {
-            $appKey = (string)(getenv('APP_KEY') ?: '');
-            $encryptor = new SecretEncryptor(str_repeat("\x00", 32));
-            if ($appKey !== '') {
-                $rawKey = base64_decode($appKey, true);
-                if ($rawKey !== false && strlen($rawKey) === 32) {
-                    $encryptor = new SecretEncryptor($rawKey);
-                }
-            }
-
+            $encryptor      = AppKeyResolver::tryEncryptor()
+                ?? new SecretEncryptor(str_repeat("\x00", 32));
             $settingService = new PdoSystemSettingService($pdo, $encryptor);
             $configLoader = new ShelfDimensionConfigLoader($settingService);
             $config = $configLoader->load();

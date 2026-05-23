@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Saso\Presentation\Api\V1\Controller\Mobile;
 
 use DateTimeImmutable;
-use DateTimeInterface;
 use DateTimeZone;
+use Saso\Application\Auth\IssueTokenPairService;
 use Saso\Domain\MobileConnect\DeviceToken;
 use Saso\Domain\MobileConnect\Exception\MobileInvalidRequestException;
 use Saso\Domain\MobileConnect\Exception\PairingCodeExpiredException;
@@ -45,11 +45,18 @@ use Saso\Presentation\Api\V1\Response\JsonResponse;
  */
 final class ConnectController
 {
+    private readonly IssueTokenPairService $issueTokenPair;
+
     public function __construct(
         private readonly PairingCodeRepository $codes,
-        private readonly DeviceTokenRepository $tokens,
-        private readonly JwtService $jwt,
+        DeviceTokenRepository $tokens,
+        JwtService $jwt,
+        ?IssueTokenPairService $issueTokenPair = null,
     ) {
+        // Caller-supplied service is allowed (preferred), but for backward
+        // compatibility with the existing two-dependency wiring we build a
+        // default service when one is not passed.
+        $this->issueTokenPair = $issueTokenPair ?? new IssueTokenPairService($tokens, $jwt);
     }
 
     public function handle(HttpRequest $request): JsonResponse
@@ -81,43 +88,14 @@ final class ConnectController
 
         $this->codes->save($code->markUsed());
 
-        $rawRefreshToken = DeviceToken::generateRawToken();
-        $rawAccessSeed   = DeviceToken::generateRawToken();
-
-        $deviceToken = new DeviceToken(
-            id: $this->tokens->nextId(),
-            tokenHash: DeviceToken::hashToken($rawAccessSeed),
-            refreshTokenHash: DeviceToken::hashToken($rawRefreshToken),
-            deviceName: $deviceName,
-            revoked: false,
-            lastUsedAt: null,
-            expiresAt: $now->modify(sprintf('+%d days', DeviceToken::TTL_DAYS)),
-            createdAt: $now,
+        $payload = $this->issueTokenPair->issue(
             memberId: $code->memberId,
+            deviceName: $deviceName,
             scopes: DeviceToken::DEFAULT_SCOPES,
+            now: $now,
         );
 
-        $saved = $this->tokens->save($deviceToken);
-
-        $jwtResult = $this->jwt->issue(
-            $saved->id,
-            $now,
-            $saved->memberId,
-            $saved->scopes,
-        );
-
-        return new JsonResponse(
-            status: 201,
-            body: [
-                'access_token'  => $jwtResult['token'],
-                'token_type'    => 'Bearer',
-                'expires_in'    => JwtService::ACCESS_TOKEN_TTL_SECONDS,
-                'refresh_token' => $rawRefreshToken,
-                'device_id'     => $saved->id,
-                'device_name'   => $saved->deviceName,
-                'expires_at'    => $jwtResult['expiresAt']->format(DateTimeInterface::RFC3339),
-            ],
-        );
+        return new JsonResponse(status: 201, body: $payload);
     }
 
     /** @return array<string, mixed> */

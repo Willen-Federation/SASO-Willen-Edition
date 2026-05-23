@@ -27,6 +27,12 @@ enum ErrorCode: string
     case AuthProviderMisconfigured    = 'SASO-AUTH-1006';
     case AuthCallbackStateMismatch    = 'SASO-AUTH-1007';
     case AuthCallbackValidationFailed = 'SASO-AUTH-1008';
+    // PR-A3 additions — REST /auth/login + /logout + /password.
+    case AuthAccountLocked            = 'SASO-AUTH-1009';
+    case AuthRateLimited              = 'SASO-AUTH-1010';
+    case AuthMalformedRequest         = 'SASO-AUTH-1011';
+    case AuthCurrentPasswordMismatch  = 'SASO-AUTH-1012';
+    case AuthPasswordPolicyViolation  = 'SASO-AUTH-1013';
 
     // ── Mobile / QR connect (2xxx) ───────────────────────────────────────
     case MobilePairingCodeNotFound   = 'SASO-MOBILE-2001';
@@ -91,6 +97,12 @@ enum ErrorCode: string
             self::AuthCallbackValidationFailed => 400,
 
             self::AuthProviderMisconfigured    => 503,
+
+            self::AuthAccountLocked            => 423,
+            self::AuthRateLimited              => 429,
+            self::AuthMalformedRequest,
+            self::AuthPasswordPolicyViolation  => 422,
+            self::AuthCurrentPasswordMismatch  => 401,
 
             self::MobilePairingCodeNotFound,
             self::MobileTokenNotFound          => 404,
@@ -165,6 +177,11 @@ enum ErrorCode: string
             self::AuthProviderMisconfigured    => 'Authentication provider is misconfigured',
             self::AuthCallbackStateMismatch    => 'Authentication callback could not be matched to a pending request',
             self::AuthCallbackValidationFailed => 'Authentication callback failed verification',
+            self::AuthAccountLocked            => 'Account is locked',
+            self::AuthRateLimited              => 'Too many authentication attempts',
+            self::AuthMalformedRequest         => 'Authentication request body is malformed',
+            self::AuthCurrentPasswordMismatch  => 'Current password did not match',
+            self::AuthPasswordPolicyViolation  => 'New password does not meet the password policy',
             self::MobilePairingCodeNotFound    => 'Pairing code not found',
             self::MobilePairingCodeExpired     => 'Pairing code has expired',
             self::MobilePairingCodeUsed        => 'Pairing code has already been used',

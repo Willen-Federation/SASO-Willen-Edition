@@ -32,6 +32,12 @@
             <file>util/AvatarHelper.php</file>
             <file>util/CSRFtoken.php</file>
             <file>entity/Member.php</file>
+            <file>installer/SecurityStep.php</file>
+            <file>installer/SecurityStepResult.php</file>
+            <file>installer/Preflight.php</file>
+            <file>installer/PreflightCheck.php</file>
+            <file>installer/PostInstallSelfTest.php</file>
+            <file>installer/SelfTestResult.php</file>
         </include>
         <exclude>
             <directory>vendor</directory>

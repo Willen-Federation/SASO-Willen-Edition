@@ -50,12 +50,27 @@ final class AppKeyResolver
      * Same resolution as {@see resolve()} but returns null instead of throwing.
      *
      * Useful for admin views that want to render a friendly error page
-     * instead of a 500 when the operator's `.env` is misconfigured.
+     * instead of a 500 when the operator's `.env` is misconfigured, and for
+     * the installer self-test that verifies a freshly-written secret without
+     * mutating the process env.
+     *
+     * @param string|null $explicit when provided, the value is validated
+     *                              directly instead of being read from
+     *                              `APP_KEY`. Used by the installer's
+     *                              post-write self-test.
      */
-    public static function tryResolve(): ?string
+    public static function tryResolve(?string $explicit = null): ?string
     {
-        $appKey = getenv('APP_KEY');
-        if (!is_string($appKey) || $appKey === '') {
+        if ($explicit !== null) {
+            $appKey = $explicit;
+        } else {
+            $envValue = getenv('APP_KEY');
+            if (!is_string($envValue) || $envValue === '') {
+                return null;
+            }
+            $appKey = $envValue;
+        }
+        if ($appKey === '') {
             return null;
         }
 

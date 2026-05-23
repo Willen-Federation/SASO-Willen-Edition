@@ -30,9 +30,25 @@ final class StartView implements View
 
     public string $nextStep = WizardState::STEP_DATABASE;
 
+    /** Preflight result captured for the template. */
+    public ?Preflight $preflight = null;
+
     public function display(): void
     {
         $this->title = 'SASO セットアップ';
+
+        // Preflight gates the entire wizard. If the filesystem is not in a
+        // state where we can write `.env`, the wizard would otherwise advance
+        // happily and crash on the security step. Render a dedicated failure
+        // page so the operator gets actionable chmod/chown commands instead
+        // of "0 bytes written" surprises later.
+        $this->preflight = Preflight::run(WizardState::envPath());
+        if (!$this->preflight->isOk()) {
+            $this->title = 'インストール前提条件エラー';
+            require_once 'installer/template/preflight_failed.php';
+            return;
+        }
+
         $this->checks = self::runChecks();
         $this->nextStep = WizardState::nextStep();
         require_once 'installer/template/start.php';

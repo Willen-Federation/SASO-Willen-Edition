@@ -12,7 +12,15 @@ Run this tool when **any of the following** is true on a deployment:
 | `GET /api/v1/items` returns 500 (not 401) on any request, even valid JWTs | `JWT_SECRET` and `APP_KEY` both missing — boot fails closed |
 | `POST /webhook` returns 500 with `SASO-INFRA-9000` instead of 401 | `WEBHOOK_SECRET` missing |
 | `php-error.log` contains "Refusing to boot with an all-zero AES key" | `APP_KEY` empty in `.env` |
-| Fresh install completed via `/installer/start` but `/api/v1/*` returns 500 | Installer does not yet generate `APP_KEY` — fixed in PR-A2 |
+| Fresh install completed via `/installer/start` but `/api/v1/*` returns 500 | Installer does not yet generate `APP_KEY` — fixed in PR-A2 (see [`installer-security-step.md`](installer-security-step.md)) |
+
+> **For fresh installs:** the installer's security step (PR-A2) generates
+> all three secrets automatically and runs a post-install self-test that
+> blocks completion if any secret would fail boot validation. This tool
+> exists for *rotation* and *recovery* of already-installed servers — it
+> is not part of the normal install flow. See
+> [`installer-security-step.md`](installer-security-step.md) for the
+> fresh-install path.
 
 The tool is **safe to run repeatedly**: existing valid values are preserved.
 It is also **safe to run on an already-working server**: nothing changes if
@@ -142,22 +150,21 @@ old `.env.backup.*` files when they are no longer needed.
 
 ## 5. Why this is separate from the installer (relationship to PR-A2)
 
-This PR (PR-A1) ships a **standalone repair tool**. It does not change the
-installer flow.
-
-PR-A2 (next) will modify `installer/WizardState.php` to call
-`EnvWriter::setOrUpdate()` for `APP_KEY` / `JWT_SECRET` / `WEBHOOK_SECRET`
-as part of the installer's *security step*, so a freshly installed server
-boots with valid secrets without ever needing the repair tool.
+PR-A1 shipped this **standalone repair tool**. PR-A2 layered the same
+generation + validation logic into the installer's security step so a
+freshly installed server boots with valid secrets without ever needing this
+tool. See [`installer-security-step.md`](installer-security-step.md) for the
+fresh-install path.
 
 In other words:
 
-- **PR-A1 (this PR)**: fix existing broken deployments + provide a tool
-  for future emergencies.
-- **PR-A2 (coming)**: prevent the broken-deployment situation from
-  happening in the first place.
+- **PR-A1**: fix existing broken deployments + provide a tool for future
+  emergencies.
+- **PR-A2**: prevent the broken-deployment situation from happening in the
+  first place on fresh installs (preflight + auto-generate + post-install
+  self-test).
 
-The repair tool will continue to exist after PR-A2 lands, because:
+The repair tool continues to exist after PR-A2 because:
 
 - Operators may rotate `APP_KEY` periodically (compliance, suspected
   leak) and need a safe path that doesn't require hand-editing `.env`.

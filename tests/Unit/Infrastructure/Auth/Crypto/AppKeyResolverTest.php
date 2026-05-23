@@ -113,4 +113,29 @@ final class AppKeyResolverTest extends TestCase
     {
         self::assertNull(AppKeyResolver::tryEncryptor());
     }
+
+    /**
+     * The explicit-value overload is used by the installer's post-install
+     * self-test (PR-A2) to validate a freshly-written secret without
+     * mutating the running process's env vars.
+     */
+    public function testTryResolveAcceptsExplicitValue(): void
+    {
+        $b64 = base64_encode(random_bytes(32));
+        $hex = bin2hex(random_bytes(32));
+        $pwd = str_repeat('x', 40);
+
+        self::assertNotNull(AppKeyResolver::tryResolve($b64));
+        self::assertNotNull(AppKeyResolver::tryResolve($hex));
+        self::assertNotNull(AppKeyResolver::tryResolve($pwd));
+        self::assertNull(AppKeyResolver::tryResolve('tooShort'));
+        self::assertNull(AppKeyResolver::tryResolve(''));
+    }
+
+    public function testTryResolveExplicitDoesNotReadEnv(): void
+    {
+        putenv('APP_KEY='.base64_encode(random_bytes(32)));
+        // Even when APP_KEY is set in the env, explicit invalid value wins.
+        self::assertNull(AppKeyResolver::tryResolve('tooShort'));
+    }
 }

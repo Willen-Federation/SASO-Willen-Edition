@@ -14,29 +14,46 @@ $this->content = function ($v) {
         $h = fn (string $s): string => htmlspecialchars($s, ENT_QUOTES, 'UTF-8');
 ?>
       <form method="post" action="./installer/security/" novalidate class="space-y-4">
-        <div>
-          <label class="mb-1.5 block text-sm font-medium" for="app_key">APP_KEY (32 バイト相当)</label>
-          <input id="app_key" name="app_key" required
-                 value="<?php echo $h($v->appKey); ?>"
-                 class="w-full rounded border border-gray-300 bg-white px-3 py-2 font-mono text-xs shadow-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500 dark:bg-form-input dark:border-gray-700 dark:text-white">
-          <p class="mt-1 text-xs text-gray-500">AES-256-GCM のマスターキー。<code>openssl rand -base64 32</code> 相当の値を自動生成しています。</p>
+        <div class="rounded-md border border-blue-200 bg-blue-50 px-4 py-3 text-xs text-blue-700">
+          各値は空欄のままで構いません。空欄の場合はインストーラが <code>base64_encode(random_bytes(32))</code> で安全な値を自動生成します。
+          自前で生成済みの値があれば貼り付けてください (base64 32 バイト / hex 64 文字 / 32 文字以上の文字列のいずれか)。
         </div>
 
         <div>
-          <label class="mb-1.5 block text-sm font-medium" for="jwt_secret">JWT_SECRET</label>
+          <label class="mb-1.5 block text-sm font-medium" for="app_key">APP_KEY (任意 — 空欄で自動生成)</label>
+          <input id="app_key" name="app_key"
+                 value="<?php echo $h($v->appKey); ?>"
+                 placeholder="空欄で自動生成 — base64-32B を生成します"
+                 class="w-full rounded border border-gray-300 bg-white px-3 py-2 font-mono text-xs shadow-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500 dark:bg-form-input dark:border-gray-700 dark:text-white">
+          <p class="mt-1 text-xs text-gray-500">AES-256-GCM のマスターキー。<code>openssl rand -base64 32</code> で生成した値を流用したい場合のみ入力してください。</p>
+        </div>
+
+        <div>
+          <label class="mb-1.5 block text-sm font-medium" for="jwt_secret">JWT_SECRET (任意 — 空欄で自動生成)</label>
           <input id="jwt_secret" name="jwt_secret"
                  value="<?php echo $h($v->jwtSecret); ?>"
+                 placeholder="空欄で自動生成 — base64-32B を生成します"
                  class="w-full rounded border border-gray-300 bg-white px-3 py-2 font-mono text-xs shadow-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500 dark:bg-form-input dark:border-gray-700 dark:text-white">
-          <p class="mt-1 text-xs text-gray-500">モバイル / MCP 用 JWT の HMAC 秘密鍵。空欄の場合は APP_KEY から自動派生します。</p>
+          <p class="mt-1 text-xs text-gray-500">モバイル / MCP 用 JWT の HMAC 秘密鍵。</p>
         </div>
 
         <div>
-          <label class="mb-1.5 block text-sm font-medium" for="webhook_secret">WEBHOOK_SECRET</label>
+          <label class="mb-1.5 block text-sm font-medium" for="webhook_secret">WEBHOOK_SECRET (任意 — 空欄で自動生成)</label>
           <input id="webhook_secret" name="webhook_secret"
                  value="<?php echo $h($v->webhookSecret); ?>"
+                 placeholder="空欄で自動生成 — base64-32B を生成します"
                  class="w-full rounded border border-gray-300 bg-white px-3 py-2 font-mono text-xs shadow-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500 dark:bg-form-input dark:border-gray-700 dark:text-white">
           <p class="mt-1 text-xs text-gray-500"><code>POST /webhook</code> 用の <code>X-Webhook-Token</code> 値。</p>
         </div>
+
+        <label class="flex items-center gap-3 rounded-md border border-gray-200 px-4 py-3 cursor-pointer hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-boxdark">
+          <input type="checkbox" name="regenerate" value="1"
+                 class="h-4 w-4 rounded border-gray-300 text-brand-500 focus:ring-brand-500">
+          <span>
+            <span class="text-sm font-medium block">既存の値があっても再生成する</span>
+            <span class="text-xs text-gray-500">通常はオフのままにしてください。鍵ローテーションが必要な場合のみオンにします (既存暗号化データは復号できなくなります)。</span>
+          </span>
+        </label>
 
         <label class="flex items-center gap-3 rounded-md border border-gray-200 px-4 py-3 cursor-pointer hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-boxdark">
           <input type="checkbox" name="app_https" value="1" <?php echo $v->appHttps ? 'checked' : ''; ?>

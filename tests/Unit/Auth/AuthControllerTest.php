@@ -39,6 +39,28 @@ final class AuthControllerTest extends TestCase
         self::assertSame('', $this->readAuthInputProperty($controller, 'restoredPath'));
     }
 
+    public function testIsErrorWhenRestoredPathContainsErrorMarker(): void
+    {
+        $controller = new AuthController(['restoredPath' => 'item/list/error/1/']);
+
+        self::assertTrue($this->readAuthInputProperty($controller, 'isError'));
+    }
+
+    public function testIsErrorWhenQueryCarriesErrorOneDirectly(): void
+    {
+        $controller = new AuthController(['error' => '1']);
+
+        self::assertTrue($this->readAuthInputProperty($controller, 'isError'));
+        self::assertSame('', $this->readAuthInputProperty($controller, 'restoredPath'));
+    }
+
+    public function testIsErrorFalseForUnrelatedQuery(): void
+    {
+        $controller = new AuthController(['error' => '0', 'restoredPath' => 'item/list/']);
+
+        self::assertFalse($this->readAuthInputProperty($controller, 'isError'));
+    }
+
     /** @return mixed */
     private function readAuthInputProperty(AuthController $controller, string $property)
     {

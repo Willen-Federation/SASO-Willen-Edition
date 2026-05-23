@@ -17,6 +17,12 @@ parameters:
         - util/EnvWriter.php
         - util/UploadValidator.php
         - util/CSRFtoken.php
+        - installer/SecurityStep.php
+        - installer/SecurityStepResult.php
+        - installer/Preflight.php
+        - installer/PreflightCheck.php
+        - installer/PostInstallSelfTest.php
+        - installer/SelfTestResult.php
     # Phinx migrations are class-based but resolved at runtime by Phinx
     # via direct require_once. Listing the directory under scanDirectories
     # makes the class symbols visible to the test reflection helpers

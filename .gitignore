@@ -77,5 +77,6 @@ Thumbs.db
 
 # --- Claude Code workspace files (per-developer) ---
 .claude/
+.serena/
 GEMINI.md
 SKILL.md

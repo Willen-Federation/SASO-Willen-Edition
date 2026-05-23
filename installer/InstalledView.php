@@ -15,6 +15,14 @@ use saso\framework\View;
  * Deletes `installer/installer.json` here (not in {@see AdminView}) so
  * the redirect that lands the user on this page still resolves through
  * the route table loaded earlier in the request lifecycle.
+ *
+ * Implementation note (PR-A2): before deleting `installer.json`, we run a
+ * {@see PostInstallSelfTest} against the freshly-written `.env`. If any
+ * secret would still trip the boot-time validator we *do not* delete the
+ * installer lock — the operator is sent back to the security step with a
+ * structured error linking to `docs/runbooks/repair-app-key.md`. This is
+ * the last safety net against the scenario PR-A2 is designed to prevent:
+ * "wizard completed, /api/v1/* returns 500 SASO-INFRA-9000".
  */
 final class InstalledView implements View
 {
@@ -25,9 +33,24 @@ final class InstalledView implements View
 
     public bool $installerStillPresent = true;
     public bool $lockSuccess = true;
+    public ?SelfTestResult $selfTest = null;
 
     public function display(): void
     {
+        // Run the self-test BEFORE deleting installer.json. If a secret would
+        // crash the boot, we keep the wizard reachable so the operator can
+        // hop back to the security step.
+        $selfTest = new PostInstallSelfTest();
+        $this->selfTest = $selfTest->run(WizardState::envPath());
+        if (!$this->selfTest->ok) {
+            // Do NOT delete installer.json. Render the failure inline so the
+            // operator can see exactly which secret failed.
+            $this->lockSuccess           = false;
+            $this->installerStillPresent = is_dir(__DIR__);
+            require_once 'installer/template/installed.php';
+            return;
+        }
+
         $this->lockSuccess = WizardState::lockInstaller();
         $this->installerStillPresent = is_dir(__DIR__);
         require_once 'installer/template/installed.php';

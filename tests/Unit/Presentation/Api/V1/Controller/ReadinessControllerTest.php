@@ -114,6 +114,67 @@ final class ReadinessControllerTest extends TestCase
         self::assertStringContainsString('user=***', $entry['detail']);
     }
 
+    public function testRedactsDsnHostPortAndDbnameFromFactoryError(): void
+    {
+        // Real `PDO::__construct()` exceptions echo the DSN verbatim when
+        // the server is unreachable; we must not return the host/port/db
+        // tuple to anonymous orchestrator probes.
+        $controller = new ReadinessController(static function (): PDO {
+            throw new PDOException(
+                'SQLSTATE[HY000] [2002] No such file or directory: '
+                .'host=db.internal.lan;port=3306;dbname=saso_prod;unix_socket=/var/run/mysqld.sock',
+            );
+        });
+
+        $response = $controller->handle(new HttpRequest('GET', '/api/v1/health/readiness'));
+        $entry = self::firstCheckNamed($response->body['checks'], 'database.connect');
+
+        self::assertNotNull($entry);
+        self::assertStringNotContainsString('db.internal.lan', $entry['detail']);
+        self::assertStringNotContainsString('3306', $entry['detail']);
+        self::assertStringNotContainsString('saso_prod', $entry['detail']);
+        self::assertStringNotContainsString('/var/run/mysqld.sock', $entry['detail']);
+    }
+
+    public function testRedactsMariaDbQuotedUserHostAndRawIp(): void
+    {
+        // The canonical "Access denied" message MariaDB / MySQL emit on a
+        // failed connect exposes the application user and the source IP.
+        $controller = new ReadinessController(static function (): PDO {
+            throw new PDOException(
+                "SQLSTATE[HY000] [1045] Access denied for user 'saso_app'@'10.0.0.42' (using password: YES)",
+            );
+        });
+
+        $response = $controller->handle(new HttpRequest('GET', '/api/v1/health/readiness'));
+        $entry = self::firstCheckNamed($response->body['checks'], 'database.connect');
+
+        self::assertNotNull($entry);
+        self::assertStringNotContainsString('saso_app', $entry['detail']);
+        self::assertStringNotContainsString('10.0.0.42', $entry['detail']);
+    }
+
+    public function testProbesEveryRequiredSchemaTableEvenWhenOneIsMissing(): void
+    {
+        // Operators read the `checks` list to know which migration to run;
+        // a single missing table must not short-circuit the rest of the
+        // probe (otherwise multi-migration drift takes N redeploys to
+        // diagnose).
+        $pdo = $this->newPdoWithCompleteSchema();
+        $pdo->exec('DROP TABLE pairing_code');
+
+        $controller = new ReadinessController(static fn (): PDO => $pdo);
+        $response = $controller->handle(new HttpRequest('GET', '/api/v1/health/readiness'));
+
+        self::assertSame(503, $response->status);
+        // Every other table check still ran.
+        foreach (['item', 'category', 'storage_location', 'auth_provider', 'feature_flag', 'device_token'] as $table) {
+            $entry = self::firstCheckNamed($response->body['checks'], 'schema.'.$table);
+            self::assertNotNull($entry, 'expected schema.'.$table.' check entry');
+            self::assertSame('ok', $entry['status']);
+        }
+    }
+
     public function testResponseHasIso8601Time(): void
     {
         $pdo = $this->newPdoWithCompleteSchema();
@@ -142,11 +203,11 @@ final class ReadinessControllerTest extends TestCase
         $pdo->exec('CREATE TABLE category (id INTEGER PRIMARY KEY, name_ja TEXT)');
         $pdo->exec('CREATE TABLE storage_location (id INTEGER PRIMARY KEY, name TEXT)');
         $pdo->exec('CREATE TABLE auth_provider (id INTEGER PRIMARY KEY, type TEXT, enabled INTEGER)');
-        $pdo->exec('CREATE TABLE feature_flag (flag_key TEXT PRIMARY KEY, enabled INTEGER)');
-        $pdo->exec('CREATE TABLE pairing_code (code TEXT PRIMARY KEY, expires_at TEXT, member_id TEXT)');
+        $pdo->exec('CREATE TABLE feature_flag (key_name TEXT PRIMARY KEY, enabled INTEGER)');
+        $pdo->exec('CREATE TABLE pairing_code (token_hash TEXT PRIMARY KEY, expires_at TEXT, member_id TEXT)');
         $pdo->exec(
             'CREATE TABLE device_token ('
-            .'id INTEGER PRIMARY KEY, jti TEXT, member_id TEXT, scopes TEXT'
+            .'id INTEGER PRIMARY KEY, token_hash TEXT, member_id TEXT, scopes TEXT'
             .')',
         );
 

@@ -65,7 +65,7 @@
             <?php echo $lang === 'ja' ? 'プロジェクトID' : 'Project ID'; ?>
           </label>
           <input type="text" id="firebase_project_id" name="firebase_project_id"
-            value="<?php echo htmlspecialchars($projectId); ?>"
+            value="<?php echo htmlspecialchars((string) $projectId, ENT_QUOTES, 'UTF-8'); ?>"
             class="w-full rounded border border-gray-200 bg-transparent py-3 px-4 font-medium outline-none transition focus:border-brand-500 active:border-brand-500 dark:border-gray-800 dark:bg-form-input dark:focus:border-brand-500 text-black dark:text-white"
             placeholder="my-project-id">
         </div>
@@ -90,7 +90,7 @@
             <?php echo $lang === 'ja' ? '認証ドメイン' : 'Auth Domain'; ?>
           </label>
           <input type="text" id="firebase_auth_domain" name="firebase_auth_domain"
-            value="<?php echo htmlspecialchars($authDomain); ?>"
+            value="<?php echo htmlspecialchars((string) $authDomain, ENT_QUOTES, 'UTF-8'); ?>"
             class="w-full rounded border border-gray-200 bg-transparent py-3 px-4 font-medium outline-none transition focus:border-brand-500 active:border-brand-500 dark:border-gray-800 dark:bg-form-input dark:focus:border-brand-500 text-black dark:text-white"
             placeholder="my-project.firebaseapp.com">
         </div>
@@ -99,7 +99,7 @@
             <?php echo $lang === 'ja' ? 'アプリID' : 'App ID'; ?>
           </label>
           <input type="text" id="firebase_app_id" name="firebase_app_id"
-            value="<?php echo htmlspecialchars($appId); ?>"
+            value="<?php echo htmlspecialchars((string) $appId, ENT_QUOTES, 'UTF-8'); ?>"
             class="w-full rounded border border-gray-200 bg-transparent py-3 px-4 font-medium outline-none transition focus:border-brand-500 active:border-brand-500 dark:border-gray-800 dark:bg-form-input dark:focus:border-brand-500 text-black dark:text-white"
             placeholder="1:1234567890:web:abcdef...">
         </div>
@@ -111,7 +111,7 @@
             <?php echo $lang === 'ja' ? 'ストレージバケット' : 'Storage Bucket'; ?>
           </label>
           <input type="text" id="firebase_storage_bucket" name="firebase_storage_bucket"
-            value="<?php echo htmlspecialchars($storage); ?>"
+            value="<?php echo htmlspecialchars((string) $storage, ENT_QUOTES, 'UTF-8'); ?>"
             class="w-full rounded border border-gray-200 bg-transparent py-3 px-4 font-medium outline-none transition focus:border-brand-500 active:border-brand-500 dark:border-gray-800 dark:bg-form-input dark:focus:border-brand-500 text-black dark:text-white"
             placeholder="my-project.appspot.com">
         </div>
@@ -120,7 +120,7 @@
             <?php echo $lang === 'ja' ? '送信者ID' : 'Messaging Sender ID'; ?>
           </label>
           <input type="text" id="firebase_messaging_sender_id" name="firebase_messaging_sender_id"
-            value="<?php echo htmlspecialchars($senderId); ?>"
+            value="<?php echo htmlspecialchars((string) $senderId, ENT_QUOTES, 'UTF-8'); ?>"
             class="w-full rounded border border-gray-200 bg-transparent py-3 px-4 font-medium outline-none transition focus:border-brand-500 active:border-brand-500 dark:border-gray-800 dark:bg-form-input dark:focus:border-brand-500 text-black dark:text-white"
             placeholder="1234567890">
         </div>

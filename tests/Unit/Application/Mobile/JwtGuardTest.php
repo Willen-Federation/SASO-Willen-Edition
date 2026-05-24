@@ -23,7 +23,10 @@ final class JwtGuardTest extends TestCase
     public function testAuthenticateReturnsClaimsForValidBearerToken(): void
     {
         $jwt   = new JwtService(self::SECRET);
-        $now   = new DateTimeImmutable('2026-05-17 12:00:00', new DateTimeZone('UTC'));
+        // Mint at "now" — the guard verifies against the system clock, so
+        // anchoring the issue time to a fixed past date would make the test
+        // time-bomb the moment the access-token TTL elapsed in CI.
+        $now   = new DateTimeImmutable('now', new DateTimeZone('UTC'));
         $token = $jwt->issue(42, $now, 'admin_test', ['items:read'])['token'];
 
         $guard = new JwtGuard($jwt);
@@ -68,7 +71,10 @@ final class JwtGuardTest extends TestCase
     public function testAuthenticateRejectsTamperedTokenAsAuthRequired(): void
     {
         $jwt   = new JwtService(self::SECRET);
-        $now   = new DateTimeImmutable('2026-05-17 12:00:00', new DateTimeZone('UTC'));
+        // Mint at "now" — the guard verifies against the system clock, so
+        // anchoring the issue time to a fixed past date would make the test
+        // time-bomb the moment the access-token TTL elapsed in CI.
+        $now   = new DateTimeImmutable('now', new DateTimeZone('UTC'));
         $token = $jwt->issue(7, $now, 'admin_test', ['items:read'])['token'];
 
         // Tamper the signature — without conversion this would surface as
@@ -92,7 +98,10 @@ final class JwtGuardTest extends TestCase
     public function testRequireScopeReturnsClaimsWhenScopeIsPresent(): void
     {
         $jwt   = new JwtService(self::SECRET);
-        $now   = new DateTimeImmutable('2026-05-17 12:00:00', new DateTimeZone('UTC'));
+        // Mint at "now" — the guard verifies against the system clock, so
+        // anchoring the issue time to a fixed past date would make the test
+        // time-bomb the moment the access-token TTL elapsed in CI.
+        $now   = new DateTimeImmutable('now', new DateTimeZone('UTC'));
         $token = $jwt->issue(7, $now, 'admin_test', ['items:read', 'items:write'])['token'];
 
         $guard = new JwtGuard($jwt);
@@ -105,7 +114,10 @@ final class JwtGuardTest extends TestCase
     public function testRequireScopeRejectsTokenWithoutScope(): void
     {
         $jwt   = new JwtService(self::SECRET);
-        $now   = new DateTimeImmutable('2026-05-17 12:00:00', new DateTimeZone('UTC'));
+        // Mint at "now" — the guard verifies against the system clock, so
+        // anchoring the issue time to a fixed past date would make the test
+        // time-bomb the moment the access-token TTL elapsed in CI.
+        $now   = new DateTimeImmutable('now', new DateTimeZone('UTC'));
         $token = $jwt->issue(7, $now, 'admin_test', ['items:read'])['token'];
 
         $guard = new JwtGuard($jwt);
@@ -126,7 +138,10 @@ final class JwtGuardTest extends TestCase
     public function testRequireScopeRejectsTokenWithEmptyScopeList(): void
     {
         $jwt   = new JwtService(self::SECRET);
-        $now   = new DateTimeImmutable('2026-05-17 12:00:00', new DateTimeZone('UTC'));
+        // Mint at "now" — the guard verifies against the system clock, so
+        // anchoring the issue time to a fixed past date would make the test
+        // time-bomb the moment the access-token TTL elapsed in CI.
+        $now   = new DateTimeImmutable('now', new DateTimeZone('UTC'));
         // Legacy token: minted before scopes existed → no scp claim → empty list.
         $token = $jwt->issue(7, $now)['token'];
 
@@ -152,7 +167,10 @@ final class JwtGuardTest extends TestCase
     public function testRequireScopeRejectsTamperedToken(): void
     {
         $jwt   = new JwtService(self::SECRET);
-        $now   = new DateTimeImmutable('2026-05-17 12:00:00', new DateTimeZone('UTC'));
+        // Mint at "now" — the guard verifies against the system clock, so
+        // anchoring the issue time to a fixed past date would make the test
+        // time-bomb the moment the access-token TTL elapsed in CI.
+        $now   = new DateTimeImmutable('now', new DateTimeZone('UTC'));
         $token = $jwt->issue(7, $now, 'admin_test', ['items:read'])['token'];
 
         // Tamper the signature — verify() throws RuntimeException; the guard

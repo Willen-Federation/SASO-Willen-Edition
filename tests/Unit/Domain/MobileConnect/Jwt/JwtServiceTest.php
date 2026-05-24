@@ -73,4 +73,79 @@ final class JwtServiceTest extends TestCase
         $this->expectException(\RuntimeException::class);
         $jwt->verify((string) $tampered, $now);
     }
+
+    public function testVerifyRejectsAlgNoneHeader(): void
+    {
+        // RFC 8725 §3.1: the verifier must pin the algorithm. Even though our
+        // signature check would also reject this (HMAC over a "none" header
+        // doesn't match an empty signature), failing on the header explicitly
+        // keeps the contract clear and stops anyone adding a second algorithm
+        // later from re-opening the alg-confusion door.
+        $jwt = new JwtService(self::SECRET);
+        $now = new DateTimeImmutable('2026-05-17 12:00:00', new DateTimeZone('UTC'));
+
+        $b64 = static fn (string $s): string => rtrim(strtr(base64_encode($s), '+/', '-_'), '=');
+        $header  = $b64('{"alg":"none","typ":"JWT"}');
+        $payload = $b64((string) json_encode([
+            'iss' => 'saso',
+            'sub' => '1',
+            'iat' => $now->getTimestamp(),
+            'exp' => $now->getTimestamp() + 3600,
+        ]));
+        $forged = $header.'.'.$payload.'.';
+
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('HS256 required');
+        $jwt->verify($forged, $now);
+    }
+
+    public function testVerifyRejectsRs256Header(): void
+    {
+        // alg-confusion attack: caller swaps alg to RS256 hoping the verifier
+        // will reach into a "public key" code path. Our verifier never does —
+        // it pins HS256 — so this must always fail on the header check.
+        $jwt = new JwtService(self::SECRET);
+        $now = new DateTimeImmutable('2026-05-17 12:00:00', new DateTimeZone('UTC'));
+
+        $b64 = static fn (string $s): string => rtrim(strtr(base64_encode($s), '+/', '-_'), '=');
+        $header  = $b64('{"alg":"RS256","typ":"JWT"}');
+        $payload = $b64((string) json_encode([
+            'iss' => 'saso',
+            'sub' => '1',
+            'iat' => $now->getTimestamp(),
+            'exp' => $now->getTimestamp() + 3600,
+        ]));
+        // Sign body with the secret so the only thing wrong is the header alg.
+        $sig = $b64(hash_hmac('sha256', $header.'.'.$payload, self::SECRET, true));
+        $forged = $header.'.'.$payload.'.'.$sig;
+
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('HS256 required');
+        $jwt->verify($forged, $now);
+    }
+
+    public function testVerifyRejectsWrongIssuer(): void
+    {
+        // Defense in depth: a token minted by another service sharing the same
+        // secret must not unlock the mobile API. Without an issuer pin, a
+        // sibling tool that happens to reuse APP_KEY could mint tokens that
+        // satisfy this verifier.
+        $jwt = new JwtService(self::SECRET);
+        $now = new DateTimeImmutable('2026-05-17 12:00:00', new DateTimeZone('UTC'));
+
+        $b64 = static fn (string $s): string => rtrim(strtr(base64_encode($s), '+/', '-_'), '=');
+        $header  = $b64('{"alg":"HS256","typ":"JWT"}');
+        $payload = $b64((string) json_encode([
+            'iss' => 'not-saso',
+            'sub' => '1',
+            'iat' => $now->getTimestamp(),
+            'exp' => $now->getTimestamp() + 3600,
+        ]));
+        $sig = $b64(hash_hmac('sha256', $header.'.'.$payload, self::SECRET, true));
+        $forged = $header.'.'.$payload.'.'.$sig;
+
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('invalid issuer');
+        $jwt->verify($forged, $now);
+    }
 }

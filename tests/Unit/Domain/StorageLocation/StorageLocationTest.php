@@ -90,6 +90,58 @@ final class StorageLocationTest extends TestCase
         self::assertSame(5, $b->position);
     }
 
+    public function testWithNamePreservesAreaCodeAndMapPin(): void
+    {
+        $now = new DateTimeImmutable('2026-04-27 10:00:00');
+        $a   = new StorageLocation(
+            id: 1,
+            parentId: null,
+            code: new LocationCode('WH1'),
+            name: 'A',
+            position: 0,
+            depth: 0,
+            createdAt: $now,
+            updatedAt: $now,
+            areaCode: 'ZONE-1',
+            mapImageId: 42,
+            mapXRatio: 0.25,
+            mapYRatio: 0.75,
+        );
+
+        $b = $a->withName('B');
+
+        self::assertSame('ZONE-1', $b->areaCode);
+        self::assertSame(42, $b->mapImageId);
+        self::assertSame(0.25, $b->mapXRatio);
+        self::assertSame(0.75, $b->mapYRatio);
+    }
+
+    public function testWithPositionPreservesAreaCodeAndMapPin(): void
+    {
+        $now = new DateTimeImmutable('2026-04-27 10:00:00');
+        $a   = new StorageLocation(
+            id: 1,
+            parentId: null,
+            code: new LocationCode('WH1'),
+            name: 'A',
+            position: 0,
+            depth: 0,
+            createdAt: $now,
+            updatedAt: $now,
+            areaCode: 'ZONE-1',
+            mapImageId: 42,
+            mapXRatio: 0.25,
+            mapYRatio: 0.75,
+        );
+
+        $b = $a->withPosition(3);
+
+        self::assertSame('ZONE-1', $b->areaCode);
+        self::assertSame(42, $b->mapImageId);
+        self::assertSame(0.25, $b->mapXRatio);
+        self::assertSame(0.75, $b->mapYRatio);
+    }
+
     private function makeNode(
         int $id,
         ?int $parentId,

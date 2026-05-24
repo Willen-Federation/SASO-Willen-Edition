@@ -90,6 +90,10 @@ final readonly class StorageLocation
             capacity: $this->capacity,
             notes: $this->notes,
             operationalStatus: $this->operationalStatus,
+            areaCode: $this->areaCode,
+            mapImageId: $this->mapImageId,
+            mapXRatio: $this->mapXRatio,
+            mapYRatio: $this->mapYRatio,
         );
     }
 
@@ -109,6 +113,10 @@ final readonly class StorageLocation
             capacity: $this->capacity,
             notes: $this->notes,
             operationalStatus: $this->operationalStatus,
+            areaCode: $this->areaCode,
+            mapImageId: $this->mapImageId,
+            mapXRatio: $this->mapXRatio,
+            mapYRatio: $this->mapYRatio,
         );
     }
 }

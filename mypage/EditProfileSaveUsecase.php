@@ -51,14 +51,21 @@ final class EditProfileSaveUsecase implements Usecase
             return;
         }
 
+        // Persist the normalised values, not the raw user input. The
+        // avatar-url constraint trims surrounding whitespace and rejects
+        // non-http(s) schemes; writing the raw $avatarUrl back would let
+        // those rejects survive in the row when the constraint passed only
+        // because the *trimmed* form was valid.
+        [$persistDisplayName, $persistBio, $persistAvatarUrl] = $result->getOrElse([null, null, null]);
+
         if ($this->profileColumnsExist()) {
             $this->updater->exec(
                 new EditProfileUpdateRepository(),
                 [
                     'id' => $this->memberId,
-                    'display_name' => $displayName,
-                    'bio' => $bio,
-                    'avatar_url' => $avatarUrl,
+                    'display_name' => $persistDisplayName,
+                    'bio' => $persistBio,
+                    'avatar_url' => $persistAvatarUrl,
                     'updated_at' => date('Y-m-d H:i:s'),
                 ]
             );

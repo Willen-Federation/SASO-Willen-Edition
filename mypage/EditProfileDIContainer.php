@@ -6,6 +6,7 @@ use saso\framework\DIContainer;
 use saso\framework\Flow;
 use saso\repository\DbFinder;
 use saso\repository\DbUpdater;
+use saso\util\CSRFtoken;
 
 final class EditProfileDIContainer implements DIContainer
 {
@@ -40,17 +41,32 @@ final class EditProfileDIContainer implements DIContainer
                 ),
                 $memberId
             );
-        } else {
-            // POST: Save changes
-            $this->ctrl = new EditProfileController($post);
-            $this->usecase = new EditProfileSaveUsecase(
-                new DbFinder(),
-                new DbUpdater(),
-                new EditProfileSavePresenter(
-                    new EditProfileSaveView(),
-                ),
-                $memberId
-            );
+            return;
         }
+
+        // POST: Save changes — reject when the CSRF token is missing or
+        // does not match the one bound to the current session. Without
+        // this guard a malicious cross-site form could update the logged-in
+        // member's profile (displayName, bio, avatarUrl) silently.
+        if (!CSRFtoken::verify((string) ($post['csrftoken'] ?? ''))) {
+            $this->ctrl = new common\EmptyController();
+            $this->usecase = new MyPageErrorUsecase(
+                new MyPageErrorPresenter(
+                    new MyPageErrorView(),
+                ),
+                'Invalid request'
+            );
+            return;
+        }
+
+        $this->ctrl = new EditProfileController($post);
+        $this->usecase = new EditProfileSaveUsecase(
+            new DbFinder(),
+            new DbUpdater(),
+            new EditProfileSavePresenter(
+                new EditProfileSaveView(),
+            ),
+            $memberId
+        );
     }
 }

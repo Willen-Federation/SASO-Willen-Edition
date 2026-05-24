@@ -13,6 +13,7 @@
       <div class="px-6 py-5">
         <?php if ($v->member): ?>
         <form method="POST" action="/mypage/editProfile/">
+          <input type="hidden" name="csrftoken" value="<?php echo htmlspecialchars(\saso\util\CSRFtoken::current()); ?>">
           <div class="mb-4">
             <label for="display_name" class="mb-1.5 block text-sm font-medium" style="color:var(--saso-text)">
               <?php echo htmlspecialchars(__('Display Name')); ?>

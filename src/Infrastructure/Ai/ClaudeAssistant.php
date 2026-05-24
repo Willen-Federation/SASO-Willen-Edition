@@ -224,6 +224,7 @@ final class ClaudeAssistant implements AiAssistant
                 'x-api-key: '.$this->apiKey,
                 'anthropic-version: 2023-06-01',
             ],
+            CURLOPT_CONNECTTIMEOUT => 5,
             CURLOPT_TIMEOUT        => 30,
             CURLOPT_FOLLOWLOCATION => true,
         ]);

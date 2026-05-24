@@ -161,11 +161,6 @@ parameters:
 			path: src/Presentation/Api/V1/Controller/Item/UpdateItemController.php
 
 		-
-			message: "#^Call to an undefined method Saso\\\\Domain\\\\Auth\\\\AuthProviderId\\:\\:value\\(\\)\\.$#"
-			count: 1
-			path: src/Presentation/Api/V1/Controller/Mobile/DiscoveryController.php
-
-		-
 			message: "#^Access to undefined constant Saso\\\\Domain\\\\Shared\\\\ErrorCode\\:\\:LocationNotFound\\.$#"
 			count: 1
 			path: src/Presentation/Api/V1/Controller/StorageLocation/GetStorageLocationController.php

@@ -338,6 +338,26 @@ ENV;
         self::assertMatchesRegularExpression('/^iter-\d+$/', $parsed['WRITER_B']);
     }
 
+    public function testSetOrUpdateDoesNotLeaveWorldReadableWindow(): void
+    {
+        // After a rename(), the new inode used to inherit the umask-default
+        // mode (often 0644) until the explicit chmod 0600 fired. We now chmod
+        // the temp file *before* rename. Verify the file is never world-readable
+        // post-rename by checking the post-state mode exactly.
+        if (DIRECTORY_SEPARATOR === '\\') {
+            self::markTestSkipped('POSIX permission test not meaningful on Windows.');
+        }
+        $envPath = $this->tmpDir.'/.env';
+        file_put_contents($envPath, "SEED=1\n");
+        @chmod($envPath, 0644);
+
+        $writer = new EnvWriter();
+        $writer->setOrUpdate('FOO', 'bar', $envPath);
+
+        $mode = fileperms($envPath) & 0777;
+        self::assertSame(0600, $mode, sprintf('Expected 0600, got 0%o', $mode));
+    }
+
     // ── Legacy static API (regression coverage) ────────────────────────────
 
     public function testLegacySetCreatesFileAndAppendsLine(): void
@@ -359,5 +379,52 @@ ENV;
     {
         $envPath = $this->tmpDir.'/.env';
         self::assertFalse(EnvWriter::set($envPath, '1BAD', 'x'));
+    }
+
+    public function testLegacySetRejectsNullBytes(): void
+    {
+        // Null byte injection would silently truncate the .env line at parse
+        // time, letting one value swallow the next on subsequent reads.
+        $envPath = $this->tmpDir.'/.env';
+        self::assertFalse(EnvWriter::set($envPath, 'FOO', "a\0b"));
+    }
+
+    public function testLegacySetIsAtomic(): void
+    {
+        // The legacy static API used to call file_put_contents() directly on
+        // the live .env, which truncates-then-writes. A crash mid-write would
+        // leave a corrupt .env. Verify the new tmp+rename path leaves no
+        // .tmp.* sibling behind on success, and that the file is never empty.
+        $envPath = $this->tmpDir.'/.env';
+        file_put_contents($envPath, "EXISTING=1\n");
+
+        self::assertTrue(EnvWriter::set($envPath, 'NEW', 'value'));
+
+        // No stray temp files.
+        $strays = glob($envPath.'.tmp.*') ?: [];
+        self::assertSame([], $strays, 'Atomic write left stray temp files: '.implode(', ', $strays));
+
+        // Original content preserved.
+        $parsed = EnvLoader::loadFile($envPath);
+        self::assertSame('1', $parsed['EXISTING']);
+        self::assertSame('value', $parsed['NEW']);
+    }
+
+    public function testLegacySetPreservesFileMode(): void
+    {
+        // When the operator has already set restrictive permissions on .env,
+        // a subsequent legacy set() must not silently loosen them via the
+        // tmp+rename path.
+        if (DIRECTORY_SEPARATOR === '\\') {
+            self::markTestSkipped('POSIX permission test not meaningful on Windows.');
+        }
+        $envPath = $this->tmpDir.'/.env';
+        file_put_contents($envPath, "EXISTING=1\n");
+        @chmod($envPath, 0600);
+
+        self::assertTrue(EnvWriter::set($envPath, 'NEW', 'value'));
+
+        $mode = fileperms($envPath) & 0777;
+        self::assertSame(0600, $mode, sprintf('Expected mode 0600 preserved, got 0%o', $mode));
     }
 }

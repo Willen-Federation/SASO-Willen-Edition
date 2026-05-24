@@ -11,6 +11,7 @@ use OpenFeature\interfaces\provider\Provider;
 use OpenFeature\interfaces\provider\ResolutionDetails;
 use OpenFeature\interfaces\provider\ResolutionError;
 use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
 use Saso\Domain\Feature\FeatureKey;
 use Saso\Domain\Feature\Repository\FeatureFlagRepository;
 
@@ -24,14 +25,17 @@ final class DbProvider implements Provider
      */
     private array $cache = [];
 
+    private LoggerInterface $logger;
+
     public function __construct(
         private readonly FeatureFlagRepository $repository,
     ) {
+        $this->logger = new NullLogger();
     }
 
     public function setLogger(LoggerInterface $logger): void
     {
-        // Logger accepted but not used — provider operates silently.
+        $this->logger = $logger;
     }
 
     public function getMetadata(): MetadataInterface
@@ -101,11 +105,30 @@ final class DbProvider implements Provider
         }
 
         try {
-            $flag = $this->repository->findByKey(new FeatureKey($key));
+            $flag              = $this->repository->findByKey(new FeatureKey($key));
             $this->cache[$key] = $flag;
 
             return $flag;
-        } catch (\Throwable) {
+        } catch (\InvalidArgumentException $e) {
+            // Malformed key — cache the null so we don't re-validate on every
+            // resolve and surface the reason in logs for operators chasing
+            // unexpected default-value reads.
+            $this->logger->warning('Feature flag lookup rejected malformed key', [
+                'flag'      => $key,
+                'exception' => $e::class,
+                'message'   => $e->getMessage(),
+            ]);
+            $this->cache[$key] = null;
+            return null;
+        } catch (\Throwable $e) {
+            // Repository / database failure: do not cache (transient errors
+            // should retry on the next call) and log so operators can correlate
+            // FLAG_NOT_FOUND fallbacks with infra incidents.
+            $this->logger->error('Feature flag lookup failed', [
+                'flag'      => $key,
+                'exception' => $e::class,
+                'message'   => $e->getMessage(),
+            ]);
             return null;
         }
     }

@@ -21,6 +21,16 @@ interface FeatureFlagRepository
      */
     public function listAll(): array;
 
+    /**
+     * Returns the next free integer id without pulling rows into PHP.
+     *
+     * Callers use this when creating a new {@see FeatureFlag} so the id
+     * computation does not require `listAll()`. Implementations should
+     * delegate to the database (`SELECT MAX(id) + 1 …`) rather than
+     * counting in userland.
+     */
+    public function nextId(): int;
+
     public function save(FeatureFlag $flag): FeatureFlag;
 
     public function delete(int $id): void;

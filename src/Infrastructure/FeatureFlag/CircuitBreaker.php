@@ -32,9 +32,13 @@ final class CircuitBreaker
 
             $windowStart = $now->modify("-{$flag->errorWindowMinutes} minutes");
 
+            // Use window_end to match PdoErrorLogAggregateRepository::countSince()
+            // semantics — both queries must agree on which ticks fall inside the
+            // sliding window or operators see different totals depending on the
+            // path that reads them.
             $stmt = $this->pdo->prepare(
-                'SELECT SUM(count) as total_errors FROM error_log_aggregate '.
-                'WHERE feature_key = :key AND window_start >= :window_start'
+                'SELECT COALESCE(SUM(count), 0) AS total_errors FROM error_log_aggregate '.
+                'WHERE feature_key = :key AND window_end >= :window_start'
             );
             $stmt->bindValue('key', $flag->key->toString());
             $stmt->bindValue('window_start', $windowStart->format('Y-m-d H:i:s'));

@@ -59,6 +59,16 @@ final class PdoFeatureFlagRepository implements FeatureFlagRepository
         );
     }
 
+    public function nextId(): int
+    {
+        $stmt = $this->pdo->query('SELECT COALESCE(MAX(id), 0) + 1 FROM feature_flag');
+        if ($stmt === false) {
+            return 1;
+        }
+
+        return (int) $stmt->fetchColumn();
+    }
+
     public function save(FeatureFlag $flag): FeatureFlag
     {
         $now = (new DateTimeImmutable('now', $this->timezone))->format('Y-m-d H:i:s');

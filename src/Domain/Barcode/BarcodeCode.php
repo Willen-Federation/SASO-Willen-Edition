@@ -53,6 +53,19 @@ final readonly class BarcodeCode
 
         $prefix = self::normalizeJanPrefix($prefix);
         $sequenceWidth = 12 - strlen($prefix);
+        // str_pad only adds padding — it never truncates. If the caller's
+        // sequence exceeds the room left by the prefix, the body would grow
+        // past 12 digits and ean13CheckDigit would throw mid-call. Catch
+        // that here so the InvalidArgumentException identifies the actual
+        // input that overflowed.
+        if (strlen((string) $sequence) > $sequenceWidth) {
+            throw new InvalidArgumentException(sprintf(
+                'JAN sequence %d does not fit in %d digits after prefix "%s".',
+                $sequence,
+                $sequenceWidth,
+                $prefix,
+            ));
+        }
         $body = $prefix.str_pad((string) $sequence, $sequenceWidth, '0', STR_PAD_LEFT);
 
         return new self($body.self::ean13CheckDigit($body));

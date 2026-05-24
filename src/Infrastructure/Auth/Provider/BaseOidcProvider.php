@@ -144,8 +144,27 @@ abstract class BaseOidcProvider implements AuthProvider
         }
 
         // Pull the verified claims and userinfo response into a flat array.
-        $idTokenClaims = (array) ($client->getIdTokenPayload() ?? []);
-        $userInfo      = [];
+        $idTokenClaims = self::stringifyKeys((array) ($client->getIdTokenPayload() ?? []));
+
+        // OIDC Core §2 requires the ID token to carry a non-empty `nonce`
+        // claim when one was sent in the authorization request — which we
+        // always do. jumbojett's verifyJWTClaims() short-circuits the check
+        // when the claim is absent, so re-assert presence here so a
+        // non-compliant IdP (or a forged token that strips the claim) cannot
+        // silently bypass replay protection.
+        $idTokenNonce = isset($idTokenClaims['nonce']) && is_string($idTokenClaims['nonce'])
+            ? $idTokenClaims['nonce']
+            : '';
+        if (!hash_equals($expectedNonce, $idTokenNonce)) {
+            unset($_SESSION['auth.state'], $_SESSION['auth.nonce']);
+            throw AuthFailedException::callbackInvalid('OIDC ID token nonce missing or mismatched.');
+        }
+
+        $idTokenSubject = isset($idTokenClaims['sub']) && is_string($idTokenClaims['sub'])
+            ? $idTokenClaims['sub']
+            : '';
+
+        $userInfo = [];
         try {
             $info = $client->requestUserInfo();
             if (is_object($info)) {
@@ -156,8 +175,26 @@ abstract class BaseOidcProvider implements AuthProvider
         } catch (Throwable) {
             // userinfo is optional — id_token claims may carry everything we need
         }
-        $claims = array_merge($idTokenClaims, $userInfo);
-        $claims = self::stringifyKeys($claims);
+        $userInfo = self::stringifyKeys($userInfo);
+
+        // OIDC Core §5.3.2: the userinfo `sub` MUST equal the ID-token `sub`,
+        // otherwise the userinfo response MUST NOT be used. We treat a
+        // mismatch as a hard failure rather than silently dropping userinfo,
+        // because a deviation here indicates either IdP misconfiguration or
+        // a hostile userinfo endpoint trying to overwrite the verified
+        // identity.
+        if ($userInfo !== [] && isset($userInfo['sub'])) {
+            $userInfoSub = is_string($userInfo['sub']) ? $userInfo['sub'] : '';
+            if ($idTokenSubject === '' || !hash_equals($idTokenSubject, $userInfoSub)) {
+                unset($_SESSION['auth.state'], $_SESSION['auth.nonce']);
+                throw AuthFailedException::callbackInvalid('OIDC userinfo `sub` does not match ID-token `sub`.');
+            }
+        }
+
+        // ID-token claims are authoritative (signed); userinfo only fills in
+        // anything the ID token did not carry. Order matters: array_merge
+        // gives precedence to the second argument, so put the ID token last.
+        $claims = array_merge($userInfo, $idTokenClaims);
 
         $mapping = $this->claimMapping();
         $sub     = $mapping->extractString('subject', $claims) ?? '';
@@ -284,8 +321,11 @@ abstract class BaseOidcProvider implements AuthProvider
             (string) $this->record->clientId,
             (string) $this->record->clientSecret,
         );
-        // jumbojett defaults to RS256 only; explicitly accept the common
-        // OIDC signing algorithms.
+        // Restrict the response_type to `code` — implicit / hybrid flows are
+        // legacy and forbid the secure-by-default token validation we rely
+        // on. jumbojett accepts the IdP-advertised `alg` for signature
+        // verification (RS256/RS384/RS512/PS256/PS512/HS256/HS384/HS512) and
+        // explicitly rejects `none`; see verifyJWTSignature().
         $client->setAllowImplicitFlow(false);
         return $client;
     }

@@ -6,6 +6,8 @@ namespace Saso\Application\Enrichment\Step;
 
 final class JanLookupStep implements JanLookupStepInterface
 {
+    private const MAX_STRING_LENGTH = 1000;
+
     /**
      * @return array<string, mixed>
      */
@@ -21,13 +23,13 @@ final class JanLookupStep implements JanLookupStepInterface
         $ch = curl_init($url);
         curl_setopt_array($ch, [
             CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_CONNECTTIMEOUT => 5,
             CURLOPT_TIMEOUT        => 30,
             CURLOPT_FOLLOWLOCATION => true,
             CURLOPT_HTTPHEADER     => ['Accept: application/json'],
         ]);
 
-        $raw     = curl_exec($ch);
-        $curlErr = curl_error($ch);
+        $raw = curl_exec($ch);
         curl_close($ch);
 
         if ($raw === false || $raw === '') {
@@ -47,18 +49,18 @@ final class JanLookupStep implements JanLookupStepInterface
 
         $result = ['jan_code' => $barcode];
 
-        $name = $product['product_name'] ?? null;
-        if (is_string($name) && $name !== '') {
+        $name = $this->sanitiseExternalString($product['product_name'] ?? null);
+        if ($name !== null) {
             $result['item_name'] = $name;
         }
 
-        $brands = $product['brands'] ?? null;
-        if (is_string($brands) && $brands !== '') {
+        $brands = $this->sanitiseExternalString($product['brands'] ?? null);
+        if ($brands !== null) {
             $result['manufacturer'] = $brands;
         }
 
-        $ingredients = $product['ingredients_text'] ?? null;
-        if (is_string($ingredients) && $ingredients !== '') {
+        $ingredients = $this->sanitiseExternalString($product['ingredients_text'] ?? null);
+        if ($ingredients !== null) {
             $result['description'] = $ingredients;
         }
 
@@ -86,5 +88,27 @@ final class JanLookupStep implements JanLookupStepInterface
         }
 
         return true;
+    }
+
+    /**
+     * Trim, strip control chars, and cap length on strings returned by the
+     * external API. Untrusted upstream data must not bypass the field-length
+     * constraints the rest of the pipeline assumes.
+     */
+    private function sanitiseExternalString(mixed $value): ?string
+    {
+        if (!is_string($value)) {
+            return null;
+        }
+        $stripped = preg_replace('/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/u', '', $value);
+        if (!is_string($stripped)) {
+            return null;
+        }
+        $trimmed = trim($stripped);
+        if ($trimmed === '') {
+            return null;
+        }
+
+        return mb_substr($trimmed, 0, self::MAX_STRING_LENGTH);
     }
 }

@@ -207,14 +207,21 @@ final class GeminiAssistant implements AiAssistant
      */
     private function post(string $endpoint, array $body): array
     {
-        $url = self::BASE_URL.'/'.$endpoint.'?key='.urlencode($this->apiKey);
+        // Pass the API key in a header rather than the query string so it is
+        // not captured by curl verbose logs, proxy access logs, or the OS
+        // process table (CURLOPT_URL is visible in /proc/*/cmdline equivalents).
+        $url = self::BASE_URL.'/'.$endpoint;
         $ch  = curl_init($url);
 
         curl_setopt_array($ch, [
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_POST           => true,
             CURLOPT_POSTFIELDS     => json_encode($body),
-            CURLOPT_HTTPHEADER     => ['Content-Type: application/json'],
+            CURLOPT_HTTPHEADER     => [
+                'Content-Type: application/json',
+                'x-goog-api-key: '.$this->apiKey,
+            ],
+            CURLOPT_CONNECTTIMEOUT => 5,
             CURLOPT_TIMEOUT        => 30,
             CURLOPT_FOLLOWLOCATION => true,
         ]);

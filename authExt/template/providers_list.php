@@ -9,6 +9,7 @@
 <?php } else { ?>
 
   <?php
+    $csrfToken = \saso\util\CSRFtoken::current();
     ui('card', [
       'title' => __('ui.auth_providers.title', [], null, 'Authentication providers'),
       'actions' => function () {
@@ -19,8 +20,11 @@
               'variant' => 'primary',
           ]);
       },
-      'body' => function () use ($v) {
+      'body' => function () use ($v, $csrfToken) {
           $rows = [];
+          $confirmText = __('ui.auth_providers.confirm_delete', [], null, 'Delete this provider?');
+          $deleteLabel = ui_text(__('ui.auth_providers.delete', [], null, 'Delete'));
+          $csrfAttr = htmlspecialchars($csrfToken, ENT_QUOTES, 'UTF-8');
           foreach ($v->providers as $p) {
               $statusBadge = $p['enabled']
                   ? '<span class="badge badge-success">'.ui_text(__('ui.auth_providers.status.active', [], null, 'Active')).'</span>'
@@ -29,9 +33,16 @@
                   ? '<span class="ml-1 text-warning" aria-label="default">★</span>'
                   : '';
               $editUrl   = './auth/provider/edit/' . $p['id'];
-              $deleteUrl = './auth/provider/delete/' . $p['id'];
+              // Delete posts to the same endpoint with the id; ProviderView
+              // gates on REQUEST_METHOD=POST + a session-bound CSRF token,
+              // closing the GET-based CSRF hole this list used to expose.
+              $deleteAction = './auth/provider/delete/' . $p['id'];
               $editLink = '<a href="'.ui_attr($editUrl).'" class="text-brand-500 hover:underline text-sm">'.ui_text(__('ui.auth_providers.edit', [], null, 'Edit')).'</a>';
-              $deleteLink = '<a href="'.ui_attr($deleteUrl).'" class="text-error-500 hover:underline text-sm ml-3" onclick="return confirm(\''.ui_attr(__('ui.auth_providers.confirm_delete', [], null, 'Delete this provider?')).'\')">'.ui_text(__('ui.auth_providers.delete', [], null, 'Delete')).'</a>';
+              $deleteLink = '<form method="post" action="'.ui_attr($deleteAction).'" class="inline ml-3"'
+                  . ' onsubmit="return confirm(\''.ui_attr($confirmText).'\')">'
+                  . '<input type="hidden" name="csrftoken" value="'.$csrfAttr.'">'
+                  . '<button type="submit" class="text-error-500 hover:underline text-sm bg-transparent border-0 p-0 cursor-pointer">'.$deleteLabel.'</button>'
+                  . '</form>';
 
               $issuerHtml = $p['issuer']
                   ? '<div class="max-w-xs break-all text-sm">'.ui_text((string) $p['issuer']).'</div>'

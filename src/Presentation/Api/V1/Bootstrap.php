@@ -16,6 +16,7 @@ use Saso\Infrastructure\Auth\Crypto\SecretEncryptor;
 use Saso\Infrastructure\Auth\Repository\PdoAuthProviderRepository;
 use Saso\Infrastructure\Barcode\PdoBarcodeRepository;
 use Saso\Infrastructure\Category\PdoCategoryRepository;
+use Saso\Infrastructure\FeatureFlag\PdoFeatureFlagAuditRepository;
 use Saso\Infrastructure\FeatureFlag\PdoFeatureFlagRepository;
 use Saso\Infrastructure\Logging\MonologFactory;
 use Saso\Infrastructure\Messaging\NullMessageBus;
@@ -126,16 +127,25 @@ final class Bootstrap
         $barcodeRepo = new PdoBarcodeRepository($pdo);
         $barcodeGet  = new BarcodeGetController($barcodeRepo);
 
-        $flagRepo   = new PdoFeatureFlagRepository($pdo);
-        $codeRepo   = new PdoPairingCodeRepository($pdo);
-        $tokenRepo  = new PdoDeviceTokenRepository($pdo);
-        $qrRenderer = new QrCodeRenderer();
+        $flagRepo      = new PdoFeatureFlagRepository($pdo);
+        $flagAuditRepo = new PdoFeatureFlagAuditRepository($pdo);
+        $codeRepo      = new PdoPairingCodeRepository($pdo);
+        $tokenRepo     = new PdoDeviceTokenRepository($pdo);
+        $qrRenderer    = new QrCodeRenderer();
+
+        // The session id is the authenticated admin's member id (cf.
+        // requireSessionAuth below). The closure defers the read so unit
+        // tests can substitute a fixed value without touching $_SESSION.
+        $memberIdResolver = static function (): ?string {
+            $id = $_SESSION['id'] ?? null;
+            return is_string($id) && $id !== '' ? $id : null;
+        };
 
         $flagList   = new FeatureFlagListController($flagRepo);
-        $flagCreate = new FeatureFlagCreateController($flagRepo);
+        $flagCreate = new FeatureFlagCreateController($flagRepo, $flagAuditRepo, $memberIdResolver);
         $flagGet    = new FeatureFlagGetController($flagRepo);
-        $flagUpdate = new FeatureFlagUpdateController($flagRepo);
-        $flagDelete = new FeatureFlagDeleteController($flagRepo);
+        $flagUpdate = new FeatureFlagUpdateController($flagRepo, $flagAuditRepo, $memberIdResolver);
+        $flagDelete = new FeatureFlagDeleteController($flagRepo, $flagAuditRepo, $memberIdResolver);
 
         $qr           = new QrController($codeRepo, $qrRenderer);
         $issueTokenPair = new IssueTokenPairService($tokenRepo, $jwt);
@@ -198,12 +208,18 @@ final class Bootstrap
 
             'getBarcode'        => [$barcodeGet, 'handle'],
 
-            'listFeatureFlags'  => [$flagList, 'handle'],
+            'listFeatureFlags'  => static function (HttpRequest $r) use ($flagList) {
+                self::requireSessionAuth();
+                return $flagList->handle($r);
+            },
             'createFeatureFlag' => static function (HttpRequest $r) use ($flagCreate) {
                 self::requireSessionAuth();
                 return $flagCreate->handle($r);
             },
-            'getFeatureFlag'    => [$flagGet, 'handle'],
+            'getFeatureFlag'    => static function (HttpRequest $r) use ($flagGet) {
+                self::requireSessionAuth();
+                return $flagGet->handle($r);
+            },
             'updateFeatureFlag' => static function (HttpRequest $r) use ($flagUpdate) {
                 self::requireSessionAuth();
                 return $flagUpdate->handle($r);

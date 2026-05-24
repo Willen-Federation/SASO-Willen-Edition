@@ -258,6 +258,11 @@ final class AiDebugDIContainer implements DIContainer
                 return [];
             }
 
+            public function nextId(): int
+            {
+                return 1;
+            }
+
             public function save(FeatureFlag $flag): FeatureFlag
             {
                 return $flag;

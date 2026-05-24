@@ -161,6 +161,11 @@ final class AiPipelineIntegrationTest extends TestCase
                 return [];
             }
 
+            public function nextId(): int
+            {
+                return 1;
+            }
+
             public function save(FeatureFlag $flag): FeatureFlag
             {
                 return $flag;

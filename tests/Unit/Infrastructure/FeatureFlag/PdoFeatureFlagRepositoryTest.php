@@ -116,6 +116,19 @@ final class PdoFeatureFlagRepositoryTest extends TestCase
         self::assertNull($this->repo->findById(1));
     }
 
+    public function testNextIdReturnsOneOnEmptyTable(): void
+    {
+        self::assertSame(1, $this->repo->nextId());
+    }
+
+    public function testNextIdReturnsMaxPlusOne(): void
+    {
+        $this->repo->save($this->makeFlag(id: 7, key: 'a'));
+        $this->repo->save($this->makeFlag(id: 3, key: 'b'));
+
+        self::assertSame(8, $this->repo->nextId());
+    }
+
     /**
      * @param array<string, mixed>|null $conditions
      */

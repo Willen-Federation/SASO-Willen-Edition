@@ -26,6 +26,7 @@ $this->title = $lang === 'ja' ? 'パスワード変更' : 'Change Password';
         <p class="text-sm mb-5" style="color:var(--saso-text-sub)">パスワードはどこかに書き留めておいて下さい。忘れると、復元できません。</p>
 
         <form method="post" action="/start/password/">
+          <input type="hidden" name="csrftoken" value="<?php echo htmlspecialchars(\saso\util\CSRFtoken::current(), ENT_QUOTES, 'UTF-8'); ?>">
           <div class="mb-4">
             <label for="nowPassword" class="mb-1.5 block text-sm font-medium" style="color:var(--saso-text)">現在のパスワード</label>
             <input id="nowPassword" type="password" name="now" class="form-input w-full"

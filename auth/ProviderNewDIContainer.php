@@ -30,9 +30,15 @@ final class ProviderNewDIContainer implements DIContainer
             
             $token = (string) ($post['csrftoken'] ?? '');
             if (!\saso\util\CSRFtoken::verify($token)) {
-                $this->ctrl = new \saso\common\EmptyController();
+                $this->ctrl    = new \saso\common\EmptyController();
                 $this->usecase = new \saso\common\EmptyUsecase(
-                    new \saso\common\FailJsonView(errorMessage: 'CSRF token invalid.')
+                    new \saso\common\EmptyPresenter(
+                        new \saso\common\FailJsonView(
+                            errorMessage: 'CSRF token invalid.',
+                            status: 403,
+                            errorCode: 'SASO-AUTH-CSRF',
+                        ),
+                    ),
                 );
                 return;
             }
@@ -54,6 +60,25 @@ final class ProviderNewDIContainer implements DIContainer
                 ),
             );
         } else {
+            // Defense-in-depth CSRF check. UserCompiler only verifies the
+            // session token when $authed is true; the wizard runs both pre-
+            // login (first-boot, no admin yet) and post-login, so we enforce
+            // the token locally to cover the unauthenticated case the global
+            // hook skips. The form template already renders csrftoken.
+            if (!\saso\util\CSRFtoken::verify((string) ($post['csrftoken'] ?? ''))) {
+                $this->ctrl    = new \saso\common\EmptyController();
+                $this->usecase = new EmptyUsecase(
+                    new \saso\common\EmptyPresenter(
+                        new \saso\common\FailJsonView(
+                            errorMessage: 'CSRF token invalid. Please reload the page and submit again.',
+                            status: 403,
+                            errorCode: 'SASO-AUTH-CSRF',
+                        ),
+                    ),
+                );
+                return;
+            }
+
             $pdo       = DBConnection::getPdo();
             $encryptor = self::buildEncryptor();
             // PdoAuthProviderRepository requires a non-null SecretEncryptor.

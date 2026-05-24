@@ -11,6 +11,16 @@ final class FailJsonView implements View
     private int $status = 400;
     private string $errorCode = 'SASO-INFRA-9000';
 
+    public function __construct(
+        string $errorMessage = '',
+        int $status = 400,
+        string $errorCode = 'SASO-INFRA-9000',
+    ) {
+        $this->errorMessage = $errorMessage;
+        $this->status = $status;
+        $this->errorCode = $errorCode;
+    }
+
     public function display(): void
     {
         header('Content-Type: application/problem+json; charset=utf-8');

@@ -80,8 +80,18 @@ final class ProviderView implements View
             $this->computeUrls((int) $this->provider['id']);
         }
 
-        // Delete action
+        // Delete action — POST + CSRF only. A GET delete is CSRF-able even with
+        // an in-browser confirm() prompt: any admin who follows a crafted link
+        // wipes a provider row. The list view now posts a hidden form per row.
         if (isset($this->query['delete']) && is_numeric($this->query['delete'])) {
+            if (($_SERVER['REQUEST_METHOD'] ?? 'GET') !== 'POST'
+                || !\saso\util\CSRFtoken::verify((string) ($this->post['csrftoken'] ?? ''))
+            ) {
+                http_response_code(403);
+                header('Content-Type: text/plain; charset=utf-8');
+                echo 'Forbidden: CSRF token missing or invalid.';
+                exit;
+            }
             $stmt = $pdo->prepare('DELETE FROM auth_provider WHERE id = :id');
             $stmt->bindValue(':id', (int) $this->query['delete']);
             $stmt->execute();
@@ -91,6 +101,15 @@ final class ProviderView implements View
 
         // Form submission
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            // CSRF check before any DB writes. The form template renders a
+            // hidden csrftoken field bound to the current session; reject any
+            // POST that arrives without a matching token.
+            if (!\saso\util\CSRFtoken::verify((string) ($this->post['csrftoken'] ?? ''))) {
+                http_response_code(403);
+                header('Content-Type: text/plain; charset=utf-8');
+                echo 'Forbidden: CSRF token missing or invalid.';
+                exit;
+            }
             $name             = (string) ($this->post['name'] ?? '');
             $type             = (string) ($this->post['type'] ?? 'oidc');
             // The first-step "Create provider" submit has no credentials yet, so

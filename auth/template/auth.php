@@ -33,6 +33,7 @@ $this->title = $lang === 'ja' ? 'ログイン' : 'Login';
           $formAction = $formAction === '' ? '/auth/start/' : '/' . ltrim($formAction, '/');
         ?>
         <form method="post" action="<?php echo htmlspecialchars($formAction, ENT_QUOTES, 'UTF-8'); ?>" autocomplete="on">
+          <input type="hidden" name="csrftoken" value="<?php echo htmlspecialchars(\saso\util\CSRFtoken::current(), ENT_QUOTES, 'UTF-8'); ?>">
           <div class="mb-4">
             <label for="login-id" class="mb-1.5 block text-sm font-medium" style="color:var(--saso-text)"><?php echo ui_text($lang === 'ja' ? 'ログインID' : 'Login ID'); ?></label>
             <input type="text" id="login-id" name="id" class="form-input w-full"

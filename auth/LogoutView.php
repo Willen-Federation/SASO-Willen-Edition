@@ -10,14 +10,21 @@ final class LogoutView implements View
     use Setter;
     public function display(): void
     {
-        session_destroy();
-        session_start();
         $_SESSION = [];
-        if(isset($_COOKIE[session_name()])) {
+        // Match the cookie attributes set in index.php (path=/, plus the
+        // Secure/SameSite pair when serving over TLS) so the browser
+        // actually overwrites the live cookie. The previous /saso/ path
+        // dated from the legacy install layout and left the live session
+        // cookie at "/" untouched.
+        if (isset($_COOKIE[session_name()])) {
+            $params = session_get_cookie_params();
             setcookie(session_name(), '', [
-                'expires' => time() - 3600,
-                'path' => '/saso/',
-                'samesite' => 'Lax',
+                'expires'  => time() - 3600,
+                'path'     => $params['path'] ?: '/',
+                'domain'   => $params['domain'] ?? '',
+                'secure'   => $params['secure'] ?? false,
+                'httponly' => true,
+                'samesite' => $params['samesite'] ?? 'Lax',
             ]);
         }
         session_destroy();

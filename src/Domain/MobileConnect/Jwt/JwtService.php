@@ -39,6 +39,17 @@ final class JwtService
     private const ALGO   = 'sha256';
     private const HEADER = '{"alg":"HS256","typ":"JWT"}';
 
+    /**
+     * Canonical issuer asserted at both issuance and verification time.
+     *
+     * Tokens minted by foreign systems that happen to share JWT_SECRET (e.g.
+     * an unrelated tool reusing APP_KEY) cannot impersonate the mobile API
+     * because their iss claim will not match. RFC 8725 §3.6 recommends an
+     * explicit issuer check whenever the verifier accepts tokens that could
+     * have been minted by a different party.
+     */
+    public const ISSUER = 'saso';
+
     public function __construct(
         private readonly string $secret,
     ) {
@@ -64,7 +75,7 @@ final class JwtService
         $exp = $now->modify(sprintf('+%d seconds', self::ACCESS_TOKEN_TTL_SECONDS));
 
         $claims = [
-            'iss' => 'saso',
+            'iss' => self::ISSUER,
             'sub' => (string) $deviceTokenId,
             'iat' => $now->getTimestamp(),
             'exp' => $exp->getTimestamp(),
@@ -107,6 +118,20 @@ final class JwtService
 
         [$headerB64, $payloadB64, $sigB64] = $parts;
 
+        // Reject anything that isn't HS256 before we even look at the body.
+        // RFC 8725 §3.1 — the verifier must pin the algorithm rather than
+        // trust the token's own header. This closes the "alg: none" /
+        // "alg: HS256 vs RS256 confusion" classes of attack pre-emptively if
+        // the codebase ever grows additional signing options.
+        $headerJson = base64_decode(strtr($headerB64, '-_', '+/'), true);
+        if ($headerJson === false) {
+            throw new RuntimeException('JWT: header base64 decode failed.');
+        }
+        $header = json_decode($headerJson, associative: true);
+        if (!is_array($header) || ($header['alg'] ?? null) !== 'HS256') {
+            throw new RuntimeException('JWT: unsupported algorithm; HS256 required.');
+        }
+
         $expected = self::b64u(hash_hmac(self::ALGO, $headerB64.'.'.$payloadB64, $this->secret, true));
 
         if (!hash_equals($expected, $sigB64)) {
@@ -126,6 +151,13 @@ final class JwtService
         $now = $now ?? new DateTimeImmutable('now', new DateTimeZone('UTC'));
         if (!isset($claims['exp']) || $now->getTimestamp() > (int) $claims['exp']) {
             throw new RuntimeException('JWT: token has expired.');
+        }
+
+        // Defence in depth: tokens minted by another service that happens to
+        // share JWT_SECRET (e.g. APP_KEY reused by a sibling tool) must not
+        // be accepted as mobile API tokens.
+        if (!isset($claims['iss']) || $claims['iss'] !== self::ISSUER) {
+            throw new RuntimeException('JWT: invalid issuer.');
         }
 
         if (!isset($claims['sub']) || !is_numeric($claims['sub'])) {

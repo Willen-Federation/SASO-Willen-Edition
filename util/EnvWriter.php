@@ -10,8 +10,8 @@ use RuntimeException;
  * preserving every other line. Two API shapes coexist:
  *
  *   - Static {@see set()}/{@see setMany()} — original installer-bootstrap path.
- *     Best-effort, returns bool, no locking, no atomicity guarantees beyond
- *     what `file_put_contents(LOCK_EX)` provides.
+ *     Best-effort, returns bool, no cross-process locking. Now writes atomically
+ *     via tmp + rename() so a crash mid-write cannot corrupt the live .env.
  *
  *   - Instance {@see setOrUpdate()}/{@see get()}/{@see hasValidValue()} — the
  *     hardened path introduced for `tools/repair-app-key.php`. Atomic writes
@@ -37,6 +37,13 @@ final class EnvWriter
     public static function set(string $path, string $key, string $value): bool
     {
         if (!self::isValidKey($key)) {
+            return false;
+        }
+        // The legacy static API tolerates raw newlines in values for the
+        // installer's path (where the installer pre-validates), but null bytes
+        // are still unsafe in any context — they truncate the line at parse
+        // time and can let one value silently swallow the next.
+        if (str_contains($value, "\0")) {
             return false;
         }
 
@@ -79,7 +86,29 @@ final class EnvWriter
             $updated = rtrim($contents, "\n")."\n".$line."\n";
         }
 
-        return file_put_contents($path, $updated, LOCK_EX) !== false;
+        // Atomic write: stage to a unique temp file in the same directory, then
+        // rename(). A crash between truncate-and-write of the old in-place
+        // file_put_contents() would have left a partial .env that would fail
+        // to parse on the next boot. The tmp + rename pattern keeps the live
+        // .env untouched until the new file is fully written.
+        $tmp = $path.'.tmp.'.getmypid().'.'.bin2hex(random_bytes(4));
+        $written = @file_put_contents($tmp, $updated, LOCK_EX);
+        if ($written === false) {
+            @unlink($tmp);
+            return false;
+        }
+        // Preserve the file mode applied above (0640 for newly-created files,
+        // or whatever the operator set on an existing file). Without this the
+        // tmp inode would carry the umask-default mode through the rename.
+        $mode = @fileperms($path);
+        if (is_int($mode)) {
+            @chmod($tmp, $mode & 0777);
+        }
+        if (!@rename($tmp, $path)) {
+            @unlink($tmp);
+            return false;
+        }
+        return true;
     }
 
     /**
@@ -184,22 +213,23 @@ final class EnvWriter
                 );
             }
 
-            // Capture existing owner *before* rename so chown survives.
+            // chmod the temp file BEFORE rename so the final .env never exists
+            // on disk with the umask-default mode (often world-readable 0644).
+            // chown likewise applies to the temp inode and survives the rename.
+            @chmod($tmp, 0600);
             $existingOwner = @fileowner($envPath);
+            if (is_int($existingOwner) && $existingOwner > 0 && function_exists('posix_geteuid')) {
+                // Only attempt chown if running as root; otherwise it is a
+                // guaranteed EPERM and not worth the warning.
+                if (posix_geteuid() === 0) {
+                    @chown($tmp, $existingOwner);
+                }
+            }
 
             if (!@rename($tmp, $envPath)) {
                 throw new RuntimeException(
                     sprintf('Failed to rename temp file "%s" to "%s".', $tmp, $envPath)
                 );
-            }
-
-            @chmod($envPath, 0600);
-            if (is_int($existingOwner) && $existingOwner > 0 && function_exists('posix_geteuid')) {
-                // Only attempt chown if running as root; otherwise it is a
-                // guaranteed EPERM and not worth the warning.
-                if (posix_geteuid() === 0) {
-                    @chown($envPath, $existingOwner);
-                }
             }
         } finally {
             if (is_resource($lock)) {

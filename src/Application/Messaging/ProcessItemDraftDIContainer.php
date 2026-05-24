@@ -37,7 +37,7 @@ final class ProcessItemDraftDIContainer
         $isbnLookup    = new IsbnLookupStep();
         $janLookup     = new JanLookupStep();
         $aiAssistant   = AiAssistantFactory::forVision($settingService);
-        $aiVision      = new AiVisionStep($aiAssistant, $flagRepository);
+        $aiVision      = new AiVisionStep($aiAssistant, $flagRepository, $logger);
         $keywordLookup = new KeywordLookupStep();
         $merge         = new MergeStep();
 

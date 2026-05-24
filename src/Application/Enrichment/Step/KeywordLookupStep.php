@@ -19,6 +19,7 @@ final class KeywordLookupStep implements KeywordLookupStepInterface
 {
     private const OPENBD_API = 'https://api.openbd.jp/v1/get';
     private const OPENLIBRARY_SEARCH_API = 'https://openlibrary.org/search.json';
+    private const MAX_STRING_LENGTH = 1000;
 
     /**
      * @param array<string, mixed> $existing Already-enriched data from prior steps
@@ -68,14 +69,14 @@ final class KeywordLookupStep implements KeywordLookupStepInterface
                 return [];
             }
 
-            $summary = $book['summary'] ?? null;
-            $publisher = $book['publisher'] ?? null;
+            $summary = $this->sanitiseExternalString($book['summary'] ?? null);
+            $publisher = $this->sanitiseExternalString($book['publisher'] ?? null);
 
             $result = [];
-            if (!empty($summary) && is_string($summary)) {
+            if ($summary !== null) {
                 $result['description'] = $summary;
             }
-            if (!empty($publisher) && is_string($publisher)) {
+            if ($publisher !== null) {
                 $result['manufacturer'] = $publisher;
             }
 
@@ -124,14 +125,15 @@ final class KeywordLookupStep implements KeywordLookupStepInterface
             }
 
             if (isset($doc['author_name']) && is_array($doc['author_name']) && count($doc['author_name']) > 0) {
-                $author = $doc['author_name'][0];
-                if (is_string($author) && $result['manufacturer'] === null) {
+                $author = $this->sanitiseExternalString($doc['author_name'][0] ?? null);
+                if ($author !== null && $result['manufacturer'] === null) {
                     $result['manufacturer'] = $author;
                 }
             }
 
-            if (isset($doc['title']) && is_string($doc['title']) && $result['item_name'] === null) {
-                $result['item_name'] = $doc['title'];
+            $title = $this->sanitiseExternalString($doc['title'] ?? null);
+            if ($title !== null && $result['item_name'] === null) {
+                $result['item_name'] = $title;
             }
 
             $result = array_filter($result, static fn ($v) => $v !== null);
@@ -159,5 +161,27 @@ final class KeywordLookupStep implements KeywordLookupStepInterface
         }
 
         return is_string($response) ? $response : null;
+    }
+
+    /**
+     * Trim, strip control chars, and cap length on strings returned by the
+     * external API. Untrusted upstream data must not bypass the field-length
+     * constraints the rest of the pipeline assumes.
+     */
+    private function sanitiseExternalString(mixed $value): ?string
+    {
+        if (!is_string($value)) {
+            return null;
+        }
+        $stripped = preg_replace('/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/u', '', $value);
+        if (!is_string($stripped)) {
+            return null;
+        }
+        $trimmed = trim($stripped);
+        if ($trimmed === '') {
+            return null;
+        }
+
+        return mb_substr($trimmed, 0, self::MAX_STRING_LENGTH);
     }
 }

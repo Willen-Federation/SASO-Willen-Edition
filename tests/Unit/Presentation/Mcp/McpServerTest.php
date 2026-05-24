@@ -233,6 +233,114 @@ final class McpServerTest extends TestCase
         self::assertArrayHasKey('result', $arr);
     }
 
+    public function testToolsCallMapsValueErrorToInvalidParams(): void
+    {
+        // Enums use `\ValueError` to signal a bad backing value — the server
+        // must translate this to JSON-RPC -32602 (invalid params) rather
+        // than -32603 (internal error), so the caller sees a 4xx-equivalent.
+        $jwt = $this->seedDevice();
+        $this->registry->registerCore(
+            new RegistryName('throw_value_error'),
+            $this->makeThrowingTool(static function (): never {
+                throw new \ValueError('"foo" is not a valid backing value');
+            }),
+        );
+
+        $server = $this->makeServer();
+        $body   = json_encode([
+            'jsonrpc' => '2.0',
+            'id'      => 9,
+            'method'  => 'tools/call',
+            'params'  => ['name' => 'throw_value_error', 'arguments' => []],
+        ]);
+        $response = $server->handle(['authorization' => 'Bearer '.$jwt], (string) $body);
+
+        $arr = $response->toArray();
+        self::assertSame(-32602, $arr['error']['code']);
+        self::assertStringContainsString('foo', $arr['error']['message']);
+    }
+
+    public function testToolsCallMapsThrowableToInternalErrorWithoutLeakingDetail(): void
+    {
+        // A bare `\Throwable` (e.g. a PDO failure) must return -32603 with a
+        // generic message — the original exception detail is logged but
+        // never echoed back to the caller.
+        $jwt = $this->seedDevice();
+        $this->registry->registerCore(
+            new RegistryName('throw_runtime'),
+            $this->makeThrowingTool(static function (): never {
+                throw new \RuntimeException('database password: hunter2');
+            }),
+        );
+
+        $previousLog = ini_get('error_log');
+        $tempLog     = tempnam(sys_get_temp_dir(), 'saso-mcp-');
+        self::assertIsString($tempLog);
+        ini_set('error_log', $tempLog);
+
+        try {
+            $server = $this->makeServer();
+            $body   = json_encode([
+                'jsonrpc' => '2.0',
+                'id'      => 10,
+                'method'  => 'tools/call',
+                'params'  => ['name' => 'throw_runtime', 'arguments' => []],
+            ]);
+            $response = $server->handle(['authorization' => 'Bearer '.$jwt], (string) $body);
+
+            $arr = $response->toArray();
+            self::assertSame(-32603, $arr['error']['code']);
+            self::assertStringNotContainsString('hunter2', $arr['error']['message']);
+
+            $logged = (string) file_get_contents($tempLog);
+            self::assertStringContainsString('SASO-MCP-A002', $logged);
+            self::assertStringContainsString('throw_runtime', $logged);
+        } finally {
+            ini_set('error_log', $previousLog === false ? '' : $previousLog);
+            @unlink($tempLog);
+        }
+    }
+
+    public function testToolsCallStripsNewlinesFromLoggedExceptionMessage(): void
+    {
+        // A library exception whose message embeds CRLF must not produce a
+        // second log line that could be mistaken for an independent alert.
+        $jwt = $this->seedDevice();
+        $this->registry->registerCore(
+            new RegistryName('throw_with_newlines'),
+            $this->makeThrowingTool(static function (): never {
+                throw new \RuntimeException("inner\r\n[CRITICAL] forged");
+            }),
+        );
+
+        $previousLog = ini_get('error_log');
+        $tempLog     = tempnam(sys_get_temp_dir(), 'saso-mcp-');
+        self::assertIsString($tempLog);
+        ini_set('error_log', $tempLog);
+
+        try {
+            $server = $this->makeServer();
+            $body   = json_encode([
+                'jsonrpc' => '2.0',
+                'id'      => 11,
+                'method'  => 'tools/call',
+                'params'  => ['name' => 'throw_with_newlines', 'arguments' => []],
+            ]);
+            $server->handle(['authorization' => 'Bearer '.$jwt], (string) $body);
+
+            $logged = (string) file_get_contents($tempLog);
+            // The CRLF must be collapsed so the [CRITICAL] token stays on
+            // the same log line as the SASO-MCP-A002 prefix.
+            self::assertMatchesRegularExpression(
+                '/SASO-MCP-A002[^\n]*\[CRITICAL\]/',
+                $logged,
+            );
+        } finally {
+            ini_set('error_log', $previousLog === false ? '' : $previousLog);
+            @unlink($tempLog);
+        }
+    }
+
     private function makeScopedTool(string $scope): McpTool
     {
         return new class ($scope) implements McpTool {
@@ -263,6 +371,45 @@ final class McpServerTest extends TestCase
             public function requiredScope(): ?string
             {
                 return $this->scope;
+            }
+        };
+    }
+
+    private function makeThrowingTool(\Closure $thrower): McpTool
+    {
+        return new class ($thrower) implements McpTool {
+            public function __construct(private readonly \Closure $thrower)
+            {
+            }
+
+            public function name(): string
+            {
+                return 'throwing_tool';
+            }
+
+            public function description(): string
+            {
+                return 'Throws on invoke.';
+            }
+
+            public function inputSchema(): array
+            {
+                return ['type' => 'object'];
+            }
+
+            public function invoke(array $input, int $deviceId): array
+            {
+                ($this->thrower)();
+
+                // Unreachable — the closure always throws. Present so the
+                // signature satisfies the McpTool return type at the
+                // static-analysis layer.
+                return [];
+            }
+
+            public function requiredScope(): ?string
+            {
+                return null;
             }
         };
     }

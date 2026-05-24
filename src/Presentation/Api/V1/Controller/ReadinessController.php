@@ -54,6 +54,12 @@ final class ReadinessController
      * file (not pulled from `information_schema` dynamically) so the
      * probe is decoupled from the live schema's drift.
      *
+     * Column names mirror the actual Phinx migrations (cf.
+     * migrations/M4/* and migrations/M6/*). Drift here masks real schema
+     * problems behind a permanent "degraded" — every entry must match a
+     * runtime SQL site (PdoFeatureFlagRepository, PdoPairingCodeRepository,
+     * PdoDeviceTokenRepository, etc.).
+     *
      * @var list<array{table: string, columns: list<string>}>
      */
     private const REQUIRED_SCHEMA = [
@@ -61,9 +67,9 @@ final class ReadinessController
         ['table' => 'category', 'columns' => ['id', 'name_ja']],
         ['table' => 'storage_location', 'columns' => ['id', 'name']],
         ['table' => 'auth_provider', 'columns' => ['id', 'type', 'enabled']],
-        ['table' => 'feature_flag', 'columns' => ['flag_key', 'enabled']],
-        ['table' => 'pairing_code', 'columns' => ['code', 'expires_at', 'member_id']],
-        ['table' => 'device_token', 'columns' => ['id', 'jti', 'member_id', 'scopes']],
+        ['table' => 'feature_flag', 'columns' => ['key_name', 'enabled']],
+        ['table' => 'pairing_code', 'columns' => ['token_hash', 'expires_at', 'member_id']],
+        ['table' => 'device_token', 'columns' => ['id', 'token_hash', 'member_id', 'scopes']],
     ];
 
     /**
@@ -237,14 +243,50 @@ final class ReadinessController
     }
 
     /**
-     * Strip credentials and DSN fragments before they leave the server.
-     * Helpful in dev (faster diagnosis) but mandatory in prod (we cannot
-     * echo `user=…;password=…` strings to a public endpoint).
+     * Strip credentials, infrastructure topology and filesystem paths
+     * before they leave the server. The readiness endpoint is reachable
+     * by anonymous orchestrator probes, so PDOException text must never
+     * disclose:
+     *   - DSN key/value pairs (user, password, host, port, dbname,
+     *     unix_socket, charset, …)
+     *   - MySQL's `'user'@'host'` quoted credential format
+     *   - Bare IPv4/IPv6 addresses (covers connection refused / DNS messages)
+     *   - Absolute filesystem paths (PHP exceptions include __FILE__)
      */
     private static function redact(string $message): string
     {
-        $message = preg_replace('/(password|pwd|secret|key)=([^;\s]+)/i', '$1=***', $message) ?? $message;
-        $message = preg_replace('/(user|username|uid)=([^;\s]+)/i', '$1=***', $message) ?? $message;
+        // DSN-style key=value fragments. The first list is anything we
+        // treat as a credential or topology identifier; the catch-all
+        // afterwards trims known DSN keys to keep the response useful
+        // while still scrubbing the value.
+        $message = preg_replace(
+            '/(password|pwd|secret|key|user|username|uid|host|hostname|port|dbname|database|unix_socket|socket|charset)=([^;\s]+)/i',
+            '$1=***',
+            $message,
+        ) ?? $message;
+
+        // MariaDB / MySQL "Access denied for user 'foo'@'10.0.0.1'" form.
+        // Quotes may be backticks, single, or double.
+        $message = preg_replace(
+            '/([`\'"])[^`\'"]+\1\s*@\s*([`\'"])[^`\'"]+\2/',
+            "'***'@'***'",
+            $message,
+        ) ?? $message;
+
+        // Raw IPv4 and the common IPv6 loopback/link-local fragments.
+        $message = preg_replace(
+            '/\b(?:\d{1,3}\.){3}\d{1,3}(?::\d+)?\b/',
+            '***',
+            $message,
+        ) ?? $message;
+        $message = preg_replace(
+            '/\b(?:[0-9a-f]{1,4}:){2,7}[0-9a-f]{1,4}\b/i',
+            '***',
+            $message,
+        ) ?? $message;
+
+        // Absolute POSIX filesystem paths (stack-trace leftovers).
+        $message = preg_replace('#(?<![\w/])/[\w./\-]+#', '***', $message) ?? $message;
 
         if (strlen($message) > 240) {
             $message = substr($message, 0, 237).'...';

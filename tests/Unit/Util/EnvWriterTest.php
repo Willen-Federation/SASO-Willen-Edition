@@ -399,6 +399,8 @@ ENV;
 
         $mode = fileperms($envPath) & 0777;
         self::assertSame(0600, $mode, sprintf('Expected 0600, got 0%o', $mode));
+    }
+
     public function testLegacySetRejectsNullBytes(): void
     {
         // Null byte injection would silently truncate the .env line at parse

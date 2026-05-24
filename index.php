@@ -305,9 +305,29 @@ if (preg_match('#^/auth/(?:start/(\d+)|callback|saml/acs|saml/sls)/?$#', $reques
         $providerId = new \Saso\Domain\Auth\AuthProviderId($providerIdInt);
 
         if ($authAction === 'start') {
-            $returnTo = (string) ($_GET['return'] ?? '/');
-            if (preg_match('#^/[^/\\\\]#', $returnTo) !== 1 && $returnTo !== '/') {
-                $returnTo = '/';
+            $returnTo = (string) ($_GET['return'] ?? '');
+            if ($returnTo !== '' && preg_match('#^/[^/\\\\]#', $returnTo) !== 1 && $returnTo !== '/') {
+                $returnTo = '';
+            }
+            // No ?return= on this hop — typical when the user clicked an
+            // external-provider button rendered by `auth/template/auth.php`
+            // *during* a mobile-setup flow (which had already stashed the
+            // real target in `$_SESSION['auth.return_to']` on the previous
+            // hop). Without this fallback the chooser-bounce would silently
+            // overwrite the saved target with `/` and the post-callback
+            // redirect would land on the home page instead of completing
+            // the pairing handshake at /m/issue-pairing.
+            if ($returnTo === '') {
+                $sessionReturn = (string) ($_SESSION['auth.return_to'] ?? '');
+                if ($sessionReturn !== ''
+                    && str_starts_with($sessionReturn, '/')
+                    && !str_starts_with($sessionReturn, '//')
+                    && preg_match('#^[a-z][a-z0-9+.-]*:#i', $sessionReturn) !== 1
+                ) {
+                    $returnTo = $sessionReturn;
+                } else {
+                    $returnTo = '/';
+                }
             }
             $redirect = $orch->beginLogin($providerId, $returnTo);
             header('Location: '.$redirect->url, true, $redirect->status);
@@ -507,29 +527,47 @@ if ($requestPath === '/m/setup' || $requestPath === '/m/issue-pairing') {
                     $chosenId = $defaults[0]->id->value();
                 }
             }
+            // No explicit choice and no single default — prefer the LOCAL
+            // provider. Landing on `/auth/start/{LOCAL_ID}` lets the
+            // shared `auth/template/auth.php` view render the *web* login
+            // form with the username + password fields AND the external
+            // provider buttons side-by-side — same layout the browser
+            // user sees on a normal `/auth/start/` visit. The previous
+            // inline chooser had its own ad-hoc HTML, which diverged from
+            // the Web UI and skipped the local-account login entirely.
+            if ($chosenId === null) {
+                foreach ($records as $rec) {
+                    if ($rec->enabled && $rec->type === \Saso\Domain\Auth\AuthProviderType::Local) {
+                        $chosenId = $rec->id->value();
+                        break;
+                    }
+                }
+            }
+            // No local provider configured either — fall back to the first
+            // enabled provider so the user still gets a working sign-in
+            // path. The legacy form will show that provider's button.
+            if ($chosenId === null) {
+                foreach ($records as $rec) {
+                    if ($rec->enabled) {
+                        $chosenId = $rec->id->value();
+                        break;
+                    }
+                }
+            }
             if ($chosenId !== null) {
                 header('Location: /auth/start/' . $chosenId . '?return=' . urlencode('/m/issue-pairing'), true, 303);
                 exit;
             }
 
-            // No default — render chooser
-            header('Content-Type: text/html; charset=utf-8');
-            echo "<!doctype html><html lang=\"ja\"><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width,initial-scale=1\"><title>SASO モバイル接続</title>"
-                . '<style>body{font-family:system-ui,-apple-system,sans-serif;margin:0;padding:24px;background:#f5f5f7}'
-                . 'h1{font-size:18px;margin:0 0 16px}.provider{display:block;background:#fff;border:1px solid #d2d2d7;border-radius:12px;padding:16px;margin-bottom:8px;text-decoration:none;color:#000}'
-                . '.provider:hover{background:#fafafa}.type{font-size:11px;color:#666;text-transform:uppercase}</style></head><body>';
-            echo '<h1>認証方法を選択してください</h1>';
-            foreach ($records as $rec) {
-                if (!$rec->enabled) continue;
-                $href = '/auth/start/' . $rec->id->value() . '?return=' . urlencode('/m/issue-pairing');
-                echo '<a class="provider" href="' . htmlspecialchars($href, ENT_QUOTES, 'UTF-8') . '">'
-                    . '<div class="type">' . htmlspecialchars($rec->type->value, ENT_QUOTES, 'UTF-8') . '</div>'
-                    . '<div>' . htmlspecialchars($rec->name, ENT_QUOTES, 'UTF-8') . '</div></a>';
-            }
-            if ($records === []) {
-                echo '<p>このサーバーには認証プロバイダーが設定されていません。管理者にお問い合わせください。</p>';
-            }
-            echo '</body></html>';
+            // Empty `auth_provider` table — nothing the user can do from
+            // this server. Return JSON so the Electron / Flutter callers
+            // surface a structured error instead of trying to parse HTML.
+            http_response_code(503);
+            header('Content-Type: application/json; charset=utf-8');
+            echo json_encode([
+                'error'   => 'no_providers_configured',
+                'message' => 'No authentication providers are enabled on this server.',
+            ], JSON_UNESCAPED_UNICODE);
             exit;
         }
 

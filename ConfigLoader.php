@@ -30,11 +30,40 @@ final class ConfigLoader
         if(empty(self::$configFile)) {
             self::$configFile = $env===null?$relative.'config.json':$relative.'config_'.$env.'.json';
         }
-        $config = json_decode(file_get_contents(self::$configFile), true);
+        // Guard against missing / unreadable / malformed config.json: silently
+        // turning $config into null (the prior behaviour) caused fatal
+        // "cannot use null as array" errors deep inside overlayEnv/overlayDb
+        // that masked the real cause. We log + fall back to an empty config so
+        // the loader can still apply .env / DB overlays, which is enough for
+        // the installer and the post-bootstrap repair tooling to recover.
+        $raw = @file_get_contents(self::$configFile);
+        if ($raw === false) {
+            error_log(sprintf(
+                'ConfigLoader: config file "%s" is missing or unreadable; using empty defaults.',
+                self::$configFile,
+            ));
+            $config = [];
+        } else {
+            $decoded = json_decode($raw, true);
+            if (!is_array($decoded)) {
+                error_log(sprintf(
+                    'ConfigLoader: config file "%s" did not decode to a JSON object (%s); using empty defaults.',
+                    self::$configFile,
+                    json_last_error_msg(),
+                ));
+                $config = [];
+            } else {
+                $config = $decoded;
+            }
+        }
         $env = EnvLoader::loadFile($relative.'.env');
-        // Populate PHP's environment variables from .env so getenv() calls work
+        // Populate PHP's environment variables from .env so getenv() calls work.
+        // Use the strict getenv() === false check: the loose `if (!getenv($key))`
+        // we used before would overwrite a legitimately-zero env var ("0",
+        // empty string) with the .env value, which broke deployments where the
+        // shell intentionally set FOO="" to disable a feature.
         foreach ($env as $key => $value) {
-            if (!getenv($key)) {
+            if (getenv($key) === false) {
                 putenv("$key=$value");
             }
         }
@@ -45,7 +74,11 @@ final class ConfigLoader
 
     public static function regularization(array $config): array
     {
-        $config['documentRoot'] = '/'.trim($config['documentRoot'], '/').'/';
+        // Defaults guard the case where config.json was missing or partial:
+        // callers (router, DBConnection, Bootstrap) rely on these keys being
+        // strings/booleans, not missing.
+        $documentRoot = is_string($config['documentRoot'] ?? null) ? $config['documentRoot'] : '';
+        $config['documentRoot'] = '/'.trim($documentRoot, '/').'/';
 
         // Fallback only for the hardcoded production path: if config.json was never edited
         // from the default, silently replace it with the real project root so fresh clones
@@ -57,10 +90,12 @@ final class ConfigLoader
             $config['documentRoot'] = __DIR__.'/';
         }
 
-        $programDirTrimmed = trim($config['programDir'], '/');
+        $programDir = is_string($config['programDir'] ?? null) ? $config['programDir'] : '';
+        $programDirTrimmed = trim($programDir, '/');
         $config['programDir'] = $programDirTrimmed === '' ? '' : $programDirTrimmed.'/';
-        $config['https'] = $config['https']===true?true:false;
-        $config['logPath'] = '/'.trim($config['logPath'], '/').'/';
+        $config['https'] = ($config['https'] ?? false)===true?true:false;
+        $logPath = is_string($config['logPath'] ?? null) ? $config['logPath'] : '';
+        $config['logPath'] = '/'.trim($logPath, '/').'/';
         return $config;
     }
 
@@ -158,8 +193,17 @@ final class ConfigLoader
                 $config = self::setDotted($config, $key, self::castValue($value, $type));
             }
         } catch (\PDOException $e) {
-            // Silently ignore if the database is not available (e.g.
-            // during initial setup before migrations run).
+            // Database is not available — e.g. during initial setup before
+            // migrations run, or when credentials in .env are stale. We can
+            // still serve config.json + .env overlays, so this is non-fatal.
+            // Log the SQLSTATE only: PDO connection-error messages can include
+            // the DSN host/port (and so should not be written to the access
+            // log), but the SQLSTATE alone is enough for operators to look up
+            // the failure mode.
+            error_log(sprintf(
+                'ConfigLoader: DB overlay skipped (SQLSTATE %s). config.json + .env values will be used as-is.',
+                (string) $e->getCode(),
+            ));
         }
         return $config;
     }

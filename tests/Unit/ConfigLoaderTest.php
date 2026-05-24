@@ -137,6 +137,69 @@ final class ConfigLoaderTest extends TestCase
         }
     }
 
+    public function testConfigLoaderReturnsDefaultsWhenConfigFileMissing(): void
+    {
+        $tempDir = sys_get_temp_dir().'/saso_config_test_'.uniqid();
+        mkdir($tempDir);
+        $this->resetConfigLoaderState();
+
+        try {
+            // No config.json — previously this caused a fatal
+            // "cannot use null as array" inside overlayEnv.
+            $config = ConfigLoader::load($tempDir.'/');
+
+            self::assertIsArray($config);
+            self::assertIsString($config['documentRoot']);
+            self::assertIsString($config['programDir']);
+            self::assertIsBool($config['https']);
+            self::assertIsString($config['logPath']);
+        } finally {
+            $this->resetConfigLoaderState();
+            @rmdir($tempDir);
+        }
+    }
+
+    public function testConfigLoaderReturnsDefaultsWhenConfigFileInvalidJson(): void
+    {
+        $tempDir = sys_get_temp_dir().'/saso_config_test_'.uniqid();
+        mkdir($tempDir);
+        $this->resetConfigLoaderState();
+
+        try {
+            file_put_contents($tempDir.'/config.json', '{not valid json');
+
+            $config = ConfigLoader::load($tempDir.'/');
+
+            self::assertIsArray($config);
+            self::assertIsString($config['documentRoot']);
+        } finally {
+            $this->resetConfigLoaderState();
+            @unlink($tempDir.'/config.json');
+            @rmdir($tempDir);
+        }
+    }
+
+    public function testConfigLoaderHandlesNonObjectJson(): void
+    {
+        $tempDir = sys_get_temp_dir().'/saso_config_test_'.uniqid();
+        mkdir($tempDir);
+        $this->resetConfigLoaderState();
+
+        try {
+            // A bare JSON literal (not an object) — json_decode succeeds but
+            // returns a scalar, not an array. Must not crash.
+            file_put_contents($tempDir.'/config.json', '"a string"');
+
+            $config = ConfigLoader::load($tempDir.'/');
+
+            self::assertIsArray($config);
+        } finally {
+            $this->resetConfigLoaderState();
+            @unlink($tempDir.'/config.json');
+            @rmdir($tempDir);
+        }
+    }
+
     private function resetConfigLoaderState(): void
     {
         $property = new \ReflectionProperty(ConfigLoader::class, 'configFile');

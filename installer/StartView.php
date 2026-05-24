@@ -37,6 +37,19 @@ final class StartView implements View
     {
         $this->title = 'SASO セットアップ';
 
+        // Independent lockout gate. The framework router only registers the
+        // installer routes when installer.json exists, but if that file is
+        // restored (operator mistake, attacker drop) the views themselves
+        // must still refuse to run on an already-bootstrapped system. Without
+        // this gate, an unauthenticated visitor could reset secrets / repoint
+        // the DB simply by browsing to /installer/*.
+        if (WizardState::installationComplete()) {
+            http_response_code(410);
+            header('Content-Type: text/plain; charset=utf-8');
+            echo 'Installer is locked: this server is already installed.';
+            return;
+        }
+
         // Preflight gates the entire wizard. If the filesystem is not in a
         // state where we can write `.env`, the wizard would otherwise advance
         // happily and crash on the security step. Render a dedicated failure

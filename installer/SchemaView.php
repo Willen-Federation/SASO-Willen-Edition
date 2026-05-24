@@ -27,6 +27,13 @@ final class SchemaView implements View
 
     public function display(): void
     {
+        if (WizardState::installationComplete()) {
+            http_response_code(410);
+            header('Content-Type: text/plain; charset=utf-8');
+            echo 'Installer is locked: this server is already installed.';
+            return;
+        }
+
         $env = WizardState::loadEnv();
         $pdo = WizardState::tryConnect($env);
         if ($pdo === null) {

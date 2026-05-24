@@ -97,6 +97,37 @@ final class WizardState
     }
 
     /**
+     * Returns true when every prerequisite is satisfied and the operator
+     * should NOT be able to reach mutation steps any more.
+     *
+     * Used as an independent lockout gate inside each wizard view: routes
+     * stay reachable until the wizard finishes deleting `installer.json`,
+     * but each step refuses to run once the system already has a valid
+     * APP_KEY and at least one Member row. Without this guard, anyone who
+     * can hit `/installer/*` on a running server could reset the admin
+     * password, rotate APP_KEY (denying decryption of existing secrets),
+     * or repoint the DB connection.
+     *
+     * Defaults to "not complete" on connection failure so a transient DB
+     * outage cannot accidentally unlock the wizard.
+     */
+    public static function installationComplete(): bool
+    {
+        $env = self::loadEnv();
+        if (!self::envHasSecurity($env)) {
+            return false;
+        }
+        $pdo = self::tryConnect($env);
+        if ($pdo === null) {
+            return false;
+        }
+        if (!self::schemaInstalled($pdo)) {
+            return false;
+        }
+        return self::adminExists($pdo);
+    }
+
+    /**
      * Build a connection from the current `.env`. Returns null if the
      * connection fails (caller decides how to render the error).
      */
@@ -139,20 +170,21 @@ final class WizardState
     {
         $envPath = self::envPath();
         if (is_file($envPath)) {
+            // Tighten perms on any pre-existing file (e.g. one left at 0644
+            // by a manual operator copy). 0600 matches EnvWriter::setOrUpdate
+            // and keeps DB / APP_KEY secrets unreadable by other local users.
+            @chmod($envPath, 0600);
             return true;
         }
         $example = self::envExamplePath();
-        if (!is_file($example)) {
-            return @file_put_contents($envPath, "# SASO\n") !== false;
+        $contents = is_file($example) ? @file_get_contents($example) : null;
+        if ($contents === false || $contents === null) {
+            $contents = "# SASO\n";
         }
-        $contents = @file_get_contents($example);
-        if ($contents === false) {
+        if (@file_put_contents($envPath, $contents, LOCK_EX) === false) {
             return false;
         }
-        if (@file_put_contents($envPath, $contents) === false) {
-            return false;
-        }
-        @chmod($envPath, 0640);
+        @chmod($envPath, 0600);
         return true;
     }
 

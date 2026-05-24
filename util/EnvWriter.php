@@ -53,7 +53,11 @@ final class EnvWriter
             if ($created === false) {
                 return false;
             }
-            @chmod($path, 0640);
+            // 0600 keeps DB credentials / APP_KEY unreadable by other local
+            // users. The instance API (setOrUpdate) already uses 0600 — the
+            // static path matches so the installer never leaves a 0640 file
+            // around the wizard's first write.
+            @chmod($path, 0600);
         }
 
         if (!is_writable($path)) {

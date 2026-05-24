@@ -360,4 +360,24 @@ ENV;
         $envPath = $this->tmpDir.'/.env';
         self::assertFalse(EnvWriter::set($envPath, '1BAD', 'x'));
     }
+
+    public function testLegacySetCreatesFileWith0600Mode(): void
+    {
+        // Regression for audit/installer-fixes: the legacy static API used to
+        // create .env at 0640. The installer first writes DB credentials via
+        // this path, so a wider mode meant DB_PASSWORD was readable by every
+        // local user from the first wizard step onward. 0600 matches the
+        // instance API and aligns with WizardState::ensureEnvFile().
+        if (DIRECTORY_SEPARATOR === '\\') {
+            self::markTestSkipped('POSIX permission test not meaningful on Windows.');
+        }
+        if (function_exists('posix_geteuid') && posix_geteuid() === 0) {
+            self::markTestSkipped('Running as root — mode comparison unreliable under umask 0.');
+        }
+        $envPath = $this->tmpDir.'/.env';
+        self::assertTrue(EnvWriter::set($envPath, 'FOO', 'bar'));
+
+        $mode = fileperms($envPath) & 0777;
+        self::assertSame(0600, $mode, sprintf('Expected 0600, got 0%o', $mode));
+    }
 }

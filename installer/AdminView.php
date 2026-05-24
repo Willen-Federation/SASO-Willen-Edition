@@ -29,8 +29,20 @@ final class AdminView implements View
 
     public function display(): void
     {
+        // Lockout gate. Once a Member row exists this view must NEVER run
+        // again: re-executing handlePost on a "live" server would let an
+        // unauthenticated visitor add an admin account (or, with a duplicate
+        // login id, probe which IDs already exist). The router stops dispatch
+        // here as long as installer.json is gone, but the view independently
+        // refuses too in case the file is restored.
         $env = WizardState::loadEnv();
         $pdo = WizardState::tryConnect($env);
+        if ($pdo !== null && WizardState::adminExists($pdo) && WizardState::envHasSecurity($env)) {
+            http_response_code(410);
+            header('Content-Type: text/plain; charset=utf-8');
+            echo 'Installer is locked: this server is already installed.';
+            return;
+        }
         if ($pdo === null) {
             $base = self::baseUrl();
             header('Location: ' . $base . 'installer/database/', true, 303);
@@ -95,7 +107,14 @@ final class AdminView implements View
                 'role' => 'admin',
             ]);
         } catch (\Throwable $e) {
-            $this->errorMessage = 'アカウント作成中にエラーが発生しました: ' . $e->getMessage();
+            // PDO exceptions can contain SQL fragments and column names that
+            // hint at the schema layout. The installer runs unauthenticated,
+            // so render a generic message and stash the detail server-side
+            // for the operator's logs.
+            if (function_exists('error_log')) {
+                error_log('[saso-installer] admin create failed: ' . $e->getMessage());
+            }
+            $this->errorMessage = 'アカウント作成中にエラーが発生しました。サーバーログを確認してください。';
         }
     }
 

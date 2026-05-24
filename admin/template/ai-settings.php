@@ -208,7 +208,7 @@
           rows="6"
           class="w-full rounded border border-gray-200 bg-transparent py-3 px-4 font-medium outline-none transition focus:border-brand-500 active:border-brand-500 dark:border-gray-800 dark:bg-form-input dark:focus:border-brand-500 text-black dark:text-white resize-y"
           placeholder="<?php echo $lang === 'ja' ? '日本語のプロンプトを入力してください...' : 'Enter Japanese prompt...'; ?>"
-        ><?php echo htmlspecialchars($promptJa); ?></textarea>
+        ><?php echo htmlspecialchars((string) $promptJa, ENT_QUOTES, 'UTF-8'); ?></textarea>
       </div>
       <div>
         <label class="mb-2.5 block font-medium text-black dark:text-white" for="ai_prompt_en">
@@ -220,7 +220,7 @@
           rows="6"
           class="w-full rounded border border-gray-200 bg-transparent py-3 px-4 font-medium outline-none transition focus:border-brand-500 active:border-brand-500 dark:border-gray-800 dark:bg-form-input dark:focus:border-brand-500 text-black dark:text-white resize-y"
           placeholder="<?php echo $lang === 'ja' ? '英語のプロンプトを入力してください...' : 'Enter English prompt...'; ?>"
-        ><?php echo htmlspecialchars($promptEn); ?></textarea>
+        ><?php echo htmlspecialchars((string) $promptEn, ENT_QUOTES, 'UTF-8'); ?></textarea>
       </div>
     </div>
   </div>

@@ -39,6 +39,7 @@
       </p>
 
       <form method="post">
+        <input type="hidden" name="csrftoken" value="<?php echo htmlspecialchars(\saso\util\CSRFtoken::current(), ENT_QUOTES, 'UTF-8'); ?>">
         <div class="overflow-x-auto rounded-2xl border" style="border-color:var(--saso-card-bdr)">
           <table class="ta-table" aria-label="Shelf dimension configuration">
             <thead>

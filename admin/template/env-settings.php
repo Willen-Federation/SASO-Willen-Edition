@@ -11,11 +11,6 @@
   $writable   = $v->envWritable ?? false;
 
   $h = fn (string $s): string => htmlspecialchars($s, ENT_QUOTES, 'UTF-8');
-  $mask = function (string $val): string {
-    if ($val === '') return '';
-    $tail = substr($val, -4);
-    return str_repeat('•', max(4, strlen($val) - 4)) . $tail;
-  };
 ?>
 <?php if ($loadError !== null): ?>
 <div class="mb-6 rounded-sm border border-error-500 bg-error-500 bg-opacity-10 px-4 py-3 text-error-500">
@@ -101,7 +96,7 @@
       <div>
         <label class="mb-1.5 block text-sm font-medium" for="app_key">APP_KEY</label>
         <input id="app_key" name="app_key" type="password"
-               placeholder="<?php echo ($env['APP_KEY'] ?? '') !== '' ? $h($mask((string)($env['APP_KEY'] ?? ''))) : '32 bytes base64...'; ?>"
+               placeholder="<?php echo ($env['APP_KEY'] ?? '') !== '' ? '••••••••' : '32 bytes base64...'; ?>"
                class="form-input w-full font-mono text-xs">
         <p class="mt-1 text-xs text-gray-500"><?php echo $lang === 'ja' ? '空欄の場合は現在の値を保持します。' : 'Leave blank to keep the current value.'; ?></p>
       </div>

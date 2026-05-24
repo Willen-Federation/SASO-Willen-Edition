@@ -31,6 +31,15 @@ use Saso\Presentation\Api\V1\Response\JsonResponse;
  */
 final class CreateItemController
 {
+    // Application-side bounds keep oversize input from reaching MariaDB,
+    // which silently truncates when sql_mode does not include STRICT_*
+    // (the default on many shared-hosting installs). Values mirror the
+    // column limits set by the `item` migrations.
+    private const MAX_NAME_LENGTH       = 255;
+    private const MAX_JAN_LENGTH        = 32;
+    private const MAX_ISBN_LENGTH       = 32;
+    private const MAX_LABEL_CODE_LENGTH = 64;
+
     public function __construct(
         private readonly PDO $pdo,
         private readonly JwtGuard $guard,
@@ -55,26 +64,29 @@ final class CreateItemController
         $categoryId = (int) ($body['categoryId'] ?? 0);
 
         if ($name === '') {
-            throw new class ('name is required.') extends DomainException {
-                public function __construct(string $msg)
-                {
-                    parent::__construct(ErrorCode::MobileInvalidRequest, $msg);
-                }
-            };
+            throw self::invalid('name is required.');
+        }
+        if (mb_strlen($name) > self::MAX_NAME_LENGTH) {
+            throw self::invalid(sprintf('name must be at most %d characters.', self::MAX_NAME_LENGTH));
         }
         if ($categoryId < 1) {
-            throw new class ('categoryId must be a positive integer.') extends DomainException {
-                public function __construct(string $msg)
-                {
-                    parent::__construct(ErrorCode::MobileInvalidRequest, $msg);
-                }
-            };
+            throw self::invalid('categoryId must be a positive integer.');
         }
 
         $janCode   = isset($body['janCode']) && $body['janCode'] !== '' ? trim((string) $body['janCode']) : null;
         $isbnCode  = isset($body['isbnCode']) && $body['isbnCode'] !== '' ? trim((string) $body['isbnCode']) : null;
         $labelCode = isset($body['labelCode']) && $body['labelCode'] !== '' ? trim((string) $body['labelCode']) : null;
         $note      = isset($body['note']) && $body['note'] !== '' ? mb_substr(trim((string) $body['note']), 0, 255) : null;
+
+        if ($janCode !== null && mb_strlen($janCode) > self::MAX_JAN_LENGTH) {
+            throw self::invalid(sprintf('janCode must be at most %d characters.', self::MAX_JAN_LENGTH));
+        }
+        if ($isbnCode !== null && mb_strlen($isbnCode) > self::MAX_ISBN_LENGTH) {
+            throw self::invalid(sprintf('isbnCode must be at most %d characters.', self::MAX_ISBN_LENGTH));
+        }
+        if ($labelCode !== null && mb_strlen($labelCode) > self::MAX_LABEL_CODE_LENGTH) {
+            throw self::invalid(sprintf('labelCode must be at most %d characters.', self::MAX_LABEL_CODE_LENGTH));
+        }
         $price   = max(0, (int) ($body['price'] ?? 0));
         $stock   = max(0, (int) ($body['stock'] ?? 0));
         $now     = (new DateTimeImmutable('now', new DateTimeZone('UTC')))->format('Y-m-d H:i:s');
@@ -103,21 +115,22 @@ final class CreateItemController
         $catName = $catStmt->fetchColumn();
 
         $responseBody = [
-            'id'           => (string) $newId,
-            'name'         => $name,
-            'description'  => null,
-            'categoryId'   => (string) $categoryId,
-            'categoryName' => $catName !== false ? (string) $catName : null,
-            'janCode'      => $janCode,
-            'isbnCode'     => $isbnCode,
-            'labelCode'    => $labelCode,
-            'note'         => $note,
-            'price'        => $price,
-            'stock'        => $stock,
-            'status'       => 'active',
-            'features'     => [],
-            'registeredAt' => $now,
-            'updatedAt'    => $now,
+            'id'                => (string) $newId,
+            'name'              => $name,
+            'description'       => null,
+            'categoryId'        => (string) $categoryId,
+            'categoryName'      => $catName !== false ? (string) $catName : null,
+            'janCode'           => $janCode,
+            'isbnCode'          => $isbnCode,
+            'labelCode'         => $labelCode,
+            'note'              => $note,
+            'price'             => $price,
+            'stock'             => $stock,
+            'status'            => 'active',
+            'storageLocationId' => null,
+            'features'          => [],
+            'registeredAt'      => $now,
+            'updatedAt'         => $now,
         ];
 
         if ($idempotencyKey !== null) {
@@ -136,5 +149,15 @@ final class CreateItemController
         $decoded = json_decode($request->body, associative: true);
 
         return is_array($decoded) ? $decoded : [];
+    }
+
+    private static function invalid(string $message): DomainException
+    {
+        return new class ($message) extends DomainException {
+            public function __construct(string $msg)
+            {
+                parent::__construct(ErrorCode::MobileInvalidRequest, $msg);
+            }
+        };
     }
 }

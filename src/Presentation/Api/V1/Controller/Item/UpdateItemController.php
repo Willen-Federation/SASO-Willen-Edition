@@ -43,6 +43,15 @@ final class UpdateItemController
         'shipped',
     ];
 
+    // Application-side bounds keep oversize input from reaching MariaDB,
+    // which silently truncates when sql_mode does not include STRICT_*
+    // (the default on many shared-hosting installs). Values mirror the
+    // column limits set by the `item` migrations.
+    private const MAX_NAME_LENGTH       = 255;
+    private const MAX_JAN_LENGTH        = 32;
+    private const MAX_ISBN_LENGTH       = 32;
+    private const MAX_LABEL_CODE_LENGTH = 64;
+
     public function __construct(
         private readonly PDO $pdo,
         private readonly JwtGuard $guard,
@@ -56,12 +65,7 @@ final class UpdateItemController
 
         $id = (int) ($request->pathParams['id'] ?? 0);
         if ($id < 1) {
-            throw new class ('Invalid item ID.') extends DomainException {
-                public function __construct(string $msg)
-                {
-                    parent::__construct(ErrorCode::MobileInvalidRequest, $msg);
-                }
-            };
+            throw self::invalid('Invalid item ID.');
         }
 
         $idempotencyKey = $request->header('idempotency-key');
@@ -79,12 +83,10 @@ final class UpdateItemController
         if (array_key_exists('name', $body)) {
             $name = trim((string) $body['name']);
             if ($name === '') {
-                throw new class ('name must not be empty.') extends DomainException {
-                    public function __construct(string $msg)
-                    {
-                        parent::__construct(ErrorCode::MobileInvalidRequest, $msg);
-                    }
-                };
+                throw self::invalid('name must not be empty.');
+            }
+            if (mb_strlen($name) > self::MAX_NAME_LENGTH) {
+                throw self::invalid(sprintf('name must be at most %d characters.', self::MAX_NAME_LENGTH));
             }
             $sets[]        = 'name = :name';
             $binds['name'] = $name;
@@ -93,32 +95,36 @@ final class UpdateItemController
         if (array_key_exists('categoryId', $body)) {
             $cat = (int) $body['categoryId'];
             if ($cat < 1) {
-                throw new class ('categoryId must be a positive integer.') extends DomainException {
-                    public function __construct(string $msg)
-                    {
-                        parent::__construct(ErrorCode::MobileInvalidRequest, $msg);
-                    }
-                };
+                throw self::invalid('categoryId must be a positive integer.');
             }
             $sets[]               = 'category_id = :category_id';
             $binds['category_id'] = $cat;
         }
 
         if (array_key_exists('janCode', $body)) {
-            $jan              = $body['janCode'] !== null ? trim((string) $body['janCode']) : null;
-            $sets[]           = 'jan_code = :jan_code';
+            $jan = $body['janCode'] !== null ? trim((string) $body['janCode']) : null;
+            if ($jan !== null && mb_strlen($jan) > self::MAX_JAN_LENGTH) {
+                throw self::invalid(sprintf('janCode must be at most %d characters.', self::MAX_JAN_LENGTH));
+            }
+            $sets[]            = 'jan_code = :jan_code';
             $binds['jan_code'] = $jan === '' ? null : $jan;
         }
 
         if (array_key_exists('isbnCode', $body)) {
-            $isbn             = $body['isbnCode'] !== null ? trim((string) $body['isbnCode']) : null;
-            $sets[]           = 'isbn = :isbn';
+            $isbn = $body['isbnCode'] !== null ? trim((string) $body['isbnCode']) : null;
+            if ($isbn !== null && mb_strlen($isbn) > self::MAX_ISBN_LENGTH) {
+                throw self::invalid(sprintf('isbnCode must be at most %d characters.', self::MAX_ISBN_LENGTH));
+            }
+            $sets[]        = 'isbn = :isbn';
             $binds['isbn'] = $isbn === '' ? null : $isbn;
         }
 
         if (array_key_exists('labelCode', $body)) {
-            $label                = $body['labelCode'] !== null ? trim((string) $body['labelCode']) : null;
-            $sets[]               = 'label_code = :label_code';
+            $label = $body['labelCode'] !== null ? trim((string) $body['labelCode']) : null;
+            if ($label !== null && mb_strlen($label) > self::MAX_LABEL_CODE_LENGTH) {
+                throw self::invalid(sprintf('labelCode must be at most %d characters.', self::MAX_LABEL_CODE_LENGTH));
+            }
+            $sets[]              = 'label_code = :label_code';
             $binds['label_code'] = $label === '' ? null : $label;
         }
 
@@ -151,12 +157,7 @@ final class UpdateItemController
         }
 
         if ($sets === []) {
-            throw new class ('At least one field must be provided.') extends DomainException {
-                public function __construct(string $msg)
-                {
-                    parent::__construct(ErrorCode::MobileInvalidRequest, $msg);
-                }
-            };
+            throw self::invalid('At least one field must be provided.');
         }
 
         $now                 = (new DateTimeImmutable('now', new DateTimeZone('UTC')))->format('Y-m-d H:i:s');
@@ -168,12 +169,7 @@ final class UpdateItemController
         $stmt->execute($binds);
 
         if ($stmt->rowCount() === 0) {
-            throw new class ('Item not found.') extends DomainException {
-                public function __construct(string $msg)
-                {
-                    parent::__construct(ErrorCode::ItemNotFound, $msg);
-                }
-            };
+            throw self::notFound();
         }
 
         $fetchStmt = $this->pdo->prepare(
@@ -228,5 +224,25 @@ final class UpdateItemController
         $decoded = json_decode($request->body, associative: true);
 
         return is_array($decoded) ? $decoded : [];
+    }
+
+    private static function invalid(string $message): DomainException
+    {
+        return new class ($message) extends DomainException {
+            public function __construct(string $msg)
+            {
+                parent::__construct(ErrorCode::MobileInvalidRequest, $msg);
+            }
+        };
+    }
+
+    private static function notFound(): DomainException
+    {
+        return new class ('Item not found.') extends DomainException {
+            public function __construct(string $msg)
+            {
+                parent::__construct(ErrorCode::ItemNotFound, $msg);
+            }
+        };
     }
 }

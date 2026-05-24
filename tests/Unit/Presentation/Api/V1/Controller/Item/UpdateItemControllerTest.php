@@ -67,7 +67,11 @@ final class UpdateItemControllerTest extends TestCase
         );
 
         $jwt              = new JwtService(self::SECRET);
-        $now              = new DateTimeImmutable('2026-05-18 12:00:00', new DateTimeZone('UTC'));
+        // Issue the token at the current wall-clock so it does not expire
+        // between fixture setup and assertion in slow CI runs. JwtService::verify()
+        // reads `now` from the real clock, so a hard-coded past date would
+        // leave the token expired the moment the test ran.
+        $now              = new DateTimeImmutable('now', new DateTimeZone('UTC'));
         $this->token      = $jwt->issue(1, $now, 'tester', ['items:write'])['token'];
         $this->controller = new UpdateItemController(
             $this->pdo,

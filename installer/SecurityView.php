@@ -38,6 +38,13 @@ final class SecurityView implements View
 
     public function display(): void
     {
+        if (WizardState::installationComplete()) {
+            http_response_code(410);
+            header('Content-Type: text/plain; charset=utf-8');
+            echo 'Installer is locked: this server is already installed.';
+            return;
+        }
+
         // Preflight gates EVERY mutation step. If the operator landed here
         // before Start ran the gate (deep link, browser back/forward), we
         // still refuse to render the form.
@@ -52,14 +59,15 @@ final class SecurityView implements View
         if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
             $this->handlePost();
         } else {
-            // Pre-fill from the existing .env when present, otherwise leave
-            // blank so the placeholder text invites the operator to generate.
-            // We no longer call generate*() at render time because doing so
-            // shows a "rotation" of secrets every page refresh, which is
-            // confusing on a step that is supposed to be idempotent.
-            $this->appKey        = (string)($env['APP_KEY']        ?? '');
-            $this->jwtSecret     = (string)($env['JWT_SECRET']     ?? '');
-            $this->webhookSecret = (string)($env['WEBHOOK_SECRET'] ?? '');
+            // Do NOT pre-fill the existing secret values back into the form.
+            // Echoing APP_KEY / JWT_SECRET / WEBHOOK_SECRET into HTML on every
+            // GET turns the page into a credential viewer for anyone who can
+            // reach /installer/security/ before the installer is locked.
+            // The placeholder text already invites "leave blank to keep the
+            // existing value" — the SecurityStep treats blank as "preserve".
+            $this->appKey        = '';
+            $this->jwtSecret     = '';
+            $this->webhookSecret = '';
             $this->appHttps      = filter_var($env['APP_HTTPS'] ?? false, FILTER_VALIDATE_BOOLEAN);
         }
         require_once 'installer/template/security.php';
@@ -96,12 +104,12 @@ final class SecurityView implements View
         // the secret validators.
         EnvWriter::set(WizardState::envPath(), 'APP_HTTPS', $this->appHttps ? 'true' : 'false');
 
-        // Reflect the values we may have generated back into the view so
-        // re-renders (e.g. browser back) show what was actually written.
-        $env = WizardState::loadEnv();
-        $this->appKey        = (string)($env['APP_KEY']        ?? $this->appKey);
-        $this->jwtSecret     = (string)($env['JWT_SECRET']     ?? $this->jwtSecret);
-        $this->webhookSecret = (string)($env['WEBHOOK_SECRET'] ?? $this->webhookSecret);
+        // Intentionally do NOT mirror the freshly-written secrets back into
+        // the view. After a successful POST we 303-redirect away from this
+        // step; on the unlikely re-render (e.g. browser back arrow) leaving
+        // the fields blank avoids leaking the now-canonical APP_KEY /
+        // JWT_SECRET / WEBHOOK_SECRET into HTML where view-source can read
+        // them.
 
         $base = self::baseUrl();
         header('Location: ' . $base . 'installer/services/', true, 303);

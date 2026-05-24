@@ -8,6 +8,7 @@ use saso\framework\Setter;
 use saso\framework\View;
 use Saso\Domain\Setting\SettingKey;
 use Saso\Domain\Setting\SettingValue;
+use Saso\Infrastructure\Auth\Crypto\AppKeyResolver;
 use Saso\Infrastructure\Auth\Crypto\SecretEncryptor;
 use Saso\Infrastructure\Setting\PdoSystemSettingService;
 
@@ -40,6 +41,13 @@ final class ServicesView implements View
 
     public function display(): void
     {
+        if (WizardState::installationComplete()) {
+            http_response_code(410);
+            header('Content-Type: text/plain; charset=utf-8');
+            echo 'Installer is locked: this server is already installed.';
+            return;
+        }
+
         $env = WizardState::loadEnv();
         $pdo = WizardState::tryConnect($env);
         if ($pdo === null) {
@@ -48,7 +56,23 @@ final class ServicesView implements View
             exit;
         }
 
-        $encryptor = self::resolveEncryptor($env);
+        // The services step encrypts auth0/firebase secrets via SecretEncryptor.
+        // If APP_KEY is missing or malformed, the previous code silently fell
+        // back to an all-zero AES key — the exact configuration AppKeyResolver
+        // refuses to boot with (SASO-INFRA-9000). Send the operator back to
+        // the security step instead so they finish generating a real key
+        // before any secret lands in system_setting under a zero-key cipher.
+        //
+        // Note: we pass the explicit value parsed from .env rather than
+        // relying on getenv(), because the just-written wizard value has not
+        // been re-injected into the process env this request.
+        $rawKey = AppKeyResolver::tryResolve((string) ($env['APP_KEY'] ?? ''));
+        if ($rawKey === null) {
+            $base = self::baseUrl();
+            header('Location: ' . $base . 'installer/security/?error=app_key', true, 303);
+            exit;
+        }
+        $encryptor = new SecretEncryptor($rawKey);
         $settingService = new PdoSystemSettingService($pdo, $encryptor);
 
         if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
@@ -113,7 +137,10 @@ final class ServicesView implements View
             $this->firebaseSenderId   = (string)($_POST['firebase_messaging_sender_id'] ?? '');
             $this->firebaseAppId      = (string)($_POST['firebase_app_id']              ?? '');
         } catch (\Throwable $e) {
-            $this->errorMessage = '保存中にエラーが発生しました: ' . $e->getMessage();
+            if (function_exists('error_log')) {
+                error_log('[saso-installer] services step failed: ' . $e->getMessage());
+            }
+            $this->errorMessage = '保存中にエラーが発生しました。サーバーログを確認してください。';
         }
     }
 
@@ -124,26 +151,6 @@ final class ServicesView implements View
             return;
         }
         $svc->set(new SettingKey($key), SettingValue::string($value), $by, $reason);
-    }
-
-    /** @param array<string, string> $env */
-    private static function resolveEncryptor(array $env): SecretEncryptor
-    {
-        $appKey = $env['APP_KEY'] ?? '';
-        if ($appKey !== '') {
-            $raw = base64_decode($appKey, true);
-            if ($raw !== false && strlen($raw) === 32) {
-                return new SecretEncryptor($raw);
-            }
-            if (preg_match('/^[0-9a-fA-F]{64}$/', $appKey)) {
-                $hex = hex2bin($appKey);
-                if ($hex !== false && strlen($hex) === 32) {
-                    return new SecretEncryptor($hex);
-                }
-            }
-            return new SecretEncryptor(hash('sha256', $appKey, binary: true));
-        }
-        return new SecretEncryptor(str_repeat("\x00", 32));
     }
 
     private static function baseUrl(): string

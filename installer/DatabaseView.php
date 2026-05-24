@@ -29,13 +29,24 @@ final class DatabaseView implements View
 
     public function display(): void
     {
+        if (WizardState::installationComplete()) {
+            http_response_code(410);
+            header('Content-Type: text/plain; charset=utf-8');
+            echo 'Installer is locked: this server is already installed.';
+            return;
+        }
+
         $env = WizardState::loadEnv();
         if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
             $this->handlePost();
         } else {
             $this->dsn      = $env['DB_DSN']      ?? 'mysql:host=localhost;dbname=saso_db;charset=utf8mb4';
             $this->user     = $env['DB_USER']     ?? 'saso_user';
-            $this->password = $env['DB_PASSWORD'] ?? '';
+            // Do NOT pre-fill the existing DB password back into the form.
+            // Echoing it into HTML on every GET reveals it to anyone who can
+            // hit the page (the wizard is unauthenticated). Operators who
+            // need to confirm the value can read .env directly.
+            $this->password = '';
         }
         require_once 'installer/template/database.php';
     }
@@ -62,7 +73,15 @@ final class DatabaseView implements View
                 \PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION,
             ]);
         } catch (\Throwable $e) {
-            $this->errorMessage = 'データベース接続に失敗しました: ' . $e->getMessage();
+            // The full PDO exception message includes host, error class
+            // (e.g. SQLSTATE[HY000] [1045]), and sometimes the supplied
+            // username. Leaking that to an unauthenticated visitor is
+            // information disclosure — surface a generic line and log the
+            // detail server-side for operator triage.
+            if (function_exists('error_log')) {
+                error_log('[saso-installer] DB connect failed: ' . $e->getMessage());
+            }
+            $this->errorMessage = 'データベース接続に失敗しました。DSN・ユーザー・パスワードを確認してください。';
             return;
         }
 

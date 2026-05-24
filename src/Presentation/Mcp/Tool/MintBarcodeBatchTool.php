@@ -56,10 +56,21 @@ final class MintBarcodeBatchTool implements McpTool
 
     public function invoke(array $input, int $deviceId): array
     {
-        $count   = (int) ($input['count'] ?? 0);
-        $layout  = isset($input['sheetLayoutId']) && is_int($input['sheetLayoutId'])
-            ? $input['sheetLayoutId']
-            : null;
+        $count = (int) ($input['count'] ?? 0);
+        if ($count < 1 || $count > 5000) {
+            throw new \InvalidArgumentException('"count" must be between 1 and 5000.');
+        }
+
+        $layout = null;
+        if (isset($input['sheetLayoutId']) && $input['sheetLayoutId'] !== null) {
+            if (!is_int($input['sheetLayoutId']) && !(is_string($input['sheetLayoutId']) && ctype_digit($input['sheetLayoutId']))) {
+                throw new \InvalidArgumentException('"sheetLayoutId" must be a positive integer or null.');
+            }
+            $layout = (int) $input['sheetLayoutId'];
+            if ($layout < 1) {
+                throw new \InvalidArgumentException('"sheetLayoutId" must be a positive integer or null.');
+            }
+        }
 
         $result = $this->barcodes->mintBatch(
             requestedCount:     $count,

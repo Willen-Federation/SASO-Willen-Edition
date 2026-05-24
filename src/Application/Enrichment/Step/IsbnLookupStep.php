@@ -6,6 +6,8 @@ namespace Saso\Application\Enrichment\Step;
 
 final class IsbnLookupStep implements IsbnLookupStepInterface
 {
+    private const MAX_STRING_LENGTH = 1000;
+
     /**
      * @return array<string, mixed>
      */
@@ -21,13 +23,13 @@ final class IsbnLookupStep implements IsbnLookupStepInterface
         $ch = curl_init($url);
         curl_setopt_array($ch, [
             CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_CONNECTTIMEOUT => 5,
             CURLOPT_TIMEOUT        => 30,
             CURLOPT_FOLLOWLOCATION => true,
             CURLOPT_HTTPHEADER     => ['Accept: application/json'],
         ]);
 
-        $raw     = curl_exec($ch);
-        $curlErr = curl_error($ch);
+        $raw = curl_exec($ch);
         curl_close($ch);
 
         if ($raw === false || $raw === '') {
@@ -49,18 +51,22 @@ final class IsbnLookupStep implements IsbnLookupStepInterface
 
         $result = ['isbn' => $isbn];
 
-        $title = $book['title'] ?? null;
-        if (is_string($title) && $title !== '') {
+        $title = $this->sanitiseExternalString($book['title'] ?? null);
+        if ($title !== null) {
             $result['item_name'] = $title;
         }
 
         $publishers = $book['publishers'] ?? [];
         if (is_array($publishers) && isset($publishers[0]['name'])) {
-            $result['manufacturer'] = $publishers[0]['name'];
+            $publisher = $this->sanitiseExternalString($publishers[0]['name']);
+            if ($publisher !== null) {
+                $result['manufacturer'] = $publisher;
+            }
         }
 
         $description = $book['notes'] ?? ($book['subtitle'] ?? null);
-        if (is_string($description) && $description !== '') {
+        $description = $this->sanitiseExternalString($description);
+        if ($description !== null) {
             $result['description'] = $description;
         }
 
@@ -76,5 +82,29 @@ final class IsbnLookupStep implements IsbnLookupStepInterface
         return strlen($code) === 13
             && ctype_digit($code)
             && (str_starts_with($code, '978') || str_starts_with($code, '979'));
+    }
+
+    /**
+     * Trim, strip control chars, and cap length on strings returned by the
+     * external API. Untrusted upstream data must not bypass the field-length
+     * constraints the rest of the pipeline assumes.
+     */
+    private function sanitiseExternalString(mixed $value): ?string
+    {
+        if (!is_string($value)) {
+            return null;
+        }
+        // Strip C0 control characters except for tab/newline to avoid log
+        // forging or hidden payloads sneaking into prompts and item names.
+        $stripped = preg_replace('/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/u', '', $value);
+        if (!is_string($stripped)) {
+            return null;
+        }
+        $trimmed = trim($stripped);
+        if ($trimmed === '') {
+            return null;
+        }
+
+        return mb_substr($trimmed, 0, self::MAX_STRING_LENGTH);
     }
 }

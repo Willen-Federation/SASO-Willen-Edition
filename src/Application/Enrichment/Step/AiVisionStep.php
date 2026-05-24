@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Saso\Application\Enrichment\Step;
 
+use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
 use Saso\Domain\Ai\AiAssistant;
 use Saso\Domain\Ai\Exception\AiContentPolicyException;
 use Saso\Domain\Ai\Exception\AiProviderNotConfiguredException;
@@ -30,10 +32,14 @@ final class AiVisionStep implements AiVisionStepInterface
         'required'   => ['item_name', 'manufacturer', 'description', 'category_hint'],
     ];
 
+    private readonly LoggerInterface $logger;
+
     public function __construct(
         private readonly AiAssistant $ai,
         private readonly FeatureFlagRepository $flags,
+        ?LoggerInterface $logger = null,
     ) {
+        $this->logger = $logger ?? new NullLogger();
     }
 
     /**
@@ -127,7 +133,19 @@ final class AiVisionStep implements AiVisionStepInterface
             $response = $this->ai->extractStructured($request);
 
             return $response->data;
-        } catch (AiProviderNotConfiguredException | AiRateLimitedException | AiUpstreamException | AiContentPolicyException | AiResponseMalformedException) {
+        } catch (AiProviderNotConfiguredException | AiRateLimitedException | AiUpstreamException | AiContentPolicyException | AiResponseMalformedException $e) {
+            // Soft-fail so the enrichment pipeline can still benefit from
+            // ISBN/JAN/keyword lookups when the AI provider is unavailable —
+            // but log the reason so operators can diagnose silent-empty
+            // drafts via `make logs`.
+            $this->logger->warning('AiVisionStep: extraction failed, returning empty result', [
+                'error_code'   => $e->errorCode()->value,
+                'error_class'  => $e::class,
+                'reason'       => $e->getMessage(),
+                'image_path'   => $imagePath,
+                'barcode_hint' => $barcodeHint,
+            ]);
+
             return [];
         }
     }
@@ -136,8 +154,9 @@ final class AiVisionStep implements AiVisionStepInterface
     {
         $prompt = "この商品画像から製品情報を抽出してください。\n";
 
-        if ($barcodeHint !== null && $barcodeHint !== '') {
-            $prompt .= "商品コード: {$barcodeHint}\n";
+        $hint = $this->sanitiseBarcodeForPrompt($barcodeHint);
+        if ($hint !== null) {
+            $prompt .= "商品コード: {$hint}\n";
         }
 
         $prompt .= "バーコード/QRコードが見えれば jan_code または isbn として記録してください。\n";
@@ -169,14 +188,34 @@ final class AiVisionStep implements AiVisionStepInterface
 
         $prompt = 'この商品画像から、以下の項目のみを再抽出してください: '.implode('、', $requested)."。\n";
 
-        if ($barcodeHint !== null && $barcodeHint !== '') {
-            $prompt .= "商品コード: {$barcodeHint}\n";
+        $hint = $this->sanitiseBarcodeForPrompt($barcodeHint);
+        if ($hint !== null) {
+            $prompt .= "商品コード: {$hint}\n";
         }
 
         $prompt .= "他の項目は出力しないでください。\n";
         $prompt .= '不明な項目は null にしてください。';
 
         return $prompt;
+    }
+
+    /**
+     * Restrict the barcode hint to the small alphanumeric/hyphen set real
+     * barcodes use before it is interpolated into the LLM system instruction.
+     * The hint is user-controlled, so anything that looks like a control
+     * character or natural-language sentence would be a prompt-injection
+     * vector; we drop the value rather than passing it through.
+     */
+    private function sanitiseBarcodeForPrompt(?string $barcodeHint): ?string
+    {
+        if ($barcodeHint === null || $barcodeHint === '') {
+            return null;
+        }
+        if (preg_match('/\A[A-Za-z0-9\-]{1,64}\z/', $barcodeHint) !== 1) {
+            return null;
+        }
+
+        return $barcodeHint;
     }
 
     private function detectMimeType(string $imagePath): string

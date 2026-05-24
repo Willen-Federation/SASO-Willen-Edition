@@ -28,6 +28,7 @@ final class ListStorageLocationsToolTest extends TestCase
                 id                 INTEGER PRIMARY KEY,
                 parent_id          INTEGER,
                 code               TEXT NOT NULL UNIQUE,
+                area_code          TEXT,
                 name               TEXT NOT NULL,
                 position           INTEGER NOT NULL DEFAULT 0,
                 depth              INTEGER NOT NULL DEFAULT 0,
@@ -36,6 +37,9 @@ final class ListStorageLocationsToolTest extends TestCase
                 capacity           INTEGER,
                 notes              TEXT,
                 operational_status TEXT NOT NULL DEFAULT \'available\',
+                map_image_id       INTEGER,
+                map_x_ratio        REAL,
+                map_y_ratio        REAL,
                 created_at         TEXT NOT NULL,
                 updated_at         TEXT NOT NULL
             )',

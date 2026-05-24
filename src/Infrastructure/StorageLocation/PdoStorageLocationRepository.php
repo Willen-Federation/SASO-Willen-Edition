@@ -98,13 +98,16 @@ final class PdoStorageLocationRepository implements StorageLocationRepository
 
         if ($existing === null) {
             $stmt = $this->pdo->prepare(
-                'INSERT INTO storage_location (id, parent_id, code, name, position, depth, '.
-                'location_type, description, capacity, notes, operational_status, created_at, updated_at) '.
-                'VALUES (:id, :parent, :code, :name, :pos, :depth, :ltype, :desc, :cap, :notes, :ostatus, :ca, :ua)',
+                'INSERT INTO storage_location (id, parent_id, code, area_code, name, position, depth, '.
+                'location_type, description, capacity, notes, operational_status, '.
+                'map_image_id, map_x_ratio, map_y_ratio, created_at, updated_at) '.
+                'VALUES (:id, :parent, :code, :area, :name, :pos, :depth, :ltype, :desc, :cap, :notes, :ostatus, '.
+                ':mimg, :mx, :my, :ca, :ua)',
             );
             $stmt->bindValue('id', $location->id, PDO::PARAM_INT);
             $stmt->bindValue('parent', $location->parentId, $location->parentId === null ? PDO::PARAM_NULL : PDO::PARAM_INT);
             $stmt->bindValue('code', $location->code->toString());
+            $stmt->bindValue('area', $location->areaCode, $location->areaCode === null ? PDO::PARAM_NULL : PDO::PARAM_STR);
             $stmt->bindValue('name', $location->name);
             $stmt->bindValue('pos', $location->position, PDO::PARAM_INT);
             $stmt->bindValue('depth', $location->depth, PDO::PARAM_INT);
@@ -113,18 +116,23 @@ final class PdoStorageLocationRepository implements StorageLocationRepository
             $stmt->bindValue('cap', $location->capacity, $location->capacity === null ? PDO::PARAM_NULL : PDO::PARAM_INT);
             $stmt->bindValue('notes', $location->notes);
             $stmt->bindValue('ostatus', $location->operationalStatus->value);
+            $stmt->bindValue('mimg', $location->mapImageId, $location->mapImageId === null ? PDO::PARAM_NULL : PDO::PARAM_INT);
+            $stmt->bindValue('mx', $location->mapXRatio === null ? null : (string) $location->mapXRatio, $location->mapXRatio === null ? PDO::PARAM_NULL : PDO::PARAM_STR);
+            $stmt->bindValue('my', $location->mapYRatio === null ? null : (string) $location->mapYRatio, $location->mapYRatio === null ? PDO::PARAM_NULL : PDO::PARAM_STR);
             $stmt->bindValue('ca', $location->createdAt->setTimezone($this->timezone)->format('Y-m-d H:i:s'));
             $stmt->bindValue('ua', $now);
             $stmt->execute();
         } else {
             $stmt = $this->pdo->prepare(
-                'UPDATE storage_location SET parent_id = :parent, code = :code, name = :name, '.
+                'UPDATE storage_location SET parent_id = :parent, code = :code, area_code = :area, name = :name, '.
                 'position = :pos, depth = :depth, location_type = :ltype, description = :desc, '.
-                'capacity = :cap, notes = :notes, operational_status = :ostatus, updated_at = :ua WHERE id = :id',
+                'capacity = :cap, notes = :notes, operational_status = :ostatus, '.
+                'map_image_id = :mimg, map_x_ratio = :mx, map_y_ratio = :my, updated_at = :ua WHERE id = :id',
             );
             $stmt->bindValue('id', $location->id, PDO::PARAM_INT);
             $stmt->bindValue('parent', $location->parentId, $location->parentId === null ? PDO::PARAM_NULL : PDO::PARAM_INT);
             $stmt->bindValue('code', $location->code->toString());
+            $stmt->bindValue('area', $location->areaCode, $location->areaCode === null ? PDO::PARAM_NULL : PDO::PARAM_STR);
             $stmt->bindValue('name', $location->name);
             $stmt->bindValue('pos', $location->position, PDO::PARAM_INT);
             $stmt->bindValue('depth', $location->depth, PDO::PARAM_INT);
@@ -133,6 +141,9 @@ final class PdoStorageLocationRepository implements StorageLocationRepository
             $stmt->bindValue('cap', $location->capacity, $location->capacity === null ? PDO::PARAM_NULL : PDO::PARAM_INT);
             $stmt->bindValue('notes', $location->notes);
             $stmt->bindValue('ostatus', $location->operationalStatus->value);
+            $stmt->bindValue('mimg', $location->mapImageId, $location->mapImageId === null ? PDO::PARAM_NULL : PDO::PARAM_INT);
+            $stmt->bindValue('mx', $location->mapXRatio === null ? null : (string) $location->mapXRatio, $location->mapXRatio === null ? PDO::PARAM_NULL : PDO::PARAM_STR);
+            $stmt->bindValue('my', $location->mapYRatio === null ? null : (string) $location->mapYRatio, $location->mapYRatio === null ? PDO::PARAM_NULL : PDO::PARAM_STR);
             $stmt->bindValue('ua', $now);
             $stmt->execute();
         }

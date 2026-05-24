@@ -126,6 +126,91 @@ final class PdoStorageLocationRepositoryTest extends TestCase
         self::assertNull($this->repo->findById(1));
     }
 
+    public function testSavePersistsAreaCodeAndMapPin(): void
+    {
+        $now  = new DateTimeImmutable('2026-04-27 10:00:00');
+        $node = new StorageLocation(
+            id: 1,
+            parentId: null,
+            code: new LocationCode('WH1'),
+            name: 'Warehouse 1',
+            position: 0,
+            depth: 0,
+            createdAt: $now,
+            updatedAt: $now,
+            areaCode: 'ZONE-A',
+            mapImageId: 7,
+            mapXRatio: 0.125,
+            mapYRatio: 0.875,
+        );
+
+        $this->repo->save($node);
+        $reread = $this->repo->findById(1);
+
+        self::assertNotNull($reread);
+        self::assertSame('ZONE-A', $reread->areaCode);
+        self::assertSame(7, $reread->mapImageId);
+        self::assertSame(0.125, $reread->mapXRatio);
+        self::assertSame(0.875, $reread->mapYRatio);
+    }
+
+    public function testSaveUpdatesAreaCodeAndMapPin(): void
+    {
+        $now     = new DateTimeImmutable('2026-04-27 10:00:00');
+        $initial = new StorageLocation(
+            id: 1,
+            parentId: null,
+            code: new LocationCode('WH1'),
+            name: 'Warehouse 1',
+            position: 0,
+            depth: 0,
+            createdAt: $now,
+            updatedAt: $now,
+            areaCode: 'ZONE-A',
+            mapImageId: 7,
+            mapXRatio: 0.1,
+            mapYRatio: 0.2,
+        );
+        $this->repo->save($initial);
+
+        $updated = new StorageLocation(
+            id: 1,
+            parentId: null,
+            code: new LocationCode('WH1'),
+            name: 'Warehouse 1',
+            position: 0,
+            depth: 0,
+            createdAt: $now,
+            updatedAt: $now,
+            areaCode: 'ZONE-B',
+            mapImageId: 8,
+            mapXRatio: 0.5,
+            mapYRatio: 0.6,
+        );
+        $this->repo->save($updated);
+
+        $reread = $this->repo->findById(1);
+        self::assertNotNull($reread);
+        self::assertSame('ZONE-B', $reread->areaCode);
+        self::assertSame(8, $reread->mapImageId);
+        self::assertSame(0.5, $reread->mapXRatio);
+        self::assertSame(0.6, $reread->mapYRatio);
+    }
+
+    public function testSaveAcceptsNullAreaCodeAndMapPin(): void
+    {
+        $node = $this->makeNode(id: 1, parentId: null, depth: 0, code: 'A');
+
+        $this->repo->save($node);
+        $reread = $this->repo->findById(1);
+
+        self::assertNotNull($reread);
+        self::assertNull($reread->areaCode);
+        self::assertNull($reread->mapImageId);
+        self::assertNull($reread->mapXRatio);
+        self::assertNull($reread->mapYRatio);
+    }
+
     private function makeNode(
         int $id,
         ?int $parentId,

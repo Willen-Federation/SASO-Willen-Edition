@@ -288,6 +288,10 @@ final class ManageStorageLocationTool implements McpTool
             capacity: $capacity,
             notes: $notes,
             operationalStatus: $operationalStatus,
+            areaCode: $location->areaCode,
+            mapImageId: $location->mapImageId,
+            mapXRatio: $location->mapXRatio,
+            mapYRatio: $location->mapYRatio,
         );
 
         $saved = $this->locations->save($updated);

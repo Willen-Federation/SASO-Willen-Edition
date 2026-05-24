@@ -39,8 +39,43 @@ final class LoginUsecase implements Usecase
             $_SESSION['id'] = $member->id;
             $_SESSION['time'] = time();
             $_SESSION['userName'] = $member->name;
-            return $data->restoredPath;
+            return self::resolveSuccessRedirect((string) $data->restoredPath);
         })->OrElse(fn($v)=>Either::left(self::buildFailureRedirect((string) $data->restoredPath)));
+    }
+
+    /**
+     * Picks the post-login redirect target.
+     *
+     * Prefers an explicit `restoredPath` from the form (set by the legacy
+     * router when the user was bounced here from a protected path). When
+     * that is empty, falls back to `$_SESSION['auth.return_to']` — the slot
+     * IdP-style providers (and `LocalProvider::beginLogin`) write before
+     * handing off to this form. This is what makes the mobile / desktop
+     * pairing flow (`/m/setup` → `/auth/start/{LOCAL_ID}` → /auth/start)
+     * return to `/m/issue-pairing` after a successful local sign-in
+     * instead of landing on `/` and stranding the pairing code unused.
+     *
+     * Same-origin paths only: a value that does not start with `/`, or any
+     * `//host` / `scheme:` form, is rejected as a defence against open
+     * redirects, and the session slot is cleared even when the value is
+     * dropped so a stale entry cannot leak into a later login.
+     */
+    private static function resolveSuccessRedirect(string $restoredPath): string
+    {
+        if ($restoredPath !== '') {
+            return $restoredPath;
+        }
+        $candidate = isset($_SESSION['auth.return_to']) && is_string($_SESSION['auth.return_to'])
+            ? $_SESSION['auth.return_to']
+            : '';
+        unset($_SESSION['auth.return_to'], $_SESSION['auth.provider_id']);
+        if ($candidate === '' || !str_starts_with($candidate, '/') || str_starts_with($candidate, '//')) {
+            return '';
+        }
+        if (preg_match('#^[a-z][a-z0-9+.-]*:#i', $candidate) === 1) {
+            return '';
+        }
+        return $candidate;
     }
 
     /**

@@ -62,8 +62,18 @@ final class ListItemsController
         }
 
         if ($q !== null) {
-            $where[]   = '(i.name LIKE :q OR i.jan_code LIKE :q OR i.isbn LIKE :q)';
-            $binds['q'] = '%'.$q.'%';
+            // Escape LIKE metacharacters so the user's keyword cannot smuggle
+            // wildcards into the search pattern. Without this a single-character
+            // query of `_` matches every row and `%` streams the whole table.
+            // The explicit `ESCAPE '|'` clause keeps semantics portable across
+            // SQLite (which has no default escape character) and MariaDB/MySQL
+            // (default `\`, but disabled when sql_mode=NO_BACKSLASH_ESCAPES).
+            // Using `|` sidesteps the backslash-quoting differences entirely.
+            $escaped    = strtr($q, ['|' => '||', '%' => '|%', '_' => '|_']);
+            $where[]    = "(i.name LIKE :q ESCAPE '|' "
+                ."OR i.jan_code LIKE :q ESCAPE '|' "
+                ."OR i.isbn LIKE :q ESCAPE '|')";
+            $binds['q'] = '%'.$escaped.'%';
         }
 
         if ($categoryId !== null) {

@@ -51,7 +51,11 @@ final class LoginController
     {
         $body = $this->parseBody($request);
 
-        $username   = $this->stringField($body, 'username');
+        // Username is trimmed (operators occasionally paste with whitespace),
+        // but the password is taken verbatim — trimming a password would
+        // silently change a credential the user supplied, and `hash_equals`
+        // must compare exactly the bytes the user typed.
+        $username   = trim($this->stringField($body, 'username'));
         $password   = $this->stringField($body, 'password');
         $deviceName = trim((string) ($body['deviceName'] ?? ''));
         if ($deviceName === '') {
@@ -107,20 +111,60 @@ final class LoginController
      * NAT share the same per-username bucket. Acceptable here because the
      * limit is on FAILED attempts; legitimate logins clear the bucket on
      * the way out via {@see RateLimiter::reset()}.
+     *
+     * Trust model for `X-Forwarded-For`: a client-supplied header is only
+     * honoured when `REMOTE_ADDR` matches one of the IPs listed in the
+     * `TRUSTED_PROXIES` environment variable (comma-separated). Otherwise
+     * the header is ignored — a non-proxied deployment cannot let attackers
+     * defeat the per-IP component of the bucket by spoofing the header.
      */
     private function rateLimitBucket(HttpRequest $request, string $username): string
     {
-        $forwardedFor = $request->header('x-forwarded-for');
-        if (is_string($forwardedFor) && $forwardedFor !== '') {
-            // X-Forwarded-For may carry a comma-separated list; the original
-            // client is the leftmost entry.
-            $first = explode(',', $forwardedFor)[0];
-            $ip    = trim($first);
-        } else {
-            $ip = (string) ($_SERVER['REMOTE_ADDR'] ?? '0.0.0.0');
+        $remoteAddr = (string) ($_SERVER['REMOTE_ADDR'] ?? '0.0.0.0');
+        $ip         = $remoteAddr;
+
+        if ($this->isTrustedProxy($remoteAddr)) {
+            $forwardedFor = $request->header('x-forwarded-for');
+            if (is_string($forwardedFor) && $forwardedFor !== '') {
+                // X-Forwarded-For may carry a comma-separated list; the
+                // original client is the leftmost entry.
+                $first = explode(',', $forwardedFor)[0];
+                $candidate = trim($first);
+                if ($candidate !== '') {
+                    $ip = $candidate;
+                }
+            }
         }
 
         return self::RATE_LIMIT_PREFIX.':'.$ip.':'.$username;
+    }
+
+    /**
+     * True when `REMOTE_ADDR` is on the configured trusted-proxy allowlist.
+     *
+     * Loopback (`127.0.0.1`, `::1`) is implicitly trusted so the test/CLI
+     * harness keeps working without setting the env var. Production
+     * deployments behind a reverse proxy must set `TRUSTED_PROXIES`
+     * (comma-separated) to the proxy's exit IP.
+     */
+    private function isTrustedProxy(string $remoteAddr): bool
+    {
+        if ($remoteAddr === '127.0.0.1' || $remoteAddr === '::1') {
+            return true;
+        }
+
+        $configured = getenv('TRUSTED_PROXIES');
+        if (!is_string($configured) || $configured === '') {
+            return false;
+        }
+
+        foreach (explode(',', $configured) as $entry) {
+            if (trim($entry) === $remoteAddr) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /** @param array<string, mixed> $body */
@@ -137,7 +181,7 @@ final class LoginController
             ));
         }
 
-        return trim($value);
+        return $value;
     }
 
     /** @return array<string, mixed> */

@@ -63,7 +63,7 @@ final class PostInstallSelfTestTest extends TestCase
     {
         file_put_contents(
             $this->envPath,
-            "JWT_SECRET=".base64_encode(random_bytes(32))."\nWEBHOOK_SECRET=".bin2hex(random_bytes(32))."\n"
+            'JWT_SECRET='.base64_encode(random_bytes(32))."\nWEBHOOK_SECRET=".bin2hex(random_bytes(32))."\n"
         );
         $test = new PostInstallSelfTest();
 

@@ -65,6 +65,10 @@ final class ProcessItemDraftHandler
 
             $this->drafts->updateAiResult($draft->id, $aiResult, ItemDraftStatus::Ready);
         } catch (\Throwable $e) {
+            $this->logger->warning('ProcessItemDraft: legacy pipeline failed', [
+                'draft_id' => $draft->id,
+                'error'    => $e->getMessage(),
+            ]);
             $this->drafts->updateStatus($draft->id, ItemDraftStatus::Failed, $e->getMessage());
             throw $e;
         }

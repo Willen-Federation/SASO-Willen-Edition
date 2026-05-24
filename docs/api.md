@@ -133,7 +133,9 @@ schema additions:
 
 ## Authentication
 
-API endpoints under `/api/v1/feature-flags` and `/api/v1/mobile` require a session cookie (browser) or a Bearer device token (machine clients). The Bearer token is issued by `POST /api/v1/mobile/connect` after a QR pairing. OIDC/SAML-issued tokens follow the same Bearer scheme once those providers ship in M5.
+API endpoints under `/api/v1/feature-flags` and `/api/v1/mobile` require a session cookie (browser) or a Bearer device token (machine clients). The Bearer token is issued by `POST /api/v1/mobile/connect` after a QR pairing, or via `POST /api/v1/auth/login` for direct username + password authentication. OIDC/SAML-issued tokens follow the same Bearer scheme once those providers ship in M5.
+
+For a step-by-step walkthrough of how each client type (web browser, Flutter, Electron) acquires and uses these tokens, see the [Device Authentication Integration Guide](integrations/device-authentication.md).
 
 ## Errors
 

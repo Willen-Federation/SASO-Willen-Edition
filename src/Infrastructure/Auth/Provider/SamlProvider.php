@@ -92,26 +92,59 @@ final class SamlProvider implements AuthProvider
         $_SESSION['auth.state']       = $context->csrfStateToken;
         $_SESSION['auth.return_to']   = $context->returnTo;
         $_SESSION['auth.provider_id'] = $this->record->id->value;
+        // SAML's CSRF defence is the AuthnRequest ID echoed back in the
+        // Response's InResponseTo attribute. Stash it so completeLogin()
+        // can pass it through to onelogin's Response::isValid() check.
+        $reqId = $auth->getLastRequestID();
+        if (is_string($reqId) && $reqId !== '') {
+            $_SESSION['auth.saml_request_id'] = $reqId;
+        }
 
         return new Redirect($url, 302);
     }
 
     public function completeLogin(CallbackRequest $request): AuthenticatedIdentity
     {
-        $auth = $this->buildAuth();
+        // SAML CSRF protection: the AuthnRequest ID we stashed in
+        // beginLogin() must echo back in the Response's InResponseTo
+        // attribute. Without this an attacker could replay a stolen
+        // (or attacker-IdP-signed) SAML response from another flow.
+        // Check the stash before touching the OneLogin settings so a stray
+        // POST to /acs without a pending request fails fast — and never
+        // reveals provider-config errors to the caller.
+        $expectedRequestId = isset($_SESSION['auth.saml_request_id'])
+            && is_string($_SESSION['auth.saml_request_id'])
+            && $_SESSION['auth.saml_request_id'] !== ''
+            ? $_SESSION['auth.saml_request_id']
+            : null;
 
+        if ($expectedRequestId === null) {
+            throw AuthFailedException::stateMismatch(
+                'No pending SAML AuthnRequest — session may have expired.',
+            );
+        }
+
+        // One-shot consumption: regardless of whether we authenticate or
+        // throw, drop the stash so a replayed response cannot be re-validated
+        // within the same session.
         try {
-            $auth->processResponse();
-        } catch (Throwable $e) {
-            throw AuthFailedException::callbackInvalid('SAML processResponse() threw: '.$e->getMessage());
-        }
-        $errors = $auth->getErrors();
-        if (is_array($errors) && $errors !== []) {
-            $reason = $auth->getLastErrorReason() ?? implode(', ', $errors);
-            throw AuthFailedException::callbackInvalid('SAML response validation failed: '.$reason);
-        }
-        if (!$auth->isAuthenticated()) {
-            throw AuthFailedException::callbackInvalid('SAML response did not authenticate the user.');
+            $auth = $this->buildAuth();
+
+            try {
+                $auth->processResponse($expectedRequestId);
+            } catch (Throwable $e) {
+                throw AuthFailedException::callbackInvalid('SAML processResponse() threw: '.$e->getMessage());
+            }
+            $errors = $auth->getErrors();
+            if (is_array($errors) && $errors !== []) {
+                $reason = $auth->getLastErrorReason() ?? implode(', ', $errors);
+                throw AuthFailedException::callbackInvalid('SAML response validation failed: '.$reason);
+            }
+            if (!$auth->isAuthenticated()) {
+                throw AuthFailedException::callbackInvalid('SAML response did not authenticate the user.');
+            }
+        } finally {
+            unset($_SESSION['auth.saml_request_id']);
         }
 
         $nameId = (string) ($auth->getNameId() ?: '');
@@ -233,6 +266,11 @@ final class SamlProvider implements AuthProvider
                 'wantMessagesSigned'    => false,
                 'wantAssertionsSigned'  => true,
                 'wantNameId'            => true,
+                // Reject responses whose InResponseTo does not match a request
+                // we issued. Defence-in-depth on top of processResponse()'s
+                // explicit $requestId check in completeLogin() — covers the
+                // unsolicited-response path (where requestId is null) too.
+                'rejectUnsolicitedResponsesWithInResponseTo' => true,
             ],
         ];
     }

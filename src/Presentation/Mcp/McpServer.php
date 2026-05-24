@@ -161,9 +161,22 @@ final class McpServer
 
         try {
             $result = $tool->invoke($arguments, $token->id);
-        } catch (\InvalidArgumentException $e) {
+        } catch (\InvalidArgumentException | \ValueError $e) {
             return McpResponse::invalidParams($id, $e->getMessage());
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
+            // Log + drop the exception detail from the client response — the
+            // raw message can leak DB/PDO state or internal paths. The audit
+            // trail keeps the full context.
+            //
+            // Strip CR/LF/TAB so a library exception with embedded newlines
+            // can't forge an extra log line.
+            $msg = (string) preg_replace('/[\r\n\t]+/', ' ', $e->getMessage());
+            error_log(sprintf(
+                'SASO-MCP-A002 tools/call: %s threw %s: %s',
+                $toolName,
+                $e::class,
+                $msg,
+            ));
             return McpResponse::internalError($id);
         }
 

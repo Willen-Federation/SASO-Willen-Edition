@@ -148,8 +148,14 @@ final class DefineAttributeTool implements McpTool
             ? trim((string) $input['validationRegex'])
             : null;
 
-        if ($regex !== null && $regex !== '' && @preg_match('#'.$regex.'#u', '') === false) {
-            throw new InvalidArgumentException('"validationRegex" is not a valid PCRE pattern.');
+        if ($regex !== null && $regex !== '') {
+            // Use \x01 as the delimiter so any user-supplied character is safe
+            // — the previous `#` delimiter broke when the pattern itself
+            // contained `#`, masking bad regex as valid.
+            $delim = "\x01";
+            if (str_contains($regex, $delim) || @preg_match($delim.$regex.$delim.'u', '') === false) {
+                throw new InvalidArgumentException('"validationRegex" is not a valid PCRE pattern.');
+            }
         }
 
         $regex     = ($regex === '') ? null : $regex;

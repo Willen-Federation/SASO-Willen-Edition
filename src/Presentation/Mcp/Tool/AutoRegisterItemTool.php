@@ -74,6 +74,23 @@ final class AutoRegisterItemTool implements McpTool
             throw new InvalidArgumentException('"imagePath" is required.');
         }
 
+        // The path is consumed downstream by the AI vision pipeline that
+        // loads the file from disk — reject anything that escapes the
+        // documented upload root before it gets persisted. Normalise both
+        // path separators so a Windows-style payload (`..\..\foo`) can't
+        // bypass the traversal check.
+        $normalised = str_replace('\\', '/', $imagePath);
+        if (
+            str_contains($imagePath, "\0")
+            || preg_match('#(^|/)\.\.(/|$)#', $normalised) === 1
+            || str_starts_with($normalised, '/')
+            || preg_match('#^[a-zA-Z]:/#', $normalised) === 1
+        ) {
+            throw new InvalidArgumentException(
+                '"imagePath" must be a relative path under the uploads root (no traversal, no absolute paths).',
+            );
+        }
+
         $barcodeHint = isset($input['barcodeHint']) ? trim((string) $input['barcodeHint']) : null;
         if ($barcodeHint === '') {
             $barcodeHint = null;

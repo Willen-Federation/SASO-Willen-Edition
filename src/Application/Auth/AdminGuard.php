@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Saso\Application\Auth;
 
 use PDO;
+use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
 
 /**
  * Tiny gate used by the admin-only matters (`authExt`, `featureAdmin`,
@@ -15,12 +17,24 @@ use PDO;
  * yet carry the column (e.g. fresh installs that have not run migrations)
  * fall back to allowing the bootstrap user only, identified by
  * `Member.id = 'bootstrap'`.
+ *
+ * Silent migration-tolerance: the `role` column and `Role` table are M4
+ * additions. To keep the guard usable on a partially-migrated install we
+ * swallow PDO exceptions and fall back to the bootstrap check. The
+ * fallback is intentional but each occurrence is now logged so that an
+ * actual schema corruption isn't invisible. Inject an explicit logger to
+ * surface those events; the default {@see NullLogger} keeps existing
+ * call sites (`new AdminGuard($pdo)`) silent and source-compatible.
  */
 final class AdminGuard
 {
+    private readonly LoggerInterface $logger;
+
     public function __construct(
         private readonly PDO $pdo,
+        ?LoggerInterface $logger = null,
     ) {
+        $this->logger = $logger ?? new NullLogger();
     }
 
     public function isAdmin(?string $memberId): bool
@@ -37,8 +51,14 @@ final class AdminGuard
             if ($row !== false && isset($row['role'])) {
                 return $row['role'] === 'admin';
             }
-        } catch (\Throwable) {
-            // schema may not have the role column yet — fall through
+        } catch (\Throwable $e) {
+            $this->logger->warning(
+                'AdminGuard: Member.role lookup failed; falling back to bootstrap check.',
+                [
+                    'memberId' => $memberId,
+                    'error'    => $e->getMessage(),
+                ],
+            );
         }
         return $memberId === 'bootstrap';
     }
@@ -70,8 +90,15 @@ final class AdminGuard
                 $perms = json_decode((string) $row['permissions'], true);
                 return is_array($perms) && in_array($permission, $perms, true);
             }
-        } catch (\Throwable) {
-            // Role table not available — fall back to binary admin check
+        } catch (\Throwable $e) {
+            $this->logger->warning(
+                'AdminGuard: Role.permissions lookup failed; falling back to binary admin check.',
+                [
+                    'memberId'   => $memberId,
+                    'permission' => $permission,
+                    'error'      => $e->getMessage(),
+                ],
+            );
         }
         return $this->isAdmin($memberId);
     }
@@ -99,11 +126,23 @@ final class AdminGuard
             $row = $stmt->fetch(PDO::FETCH_ASSOC);
             if ($row !== false && isset($row['permissions'])) {
                 $perms = json_decode((string) $row['permissions'], true);
-                return is_array($perms) ? $perms : [];
+                if (is_array($perms)) {
+                    return array_values(array_filter($perms, 'is_string'));
+                }
+                return [];
             }
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
+            $this->logger->warning(
+                'AdminGuard: Role.permissions lookup failed; falling back to bootstrap permissions.',
+                [
+                    'memberId' => $memberId,
+                    'error'    => $e->getMessage(),
+                ],
+            );
         }
-        return $this->isAdmin($memberId) ? array_keys(\saso\entity\Role::PERMISSIONS) : [];
+        /** @var list<string> $bootstrap */
+        $bootstrap = array_keys(\saso\entity\Role::PERMISSIONS);
+        return $this->isAdmin($memberId) ? $bootstrap : [];
     }
 
     public function isAuthenticated(): bool

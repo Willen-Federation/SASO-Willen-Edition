@@ -6,6 +6,8 @@ namespace Saso\Application\Auth;
 
 use DateTimeImmutable;
 use PDO;
+use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
 use Saso\Domain\Auth\AuthenticatedIdentity;
 use Saso\Domain\Auth\AuthProvider;
 use Saso\Domain\Auth\AuthProviderId;
@@ -31,11 +33,15 @@ use Saso\Infrastructure\Auth\AuthProviderFactory;
  */
 final class LoginOrchestrator
 {
+    private readonly LoggerInterface $logger;
+
     public function __construct(
         private readonly AuthProviderFactory $providers,
         private readonly ExternalIdentityRepository $externalIdentities,
         private readonly PDO $pdo,
+        ?LoggerInterface $logger = null,
     ) {
+        $this->logger = $logger ?? new NullLogger();
     }
 
     /**
@@ -117,7 +123,18 @@ final class LoginOrchestrator
         }
         try {
             $provider = $this->providers->forId(new AuthProviderId($providerIdValue));
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
+            // Provider row may have been disabled or removed since this
+            // session was minted — fall back to the local-only logout
+            // path. Log so an admin can correlate user-visible session
+            // resets with an actual provider config change.
+            $this->logger->info(
+                'LoginOrchestrator: could not resolve provider for logout; falling back to local logout.',
+                [
+                    'providerId' => $providerIdValue,
+                    'error'      => $e->getMessage(),
+                ],
+            );
             return null;
         }
         if (!$provider->supportsLogout()) {
@@ -187,8 +204,15 @@ final class LoginOrchestrator
             if ($row !== false && isset($row['id'])) {
                 return (string) $row['id'];
             }
-        } catch (\Throwable) {
-            // schema does not have email; fall through to JIT create
+        } catch (\Throwable $e) {
+            // schema does not have email; fall through to JIT create.
+            // Log at info level: this is normal on installs that haven't
+            // backfilled an email column, but a brand-new exception text
+            // here points at real schema drift worth investigating.
+            $this->logger->info(
+                'LoginOrchestrator: local member lookup by email skipped (schema mismatch); JIT-provisioning instead.',
+                ['error' => $e->getMessage()],
+            );
         }
         return null;
     }
@@ -213,10 +237,19 @@ final class LoginOrchestrator
             $stmt->bindValue(':name', $identity->displayName !== '' ? $identity->displayName : $candidate);
             $stmt->bindValue(':password', $randomPassword);
             $stmt->execute();
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             // Schema or duplicate-id collision — re-throw as auth failure so
             // the operator notices in the next reload rather than silently
-            // looping the IdP.
+            // looping the IdP. Log the underlying cause: the user-facing
+            // exception message is intentionally generic to avoid leaking
+            // schema details over the wire.
+            $this->logger->error(
+                'LoginOrchestrator: JIT member provisioning failed.',
+                [
+                    'candidate' => $candidate,
+                    'error'     => $e->getMessage(),
+                ],
+            );
             throw AuthFailedException::callbackInvalid('JIT member provisioning failed.');
         }
         return $candidate;

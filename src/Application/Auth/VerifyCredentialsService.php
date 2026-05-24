@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Saso\Application\Auth;
 
 use PDO;
+use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
 use Saso\Domain\Auth\Exception\InvalidCredentialsException;
 use saso\entity\Member;
 
@@ -38,9 +40,13 @@ use saso\entity\Member;
  */
 final class VerifyCredentialsService
 {
+    private readonly LoggerInterface $logger;
+
     public function __construct(
         private readonly PDO $pdo,
+        ?LoggerInterface $logger = null,
     ) {
+        $this->logger = $logger ?? new NullLogger();
     }
 
     /**
@@ -86,8 +92,18 @@ final class VerifyCredentialsService
                 $upgrade->bindValue('password', Member::hashPassword($password));
                 $upgrade->bindValue('id', $row['id']);
                 $upgrade->execute();
-            } catch (\Throwable) {
-                // Intentionally swallowed — see docstring.
+            } catch (\Throwable $e) {
+                // Intentionally swallowed — see docstring. Log so the
+                // operator can correlate hash-upgrade failures with a
+                // legitimate login that nevertheless still succeeded.
+                // The raw password is never included in the context.
+                $this->logger->warning(
+                    'VerifyCredentialsService: password rehash UPDATE failed; login allowed.',
+                    [
+                        'memberId' => $row['id'],
+                        'error'    => $e->getMessage(),
+                    ],
+                );
             }
         }
 

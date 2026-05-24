@@ -106,6 +106,18 @@ final class Auth0Provider implements AuthProvider
 
     public function beginLogin(LoginContext $context): Redirect
     {
+        // Match BaseOidcProvider's behaviour: when the operator pinned a
+        // redirect_uri_allowlist, reject any callbackUrl that is not on it
+        // before we hand the URL to Auth0. Auth0's own allowed_callback_urls
+        // list is the second line of defence; this is the first.
+        $allowlist = $this->configList('redirect_uri_allowlist');
+        if ($allowlist !== [] && !in_array($this->callbackUrl, $allowlist, true)) {
+            throw ProviderMisconfiguredException::for(
+                $this->record->name,
+                sprintf('Callback URL "%s" is not in redirect_uri_allowlist.', $this->callbackUrl),
+            );
+        }
+
         $sdk = $this->buildSdk();
 
         $params = ['state' => $context->csrfStateToken];
@@ -265,5 +277,21 @@ final class Auth0Provider implements AuthProvider
     {
         $v = $this->config()[$key] ?? null;
         return is_string($v) ? $v : null;
+    }
+
+    /** @return list<string> */
+    private function configList(string $key): array
+    {
+        $v = $this->config()[$key] ?? [];
+        if (!is_array($v)) {
+            return [];
+        }
+        $out = [];
+        foreach ($v as $item) {
+            if (is_string($item)) {
+                $out[] = $item;
+            }
+        }
+        return $out;
     }
 }

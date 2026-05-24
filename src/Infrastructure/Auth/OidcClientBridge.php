@@ -15,9 +15,12 @@ use Jumbojett\OpenIDConnectClient;
  *   - `getEndpointConfig()` — reads a key from the OIDC discovery document
  *   - `setNonceValue()`    — forwards the caller-chosen nonce to jumbojett
  *
- * No new behaviour is introduced; this is purely an access-level bridge.
+ * The class is intentionally non-final so {@see BaseOidcProvider} tests can
+ * supply a fixture subclass that returns canned ID-token claims / userinfo
+ * without driving real HTTP against an IdP. No new behaviour is introduced;
+ * this is purely an access-level bridge.
  */
-final class OidcClientBridge extends OpenIDConnectClient
+class OidcClientBridge extends OpenIDConnectClient
 {
     public function getEndpointConfig(string $param, mixed $default = null): mixed
     {

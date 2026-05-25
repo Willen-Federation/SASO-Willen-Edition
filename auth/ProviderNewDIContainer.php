@@ -17,7 +17,8 @@ final class ProviderNewDIContainer implements DIContainer
     public function isTopLevel(): bool
     {
         // AJAX test-connection should not be wrapped in the application layout.
-        return ($_GET['action'] ?? '') === 'test';
+        return ($_GET['action'] ?? '') === 'test'
+            && ($_SERVER['REQUEST_METHOD'] ?? '') === 'POST';
     }
 
     public function di(\Closure $inside, array $query, array $post, array $config, \DateTime $now): void
@@ -48,6 +49,18 @@ final class ProviderNewDIContainer implements DIContainer
                 new ProviderTestPresenter(
                     new ProviderTestView()
                 )
+            );
+            return;
+        }
+
+        // Edit or delete mode — delegate to ProviderView which owns the
+        // edit form template and the DELETE→redirect handler.
+        if (isset($query['edit']) || isset($query['delete'])) {
+            $this->ctrl    = new \saso\common\EmptyController();
+            $this->usecase = new EmptyUsecase(
+                new \saso\common\EmptyPresenter(
+                    new \saso\authExt\ProviderView($query, $post),
+                ),
             );
             return;
         }

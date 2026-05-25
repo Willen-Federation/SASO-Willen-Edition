@@ -5,7 +5,7 @@
 [![MariaDB](https://img.shields.io/badge/MariaDB-10.6%2B-003545)](#requirements)
 [![Status](https://img.shields.io/badge/status-modernizing-orange)](#roadmap)
 [![Powered by Netlify](https://img.shields.io/badge/powered%20by-Netlify-00C7B7?logo=netlify&logoColor=white)](https://www.netlify.com)
-[![Netlify Status](https://api.netlify.com/api/v1/badges/abe33548-17b2-4933-b0f2-f89af91e1c1c/deploy-status)](https://app.netlify.com/projects/schicksal/deploys)
+[![Netlify Status](https://api.netlify.com/api/v1/badges/abe33548-17b2-4933-b0f2-f89af91e1c1c/deploy-status)](https://saso-willen-edition.netlify.app/)
 
 **SASO — Willen Edition** is an open-source inventory and warehouse management system written in PHP. It supports item / category management, barcode display, label printing (PDF), and shelf management. This edition is a community-maintained fork of the original [SASO](https://hyoujun.jp/) by Japan Standards Organization (日本標準機構), modernizing the codebase for global use.
 
@@ -134,7 +134,7 @@ Resolution order for an overlay-able key (highest first): `.env` → real OS env
 
 ## Roadmap
 
-This fork modernizes SASO across six milestones. See [`/Users/akira/.claude/plans/docker-colima-oss-openapi-restful-linear-church.md`](.) (internal plan) and the [GitHub Project board](https://github.com/Willen-Federation/SASO-Willen-Edition/projects).
+This fork modernizes SASO across six milestones. See the [GitHub Project board](https://github.com/Willen-Federation/SASO-Willen-Edition/projects) for the current status.
 
 | Milestone | Focus |
 |---|---|
@@ -147,7 +147,7 @@ This fork modernizes SASO across six milestones. See [`/Users/akira/.claude/plan
 
 ## Documentation
 
-📚 **[https://willen-federation.github.io/SASO-Willen-Edition/](https://willen-federation.github.io/SASO-Willen-Edition/)** — full developer documentation site (English / 日本語) built with Material for MkDocs.
+📚 **[https://saso-willen-edition.netlify.app/](https://saso-willen-edition.netlify.app/)** — full developer documentation site (English / 日本語) built with Material for MkDocs.
 
 Local preview:
 

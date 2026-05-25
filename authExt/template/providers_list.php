@@ -16,7 +16,7 @@
           ui('button', [
               'label'   => __('ui.auth_providers.add', [], null, 'Add provider'),
               'type'    => 'link',
-              'href'    => '/auth/provider/new',
+              'href'    => './auth/provider/new',
               'variant' => 'primary',
           ]);
       },
@@ -32,11 +32,11 @@
               $defaultMark = $p['is_default']
                   ? '<span class="ml-1 text-warning" aria-label="default">★</span>'
                   : '';
-              $editUrl   = '/auth/provider/edit/' . $p['id'];
+              $editUrl   = './auth/provider/edit/' . $p['id'];
               // Delete posts to the same endpoint with the id; ProviderView
               // gates on REQUEST_METHOD=POST + a session-bound CSRF token,
               // closing the GET-based CSRF hole this list used to expose.
-              $deleteAction = '/auth/provider/delete/' . $p['id'];
+              $deleteAction = './auth/provider/delete/' . $p['id'];
               $editLink = '<a href="'.ui_attr($editUrl).'" class="text-brand-500 hover:underline text-sm">'.ui_text(__('ui.auth_providers.edit', [], null, 'Edit')).'</a>';
               $deleteLink = '<form method="post" action="'.ui_attr($deleteAction).'" class="inline ml-3"'
                   . ' onsubmit="return confirm(\''.ui_attr($confirmText).'\')">'

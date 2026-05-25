@@ -17,7 +17,8 @@ final class ProviderNewDIContainer implements DIContainer
     public function isTopLevel(): bool
     {
         // AJAX test-connection should not be wrapped in the application layout.
-        return ($_GET['action'] ?? '') === 'test';
+        return ($_GET['action'] ?? '') === 'test'
+            && ($_SERVER['REQUEST_METHOD'] ?? '') === 'POST';
     }
 
     public function di(\Closure $inside, array $query, array $post, array $config, \DateTime $now): void

@@ -183,6 +183,11 @@ final class InMemoryExternalIdentityRepository implements ExternalIdentityReposi
         // no-op
     }
 
+    public function relink(AuthProviderId $providerId, string $externalSubject, string $newMemberId): void
+    {
+        // no-op
+    }
+
     public function recordLogin(AuthProviderId $providerId, string $externalSubject): void
     {
         // no-op

@@ -69,6 +69,22 @@ final class PdoExternalIdentityRepository implements ExternalIdentityRepository
         ]);
     }
 
+    public function relink(AuthProviderId $providerId, string $externalSubject, string $newMemberId): void
+    {
+        $now  = (new DateTimeImmutable('now', $this->timezone))->format('Y-m-d H:i:s');
+        $stmt = $this->pdo->prepare(
+            'UPDATE member_external_identity '.
+            'SET member_id = :new_mid, updated_at = :now, last_login_at = :now '.
+            'WHERE auth_provider_id = :pid AND external_subject = :sub',
+        );
+        $stmt->execute([
+            'new_mid' => $newMemberId,
+            'pid'     => $providerId->value,
+            'sub'     => $externalSubject,
+            'now'     => $now,
+        ]);
+    }
+
     public function recordLogin(AuthProviderId $providerId, string $externalSubject): void
     {
         $now  = (new DateTimeImmutable('now', $this->timezone))->format('Y-m-d H:i:s');

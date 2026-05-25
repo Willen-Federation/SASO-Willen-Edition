@@ -95,6 +95,31 @@ final class PdoExternalIdentityRepositoryTest extends TestCase
         $this->repo->link($this->makeIdentity(memberId: 'other_001', providerId: 1, sub: 's'));
     }
 
+    public function testRelinkTransfersIdentityToNewMember(): void
+    {
+        $this->repo->link($this->makeIdentity(memberId: 'jit_abc123', providerId: 1, sub: 'auth0|sub'));
+
+        $this->repo->relink(new AuthProviderId(1), 'auth0|sub', 'alice');
+
+        $found = $this->repo->find(new AuthProviderId(1), 'auth0|sub');
+        self::assertNotNull($found);
+        self::assertSame('alice', $found->memberId);
+        self::assertNotNull($found->lastLoginAt);
+    }
+
+    public function testRelinkIdentityNoLongerAppearsUnderOldMember(): void
+    {
+        $this->repo->link($this->makeIdentity(memberId: 'jit_abc123', providerId: 1, sub: 'auth0|sub'));
+        $this->repo->relink(new AuthProviderId(1), 'auth0|sub', 'alice');
+
+        $forOld = $this->repo->listForMember('jit_abc123');
+        self::assertCount(0, $forOld);
+
+        $forNew = $this->repo->listForMember('alice');
+        self::assertCount(1, $forNew);
+        self::assertSame('auth0|sub', $forNew[0]->externalSubject);
+    }
+
     private function makeIdentity(
         string $memberId,
         int $providerId,

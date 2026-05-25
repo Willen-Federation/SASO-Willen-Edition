@@ -18,7 +18,7 @@ use PHPUnit\Framework\TestCase;
  */
 final class EnvSettingsTemplateTest extends TestCase
 {
-    private const TEMPLATE_PATH = __DIR__ . '/../../../admin/template/env-settings.php';
+    private const TEMPLATE_PATH = __DIR__.'/../../../admin/template/env-settings.php';
 
     public function testTemplateExists(): void
     {
@@ -40,7 +40,7 @@ final class EnvSettingsTemplateTest extends TestCase
             'env-settings.php must not invoke a $mask helper that leaks APP_KEY chars.',
         );
         self::assertStringNotContainsString(
-            "substr(\$val, -4)",
+            'substr($val, -4)',
             $source,
             'env-settings.php must not slice the tail of any secret value.',
         );

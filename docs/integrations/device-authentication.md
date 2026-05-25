@@ -439,7 +439,7 @@ Full catalogue: [Error codes](../error-codes.md).
 
 - [`GET /api/v1/auth/providers`](../api/auth-endpoints.md) — provider discovery
 - [`POST /api/v1/auth/login`](../api/auth-endpoints.md) — username + password login
-- [`POST /api/v1/mobile/connect`](../api.md#mobile--device-pairing) — pairing code exchange
-- [`POST /api/v1/mobile/token/refresh`](../api.md#mobile--device-pairing) — token renewal
+- [`POST /api/v1/mobile/connect`](../api.md#mobile-device-pairing) — pairing code exchange
+- [`POST /api/v1/mobile/token/refresh`](../api.md#mobile-device-pairing) — token renewal
 - [Auth Providers](../auth-providers/index.md) — provider configuration guide
-- [OpenAPI specification](../../config/openapi.yaml) — machine-readable contract
+- [OpenAPI specification](https://github.com/Willen-Federation/SASO-Willen-Edition/blob/main/config/openapi.yaml) — machine-readable contract

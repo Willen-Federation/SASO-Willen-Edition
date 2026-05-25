@@ -361,9 +361,12 @@ if (preg_match('#^/auth/(?:start/(\d+)|callback|saml/acs|saml/sls)/?$#', $reques
             $identity = $provider->completeLogin($callback);
             $existing = $extIds->find($providerId, $identity->externalSubject);
             if ($existing !== null && $existing->memberId !== $memberId) {
-                throw new \RuntimeException('This external identity is already linked to another member.');
-            }
-            if ($existing === null) {
+                // The external identity belongs to a different member (e.g. a JIT
+                // account created on a previous IdP sign-in). The user just proved
+                // ownership of the external account by completing the IdP redirect,
+                // so transfer the link to the currently signed-in member.
+                $extIds->relink($providerId, $identity->externalSubject, $memberId);
+            } elseif ($existing === null) {
                 $now = new \DateTimeImmutable();
                 $extIds->link(new \Saso\Domain\Auth\ExternalIdentity(
                     memberId: $memberId,

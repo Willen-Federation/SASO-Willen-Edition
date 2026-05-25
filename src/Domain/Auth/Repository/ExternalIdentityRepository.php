@@ -25,6 +25,16 @@ interface ExternalIdentityRepository
 
     public function link(ExternalIdentity $identity): void;
 
+    /**
+     * Transfer an existing external identity to a different member.
+     *
+     * Used when the signed-in user proves ownership of an external account
+     * that is currently attached to a different member (e.g. a JIT-provisioned
+     * account created on a previous IdP sign-in). The caller must have already
+     * verified IdP-side ownership before invoking this method.
+     */
+    public function relink(AuthProviderId $providerId, string $externalSubject, string $newMemberId): void;
+
     public function recordLogin(AuthProviderId $providerId, string $externalSubject): void;
 
     public function unlink(AuthProviderId $providerId, string $externalSubject): void;

@@ -52,6 +52,18 @@ final class ProviderNewDIContainer implements DIContainer
             return;
         }
 
+        // Edit or delete mode — delegate to ProviderView which owns the
+        // edit form template and the DELETE→redirect handler.
+        if (isset($query['edit']) || isset($query['delete'])) {
+            $this->ctrl    = new \saso\common\EmptyController();
+            $this->usecase = new EmptyUsecase(
+                new \saso\common\EmptyPresenter(
+                    new \saso\authExt\ProviderView($query, $post),
+                ),
+            );
+            return;
+        }
+
         if (empty($post)) {
             $this->ctrl    = new ProviderNewController($query);
             $this->usecase = new EmptyUsecase(

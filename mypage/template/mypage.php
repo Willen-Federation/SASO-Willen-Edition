@@ -23,10 +23,7 @@ $lang = $_SESSION['lang'] ?? ($_COOKIE['saso_locale'] ?? 'ja');
     $avatarTone = \saso\util\AvatarHelper::fallbackTone($avatarLabel);
     ?>
 
-<div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
-
-  <!-- Left column (profile + auth methods) -->
-  <div class="lg:col-span-2 flex flex-col gap-4">
+<div class="flex flex-col gap-4">
 
     <!-- Profile card -->
     <div class="rounded-2xl border shadow-sm overflow-hidden" style="background:var(--saso-card);border-color:var(--saso-card-bdr)">
@@ -385,103 +382,6 @@ $lang = $_SESSION['lang'] ?? ($_COOKIE['saso_locale'] ?? 'ja');
         </div>
       </div>
     </div>
-  </div>
-
-  <!-- Right column (passkeys) -->
-  <div class="lg:col-span-1">
-    <?php
-        $passkeyState = (string) ($_GET['passkey'] ?? '');
-        $passkeyBanner = match ($passkeyState) {
-            'enrolled'        => ['ta-alert-success', $t('パスキーを登録しました。', 'Passkey has been registered.')],
-            'deleted'         => ['ta-alert-success', $t('パスキーを削除しました。', 'Passkey has been removed.')],
-            'no_auth0_link'   => ['ta-alert-warning', $t('パスキーを利用するには、まず Auth0 と連携してください。', 'Link your account to Auth0 first to use passkeys.')],
-            'invalid_csrf'    => ['ta-alert-danger',  $t('セッションが無効です。ページを再読み込みしてください。', 'Your session is invalid. Please reload the page.')],
-            'invalid_id'      => ['ta-alert-danger',  $t('パスキーが指定されていません。', 'No passkey was selected.')],
-            'm2m_unavailable' => ['ta-alert-warning', $t('サーバー側の Auth0 Management API 接続情報が未設定のためパスキー一覧を取得できません。管理者にお問い合わせください。', 'Auth0 Management API credentials are not configured on this server. Contact your administrator.')],
-            'delete_failed'   => ['ta-alert-danger',  $t('Auth0 への削除リクエストが失敗しました。時間をおいて再度お試しください。', 'The delete request to Auth0 failed. Please try again later.')],
-            'error'           => ['ta-alert-danger',  $t('処理中にエラーが発生しました。', 'An error occurred while processing the request.')],
-            default           => null,
-        };
-        $passkeyStatusBanner = match ($v->passkeyStatus) {
-            'no_auth0_link'   => ['ta-alert-info',    $t('パスキー機能は Auth0 経由でログインしたアカウントでのみ利用できます。', 'Passkeys are available for accounts signed in via Auth0.')],
-            'm2m_unavailable' => ['ta-alert-warning', $t('Auth0 Management API の認証情報が未設定です。登録は可能ですが、登録済みパスキーの一覧表示と削除はできません。', 'Auth0 Management API credentials are not configured. You can still register a passkey, but listing and deleting existing passkeys is unavailable.')],
-            'unreachable'     => ['ta-alert-danger',  $t('Auth0 への接続に失敗しました。一覧を取得できません。', 'Could not reach Auth0. The passkey list is unavailable right now.')],
-            default           => null,
-        };
-        $canRegister = in_array($v->passkeyStatus, ['ok', 'm2m_unavailable'], true);
-        $canManage   = $v->passkeyStatus === 'ok';
-        ?>
-    <div class="rounded-2xl border shadow-sm overflow-hidden" style="background:var(--saso-card);border-color:var(--saso-card-bdr)">
-      <div class="flex items-center justify-between px-6 py-4 border-b" style="border-color:var(--saso-card-bdr)">
-        <h2 class="font-semibold text-base" style="color:var(--saso-text)"><?php echo ui_text($t('パスキー', 'Passkeys')); ?></h2>
-        <?php if ($canRegister): ?>
-          <form method="post" action="./mypage/passkeyBegin/" class="shrink-0">
-            <input type="hidden" name="csrftoken" value="<?php echo ui_attr(\saso\util\CSRFtoken::current()); ?>">
-            <button type="submit" class="btn btn-primary btn-sm">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true" focusable="false"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-              <?php echo ui_text($t('パスキーを追加', 'Add passkey')); ?>
-            </button>
-          </form>
-        <?php endif; ?>
-      </div>
-      <?php if ($passkeyBanner !== null): ?>
-        <div class="px-6 pt-4">
-          <div class="ta-alert <?php echo ui_attr($passkeyBanner[0]); ?>" role="status">
-            <span><?php echo ui_text($passkeyBanner[1]); ?></span>
-          </div>
-        </div>
-      <?php endif; ?>
-      <?php if ($passkeyStatusBanner !== null): ?>
-        <div class="px-6 pt-4">
-          <div class="ta-alert <?php echo ui_attr($passkeyStatusBanner[0]); ?>" role="status">
-            <span><?php echo ui_text($passkeyStatusBanner[1]); ?></span>
-          </div>
-        </div>
-      <?php endif; ?>
-      <div class="px-6 py-5 flex flex-col gap-4">
-        <?php if (!$canManage && $v->passkeys === []): ?>
-          <p class="text-xs" style="color:var(--saso-text-sub)">
-            <?php echo ui_text($t('Auth0 が WebAuthn ceremony を実行します。SASO は秘密鍵を保持しません。', 'Auth0 performs the WebAuthn ceremony; SASO does not hold any private key material.')); ?>
-          </p>
-        <?php elseif ($v->passkeys === []): ?>
-          <div class="text-center py-4">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 mx-auto mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="color:var(--saso-text-sub)" aria-hidden="true" focusable="false"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
-            <p class="text-sm" style="color:var(--saso-text-sub)"><?php echo ui_text($t('登録済みのパスキーはありません。', 'No passkeys are registered yet.')); ?></p>
-            <p class="text-xs mt-1" style="color:var(--saso-text-sub)"><?php echo ui_text($t('「パスキーを追加」ボタンから Auth0 経由で登録できます。', 'Use "Add passkey" above to enroll one via Auth0.')); ?></p>
-          </div>
-        <?php else: ?>
-          <ul class="flex flex-col gap-3">
-            <?php foreach ($v->passkeys as $passkey): ?>
-              <li class="rounded-lg border px-3 py-2 flex items-start justify-between gap-3" style="border-color:var(--saso-card-bdr)">
-                <div class="min-w-0">
-                  <div class="font-medium text-sm truncate" style="color:var(--saso-text)" title="<?php echo ui_attr((string) ($passkey['name'] ?: $passkey['id'])); ?>">
-                    <?php echo ui_text((string) ($passkey['name'] !== '' ? $passkey['name'] : $t('名称未設定のパスキー', 'Unnamed passkey'))); ?>
-                  </div>
-                  <div class="text-xs font-mono truncate" style="color:var(--saso-text-sub)">
-                    <?php echo ui_text($t('登録', 'Registered')); ?>: <?php echo ui_text((string) ($passkey['created_at'] ?? '-')); ?>
-                  </div>
-                  <?php if (!empty($passkey['last_used_at'])): ?>
-                    <div class="text-xs font-mono truncate" style="color:var(--saso-text-sub)">
-                      <?php echo ui_text($t('最終利用', 'Last used')); ?>: <?php echo ui_text((string) $passkey['last_used_at']); ?>
-                    </div>
-                  <?php endif; ?>
-                </div>
-                <form method="post" action="./mypage/passkeyDelete/" class="shrink-0"
-                      onsubmit="return confirm('<?php echo ui_attr($t('このパスキーを削除しますか？', 'Remove this passkey?')); ?>');">
-                  <input type="hidden" name="csrftoken" value="<?php echo ui_attr(\saso\util\CSRFtoken::current()); ?>">
-                  <input type="hidden" name="passkey_id" value="<?php echo ui_attr((string) $passkey['id']); ?>">
-                  <button type="submit" class="btn btn-danger btn-sm" aria-label="<?php echo ui_attr($t('削除', 'Remove')); ?>">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true" focusable="false"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
-                  </button>
-                </form>
-              </li>
-            <?php endforeach; ?>
-          </ul>
-        <?php endif; ?>
-      </div>
-    </div>
-  </div>
-
 </div>
 
 <script>

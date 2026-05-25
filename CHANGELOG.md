@@ -1025,8 +1025,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   Changelog. Pages without a Japanese sibling fall back to English. A new
   `.github/workflows/docs.yml` runs `mkdocs build --strict` on every PR
   touching `docs/`, `mkdocs.yml`, or `requirements.txt`, and on `main`
-  pushes deploys to GitHub Pages at
-  https://willen-federation.github.io/SASO-Willen-Edition/.
+  pushes deploys to Netlify at
+  https://saso-willen-edition.netlify.app/.
 - **Local development stack** (M2-C). New `docker/Dockerfile`
   (`php:8.2-apache` + `pdo_mysql` / `gd` / `zip` / `intl` / `mbstring` /
   `opcache` / `exif` + Composer 2), `docker/apache/000-default.conf`

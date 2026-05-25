@@ -2,7 +2,7 @@
 
 * Status: accepted
 * Date: 2026-04-28
-* Deciders: @kackey621, Willen Federation contributors
+* Deciders: Willen Federation contributors
 * Supersedes: parts of legacy Bootstrap usage (no prior ADR)
 
 ## Context
@@ -18,7 +18,7 @@ The project explicitly opted out of Node-in-production (no `package.json` today;
 1. Adopt **TailAdmin Free Tailwind v3** as the new UI base.
 2. Build CSS via the **tailwindcss standalone CLI binary** (single static Go executable, no Node ecosystem). Builds are committed: `css/tailadmin.css` ships as a build artefact under git so production servers stay Node-free.
 3. Vendor **Alpine.js 3.14.1** + plugins (`@alpinejs/persist`, `@alpinejs/focus`) as committed `js/alpine*.min.js`. `make tailadmin-vendor` re-pulls pinned versions.
-4. Replace `root/template/root.php` Bootstrap shell with TailAdmin sidebar+header layout. Per-page Bootstrap markup is migrated phase-by-phase (see implementation plan in `/home/schicksal/.claude/plans/`).
+4. Replace `root/template/root.php` Bootstrap shell with TailAdmin sidebar+header layout. Per-page Bootstrap markup is migrated phase-by-phase.
 5. Introduce reusable PHP partials at `root/template/_layout/` (sidebar, header, breadcrumb, footer, skip-link, lang-switcher, installer-alert) and component helpers at `root/template/_components/` (card, formField, button, table, modal, alert, pagination, tabs, iconHeroicon). A single `ui($name, $args)` global helper (registered via Composer `autoload.files`) gives templates a one-line render API.
 6. Add a **language switcher** to the header — POSTs to `/locale/set/{lc}`, writes `saso_locale` cookie (365d, SameSite=Lax). `LocaleResolver` extended with a 4th source: cookie (precedence: query > member preference > cookie > Accept-Language > default).
 7. **Accessibility baseline**: every page renders a single `<header role="banner">`, `<nav role="navigation">`, `<main id="main-content" tabindex="-1">`, `<footer role="contentinfo">`. Skip-link is the first focusable element. `formField` helper enforces `<label for>` / `aria-describedby`. Focus-visible rings apply globally. Keyboard nav: modals trap focus via `@alpinejs/focus`, ESC closes, Tab order follows DOM.

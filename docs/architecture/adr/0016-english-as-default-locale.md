@@ -2,7 +2,7 @@
 
 * Status: accepted
 * Date: 2026-04-26
-* Deciders: @kackey621, Willen Federation contributors
+* Deciders: Willen Federation contributors
 
 ## Context and Problem Statement
 

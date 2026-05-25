@@ -1,348 +1,476 @@
 {
-    "auth": {
-        "start": {
-           "matter": "auth",
-           "action": "start"
-        },
-        "provider": {
-           "matter": "auth",
-           "action": "providerNew"
-        }
-    },
-    "js": {
-        "main.js": {
-            "matter": "js",
-            "action": "main"
-        },
-        "label.js": {
-            "matter": "js",
-            "action": "label"
-        },
-        "category.js": {
-            "matter": "js",
-            "action": "category"
-        },
-        "item.js": {
-            "matter": "js",
-            "action": "item"
-        },
-        "itemEdit.js": {
-            "matter": "js",
-            "action": "itemEdit"
-        },
-        "list.js": {
-            "matter": "js",
-            "action": "list"
-        },
-        "feature.js": {
-            "matter": "js",
-            "action": "feature"
-        },
-        "barcode.js": {
-            "matter": "js",
-            "action": "barcode"
-        },
-        "csrf.js": {
-            "matter": "js",
-            "action": "csrf"
-        },
-        "shelf.js": {
-            "matter": "js",
-            "action": "shelf"
-        },
-        "password.js": {
-            "matter": "js",
-            "action": "password"
-        },
-        "archiveAll.js": {
-            "matter": "js",
-            "action": "archiveAll"
-        }
-    },
+  "auth": {
     "start": {
-        "start": {
-           "matter": "start",
-           "action": "start"
-        },
-        "logout": {
-           "matter": "auth",
-           "action": "logout"
-        },
-        "password": {
-           "matter": "auth",
-           "action": "password"
-        }
+      "matter": "auth",
+      "action": "start"
     },
-    "image": {
-        "start": {
-            "matter": "image",
-            "action": "start"
-        },
-        "add": {
-            "matter": "image",
-            "action": "add"
-        },
-        "display": {
-            "matter": "image",
-            "action": "display"
-        }
+    "provider": {
+      "matter": "auth",
+      "action": "providerNew"
+    }
+  },
+  "js": {
+    "main.js": {
+      "matter": "js",
+      "action": "main"
     },
-    "category": {
-        "start": {
-           "matter": "category",
-           "action": "edit"
-        },
-        "list.json": {
-           "matter": "category",
-           "action": "list"
-        },
-        "add": {
-           "matter": "category",
-           "action": "add"
-        },
-        "replace": {
-           "matter": "category",
-           "action": "replace"
-        },
-        "delete": {
-           "matter": "category",
-           "action": "delete"
-        },
-        "path.json": {
-            "matter": "category",
-            "action": "path"
-        }
+    "label.js": {
+      "matter": "js",
+      "action": "label"
+    },
+    "category.js": {
+      "matter": "js",
+      "action": "category"
+    },
+    "item.js": {
+      "matter": "js",
+      "action": "item"
+    },
+    "itemEdit.js": {
+      "matter": "js",
+      "action": "itemEdit"
+    },
+    "list.js": {
+      "matter": "js",
+      "action": "list"
+    },
+    "feature.js": {
+      "matter": "js",
+      "action": "feature"
+    },
+    "barcode.js": {
+      "matter": "js",
+      "action": "barcode"
+    },
+    "csrf.js": {
+      "matter": "js",
+      "action": "csrf"
+    },
+    "shelf.js": {
+      "matter": "js",
+      "action": "shelf"
+    },
+    "password.js": {
+      "matter": "js",
+      "action": "password"
+    },
+    "archiveAll.js": {
+      "matter": "js",
+      "action": "archiveAll"
+    }
+  },
+  "start": {
+    "start": {
+      "matter": "start",
+      "action": "start"
+    },
+    "logout": {
+      "matter": "auth",
+      "action": "logout"
+    },
+    "password": {
+      "matter": "auth",
+      "action": "password"
+    }
+  },
+  "image": {
+    "start": {
+      "matter": "image",
+      "action": "start"
+    },
+    "add": {
+      "matter": "image",
+      "action": "add"
+    },
+    "display": {
+      "matter": "image",
+      "action": "display"
+    }
+  },
+  "category": {
+    "start": {
+      "matter": "category",
+      "action": "edit"
+    },
+    "list.json": {
+      "matter": "category",
+      "action": "list"
+    },
+    "add": {
+      "matter": "category",
+      "action": "add"
+    },
+    "replace": {
+      "matter": "category",
+      "action": "replace"
+    },
+    "delete": {
+      "matter": "category",
+      "action": "delete"
+    },
+    "path.json": {
+      "matter": "category",
+      "action": "path"
+    }
+  },
+  "archive": {
+    "list": {
+      "matter": "item",
+      "action": "archiveList"
+    }
+  },
+  "item": {
+    "start": {
+      "matter": "item",
+      "action": "one"
+    },
+    "add": {
+      "matter": "item",
+      "action": "register"
+    },
+    "edit": {
+      "matter": "item",
+      "action": "edit"
+    },
+    "changePrice": {
+      "matter": "item",
+      "action": "changePrice"
+    },
+    "changeCategory": {
+      "matter": "item",
+      "action": "changeCategory"
+    },
+    "changeMeta": {
+      "matter": "item",
+      "action": "changeMeta"
+    },
+    "changeSizeOrder": {
+      "matter": "item",
+      "action": "changeSizeOrder"
+    },
+    "addFeature": {
+      "matter": "item",
+      "action": "addFeature"
     },
     "archive": {
-        "list": {
-            "matter": "item",
-            "action": "archiveList"
-        }
+      "matter": "item",
+      "action": "archive"
     },
-    "item": {
-        "start": {
-           "matter": "item",
-           "action": "one"
-        },
-        "add": {
-           "matter": "item",
-           "action": "register"
-        },
-        "edit": {
-            "matter": "item",
-            "action": "edit"
-        },
-        "changePrice": {
-            "matter": "item",
-            "action": "changePrice"
-        },
-        "changeCategory": {
-            "matter": "item",
-            "action": "changeCategory"
-        },
-        "changeMeta": {
-            "matter": "item",
-            "action": "changeMeta"
-        },
-        "changeSizeOrder": {
-            "matter": "item",
-            "action": "changeSizeOrder"
-        },
-        "addFeature": {
-            "matter": "item",
-            "action": "addFeature"
-        },
-        "archive": {
-            "matter": "item",
-            "action": "archive"
-        },
-        "archivingAll": {
-            "matter": "item",
-            "action": "archiveAllFrame"
-        },
-        "archiveAll": {
-            "matter": "item",
-            "action": "archivedAll"
-        },
-        "reproduction": {
-            "matter": "item",
-            "action": "reproduction"
-        },
-        "fromBarcode": {
-            "matter": "item",
-            "action": "fromBarcode"
-        },
-        "registerFromBarcode": {
-            "matter": "item",
-            "action": "registerFromBarcode"
-        },
-        "bulkAdd": {
-            "matter": "item",
-            "action": "bulkAdd"
-        },
-        "attributeValues": {
-            "matter": "item",
-            "action": "attributeValues"
-        },
-        "bulkImport": {
-            "matter": "item",
-            "action": "bulkImport"
-        },
-        "bulkExport": {
-            "matter": "item",
-            "action": "bulkExport"
-        },
-        "bulkTemplate": {
-            "matter": "item",
-            "action": "bulkTemplate"
-        },
-        "inventory": {
-           "matter": "feature",
-           "action": "inventory"
-        },
-        "stock": {
-            "matter": "feature",
-            "action": "stock"
-        },
-        "shipment": {
-            "matter": "feature",
-            "action": "shipment"
-        },
-        "history": {
-           "matter": "feature",
-           "action": "history"
-        }
+    "archivingAll": {
+      "matter": "item",
+      "action": "archiveAllFrame"
+    },
+    "archiveAll": {
+      "matter": "item",
+      "action": "archivedAll"
+    },
+    "reproduction": {
+      "matter": "item",
+      "action": "reproduction"
+    },
+    "fromBarcode": {
+      "matter": "item",
+      "action": "fromBarcode"
+    },
+    "registerFromBarcode": {
+      "matter": "item",
+      "action": "registerFromBarcode"
+    },
+    "bulkAdd": {
+      "matter": "item",
+      "action": "bulkAdd"
+    },
+    "attributeValues": {
+      "matter": "item",
+      "action": "attributeValues"
+    },
+    "bulkImport": {
+      "matter": "item",
+      "action": "bulkImport"
+    },
+    "bulkExport": {
+      "matter": "item",
+      "action": "bulkExport"
+    },
+    "bulkTemplate": {
+      "matter": "item",
+      "action": "bulkTemplate"
+    },
+    "inventory": {
+      "matter": "feature",
+      "action": "inventory"
+    },
+    "stock": {
+      "matter": "feature",
+      "action": "stock"
+    },
+    "shipment": {
+      "matter": "feature",
+      "action": "shipment"
+    },
+    "history": {
+      "matter": "feature",
+      "action": "history"
+    },
+    "lookupCode.json": {
+      "matter": "item",
+      "action": "codeLookup"
+    }
+  },
+  "label": {
+    "start": {
+      "matter": "label",
+      "action": "edit"
+    },
+    "list": {
+      "matter": "label",
+      "action": "list"
+    },
+    "size.json": {
+      "matter": "label",
+      "action": "size"
+    },
+    "add": {
+      "matter": "label",
+      "action": "register"
+    },
+    "delete": {
+      "matter": "label",
+      "action": "delete"
+    },
+    "features": {
+      "matter": "label",
+      "action": "features"
+    },
+    "select": {
+      "matter": "feature",
+      "action": "label"
+    },
+    "deleteAll": {
+      "matter": "label",
+      "action": "deleteAll"
+    },
+    "shortName.json": {
+      "matter": "label",
+      "action": "shortName"
+    },
+    "outputPdf": {
+      "matter": "label",
+      "action": "pdf"
+    },
+    "wizard": {
+      "matter": "label",
+      "action": "wizard"
+    },
+    "pending": {
+      "matter": "label",
+      "action": "pending"
+    }
+  },
+  "shelf": {
+    "put": {
+      "matter": "feature",
+      "action": "shelf"
+    },
+    "start": {
+      "matter": "shelf",
+      "action": "menu"
+    },
+    "multi": {
+      "matter": "shelf",
+      "action": "multi"
+    },
+    "single": {
+      "matter": "shelf",
+      "action": "single"
+    },
+    "outputPdf": {
+      "matter": "shelf",
+      "action": "pdf"
+    },
+    "simple": {
+      "matter": "shelf",
+      "action": "simple"
+    },
+    "simpleSave": {
+      "matter": "shelf",
+      "action": "simpleSave"
+    },
+    "map": {
+      "matter": "shelf",
+      "action": "map"
+    },
+    "shelves": {
+      "matter": "shelf",
+      "action": "shelves"
     },
     "label": {
-        "start": {
-           "matter": "label",
-           "action": "edit"
-        },
-        "list": {
-            "matter": "label",
-            "action": "list"
-        },
-        "size.json": {
-           "matter": "label",
-           "action": "size"
-        },
-        "add": {
-            "matter": "label",
-            "action": "register"
-        },
-        "delete": {
-            "matter": "label",
-            "action": "delete"
-        },
-        "features": {
-            "matter": "label",
-            "action": "features"
-        },
-        "select": {
-            "matter": "feature",
-            "action": "label"
-        },
-        "deleteAll": {
-            "matter": "label",
-            "action": "deleteAll"
-        },
-        "shortName.json": {
-            "matter": "label",
-            "action": "shortName"
-        },
-        "outputPdf": {
-            "matter": "label",
-            "action": "pdf"
-        },
-        "wizard": {
-            "matter": "label",
-            "action": "wizard"
-        },
-        "pending": {
-            "matter": "label",
-            "action": "pending"
-        }
+      "matter": "feature",
+      "action": "label"
+    }
+  },
+  "barcode": {
+    "start": {
+      "matter": "barcode",
+      "action": "start"
+    },
+    "sheet": {
+      "matter": "barcode",
+      "action": "sheet"
+    },
+    "printSheet": {
+      "matter": "barcode",
+      "action": "printSheet"
+    }
+  },
+  "member": {
+    "start": {
+      "matter": "member",
+      "action": "start"
+    },
+    "add": {
+      "matter": "member",
+      "action": "add"
+    },
+    "edit": {
+      "matter": "member",
+      "action": "edit"
+    },
+    "delete": {
+      "matter": "member",
+      "action": "delete"
+    }
+  },
+  "role": {
+    "start": {
+      "matter": "role",
+      "action": "start"
+    },
+    "add": {
+      "matter": "role",
+      "action": "add"
+    },
+    "edit": {
+      "matter": "role",
+      "action": "edit"
+    },
+    "delete": {
+      "matter": "role",
+      "action": "delete"
+    }
+  },
+  "scanStock": {
+    "start": {
+      "matter": "scanStock",
+      "action": "start"
+    }
+  },
+  "settingAdmin": {
+    "start": {
+      "matter": "settingAdmin",
+      "action": "start"
     },
     "shelf": {
-        "put":       { "matter": "feature", "action": "shelf" },
-        "start":     { "matter": "shelf",   "action": "menu" },
-        "multi":     { "matter": "shelf",   "action": "multi" },
-        "single":    { "matter": "shelf",   "action": "single" },
-        "outputPdf": { "matter": "shelf",   "action": "pdf" },
-        "simple":    { "matter": "shelf",   "action": "simple" },
-        "simpleSave":{ "matter": "shelf",   "action": "simpleSave" },
-        "map":       { "matter": "shelf",   "action": "map" },
-        "shelves":   { "matter": "shelf",   "action": "shelves" },
-        "label":     { "matter": "feature", "action": "label" }
+      "matter": "settingAdmin",
+      "action": "shelf"
     },
-    "barcode": {
-        "start":      { "matter": "barcode", "action": "start" },
-        "sheet":      { "matter": "barcode", "action": "sheet" },
-        "printSheet": { "matter": "barcode", "action": "printSheet" }
-    },
-    "member": {
-        "start":  { "matter": "member", "action": "start" },
-        "add":    { "matter": "member", "action": "add" },
-        "edit":   { "matter": "member", "action": "edit" },
-        "delete": { "matter": "member", "action": "delete" }
-    },
-    "role": {
-        "start":  { "matter": "role", "action": "start" },
-        "add":    { "matter": "role", "action": "add" },
-        "edit":   { "matter": "role", "action": "edit" },
-        "delete": { "matter": "role", "action": "delete" }
-    },
-    "scanStock": {
-        "start": { "matter": "scanStock", "action": "start" }
-    },
-    "settingAdmin": {
-        "start": { "matter": "settingAdmin", "action": "start" },
-        "shelf": { "matter": "settingAdmin", "action": "shelf" }
-    },
-    "mypage": {
-        "start":       { "matter": "mypage", "action": "start" },
-        "editProfile": { "matter": "mypage", "action": "editProfile" },
-        "unlinkProvider": { "matter": "mypage", "action": "unlinkProvider" },
-        "passkeyBegin": { "matter": "mypage", "action": "passkeyBegin" },
-        "passkeyComplete": { "matter": "mypage", "action": "passkeyComplete" },
-        "passkeyDelete": { "matter": "mypage", "action": "passkeyDelete" },
-        "devicePair":   { "matter": "mypage", "action": "devicePair" },
-        "deviceRevoke": { "matter": "mypage", "action": "deviceRevoke" }
-    },
-    "admin": {
-        "feature-flags": {
-           "matter": "featureAdmin",
-           "action": "list"
-        },
-        "auth-providers": {
-           "matter": "admin",
-           "action": "auth-providers"
-        },
-        "ai-settings": {
-           "matter": "admin",
-           "action": "ai-settings"
-        },
-        "firebase-settings": {
-           "matter": "admin",
-           "action": "firebase-settings"
-        },
-        "env-settings": {
-           "matter": "admin",
-           "action": "env-settings"
-        }
-    },
-    "verify": {
-        "start":  { "matter": "verify", "action": "start" },
-        "create": { "matter": "verify", "action": "create" }
-    },
-    "search": {
-        "start": { "matter": "search", "action": "start" }
-    },
-    "itemAttribute": {
-        "start":      { "matter": "itemAttribute", "action": "edit" },
-        "list.json":  { "matter": "itemAttribute", "action": "list" },
-        "add":        { "matter": "itemAttribute", "action": "add" },
-        "update":     { "matter": "itemAttribute", "action": "update" },
-        "delete":     { "matter": "itemAttribute", "action": "delete" }
+    "itemFields": {
+      "matter": "settingAdmin",
+      "action": "itemFields"
     }
+  },
+  "mypage": {
+    "start": {
+      "matter": "mypage",
+      "action": "start"
+    },
+    "editProfile": {
+      "matter": "mypage",
+      "action": "editProfile"
+    },
+    "unlinkProvider": {
+      "matter": "mypage",
+      "action": "unlinkProvider"
+    },
+    "passkeyBegin": {
+      "matter": "mypage",
+      "action": "passkeyBegin"
+    },
+    "passkeyComplete": {
+      "matter": "mypage",
+      "action": "passkeyComplete"
+    },
+    "passkeyDelete": {
+      "matter": "mypage",
+      "action": "passkeyDelete"
+    },
+    "devicePair": {
+      "matter": "mypage",
+      "action": "devicePair"
+    },
+    "deviceRevoke": {
+      "matter": "mypage",
+      "action": "deviceRevoke"
+    }
+  },
+  "admin": {
+    "feature-flags": {
+      "matter": "featureAdmin",
+      "action": "list"
+    },
+    "auth-providers": {
+      "matter": "admin",
+      "action": "auth-providers"
+    },
+    "ai-settings": {
+      "matter": "admin",
+      "action": "ai-settings"
+    },
+    "firebase-settings": {
+      "matter": "admin",
+      "action": "firebase-settings"
+    },
+    "env-settings": {
+      "matter": "admin",
+      "action": "env-settings"
+    }
+  },
+  "verify": {
+    "start": {
+      "matter": "verify",
+      "action": "start"
+    },
+    "create": {
+      "matter": "verify",
+      "action": "create"
+    }
+  },
+  "search": {
+    "start": {
+      "matter": "search",
+      "action": "start"
+    }
+  },
+  "itemAttribute": {
+    "start": {
+      "matter": "itemAttribute",
+      "action": "edit"
+    },
+    "list.json": {
+      "matter": "itemAttribute",
+      "action": "list"
+    },
+    "add": {
+      "matter": "itemAttribute",
+      "action": "add"
+    },
+    "update": {
+      "matter": "itemAttribute",
+      "action": "update"
+    },
+    "delete": {
+      "matter": "itemAttribute",
+      "action": "delete"
+    }
+  }
 }

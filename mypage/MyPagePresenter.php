@@ -36,6 +36,8 @@ final class MyPagePresenter implements Presenter
         )->flatMap(
             $this->success->defaultScopes(fn($v) => $v->defaultScopes)
         )->flatMap(
+            $this->success->isAdmin(fn($v) => $v->isAdmin)
+        )->flatMap(
             fn($v) => $this->success
         )->getOrElse($this->success);
     }

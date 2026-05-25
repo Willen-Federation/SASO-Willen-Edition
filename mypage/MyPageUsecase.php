@@ -57,6 +57,7 @@ final class MyPageUsecase implements Usecase
             apiDocsUrl: $apiBaseUrl.'/docs',
             openApiUrl: $apiBaseUrl.'/openapi.yaml',
             defaultScopes: DeviceToken::DEFAULT_SCOPES,
+            isAdmin: $member->role === 'admin',
         );
     }
 

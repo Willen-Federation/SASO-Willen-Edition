@@ -155,7 +155,8 @@ $lang = $_SESSION['lang'] ?? ($_COOKIE['saso_locale'] ?? 'ja');
       </div>
     </div>
 
-    <!-- API Access card -->
+    <!-- API Access card (admin only) -->
+    <?php if ($v->isAdmin): ?>
     <div class="rounded-2xl border shadow-sm overflow-hidden" style="background:var(--saso-card);border-color:var(--saso-card-bdr)"
          x-data="{ copied: false, async copy(text) { try { await navigator.clipboard.writeText(text); this.copied = true; setTimeout(() => this.copied = false, 1500); } catch (e) { console.warn('clipboard failed', e); } } }">
       <div class="flex items-center justify-between px-6 py-4 border-b" style="border-color:var(--saso-card-bdr)">
@@ -211,6 +212,7 @@ $lang = $_SESSION['lang'] ?? ($_COOKIE['saso_locale'] ?? 'ja');
         <?php endif; ?>
       </div>
     </div>
+    <?php endif; ?>
 
     <!-- Linked Devices card -->
     <?php

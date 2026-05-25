@@ -128,6 +128,38 @@
       ]);
       ?>
     </form>
+
+    <!-- Quick links to related settings pages -->
+    <div class="mt-6 border-t border-gray-200 pt-5 dark:border-gray-800">
+      <h4 class="mb-3 text-sm font-semibold uppercase tracking-wider text-gray-600 dark:text-gray-400">
+        <?php echo $lang === 'ja' ? '関連設定' : 'Related Settings'; ?>
+      </h4>
+      <div class="flex flex-col gap-2">
+        <a href="./settingAdmin/itemFields"
+           class="flex items-center gap-2 rounded-lg border px-4 py-3 text-sm font-medium transition
+                  hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-800"
+           style="border-color:var(--saso-card-bdr);color:var(--saso-text)">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 flex-shrink-0 opacity-60" fill="none"
+               viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+            <path stroke-linecap="round" stroke-linejoin="round"
+                  d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 002.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 00-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 00.75-.75 2.25 2.25 0 00-.1-.664m-5.8 0A2.251 2.251 0 0113.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25zM6.75 12h.008v.008H6.75V12zm0 3h.008v.008H6.75V15zm0 3h.008v.008H6.75V18z"/>
+          </svg>
+          <?php echo $lang === 'ja' ? '商品入力項目の表示設定' : 'Item Form Field Visibility'; ?>
+        </a>
+        <a href="./itemAttribute/start/"
+           class="flex items-center gap-2 rounded-lg border px-4 py-3 text-sm font-medium transition
+                  hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-800"
+           style="border-color:var(--saso-card-bdr);color:var(--saso-text)">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 flex-shrink-0 opacity-60" fill="none"
+               viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+            <path stroke-linecap="round" stroke-linejoin="round"
+                  d="M10.5 6h9.75M10.5 6a1.5 1.5 0 11-3 0m3 0a1.5 1.5 0 10-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-9.75 0h9.75"/>
+          </svg>
+          <?php echo $lang === 'ja' ? 'カスタム属性の管理' : 'Manage Custom Attributes'; ?>
+        </a>
+      </div>
+    </div>
+
   <?php
       },
     ]);

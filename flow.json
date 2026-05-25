@@ -1,174 +1,176 @@
 {
-    "error": {
-        "notFound": "\\saso\\common\\NotFoundDIContainer"
-    },
-    "installer": {
-        "start": "\\saso\\installer\\StartDIContainer",
-        "database": "\\saso\\installer\\DatabaseDIContainer",
-        "schema": "\\saso\\installer\\SchemaDIContainer",
-        "security": "\\saso\\installer\\SecurityDIContainer",
-        "services": "\\saso\\installer\\ServicesDIContainer",
-        "admin": "\\saso\\installer\\AdminDIContainer",
-        "install": "\\saso\\installer\\InstallDIContainer",
-        "installed": "\\saso\\installer\\InstalledDIContainer",
-        "cleanup": "\\saso\\installer\\CleanupDIContainer",
-        "config": "\\saso\\installer\\ConfigDIContainer"
-    },
-    "admin": {
-        "auth-providers": "\\saso\\authExt\\ProvidersDIContainer",
-        "ai-settings": "\\saso\\admin\\AiSettingsDIContainer",
-        "firebase-settings": "\\saso\\admin\\FirebaseSettingsDIContainer",
-        "env-settings": "\\saso\\admin\\EnvSettingsDIContainer"
-    },
-    "auth": {
-        "start": "\\saso\\auth\\AuthDIContainer",
-        "logout": "\\saso\\auth\\LogoutDIContainer",
-        "password": "\\saso\\auth\\PasswordDIContainer",
-        "providerNew": "\\saso\\auth\\ProviderNewDIContainer"
-    },
-    "featureAdmin": {
-        "list": "\\saso\\featureAdmin\\ListDIContainer"
-    },
-    "image": {
-        "start": "\\saso\\image\\StartDIContainer",
-        "add": "\\saso\\image\\AddDIContainer",
-        "display": "\\saso\\image\\DisplayDIContainer"
-    },
-    "js": {
-        "main": "\\saso\\js\\JSDIContainer",
-        "label": "\\saso\\js\\JSDIContainer",
-        "category": "\\saso\\js\\JSDIContainer",
-        "item": "\\saso\\js\\JSDIContainer",
-        "itemEdit": "\\saso\\js\\JSDIContainer",
-        "list": "\\saso\\js\\JSDIContainer",
-        "feature": "\\saso\\js\\JSDIContainer",
-        "barcode": "\\saso\\js\\JSDIContainer",
-        "csrf": "\\saso\\js\\JSDIContainer",
-        "shelf": "\\saso\\js\\JSDIContainer",
-        "password": "\\saso\\js\\JSDIContainer",
-        "archiveAll": "\\saso\\js\\JSDIContainer"
-    },
-    "start": {
-        "start": "\\saso\\start\\StartDIContainer",
-        "menu": "\\saso\\start\\MenuDIContainer",
-        "password": "\\saso\\auth\\PasswordDIContainer"
-    },
-    "mypage": {
-        "start": "\\saso\\mypage\\MyPageDIContainer",
-        "editProfile": "\\saso\\mypage\\EditProfileDIContainer",
-        "unlinkProvider": "\\saso\\mypage\\UnlinkProviderDIContainer",
-        "passkeyBegin": "\\saso\\mypage\\PasskeyBeginDIContainer",
-        "passkeyComplete": "\\saso\\mypage\\PasskeyCompleteDIContainer",
-        "passkeyDelete": "\\saso\\mypage\\PasskeyDeleteDIContainer",
-        "devicePair": "\\saso\\mypage\\DevicePairDIContainer",
-        "deviceRevoke": "\\saso\\mypage\\DeviceRevokeDIContainer"
-    },
-    "category": {
-        "edit": "\\saso\\category\\EditDIContainer",
-        "list": "\\saso\\category\\ListDIContainer",
-        "add": "\\saso\\category\\AddDIContainer",
-        "replace": "\\saso\\category\\ReplaceDIContainer",
-        "delete": "\\saso\\category\\DeleteDIContainer",
-        "path": "\\saso\\category\\PathDIContainer"
-    },
-    "item": {
-        "archiveList": "\\saso\\item\\ArchiveListDIContainer",
-        "archiveAllFrame": "\\saso\\item\\ArchiveAllFrameDIContainer",
-        "archiveAll": "\\saso\\item\\ArchiveAllDIContainer",
-        "archivedAll": "\\saso\\item\\ArchivedAllDIContainer",
-        "listFrame": "\\saso\\item\\ListFrameDIContainer",
-        "listContents": "\\saso\\item\\ListContentsDIContainer",
-        "head": "\\saso\\item\\HeadDIContainer",
-        "row": "\\saso\\item\\RowDIContainer",
-        "pagination": "\\saso\\item\\PaginationDIContainer",
-        "one": "\\saso\\item\\OneDIContainer",
-        "register": "\\saso\\item\\RegisterDIContainer",
-        "edit": "\\saso\\item\\EditDIContainer",
-        "changePrice": "\\saso\\item\\ChangePriceDIContainer",
-        "changeCategory": "\\saso\\item\\ChangeCategoryDIContainer",
-        "changeMeta": "\\saso\\item\\ChangeMetaDIContainer",
-        "changeSizeOrder": "\\saso\\item\\ChangeSizeOrderDIContainer",
-        "addFeature": "\\saso\\item\\AddFeatureDIContainer",
-        "changeStatus": "\\saso\\item\\ChangeStatusDIContainer",
-        "archive": "\\saso\\item\\ArchiveDIContainer",
-        "reproduction": "\\saso\\item\\ReproductionDIContainer",
-        "fromBarcode": "\\saso\\item\\FromBarcodeDIContainer",
-        "registerFromBarcode": "\\saso\\item\\RegisterFromBarcodeDIContainer",
-        "attributeValues": "\\saso\\item\\AttributeValuesDIContainer",
-        "bulkAdd": "\\saso\\item\\BulkAddDIContainer",
-        "bulkImport": "\\saso\\item\\BulkImportDIContainer",
-        "bulkExport": "\\saso\\item\\BulkExportDIContainer",
-        "bulkTemplate": "\\saso\\item\\BulkTemplateDIContainer"
-    },
-    "feature": {
-        "inventory": "\\saso\\feature\\AmountDIContainer",
-        "shelf": "\\saso\\feature\\ShelfDIContainer",
-        "stock": "\\saso\\feature\\AmountDIContainer",
-        "shipment": "\\saso\\feature\\AmountDIContainer",
-        "history": "\\saso\\feature\\HistoryDIContainer",
-        "label": "\\saso\\feature\\LabelDIContainer",
-        "labelAmountFeatures": "\\saso\\feature\\LabelAmountFeaturesDIContainer"
-    },
-    "shelf": {
-        "menu": "\\saso\\shelf\\MenuDIContainer",
-        "multi": "\\saso\\shelf\\MultiDIContainer",
-        "single": "\\saso\\shelf\\SingleDIContainer",
-        "shelves": "\\saso\\shelf\\ShelvesDIContainer",
-        "pdf": "\\saso\\shelf\\PdfDIContainer",
-        "simple": "\\saso\\shelf\\SimpleDIContainer",
-        "simpleSave": "\\saso\\shelf\\SimpleSaveDIContainer",
-        "map": "\\saso\\shelf\\MapDIContainer"
-    },
-    "verify": {
-        "start": "\\saso\\verify\\StartDIContainer",
-        "create": "\\saso\\verify\\CreateDIContainer"
-    },
-    "label": {
-        "edit": "\\saso\\label\\EditDIContainer",
-        "list": "\\saso\\label\\ListDIContainer",
-        "svg": "\\saso\\label\\SvgDIContainer",
-        "size": "\\saso\\label\\SizeDIContainer",
-        "register": "\\saso\\label\\RegisterDIContainer",
-        "delete": "\\saso\\label\\DeleteDIContainer",
-        "features": "\\saso\\label\\FeaturesDIContainer",
-        "deleteAll": "\\saso\\label\\DeleteAllDIContainer",
-        "shortName": "\\saso\\label\\ShortNameDIContainer",
-        "pdf": "\\saso\\label\\PdfDIContainer",
-        "wizard": "\\saso\\barcode\\SheetDIContainer",
-        "pending": "\\saso\\label\\PendingDIContainer"
-    },
-    "barcode": {
-        "start": "\\saso\\barcode\\StartDIContainer",
-        "sheet": "\\saso\\barcode\\SheetDIContainer",
-        "printSheet": "\\saso\\barcode\\PrintSheetDIContainer"
-    },
-    "member": {
-        "start": "\\saso\\member\\StartDIContainer",
-        "add": "\\saso\\member\\AddDIContainer",
-        "edit": "\\saso\\member\\EditDIContainer",
-        "delete": "\\saso\\member\\DeleteDIContainer"
-    },
-    "role": {
-        "start": "\\saso\\role\\StartDIContainer",
-        "add": "\\saso\\role\\AddDIContainer",
-        "edit": "\\saso\\role\\EditDIContainer",
-        "delete": "\\saso\\role\\DeleteDIContainer"
-    },
-    "scanStock": {
-        "start": "\\saso\\scanStock\\StartDIContainer"
-    },
-    "settingAdmin": {
-        "start": "\\saso\\settingAdmin\\StartDIContainer",
-        "shelf": "\\saso\\settingAdmin\\ShelfSettingsDIContainer"
-    },
-    "search": {
-        "start": "\\saso\\search\\StartDIContainer"
-    },
-    "itemAttribute": {
-        "edit":   "\\saso\\itemAttribute\\EditDIContainer",
-        "list":   "\\saso\\itemAttribute\\ListDIContainer",
-        "add":    "\\saso\\itemAttribute\\AddDIContainer",
-        "update": "\\saso\\itemAttribute\\UpdateDIContainer",
-        "delete": "\\saso\\itemAttribute\\DeleteDIContainer"
-    }
+  "error": {
+    "notFound": "\\saso\\common\\NotFoundDIContainer"
+  },
+  "installer": {
+    "start": "\\saso\\installer\\StartDIContainer",
+    "database": "\\saso\\installer\\DatabaseDIContainer",
+    "schema": "\\saso\\installer\\SchemaDIContainer",
+    "security": "\\saso\\installer\\SecurityDIContainer",
+    "services": "\\saso\\installer\\ServicesDIContainer",
+    "admin": "\\saso\\installer\\AdminDIContainer",
+    "install": "\\saso\\installer\\InstallDIContainer",
+    "installed": "\\saso\\installer\\InstalledDIContainer",
+    "cleanup": "\\saso\\installer\\CleanupDIContainer",
+    "config": "\\saso\\installer\\ConfigDIContainer"
+  },
+  "admin": {
+    "auth-providers": "\\saso\\authExt\\ProvidersDIContainer",
+    "ai-settings": "\\saso\\admin\\AiSettingsDIContainer",
+    "firebase-settings": "\\saso\\admin\\FirebaseSettingsDIContainer",
+    "env-settings": "\\saso\\admin\\EnvSettingsDIContainer"
+  },
+  "auth": {
+    "start": "\\saso\\auth\\AuthDIContainer",
+    "logout": "\\saso\\auth\\LogoutDIContainer",
+    "password": "\\saso\\auth\\PasswordDIContainer",
+    "providerNew": "\\saso\\auth\\ProviderNewDIContainer"
+  },
+  "featureAdmin": {
+    "list": "\\saso\\featureAdmin\\ListDIContainer"
+  },
+  "image": {
+    "start": "\\saso\\image\\StartDIContainer",
+    "add": "\\saso\\image\\AddDIContainer",
+    "display": "\\saso\\image\\DisplayDIContainer"
+  },
+  "js": {
+    "main": "\\saso\\js\\JSDIContainer",
+    "label": "\\saso\\js\\JSDIContainer",
+    "category": "\\saso\\js\\JSDIContainer",
+    "item": "\\saso\\js\\JSDIContainer",
+    "itemEdit": "\\saso\\js\\JSDIContainer",
+    "list": "\\saso\\js\\JSDIContainer",
+    "feature": "\\saso\\js\\JSDIContainer",
+    "barcode": "\\saso\\js\\JSDIContainer",
+    "csrf": "\\saso\\js\\JSDIContainer",
+    "shelf": "\\saso\\js\\JSDIContainer",
+    "password": "\\saso\\js\\JSDIContainer",
+    "archiveAll": "\\saso\\js\\JSDIContainer"
+  },
+  "start": {
+    "start": "\\saso\\start\\StartDIContainer",
+    "menu": "\\saso\\start\\MenuDIContainer",
+    "password": "\\saso\\auth\\PasswordDIContainer"
+  },
+  "mypage": {
+    "start": "\\saso\\mypage\\MyPageDIContainer",
+    "editProfile": "\\saso\\mypage\\EditProfileDIContainer",
+    "unlinkProvider": "\\saso\\mypage\\UnlinkProviderDIContainer",
+    "passkeyBegin": "\\saso\\mypage\\PasskeyBeginDIContainer",
+    "passkeyComplete": "\\saso\\mypage\\PasskeyCompleteDIContainer",
+    "passkeyDelete": "\\saso\\mypage\\PasskeyDeleteDIContainer",
+    "devicePair": "\\saso\\mypage\\DevicePairDIContainer",
+    "deviceRevoke": "\\saso\\mypage\\DeviceRevokeDIContainer"
+  },
+  "category": {
+    "edit": "\\saso\\category\\EditDIContainer",
+    "list": "\\saso\\category\\ListDIContainer",
+    "add": "\\saso\\category\\AddDIContainer",
+    "replace": "\\saso\\category\\ReplaceDIContainer",
+    "delete": "\\saso\\category\\DeleteDIContainer",
+    "path": "\\saso\\category\\PathDIContainer"
+  },
+  "item": {
+    "archiveList": "\\saso\\item\\ArchiveListDIContainer",
+    "archiveAllFrame": "\\saso\\item\\ArchiveAllFrameDIContainer",
+    "archiveAll": "\\saso\\item\\ArchiveAllDIContainer",
+    "archivedAll": "\\saso\\item\\ArchivedAllDIContainer",
+    "listFrame": "\\saso\\item\\ListFrameDIContainer",
+    "listContents": "\\saso\\item\\ListContentsDIContainer",
+    "head": "\\saso\\item\\HeadDIContainer",
+    "row": "\\saso\\item\\RowDIContainer",
+    "pagination": "\\saso\\item\\PaginationDIContainer",
+    "one": "\\saso\\item\\OneDIContainer",
+    "register": "\\saso\\item\\RegisterDIContainer",
+    "edit": "\\saso\\item\\EditDIContainer",
+    "changePrice": "\\saso\\item\\ChangePriceDIContainer",
+    "changeCategory": "\\saso\\item\\ChangeCategoryDIContainer",
+    "changeMeta": "\\saso\\item\\ChangeMetaDIContainer",
+    "changeSizeOrder": "\\saso\\item\\ChangeSizeOrderDIContainer",
+    "addFeature": "\\saso\\item\\AddFeatureDIContainer",
+    "changeStatus": "\\saso\\item\\ChangeStatusDIContainer",
+    "archive": "\\saso\\item\\ArchiveDIContainer",
+    "reproduction": "\\saso\\item\\ReproductionDIContainer",
+    "fromBarcode": "\\saso\\item\\FromBarcodeDIContainer",
+    "registerFromBarcode": "\\saso\\item\\RegisterFromBarcodeDIContainer",
+    "attributeValues": "\\saso\\item\\AttributeValuesDIContainer",
+    "bulkAdd": "\\saso\\item\\BulkAddDIContainer",
+    "bulkImport": "\\saso\\item\\BulkImportDIContainer",
+    "bulkExport": "\\saso\\item\\BulkExportDIContainer",
+    "bulkTemplate": "\\saso\\item\\BulkTemplateDIContainer",
+    "codeLookup": "\\saso\\item\\CodeLookupDIContainer"
+  },
+  "feature": {
+    "inventory": "\\saso\\feature\\AmountDIContainer",
+    "shelf": "\\saso\\feature\\ShelfDIContainer",
+    "stock": "\\saso\\feature\\AmountDIContainer",
+    "shipment": "\\saso\\feature\\AmountDIContainer",
+    "history": "\\saso\\feature\\HistoryDIContainer",
+    "label": "\\saso\\feature\\LabelDIContainer",
+    "labelAmountFeatures": "\\saso\\feature\\LabelAmountFeaturesDIContainer"
+  },
+  "shelf": {
+    "menu": "\\saso\\shelf\\MenuDIContainer",
+    "multi": "\\saso\\shelf\\MultiDIContainer",
+    "single": "\\saso\\shelf\\SingleDIContainer",
+    "shelves": "\\saso\\shelf\\ShelvesDIContainer",
+    "pdf": "\\saso\\shelf\\PdfDIContainer",
+    "simple": "\\saso\\shelf\\SimpleDIContainer",
+    "simpleSave": "\\saso\\shelf\\SimpleSaveDIContainer",
+    "map": "\\saso\\shelf\\MapDIContainer"
+  },
+  "verify": {
+    "start": "\\saso\\verify\\StartDIContainer",
+    "create": "\\saso\\verify\\CreateDIContainer"
+  },
+  "label": {
+    "edit": "\\saso\\label\\EditDIContainer",
+    "list": "\\saso\\label\\ListDIContainer",
+    "svg": "\\saso\\label\\SvgDIContainer",
+    "size": "\\saso\\label\\SizeDIContainer",
+    "register": "\\saso\\label\\RegisterDIContainer",
+    "delete": "\\saso\\label\\DeleteDIContainer",
+    "features": "\\saso\\label\\FeaturesDIContainer",
+    "deleteAll": "\\saso\\label\\DeleteAllDIContainer",
+    "shortName": "\\saso\\label\\ShortNameDIContainer",
+    "pdf": "\\saso\\label\\PdfDIContainer",
+    "wizard": "\\saso\\barcode\\SheetDIContainer",
+    "pending": "\\saso\\label\\PendingDIContainer"
+  },
+  "barcode": {
+    "start": "\\saso\\barcode\\StartDIContainer",
+    "sheet": "\\saso\\barcode\\SheetDIContainer",
+    "printSheet": "\\saso\\barcode\\PrintSheetDIContainer"
+  },
+  "member": {
+    "start": "\\saso\\member\\StartDIContainer",
+    "add": "\\saso\\member\\AddDIContainer",
+    "edit": "\\saso\\member\\EditDIContainer",
+    "delete": "\\saso\\member\\DeleteDIContainer"
+  },
+  "role": {
+    "start": "\\saso\\role\\StartDIContainer",
+    "add": "\\saso\\role\\AddDIContainer",
+    "edit": "\\saso\\role\\EditDIContainer",
+    "delete": "\\saso\\role\\DeleteDIContainer"
+  },
+  "scanStock": {
+    "start": "\\saso\\scanStock\\StartDIContainer"
+  },
+  "settingAdmin": {
+    "start": "\\saso\\settingAdmin\\StartDIContainer",
+    "shelf": "\\saso\\settingAdmin\\ShelfSettingsDIContainer",
+    "itemFields": "\\saso\\settingAdmin\\ItemFieldsDIContainer"
+  },
+  "search": {
+    "start": "\\saso\\search\\StartDIContainer"
+  },
+  "itemAttribute": {
+    "edit": "\\saso\\itemAttribute\\EditDIContainer",
+    "list": "\\saso\\itemAttribute\\ListDIContainer",
+    "add": "\\saso\\itemAttribute\\AddDIContainer",
+    "update": "\\saso\\itemAttribute\\UpdateDIContainer",
+    "delete": "\\saso\\itemAttribute\\DeleteDIContainer"
+  }
 }

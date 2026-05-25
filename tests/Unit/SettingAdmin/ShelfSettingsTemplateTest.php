@@ -17,7 +17,7 @@ use PHPUnit\Framework\TestCase;
  */
 final class ShelfSettingsTemplateTest extends TestCase
 {
-    private const TEMPLATE_PATH = __DIR__ . '/../../../settingAdmin/template/shelf-settings.php';
+    private const TEMPLATE_PATH = __DIR__.'/../../../settingAdmin/template/shelf-settings.php';
 
     public function testTemplateExists(): void
     {

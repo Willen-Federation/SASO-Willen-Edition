@@ -112,7 +112,8 @@ ui:
     member: メンバー
     role: 権限ロール
     ai_settings: AI設定
-    firebase_settings: Firebase
+    notifications: プッシュ通知
+    env_settings: ENV設定
     password: パスワード
     barcode_sheet: バーコード作成・印刷
     shelf_simple: 棚番設定
@@ -145,7 +146,8 @@ ui:
     flags_help: 任意機能の有効・無効を切り替えます。
     auth_providers_help: 外部ログインプロバイダを設定します。
     ai_settings_help: AIプロバイダの認証情報を設定します。
-    firebase_settings_help: Firebase連携を設定します。
+    notifications_help: モバイルアプリにプッシュ通知を送信します。
+    env_settings_help: .env に保存する設定値を管理します。
     password_help: サインイン用のパスワードを変更します。
   header:
     search_placeholder: 商品を検索...

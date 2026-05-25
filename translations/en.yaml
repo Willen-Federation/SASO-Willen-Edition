@@ -115,7 +115,8 @@ ui:
     member: Members
     role: Roles
     ai_settings: AI settings
-    firebase_settings: Firebase
+    notifications: Push notifications
+    env_settings: ENV settings
     password: Password
     barcode_sheet: Create barcodes
     shelf_simple: Shelf setup
@@ -148,7 +149,8 @@ ui:
     flags_help: Turn optional features on or off.
     auth_providers_help: Configure external sign-in providers.
     ai_settings_help: Configure AI provider credentials.
-    firebase_settings_help: Configure Firebase integration.
+    notifications_help: Send push notifications to mobile apps.
+    env_settings_help: Manage values stored in the .env file.
     password_help: Change your sign-in credentials.
   header:
     search_placeholder: Search items...

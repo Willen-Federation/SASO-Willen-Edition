@@ -17,8 +17,8 @@
   "admin": {
     "auth-providers": "\\saso\\authExt\\ProvidersDIContainer",
     "ai-settings": "\\saso\\admin\\AiSettingsDIContainer",
-    "firebase-settings": "\\saso\\admin\\FirebaseSettingsDIContainer",
-    "env-settings": "\\saso\\admin\\EnvSettingsDIContainer"
+    "env-settings": "\\saso\\admin\\EnvSettingsDIContainer",
+    "notifications": "\\saso\\admin\\NotificationsDIContainer"
   },
   "auth": {
     "start": "\\saso\\auth\\AuthDIContainer",

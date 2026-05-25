@@ -59,6 +59,21 @@
       <p class="mt-1 text-sm text-gray-600 dark:text-gray-400"><?php echo $lang === 'ja' ? 'Firebaseコンソールから取得したプロジェクト設定を入力してください。' : 'Enter the project settings obtained from the Firebase console.'; ?></p>
     </div>
     <div class="p-6 space-y-4">
+
+      <!-- Config paste area -->
+      <div class="rounded border border-dashed border-brand-400 bg-brand-50 dark:bg-brand-900/10 p-4">
+        <label class="mb-2 block font-medium text-brand-700 dark:text-brand-400" for="firebase_config_paste">
+          <?php echo $lang === 'ja'
+            ? 'Firebaseコンソールのconfigをここにペーストすると、下のフィールドに自動入力されます'
+            : 'Paste Firebase console config here to auto-fill fields below'; ?>
+        </label>
+        <textarea id="firebase_config_paste" rows="7"
+          class="w-full rounded border border-gray-200 bg-white dark:bg-form-input dark:border-gray-700 py-2 px-3 font-mono text-xs outline-none transition focus:border-brand-500 resize-y"
+          placeholder="const firebaseConfig = {&#10;  apiKey: &quot;AIza...&quot;,&#10;  authDomain: &quot;my-project.firebaseapp.com&quot;,&#10;  projectId: &quot;my-project&quot;,&#10;  storageBucket: &quot;my-project.firebasestorage.app&quot;,&#10;  messagingSenderId: &quot;123456789&quot;,&#10;  appId: &quot;1:123456789:web:abc...&quot;&#10;};"></textarea>
+        <p id="firebase_paste_feedback" class="mt-1.5 hidden text-xs font-medium text-success"></p>
+        <p id="firebase_paste_error" class="mt-1.5 hidden text-xs font-medium text-error-500"></p>
+      </div>
+
       <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
         <div>
           <label class="mb-2.5 block font-medium text-black dark:text-white" for="firebase_project_id">
@@ -156,5 +171,75 @@
   </div>
 
 </form>
+
+<script>
+(function () {
+  var textarea = document.getElementById('firebase_config_paste');
+  var feedback = document.getElementById('firebase_paste_feedback');
+  var errorEl  = document.getElementById('firebase_paste_error');
+
+  var fieldMap = {
+    apiKey:            'firebase_api_key',
+    authDomain:        'firebase_auth_domain',
+    projectId:         'firebase_project_id',
+    storageBucket:     'firebase_storage_bucket',
+    messagingSenderId: 'firebase_messaging_sender_id',
+    appId:             'firebase_app_id',
+  };
+
+  function parseFirebaseConfig(text) {
+    // Strip line and block comments
+    text = text.replace(/\/\/[^\n]*/g, '').replace(/\/\*[\s\S]*?\*\//g, '');
+    var m = text.match(/\{[\s\S]*\}/);
+    if (!m) return null;
+    var obj = m[0];
+    // Quote unquoted JS object keys
+    obj = obj.replace(/([{,]\s*)([A-Za-z_$][A-Za-z0-9_$]*)(\s*:)/g, '$1"$2"$3');
+    // Remove trailing commas before closing brace/bracket
+    obj = obj.replace(/,(\s*[}\]])/g, '$1');
+    try { return JSON.parse(obj); } catch (e) { return null; }
+  }
+
+  function applyConfig(cfg) {
+    var filled = [];
+    Object.keys(fieldMap).forEach(function (key) {
+      if (cfg[key] == null) return;
+      var el = document.getElementById(fieldMap[key]);
+      if (!el) return;
+      el.value = cfg[key];
+      filled.push(key);
+    });
+    return filled;
+  }
+
+  textarea.addEventListener('input', function () {
+    var text = textarea.value.trim();
+    feedback.classList.add('hidden');
+    errorEl.classList.add('hidden');
+    if (!text) return;
+
+    var cfg = parseFirebaseConfig(text);
+    if (!cfg) {
+      errorEl.textContent = <?php echo json_encode($lang === 'ja'
+        ? 'Firebaseのconfigを認識できませんでした。Firebase コンソールからコピーしたテキストをそのまま貼り付けてください。'
+        : 'Could not parse Firebase config. Paste the snippet exactly as shown in the Firebase console.'); ?>;
+      errorEl.classList.remove('hidden');
+      return;
+    }
+
+    var filled = applyConfig(cfg);
+    if (filled.length === 0) {
+      errorEl.textContent = <?php echo json_encode($lang === 'ja'
+        ? 'Firebaseの設定値が見つかりませんでした。'
+        : 'No Firebase fields found in the pasted text.'); ?>;
+      errorEl.classList.remove('hidden');
+      return;
+    }
+
+    feedback.textContent = <?php echo json_encode($lang === 'ja' ? '自動入力しました: ' : 'Auto-filled: '); ?> + filled.join(', ');
+    feedback.classList.remove('hidden');
+  });
+})();
+</script>
 
 <?php }; ?>

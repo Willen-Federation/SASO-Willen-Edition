@@ -189,43 +189,67 @@
   <section class="rounded-sm border border-gray-200 bg-white shadow-default dark:border-gray-800 dark:bg-boxdark">
     <header class="border-b border-gray-200 px-6 py-4 dark:border-gray-800">
       <h3 class="font-semibold text-black dark:text-white">Firebase</h3>
+      <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
+        <?php echo $lang === 'ja'
+          ? 'Firebaseコンソールの「プロジェクトの設定」から取得した値を入力してください。'
+          : 'Enter values from Firebase console → Project settings.'; ?>
+      </p>
     </header>
-    <div class="p-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
-      <div>
-        <label class="mb-1.5 block text-sm font-medium" for="firebase_project_id">Project ID</label>
-        <input id="firebase_project_id" name="firebase_project_id"
-               value="<?php echo $h($settings['firebase.project_id'] ?? ''); ?>"
-               class="form-input w-full" placeholder="my-project-id">
+    <div class="p-6 space-y-4">
+      <!-- Client-side SDK config -->
+      <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <div>
+          <label class="mb-1.5 block text-sm font-medium" for="firebase_project_id">Project ID</label>
+          <input id="firebase_project_id" name="firebase_project_id"
+                 value="<?php echo $h($settings['firebase.project_id'] ?? ''); ?>"
+                 class="form-input w-full" placeholder="my-project-id">
+        </div>
+        <div>
+          <label class="mb-1.5 block text-sm font-medium" for="firebase_api_key">Web API Key</label>
+          <input id="firebase_api_key" name="firebase_api_key" type="password"
+                 placeholder="<?php echo ($settings['firebase.api_key'] ?? '') !== '' ? '••••••••' : 'AIza...'; ?>"
+                 class="form-input w-full">
+          <p class="mt-1 text-xs text-gray-500"><?php echo $lang === 'ja' ? '空欄の場合は現在の値を保持します。' : 'Leave blank to keep the current value.'; ?></p>
+        </div>
+        <div>
+          <label class="mb-1.5 block text-sm font-medium" for="firebase_auth_domain">Auth Domain</label>
+          <input id="firebase_auth_domain" name="firebase_auth_domain"
+                 value="<?php echo $h($settings['firebase.auth_domain'] ?? ''); ?>"
+                 class="form-input w-full" placeholder="my-project.firebaseapp.com">
+        </div>
+        <div>
+          <label class="mb-1.5 block text-sm font-medium" for="firebase_storage_bucket">Storage Bucket</label>
+          <input id="firebase_storage_bucket" name="firebase_storage_bucket"
+                 value="<?php echo $h($settings['firebase.storage_bucket'] ?? ''); ?>"
+                 class="form-input w-full" placeholder="my-project.appspot.com">
+        </div>
+        <div>
+          <label class="mb-1.5 block text-sm font-medium" for="firebase_messaging_sender_id">Messaging Sender ID</label>
+          <input id="firebase_messaging_sender_id" name="firebase_messaging_sender_id"
+                 value="<?php echo $h($settings['firebase.messaging_sender_id'] ?? ''); ?>"
+                 class="form-input w-full">
+        </div>
+        <div>
+          <label class="mb-1.5 block text-sm font-medium" for="firebase_app_id">App ID</label>
+          <input id="firebase_app_id" name="firebase_app_id"
+                 value="<?php echo $h($settings['firebase.app_id'] ?? ''); ?>"
+                 class="form-input w-full">
+        </div>
       </div>
-      <div>
-        <label class="mb-1.5 block text-sm font-medium" for="firebase_api_key">Web API Key</label>
-        <input id="firebase_api_key" name="firebase_api_key" type="password"
-               placeholder="<?php echo ($settings['firebase.api_key'] ?? '') !== '' ? '••••••••' : 'AIza...'; ?>"
-               class="form-input w-full">
-      </div>
-      <div>
-        <label class="mb-1.5 block text-sm font-medium" for="firebase_auth_domain">Auth Domain</label>
-        <input id="firebase_auth_domain" name="firebase_auth_domain"
-               value="<?php echo $h($settings['firebase.auth_domain'] ?? ''); ?>"
-               class="form-input w-full" placeholder="my-project.firebaseapp.com">
-      </div>
-      <div>
-        <label class="mb-1.5 block text-sm font-medium" for="firebase_storage_bucket">Storage Bucket</label>
-        <input id="firebase_storage_bucket" name="firebase_storage_bucket"
-               value="<?php echo $h($settings['firebase.storage_bucket'] ?? ''); ?>"
-               class="form-input w-full">
-      </div>
-      <div>
-        <label class="mb-1.5 block text-sm font-medium" for="firebase_messaging_sender_id">Messaging Sender ID</label>
-        <input id="firebase_messaging_sender_id" name="firebase_messaging_sender_id"
-               value="<?php echo $h($settings['firebase.messaging_sender_id'] ?? ''); ?>"
-               class="form-input w-full">
-      </div>
-      <div>
-        <label class="mb-1.5 block text-sm font-medium" for="firebase_app_id">App ID</label>
-        <input id="firebase_app_id" name="firebase_app_id"
-               value="<?php echo $h($settings['firebase.app_id'] ?? ''); ?>"
-               class="form-input w-full">
+
+      <!-- Server-side FCM credentials -->
+      <div class="pt-4 border-t border-gray-100 dark:border-gray-700">
+        <label class="mb-1.5 block text-sm font-medium" for="firebase_service_account_key">
+          <?php echo $lang === 'ja' ? 'サービスアカウントキー（FCM送信用）' : 'Service Account Key (for FCM push notifications)'; ?>
+        </label>
+        <textarea id="firebase_service_account_key" name="firebase_service_account_key" rows="6"
+                  class="form-input w-full font-mono text-xs resize-y"
+                  placeholder='{"type":"service_account","project_id":"...","private_key_id":"...","private_key":"-----BEGIN RSA PRIVATE KEY-----\n...","client_email":"firebase-adminsdk-xxx@xxx.iam.gserviceaccount.com",...}'><?php echo $h($settings['firebase.service_account_key'] ?? ''); ?></textarea>
+        <p class="mt-1 text-xs text-gray-500">
+          <?php echo $lang === 'ja'
+            ? 'Firebaseコンソール → プロジェクトの設定 → サービスアカウント → 「新しい秘密鍵の生成」でダウンロードしたJSONをそのまま貼り付けてください。APP_KEYで暗号化して保存されます。'
+            : 'Paste the full JSON from Firebase console → Project settings → Service accounts → "Generate new private key". Stored encrypted with APP_KEY.'; ?>
+        </p>
       </div>
     </div>
   </section>

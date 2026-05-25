@@ -426,13 +426,13 @@
       "matter": "admin",
       "action": "ai-settings"
     },
-    "firebase-settings": {
-      "matter": "admin",
-      "action": "firebase-settings"
-    },
     "env-settings": {
       "matter": "admin",
       "action": "env-settings"
+    },
+    "notifications": {
+      "matter": "admin",
+      "action": "notifications"
     }
   },
   "verify": {

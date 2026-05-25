@@ -165,6 +165,9 @@ final class EnvSettingsDIContainer implements DIContainer
         if (!empty($post['firebase_api_key'])) {
             $settingService->set(new SettingKey('firebase.api_key'), SettingValue::secret(trim((string) $post['firebase_api_key'])), $changedBy, $reason);
         }
+        if (!empty($post['firebase_service_account_key'])) {
+            $settingService->set(new SettingKey('firebase.service_account_key'), SettingValue::secret(trim((string) $post['firebase_service_account_key'])), $changedBy, $reason);
+        }
         return null;
     }
 
@@ -205,6 +208,7 @@ final class EnvSettingsDIContainer implements DIContainer
             'auth0.domain', 'auth0.clientId', 'auth0.clientSecret',
             'firebase.project_id', 'firebase.api_key', 'firebase.auth_domain',
             'firebase.storage_bucket', 'firebase.messaging_sender_id', 'firebase.app_id',
+            'firebase.service_account_key',
         ];
         $out = [];
         foreach ($keys as $key) {

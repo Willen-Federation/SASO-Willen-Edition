@@ -21,6 +21,7 @@ final class MyPageView implements View
     private string $apiDocsUrl = '';
     private string $openApiUrl = '';
     private array $defaultScopes = [];
+    private bool $isAdmin = false;
 
     public function display(): void
     {

@@ -24,6 +24,7 @@ final class MyPageOutput implements DTO
         private readonly string $apiDocsUrl = '',
         private readonly string $openApiUrl = '',
         private readonly array $defaultScopes = [],
+        private readonly bool $isAdmin = false,
     ) {
         $this->another = new EmptyIO();
     }
